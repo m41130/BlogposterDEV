@@ -1,0 +1,18 @@
+{
+  "SMTP": {
+    "active": false,
+    "config": {
+      "host": "smtp.myserver.com",
+      "port": 587,
+      "secure": false,
+      "user": "myuser",
+      "pass": "mypassword"
+    }
+  },
+  "Slack": {
+    "active": false,
+    "config": {
+      "webhookUrl": "https://hooks.slack.com/services/..."
+    }
+  }
+}
