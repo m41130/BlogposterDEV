@@ -1,3 +1,4 @@
+
 # BlogposterCMS 🚀  
 *A modular CMS built exactly how you want it.*
 
@@ -111,7 +112,9 @@ If you like BlogposterCMS, tell others about it or give us a star ⭐. Your supp
 
 ## Acknowledgments 🙏
 
-Special thanks to the open-source community and everyone who contributes to making the web simpler and more accessible.
+A huge thank-you to the incredible open-source community and everyone making the web simpler and more accessible.
+
+Special shout-out to **OpenAI and ChatGPT** for being a fantastic coding buddy and rubber duck. (I still wrote all the code myself, obviously—but shh 🤫.)
 
 ---
 
