@@ -2,6 +2,7 @@
 # BlogposterCMS 🚀  
 *A modular CMS built exactly how you want it.*
 
+**Version:** 0.1 – Developer Preview  
 **Release Date:** April 24, 2025  
 
 ---
