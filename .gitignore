@@ -1,6 +1,7 @@
 #not ready yet
 /modules
 /library
+/mother/modeMiddleware.js
 
 # Logs
 logs
