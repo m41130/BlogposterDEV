@@ -5,7 +5,6 @@
  * Handles:
  *   - Basic or advanced JWT checks (if needed)
  *   - Notification grouping or types
- *  yeah, this system is not finished yet
  */
 
 require('dotenv').config();
