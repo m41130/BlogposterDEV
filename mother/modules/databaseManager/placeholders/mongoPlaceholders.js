@@ -151,218 +151,399 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
     // PAGES MODULE
     // ─────────────────────────────────────────────────────────────────────────
     case 'INIT_PAGES_SCHEMA': {
-    // Create the 'pages' and 'page_translations' collections
-    await db.createCollection('pages').catch(() => {});
-    await db.createCollection('page_translations').catch(() => {});
-    return { done: true };
+      // Because in Mongo we don't have schemas like Postgres, we just create collections if needed.
+      await db.createCollection('pages').catch(() => {});
+      await db.createCollection('page_translations').catch(() => {});
+      return { done: true };
     }
-    
+  
+  
+    /**
+     *  2) Create or ensure indexes, approximating the logic in 'INIT_PAGES_TABLE'.
+     *     Add your "unique slug" constraint, "unique page_id & language" for translations, etc.
+     */
     case 'INIT_PAGES_TABLE': {
-    // Create unique indexes if needed
-    await db.collection('pages').createIndex({ slug: 1 }, { unique: true });
-    await db.collection('page_translations').createIndex({ page_id: 1, language: 1 }, { unique: true });
-    return { done: true };
+      await db.collection('pages').createIndex({ slug: 1 }, { unique: true });
+      // For "page_translations", we want (page_id, language) unique
+      await db.collection('page_translations')
+              .createIndex({ page_id: 1, language: 1 }, { unique: true });
+  
+      // If you like, you might also want an index on `parent_id` for quick child lookups:
+      await db.collection('pages').createIndex({ parent_id: 1 });
+  
+      return { done: true };
     }
-    
+  
+  
+    /**
+     *  3) Since we can’t literally 'ALTER TABLE', we approximate the Postgres approach:
+     *     - Add 'language' field if missing (default 'en')
+     *     - Add 'is_content' field if missing (default false)
+     *     - Add 'parent_id' field if missing
+     *     - Create unique partial index for (language) where is_start = true
+     */
     case 'CHECK_AND_ALTER_PAGES_TABLE': {
+      // Add language if it doesn’t exist
       await db.collection('pages').updateMany(
         { language: { $exists: false } },
-        { $set: { language: 'de' } }
+        { $set: { language: 'en' } }
       );
-    
-      // Unique‑Index (is_start + language)
+  
+      // Add is_content if it doesn’t exist
+      await db.collection('pages').updateMany(
+        { is_content: { $exists: false } },
+        { $set: { is_content: false } }
+      );
+  
+      // Add parent_id if it doesn’t exist (we’ll just ensure the field is at least there)
+      await db.collection('pages').updateMany(
+        { parent_id: { $exists: false } },
+        { $set: { parent_id: null } }
+      );
+  
+      // Unique Index (is_start + language)
       await db.collection('pages').createIndex(
-        { language: 1 },
+        { language: 1, is_start: 1 },
         { unique: true, partialFilterExpression: { is_start: true } }
       );
-    return { done: true };
+  
+      return { done: true };
     }
-    
+  
+  
+    /**
+     *  4) A separate 'ADD_PARENT_CHILD_RELATION' in Postgres does an ALTER. 
+     *     In Mongo, you can "simulate" it by making sure the field is present.
+     */
+    case 'ADD_PARENT_CHILD_RELATION': {
+      // No real "ALTER TABLE" is needed in Mongo,
+      // but let's ensure that we have a parent_id field for all docs.
+      await db.collection('pages').updateMany(
+        { parent_id: { $exists: false } },
+        { $set: { parent_id: null } }
+      );
+      return { done: true };
+    }
+  
+  
+    /**
+     *  5) Create a new page doc plus its translations:
+     *     Now includes parent_id and is_content, matching the Postgres logic.
+     */
     case 'CREATE_PAGE': {
       const p = Array.isArray(params) ? (params[0] || {}) : (params || {});
-      const { slug, status, seo_image, translations } = p;
-      
-      /* 1) main document*/
+      const {
+        slug,
+        status,
+        seo_image,
+        translations = [],
+        parent_id,
+        is_content
+      } = p;
+  
+      // 1) Insert main doc
       const page = await db.collection('pages').insertOne({
         slug,
-        status    : status || 'draft',
-        seo_image : seo_image || '',
-        is_start  : false,
-        created_at: new Date(),
-        updated_at: new Date()
+        status     : status || 'draft',
+        seo_image  : seo_image || '',
+        is_start   : false,
+        parent_id  : parent_id ? new ObjectId(parent_id) : null,
+        is_content : !!is_content,
+        created_at : new Date(),
+        updated_at : new Date(),
+        // “language” can remain at the default 'en' if you want,
+        // but you might override it here if you choose.
+        language: 'en', 
       });
-    
-      /* 2) translations */
+  
+      // 2) Insert translations
       const translationDocs = translations.map(t => ({
-        page_id      : page.insertedId,
-        language     : t.language,
-        title        : t.title,
-        html         : t.html,
-        css          : t.css,
-        meta_desc    : t.metaDesc,
-        seo_title    : t.seoTitle,
-        seo_keywords : t.seoKeywords,
-        created_at   : new Date(),
-        updated_at   : new Date()
+        page_id     : page.insertedId,
+        language    : t.language,
+        title       : t.title,
+        html        : t.html,
+        css         : t.css,
+        meta_desc   : t.metaDesc,
+        seo_title   : t.seoTitle,
+        seo_keywords: t.seoKeywords,
+        created_at  : new Date(),
+        updated_at  : new Date()
       }));
-      await db.collection('page_translations').insertMany(translationDocs);    
+      await db.collection('page_translations').insertMany(translationDocs);
+  
       return { done: true, insertedId: page.insertedId };
     }
-    
+  
+  
+    /**
+     *  6) Get child pages, matching the 'GET_CHILD_PAGES' in Postgres.
+     *     We just query for pages with the given parent_id.
+     */
+    case 'GET_CHILD_PAGES': {
+      const parentId = params[0];
+      const childPages = await db.collection('pages')
+                                .find({ parent_id: new ObjectId(parentId) })
+                                .sort({ created_at: -1 })
+                                .toArray();
+      return childPages;
+    }
+  
+  
+    /**
+     *  7) Return all pages, just like the Postgres version’s 'GET_ALL_PAGES'.
+     */
     case 'GET_ALL_PAGES': {
-    const allPages = await db.collection('pages').find({}).sort({ _id: -1 }).toArray();
-    return allPages;
+      const allPages = await db.collection('pages')
+                              .find({})
+                              .sort({ _id: -1 })
+                              .toArray();
+      return allPages;
     }
-    
+  
+  
+    /**
+     *  8) Get a page by ID + optional language. We also retrieve the matching translation.
+     */
     case 'GET_PAGE_BY_ID': {
-    const pageId = params[0];
-    const lang = params[1] || 'en';
-    
-    const page = await db.collection('pages').findOne({ _id: new ObjectId(pageId) });
-    if (!page) return null;
-    
-    const translation = await db.collection('page_translations').findOne({
-        page_id: page._id,
-        language: lang
-    });
-    
-    return { ...page, translation };
-    }
-    
-
-
-    case 'GET_PAGE_BY_SLUG': {
-    const slug = params[0];
-    const lang = params[1] || 'en';
-    
-    const page = await db.collection('pages').findOne({ slug });
-    if (!page) return null;
-    
-    const translation = await db.collection('page_translations').findOne({
-        page_id: page._id,
-        language: lang
-    });
-    
-    return { ...page, translation };
-    }
-    
-    case 'UPDATE_PAGE': {
-    const { pageId, slug, status, seo_image, translations } = params;
-    
-    // 1) Update the main page
-    await db.collection('pages').updateOne(
-        { _id: new ObjectId(pageId) },
-        { $set: { slug, status, seo_image, updated_at: new Date() } }
-    );
-    
-    // 2) Upsert all translations
-    for (const t of translations) {
-        await db.collection('page_translations').updateOne(
-        { page_id: new ObjectId(pageId), language: t.language },
-        {
-            $set: {
-            title: t.title,
-            html: t.html,
-            css: t.css,
-            meta_desc: t.metaDesc,
-            seo_title: t.seoTitle,
-            seo_keywords: t.seoKeywords,
-            updated_at: new Date()
-            }
-        },
-        { upsert: true }
-        );
-    }
-    
-    return { done: true };
-    }
-    
-    case 'SET_AS_SUBPAGE': {
-        const { parentPageId, childPageId } = params;
-        await db.collection('pages').updateOne(
-          { _id: new ObjectId(childPageId) },
-          { $set: { parent_id: new ObjectId(parentPageId) } }
-        );
-        return { done: true };
-      }
-
-      
-    case 'ASSIGN_PAGE_TO_POSTTYPE': {
-        const { pageId, postTypeId } = params;
-        // z.B. in "page_posttype_rel" Collection
-        await db.collection('page_posttype_rel').updateOne(
-          { page_id: new ObjectId(pageId), posttype_id: new ObjectId(postTypeId) },
-          { $setOnInsert: { created_at: new Date() } },
-          { upsert: true }
-        );
-    return { done: true };
-    }
-
-    case 'GET_START_PAGE': {
-      // params = [ language? ]
-      const lang = (Array.isArray(params) && params[0]) ? params[0].toLowerCase() : 'de';
-    
-      const page = await db.collection('pages').findOne({ is_start: true, language: lang });
+      const pageId = params[0];
+      const lang = params[1] || 'en';
+  
+      const page = await db.collection('pages')
+                           .findOne({ _id: new ObjectId(pageId) });
       if (!page) return null;
-    
+  
       const translation = await db.collection('page_translations')
-                                  .findOne({ page_id: page._id, language: lang });
-    
+                                  .findOne({
+                                    page_id : page._id,
+                                    language: lang
+                                  });
+  
       return { ...page, translation };
     }
-
-    case 'GENERATE_XML_SITEMAP':{
-    const pages = await db.collection('pages')
-                        .find({ status: 'published' })
-                        .project({ slug: 1, updated_at: 1, is_start:1 })
-                        .sort({ _id: 1 })
-                        .toArray();
-
-         const xml = buildSitemap(pages);   
-    return xml;
-    }     
-
-    case 'DELETE_PAGE': {
-    const pageId = params[0];
-    
-    await db.collection('pages').deleteOne({ _id: new ObjectId(pageId) });
-    await db.collection('page_translations').deleteMany({ page_id: new ObjectId(pageId) });
-    return { done: true };
+  
+  
+    /**
+     *  9) Get a page by slug + optional language, with translation included. 
+     */
+    case 'GET_PAGE_BY_SLUG': {
+      const slug = params[0];
+      const lang = params[1] || 'en';
+  
+      const page = await db.collection('pages')
+                           .findOne({ slug });
+      if (!page) return null;
+  
+      const translation = await db.collection('page_translations')
+                                  .findOne({
+                                    page_id : page._id,
+                                    language: lang
+                                  });
+  
+      return { ...page, translation };
     }
-    
-    case 'SET_AS_START': {
-      const data = params[0] || {};
-      const pageId   = data.pageId;
-      const language = (data.language || 'de').toLowerCase();
-    
-      if (!pageId) throw new Error('pageId required for SET_AS_START');
-    
-      await db.collection('pages').updateMany(
-        { language },                 
-        { $set: { is_start: false } }
-      );
-    
+  
+  
+    /**
+     * 10) Update page fields, including new fields parent_id, is_content, plus translations.
+     *     We "upsert" translations if not present, just like in Postgres.
+     */
+    case 'UPDATE_PAGE': {
+      const {
+        pageId,
+        slug,
+        status,
+        seo_image,
+        translations = [],
+        parent_id,
+        is_content
+      } = params;
+  
+      // 1) Update the main page
       await db.collection('pages').updateOne(
         { _id: new ObjectId(pageId) },
         {
           $set: {
-            is_start: true,
-            language,                  
+            slug,
+            status,
+            seo_image,
+            parent_id : parent_id ? new ObjectId(parent_id) : null,
+            is_content: !!is_content,
             updated_at: new Date()
           }
         }
       );
-     
-      await db.collection('pages')
-              .createIndex(
-                { language: 1, is_start: 1 },
-                { unique: true, partialFilterExpression: { is_start: true } }
-              )
-              .catch(() => {});       
-
+  
+      // 2) Upsert translations
+      for (const t of translations) {
+        await db.collection('page_translations').updateOne(
+          {
+            page_id : new ObjectId(pageId),
+            language: t.language
+          },
+          {
+            $set: {
+              title       : t.title,
+              html        : t.html,
+              css         : t.css,
+              meta_desc   : t.metaDesc,
+              seo_title   : t.seoTitle,
+              seo_keywords: t.seoKeywords,
+              updated_at  : new Date()
+            }
+          },
+          { upsert: true }
+        );
+      }
+  
       return { done: true };
-    }   
-
+    }
+  
+  
+    /**
+     * 11) Sets a page as a sub-page (the older snippet had 'SET_AS_SUBPAGE'),
+     *     but we can keep it around. This might be overshadowed by the new parent_id usage.
+     */
+    case 'SET_AS_SUBPAGE': {
+      const { parentPageId, childPageId } = params;
+      await db.collection('pages').updateOne(
+        { _id: new ObjectId(childPageId) },
+        { $set: { parent_id: new ObjectId(parentPageId) } }
+      );
+      return { done: true };
+    }
+  
+  
+    /**
+     * 12) Assign page to "postType" (left in from your old snippet).
+     *     We’ll keep it for completeness.
+     */
+    case 'ASSIGN_PAGE_TO_POSTTYPE': {
+      const { pageId, postTypeId } = params;
+      await db.collection('page_posttype_rel').updateOne(
+        {
+          page_id   : new ObjectId(pageId),
+          posttype_id: new ObjectId(postTypeId)
+        },
+        { $setOnInsert: { created_at: new Date() } },
+        { upsert: true }
+      );
+      return { done: true };
+    }
+  
+  
+    /**
+     * 13) Check if the page is published before setting as start page, 
+     *     just like the fancy Postgres version. We’ll also do a transaction 
+     *     if you have Mongo replica sets. If not, you can just do them in sequence.
+     */
+    case 'SET_AS_START': {
+      const data = params[0] || {};
+      const pageId = data.pageId;
+      const language = (data.language || 'de').toLowerCase();
+  
+      if (!pageId) throw new Error('pageId required for SET_AS_START');
+  
+      // 1) Check page existence + status
+      const page = await db.collection('pages').findOne({ _id: new ObjectId(pageId) });
+      if (!page) throw new Error('Page not found');
+      if (page.status !== 'published') {
+        throw new Error('Only published pages can be set as the start page');
+      }
+  
+      // 2) Possibly use a transaction
+      const session = client.startSession();
+      try {
+        session.startTransaction();
+  
+        // Clear existing start page for this language
+        await db.collection('pages').updateMany(
+          { is_start: true, language },
+          { $set: { is_start: false } },
+          { session }
+        );
+  
+        // Set the new start page
+        await db.collection('pages').updateOne(
+          { _id: new ObjectId(pageId) },
+          {
+            $set: {
+              is_start  : true,
+              language,
+              updated_at: new Date()
+            }
+          },
+          { session }
+        );
+  
+        await session.commitTransaction();
+      } catch (e) {
+        await session.abortTransaction();
+        throw e;
+      } finally {
+        session.endSession();
+      }
+  
+      // 3) Re-create the partial unique index if needed
+      await db.collection('pages').createIndex(
+        { language: 1, is_start: 1 },
+        {
+          unique: true,
+          partialFilterExpression: { is_start: true }
+        }
+      ).catch(() => {});
+  
+      return { done: true };
+    }
+  
+  
+    /**
+     * 14) Get the start page for a given language, similar to 'GET_START_PAGE' in Postgres.
+     */
+    case 'GET_START_PAGE': {
+      const lang = (Array.isArray(params) && typeof params[0] === 'string')
+        ? params[0].toLowerCase()
+        : 'de';
+  
+      const page = await db.collection('pages')
+                           .findOne({ is_start: true, language: lang });
+      if (!page) return null;
+  
+      const translation = await db.collection('page_translations')
+                                  .findOne({
+                                    page_id : page._id,
+                                    language: lang
+                                  });
+  
+      return { ...page, translation };
+    }
+  
+  
+    /**
+     * 15) Generate an XML sitemap for published pages, just like Postgres version.
+     *     We assume you have some 'buildSitemap' function somewhere. 
+     */
+    case 'GENERATE_XML_SITEMAP': {
+      const pages = await db.collection('pages')
+                            .find({ status: 'published' })
+                            .project({ slug: 1, updated_at: 1, is_start: 1 })
+                            .sort({ _id: 1 })
+                            .toArray();
+  
+      const xml = buildSitemap(pages);
+      return xml;
+    }
+  
+  
+    /**
+     * 16) Delete page and its translations. 
+     */
+    case 'DELETE_PAGE': {
+      const pageId = params[0];
+  
+      await db.collection('pages').deleteOne({ _id: new ObjectId(pageId) });
+      await db.collection('page_translations').deleteMany({ page_id: new ObjectId(pageId) });
+      return { done: true };
+    }
     // ─────────────────────────────────────────────────────────────────────────
     // MODULE LOADER
     // ─────────────────────────────────────────────────────────────────────────

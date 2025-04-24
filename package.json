@@ -11,7 +11,6 @@
         "axios": "^1.7.7",
         "bcrypt": "^5.1.1",
         "bcryptjs": "^2.4.3",
-<<<<<<< HEAD
         "cookie-parser": "^1.4.7",
         "csurf": "^1.2.2",
         "dotenv": "^16.4.7",
@@ -21,21 +20,6 @@
         "helmet": "^8.0.0",
         "jsonwebtoken": "^9.0.2",
         "mongodb": "^6.10.0",
-=======
-        "chalk": "^5.4.1",
-        "cookie-parser": "^1.4.7",
-        "csurf": "^1.2.2",
-        "dotenv": "^16.4.7",
-        "ejs": "^3.1.10",
-        "express": "^4.21.1",
-        "express-rate-limit": "^7.5.0",
-        "express-validator": "^7.2.0",
-        "grapesjs-preset-webpage": "^1.0.3",
-        "helmet": "^8.0.0",
-        "jsonwebtoken": "^9.0.2",
-        "mongodb": "^6.10.0",
-        "openai": "^4.93.0",
->>>>>>> e9d77b4 (Update)
         "pg": "^8.13.1",
         "uuid": "^11.0.3",
         "vm2": "^3.9.19"
