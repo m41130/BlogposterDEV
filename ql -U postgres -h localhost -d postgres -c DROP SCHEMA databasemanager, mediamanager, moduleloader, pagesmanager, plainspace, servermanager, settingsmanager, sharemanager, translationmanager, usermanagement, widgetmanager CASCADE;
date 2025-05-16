@@ -1,0 +1,17 @@
+        List of schemas
+        Name        |  Owner   
+--------------------+----------
+ databasemanager    | postgres
+ mediamanager       | postgres
+ moduleloader       | postgres
+ pagesmanager       | postgres
+ plainspace         | postgres
+ public             | postgres
+ servermanager      | postgres
+ settingsmanager    | postgres
+ sharemanager       | postgres
+ translationmanager | postgres
+ usermanagement     | postgres
+ widgetmanager      | postgres
+(12 rows)
+

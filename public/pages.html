@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Manage Public Pages</title>
+  <link rel="stylesheet" href="/assets/css/gridstack.min.css" />
+</head>
+<body>
+  <div class="container" style="padding:1rem;">
+    <h1>Public Pages</h1>
+    <button id="newPageBtn">+ New Page</button>
+    <div id="pagePickerGrid" class="grid-stack" style="margin-top:1rem;"></div>
+  </div>
+
+  <!-- GridStack bundle -->
+  <script src="/assets/js/gridstack.all.js"></script>
+  <!-- meltdownEmitter sets window.meltdownEmit -->
+  <script src="/assets/js/meltdownEmitter.js"></script>
+  <!-- Your ES-module picker -->
+  <script type="module" src="/assets/plainSpace/admin/pagePicker.js"></script>
+</body>
+</html>

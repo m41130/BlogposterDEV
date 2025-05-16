@@ -1,0 +1,136 @@
+// mother/modules/plainSpace/index.js
+// This is our proud aggregator of meltdown madness.
+
+require('dotenv').config();
+
+const {
+  seedAdminPages,
+  checkOrCreateWidget,
+  registerPlainSpaceEvents,
+  MODULE,
+  PUBLIC_LANE,
+  ADMIN_LANE
+} = require('./plainSpaceService');
+
+const { ADMIN_PAGES }       = require('./config/adminPages');
+const { DEFAULT_WIDGETS }   = require('./config/defaultWidgets');
+const { getSetting, setSetting } = require('./settingHelpers');
+const { onceCallback }      = require('../../emitters/motherEmitter');
+
+module.exports = {
+  async initialize({ motherEmitter, isCore, jwt }) {
+    if (!isCore) {
+      console.warn('[plainSpace] isCore=false – continuing, but this is unexpected.');
+    }
+    if (!jwt) {
+      console.error('[plainSpace] No JWT => meltdown DB calls not possible. Aborting.');
+      return;
+    }
+
+    console.log('[plainSpace] Initializing...');
+
+    try {
+      // 1) Check if PLAINSPACE_SEEDED is already 'true'
+      const seededVal = await getSetting(motherEmitter, jwt, 'PLAINSPACE_SEEDED');
+      if (seededVal === 'true') {
+        console.log('[plainSpace] Already seeded (PLAINSPACE_SEEDED=true). Skipping seeds.');
+      } else {
+        console.log('[plainSpace] Not seeded => running seed steps...');
+
+        // A) Seed admin pages, if they’re not found
+        if (isCore && jwt) {
+          await seedAdminPages(motherEmitter, jwt, ADMIN_PAGES);
+        }
+
+        // B) Seed default widgets
+        for (const widgetData of DEFAULT_WIDGETS) {
+          await checkOrCreateWidget(motherEmitter, jwt, widgetData);
+        }
+        console.log('[plainSpace] Admin pages & widgets have been seeded.');
+
+        // C) Mark as seeded
+        await setSetting(motherEmitter, jwt, 'PLAINSPACE_SEEDED', 'true');
+        console.log('[plainSpace] Set "PLAINSPACE_SEEDED"=true => no more seeds next time.');
+      }
+
+      // 2) Register meltdown events for multi-viewport layouts
+      registerPlainSpaceEvents(motherEmitter);
+
+      // 3) Issue a public token for front-end usage (why not?)
+      motherEmitter.emit(
+        'issuePublicToken',
+        { purpose: 'plainspacePublic', moduleName: 'auth' },
+        (err, token) => {
+          if (err || !token) {
+            console.error('[plainSpace] Could not issue publicToken =>', err?.message);
+          } else {
+            global.plainspacePublicToken = token;
+            console.log('[plainSpace] Public token for multi-viewport usage is ready ✔');
+          }
+        }
+      );
+
+      // 4) Ensure DB table for storing layouts (if that’s a separate table)
+      motherEmitter.emit(
+        'dbUpdate',
+        {
+          jwt,
+          moduleName: MODULE,
+          moduleType: 'core',
+          table: '__rawSQL__',
+          data: { rawSQL: 'INIT_PLAINSPACE_LAYOUTS' }
+        },
+        (err) => {
+          if (err) {
+            console.error('[plainSpace] Could not create "plainspace.layouts" table:', err.message);
+          } else {
+            console.log('[plainSpace] "plainspace.layouts" table creation ensured.');
+          }
+        }
+      );
+
+      // 5) Listen for widget registry requests
+      motherEmitter.on('widget.registry.request.v1', (payload, callback) => {
+        const { jwt, lane } = payload || {};
+
+        // Only handle public or admin lanes
+        if (![PUBLIC_LANE, ADMIN_LANE].includes(lane)) {
+          return callback(null, { widgets: [] });
+        }
+
+        motherEmitter.emit(
+          'getWidgets',
+          {
+            jwt,
+            moduleName: 'widgetManager',
+            moduleType: 'core',
+            widgetType: lane
+          },
+          (err2, rows = []) => {
+            if (err2) {
+              console.error('[plainSpace] getWidgets error =>', err2.message);
+              // Return an empty list so UI doesn’t combust
+              return callback(null, { widgets: [] });
+            }
+            // Transform DB rows to the UI’s expected format
+            const widgets = rows.map((r) => ({
+              id: r.widgetid,
+              lane,
+              codeUrl: r.content,
+              checksum: '',
+              metadata: {
+                label: r.label,
+                category: r.category
+              }
+            }));
+            callback(null, { widgets });
+          }
+        );
+      });
+
+      console.log('[plainSpace] Initialization complete!');
+    } catch (err) {
+      console.error('[plainSpace] Initialization error:', err.message);
+    }
+  }
+};
