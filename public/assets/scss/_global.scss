@@ -1,0 +1,33 @@
+/* =============================================================================
+   Global Styles (ohne Login-spezifischen Kram)
+   ============================================================================= */
+
+  
+  /* Basic Text Styles */
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-heading);
+    margin: 0 0 16px;
+    color: var(--color-text);
+  }
+  
+  h1 {
+    font-size: 36px;
+    font-weight: 700;
+  }
+  
+  h2 {
+    font-size: 28px;
+    font-weight: 600;
+  }
+  
+  h3 {
+    font-size: 24px;
+    font-weight: 600;
+  }
+  
+  p {
+    margin: 0 0 16px;
+  }
+  

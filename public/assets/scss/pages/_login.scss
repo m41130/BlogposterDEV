@@ -1,0 +1,134 @@
+/* =============================================================================
+   Login Page-Spezifisches Zeug
+   ============================================================================= */
+
+   .app-scope.login-page {
+    background-color: var(--color-bg);
+    background: url('/assets/images/bg-bars-bottom-right.svg')
+      center center / cover no-repeat fixed;
+    background-size: cover;
+  
+    &::before {
+      content: '';
+      position: fixed; // bleibt beim Scrollen fixiert
+      bottom: 0;
+      right: 0;
+      width: 400px; // SVG Breite
+      height: 300px; // SVG Höhe
+      background: url('/assets/images/bg-bars-fixed-corner.svg') no-repeat bottom right;
+      background-size: contain; // behält Größe exakt bei
+      opacity: 0.9;
+      z-index: -2;
+    }
+  
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-color: rgba(255, 255, 255, 0.5);
+      z-index: -1; // liegt über dem Bild, aber unter dem Formular
+    }
+  }
+  
+  /* Und falls du hier noch spezielle Styles nur für das Login-Form hast,
+     könntest du das hier oder in einer eigenen Datei definieren. */
+     .branding-top-left {
+      position: absolute;
+      left: 20px;
+      font-family: var(--font-heading);
+      font-size: 21px;
+      z-index: 1;
+      opacity: 0.6;
+    }
+
+
+/* =============================================================================
+   Login Form Style
+   ============================================================================= */
+
+   .login-form {
+    position: relative;
+    z-index: 1; // immer vorne
+    width: 100%;
+    max-width: 400px;
+    padding: 32px;
+    border-radius: 8px;
+    background-color: var(--color-secondary-light);
+    box-shadow: var(--shadow-card);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  
+    .cms-title {
+      font-family: var(--font-heading);
+      font-size: 22px;
+      color: #666;
+      margin-bottom: 24px;
+      text-align: center;
+      letter-spacing: 0.5px;
+      opacity: 0.8;
+    }
+  
+    .logo {
+      width: 180px;
+      height: auto;
+      margin: 32px auto 16px;
+    }
+  
+    form {
+      width: 100%;
+    }
+  
+    .field {
+      width: 100%;
+      margin-bottom: 1rem;
+      position: relative;
+  
+      input {
+        padding: 1.5rem 0.75rem 0.5rem;
+      }
+  
+      label {
+        position: absolute;
+        left: 0.75rem;
+        top: 1rem;
+        font-size: 1rem;
+        color: #888;
+        pointer-events: none;
+        transition: all 0.2s ease;
+      }
+  
+      input:focus + label,
+      input:not(:placeholder-shown) + label {
+        top: 0.25rem;
+        font-size: 0.75rem;
+        color: var(--gradient-primary);
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        caret-color: #333333;
+      }
+    }
+  
+    .button {
+      width: 100%;
+    }
+  }
+  
+  /* =============================================================================
+     Beispiel Login-Page (rudimentär)
+     ============================================================================= */
+  
+  .login-page {
+    // Stell dir vor, das ist eine eigene Page
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; // Fullscreen
+    background-color: var(--color-bg);
+  
+    .login-container {
+      @extend .login-form; // Wiederverwendung des Login-Form-Styles
+    }
+  }
+  

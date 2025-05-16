@@ -1,0 +1,48 @@
+/* =============================================================================
+   Buttons
+   ============================================================================= */
+
+   .app-scope {
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 32px;
+      border: none;
+      border-radius: 18px; // Pill-Shape
+      background: var(--gradient-primary);
+      color: var(--color-white);
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.533);
+      position: relative;
+      overflow: hidden;
+      opacity: 0.8;
+  
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        height: 100%;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.2);
+        transform: skewX(-45deg);
+        transition: left 0.5s ease;
+      }
+  
+      &:hover {
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        transform: translateY(-2px);
+  
+        &::before {
+          left: 200%;
+        }
+      }
+    }
+  }
+  
