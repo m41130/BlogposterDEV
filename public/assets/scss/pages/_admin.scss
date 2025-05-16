@@ -1,0 +1,5 @@
+.main-content {
+  display: flex;
+  flex-direction: row;  // jetzt nebeneinander statt untereinander   
+  gap: 16px;            // optionaler Abstand zwischen den Spalten
+}

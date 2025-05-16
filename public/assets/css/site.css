@@ -41,7 +41,7 @@
 /* =============================================================================
    Login Form Style
    ============================================================================= */
-.login-form, .login-page .login-container {
+.login-form {
   position: relative;
   z-index: 1;
   width: 100%;
@@ -54,7 +54,7 @@
   flex-direction: column;
   align-items: center;
 }
-.login-form .cms-title, .login-page .login-container .cms-title {
+.login-form .cms-title {
   font-family: var(--font-heading);
   font-size: 22px;
   color: #666;
@@ -63,23 +63,23 @@
   letter-spacing: 0.5px;
   opacity: 0.8;
 }
-.login-form .logo, .login-page .login-container .logo {
+.login-form .logo {
   width: 180px;
   height: auto;
   margin: 32px auto 16px;
 }
-.login-form form, .login-page .login-container form {
+.login-form form {
   width: 100%;
 }
-.login-form .field, .login-page .login-container .field {
+.login-form .field {
   width: 100%;
   margin-bottom: 1rem;
   position: relative;
 }
-.login-form .field input, .login-page .login-container .field input {
+.login-form .field input {
   padding: 1.5rem 0.75rem 0.5rem;
 }
-.login-form .field label, .login-page .login-container .field label {
+.login-form .field label {
   position: absolute;
   left: 0.75rem;
   top: 1rem;
@@ -88,7 +88,7 @@
   pointer-events: none;
   transition: all 0.2s ease;
 }
-.login-form .field input:not(:-moz-placeholder-shown) + label, .login-page .login-container .field input:not(:-moz-placeholder-shown) + label {
+.login-form .field input:not(:-moz-placeholder-shown) + label {
   top: 0.25rem;
   font-size: 0.75rem;
   color: var(--gradient-primary);
@@ -97,9 +97,8 @@
   -webkit-text-fill-color: transparent;
   caret-color: #333333;
 }
-.login-form .field input:focus + label, .login-page .login-container .field input:focus + label,
-.login-form .field input:not(:placeholder-shown) + label,
-.login-page .login-container .field input:not(:placeholder-shown) + label {
+.login-form .field input:focus + label,
+.login-form .field input:not(:placeholder-shown) + label {
   top: 0.25rem;
   font-size: 0.75rem;
   color: var(--gradient-primary);
@@ -108,7 +107,7 @@
   -webkit-text-fill-color: transparent;
   caret-color: #333333;
 }
-.login-form .button, .login-page .login-container .button {
+.login-form .button {
   width: 100%;
 }
 
@@ -122,6 +121,13 @@
   height: 100vh;
   background-color: var(--color-bg);
 }
+
+.main-content {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+}
+
 /* =============================================================================
    Fonts
    ============================================================================= */
@@ -170,6 +176,12 @@
 /* =============================================================================
    Global Styles (ohne Login-spezifischen Kram)
    ============================================================================= */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 /* Basic Text Styles */
 h1,
 h2,
@@ -336,27 +348,118 @@ p {
   padding: 8px;
 }
 
-.sidebar {
-  flex-direction: column;
-  border-right: 1px solid #eee;
-  height: 100%;
-}
-
-.sidebar-nav {
-  width: 100%;
-}
-
-.sidebar-nav a:hover,
-.nav-icons a:hover {
-  background-color: #f4f4f4;
-}
-
 /* =============================================================================
    Responsive Anpassungen
    ============================================================================= */
 @media (max-width: 500px) {
-  .app-scope .login-form, .app-scope .login-page .login-container, .login-page .app-scope .login-container {
+  .app-scope .login-form {
     padding: 24px;
     margin: 0 16px;
   }
+}
+/* =============================================================================
+   components/_sidebar-bubble.scss — Bubble-Style Sidebar
+   ============================================================================= */
+.sidebar {
+  left: 0;
+  height: 100vh;
+  width: 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 16px 0;
+  z-index: 10;
+}
+.sidebar .sidebar-nav {
+  width: 100%;
+}
+.sidebar .sidebar-nav .sidebar-item {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  margin: 8px 0;
+}
+.sidebar .sidebar-nav .sidebar-item .icon {
+  width: 24px;
+  height: 24px;
+  display: block;
+  margin: auto;
+  fill: var(--color-text);
+  transition: fill 0.2s ease;
+}
+.sidebar .sidebar-nav .sidebar-item .label {
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  transform: translateY(-50%) translateX(0) scale(0.8);
+  transform-origin: left center;
+  background: var(--color-white);
+  padding: 4px 8px;
+  border-radius: 4px;
+  box-shadow: var(--shadow-card);
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-text);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+}
+.sidebar .sidebar-nav .sidebar-item:hover {
+  background: var(--gradient-primary);
+  border-radius: 999px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+.sidebar .sidebar-nav .sidebar-item:hover .icon {
+  fill: var(--color-white);
+}
+.sidebar .sidebar-nav .sidebar-item:hover .label {
+  opacity: 1;
+  transform: translateY(-50%) translateX(8px) scale(1);
+}
+
+/* =============================================================================
+   components/_header-main.scss — Icon‐Style Header Nav
+   ============================================================================= */
+.main-header {
+  display: flex;
+  align-items: center;
+  padding: 30px 25px;
+  background: var(--color-white);
+}
+.main-header .site-title {
+  flex-grow: 1;
+  font-family: var(--font-heading);
+  font-size: 30px;
+  margin: 0;
+  color: var(--color-text);
+}
+.main-header .nav-icons {
+  display: flex;
+  gap: 12px;
+}
+.main-header .nav-icons a {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-text);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.main-header .nav-icons a .icon {
+  width: 20px;
+  height: 20px;
+  fill: var(--color-primary);
+  transition: fill 0.2s ease;
+}
+.main-header .nav-icons a:hover {
+  background: var(--gradient-primary);
+  color: var(--color-white);
+}
+.main-header .nav-icons a:hover .icon {
+  fill: var(--color-white);
 }/*# sourceMappingURL=site.css.map */

@@ -1,0 +1,66 @@
+/* =============================================================================
+   components/_sidebar-bubble.scss — Bubble-Style Sidebar
+   ============================================================================= */
+.sidebar {
+ 
+  left: 0;
+  height: 100vh;
+  width: 64px;               // schmale Sidebar
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 16px 0;
+  z-index: 10;
+
+  .sidebar-nav {
+    width: 100%;
+
+    .sidebar-item {
+      position: relative;
+      width: 48px;
+      height: 48px;
+      margin: 8px 0;
+
+      .icon {
+        width: 24px;
+        height: 24px;
+        display: block;
+        margin: auto;
+        fill: var(--color-text);
+        transition: fill 0.2s ease;
+      }
+
+      .label {
+        position: absolute;
+        top: 50%;
+        left: 100%;
+        transform: translateY(-50%) translateX(0) scale(0.8);
+        transform-origin: left center;
+        background: var(--color-white);
+        padding: 4px 8px;
+        border-radius: 4px;
+        box-shadow: var(--shadow-card);
+        font-family: var(--font-body);
+        font-size: 14px;
+        color: var(--color-text);
+        white-space: nowrap;
+        opacity: 0;
+        transition: opacity 0.2s ease, transform 0.2s ease;
+        pointer-events: none;
+      }
+
+      &:hover {
+        .icon {
+          fill: var(--color-white);
+        }
+        .label {
+          opacity: 1;
+          transform: translateY(-50%) translateX(8px) scale(1);
+        }
+        background: var(--gradient-primary);
+        border-radius: 999px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      }
+    }
+  }
+}

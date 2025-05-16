@@ -1,0 +1,49 @@
+/* =============================================================================
+   components/_top-header.scss — Clean Header mit Icons und zentriertem Logo
+   ============================================================================= */
+
+.top-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 24px;
+  background: var(--color-white);
+  border-bottom: 1px solid #eee;
+  min-height: 56px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+
+  .left-icons,
+  .right-icons {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .icon {
+    width: 22px;
+    height: 22px;
+    fill: var(--color-text);
+    opacity: 0.8;
+    cursor: pointer;
+    transition: fill 0.2s, opacity 0.2s, transform 0.12s;
+    &:hover {
+      fill: #FF00FF; // optional: oder var(--color-primary) für Branding
+      opacity: 1;
+      transform: scale(1.12);
+    }
+  }
+
+  .logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    margin: 0 24px;
+    min-width: 80px;
+    .logo-icon {
+      width: auto;
+      height: 34px;
+      display: block;
+    }
+  }
+}

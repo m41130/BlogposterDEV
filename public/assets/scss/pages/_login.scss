@@ -127,8 +127,6 @@
     height: 100vh; // Fullscreen
     background-color: var(--color-bg);
   
-    .login-container {
-      @extend .login-form; // Wiederverwendung des Login-Form-Styles
-    }
+
   }
   
