@@ -1,13 +1,32 @@
+/**
+ * mother/modules/widgetManager/index.js
+ *
+ * Manages widget creation, retrieval, updates, and deletions 
+ * in two separate tables:
+ *   - widgets_public
+ *   - widgets_admin
+ *
+ * Because meltdown demands all sorts of events, we provide:
+ *   - createWidget
+ *   - getWidgets
+ *   - updateWidget
+ *   - deleteWidget
+ *   - saveLayout.v1 (for drag/drop ordering)
+ *
+ * We'll pick the correct table based on widgetType="public" | "admin".
+ */
+
 require('dotenv').config();
 
 module.exports = {
   async initialize({ motherEmitter, isCore, jwt, nonce }) {
-    // 1) Check if core module?
+    // 1) Must be loaded as a core module
     if (!isCore) {
-      console.error('[WIDGET MANAGER] Must be loaded as core module.');
+      console.error('[WIDGET MANAGER] Must be loaded as a core module; cannot proceed as community.');
       return;
     }
-    // 2) JWT vorhanden?
+
+    // 2) Must have a valid JWT
     if (!jwt) {
       console.error('[WIDGET MANAGER] No JWT provided, cannot proceed.');
       return;
@@ -16,10 +35,10 @@ module.exports = {
     console.log('[WIDGET MANAGER] Initializing...');
 
     try {
-      // DB/Tabelle anlegen per meltdown (analog zu pagesManager)
-      await ensureWidgetDatabase(motherEmitter, jwt, nonce);
+      // Create or ensure both widget tables
+      await ensureWidgetDatabases(motherEmitter, jwt, nonce);
 
-      // meltdown-Events registrieren
+      // Register meltdown event listeners
       setupWidgetManagerEvents(motherEmitter);
 
       console.log('[WIDGET MANAGER] Initialized successfully.');
@@ -30,13 +49,16 @@ module.exports = {
 };
 
 /**
- * ensureWidgetDatabase:
- *   Erzeugt (falls nötig) die DB/Table "widgets".
+ * ensureWidgetDatabases:
+ *   Ensures the DB tables "widgets_public" and "widgets_admin" exist,
+ *   by calling meltdown => dbUpdate => placeholders "INIT_WIDGETS_TABLE_PUBLIC" 
+ *   and "INIT_WIDGETS_TABLE_ADMIN".
  */
-async function ensureWidgetDatabase(motherEmitter, jwt, nonce) {
-  return new Promise((resolve, reject) => {
-    console.log('[WIDGET SERVICE] Ensuring widget DB/Schema...');
-    // Meldown => dbUpdate => rawSQL: 'INIT_WIDGETS_TABLE'
+async function ensureWidgetDatabases(motherEmitter, jwt, nonce) {
+  console.log('[WIDGET SERVICE] Ensuring widget DB schemas...');
+
+  // (A) widgets_public
+  await new Promise((resolve, reject) => {
     motherEmitter.emit(
       'dbUpdate',
       {
@@ -45,14 +67,37 @@ async function ensureWidgetDatabase(motherEmitter, jwt, nonce) {
         moduleType: 'core',
         nonce,
         table: '__rawSQL__',
-        data: { rawSQL: 'INIT_WIDGETS_TABLE' }
+        data: { rawSQL: 'INIT_WIDGETS_TABLE_PUBLIC' }
       },
-      (err) => {
+      err => {
         if (err) {
-          console.error('[WIDGET SERVICE] Table creation failed:', err.message);
+          console.error('[WIDGET SERVICE] Table creation (widgets_public) failed:', err.message);
           return reject(err);
         }
-        console.log('[WIDGET SERVICE] Table "widgets" ensured/created.');
+        console.log('[WIDGET SERVICE] Table "widgets_public" ensured/created.');
+        resolve();
+      }
+    );
+  });
+
+  // (B) widgets_admin
+  await new Promise((resolve, reject) => {
+    motherEmitter.emit(
+      'dbUpdate',
+      {
+        jwt,
+        moduleName: 'widgetManager',
+        moduleType: 'core',
+        nonce,
+        table: '__rawSQL__',
+        data: { rawSQL: 'INIT_WIDGETS_TABLE_ADMIN' }
+      },
+      err => {
+        if (err) {
+          console.error('[WIDGET SERVICE] Table creation (widgets_admin) failed:', err.message);
+          return reject(err);
+        }
+        console.log('[WIDGET SERVICE] Table "widgets_admin" ensured/created.');
         resolve();
       }
     );
@@ -61,49 +106,69 @@ async function ensureWidgetDatabase(motherEmitter, jwt, nonce) {
 
 /**
  * setupWidgetManagerEvents:
- *   Registriert meltdown-Events: createWidget, getWidgets, updateWidget, deleteWidget
+ *   meltdown event listeners for 
+ *   - createWidget
+ *   - getWidgets
+ *   - updateWidget
+ *   - deleteWidget
+ *   - saveLayout.v1 (drag/drop reordering)
  */
 function setupWidgetManagerEvents(motherEmitter) {
   console.log('[WIDGET MANAGER] Setting up meltdown events...');
 
-  // CREATE WIDGET
-  motherEmitter.on('createWidget', (payload, callback) => {
-    try {
-      const {
+// CREATE WIDGET 
+motherEmitter.on('createWidget', async (payload, callback) => {
+  const { jwt, widgetId, widgetType, label, content, category } = payload || {};
+
+  if (!jwt || !widgetId || !widgetType || !content) {
+    return callback(new Error('[WM] createWidget => invalid payload.'));
+  }
+
+  const targetTable = pickTable(widgetType);
+
+  try {
+    // Check existence first
+    const widgetExists = await new Promise((resolve, reject) => {
+      motherEmitter.emit('dbSelect', {
         jwt,
-        widgetId,
-        widgetType,
-        label,
-        content,
-        category
-      } = payload || {};
+        moduleName: 'widgetManager',
+        moduleType: 'core',
+        table: targetTable,
+        where: { widget_id: widgetId }
+      }, (err, rows) => {
+        if (err) return reject(err);
+        resolve(rows && rows.length > 0);
+      });
+    });
 
-      if (!jwt || !widgetId || !widgetType || !content) {
-        return callback(new Error('[WM] createWidget => invalid payload.'));
-      }
-
-      motherEmitter.emit(
-        'dbInsert',
-        {
-          jwt,
-          moduleName: 'widgetManager',
-          moduleType: 'core',
-          table: 'widgets',
-          data: {
-            widgetId,
-            widgetType,
-            label     : label || '',
-            content   : content || '',
-            category  : category || '',
-            createdAt : new Date()
-          }
-        },
-        callback
-      );
-    } catch (err) {
-      callback(err);
+    if (widgetExists) {
+      console.log(`[WM] Widget "${widgetId}" already exists.`);
+      return callback(null, { created: false, reason: 'Widget already exists' });
     }
-  });
+
+    // create the widget
+    motherEmitter.emit('dbInsert', {
+      jwt,
+      moduleName: 'widgetManager',
+      moduleType: 'core',
+      table: targetTable,
+      data: {
+        widget_id:  widgetId,
+        label:      label || '',
+        content:    content || '',
+        category:   category || '',
+        created_at: new Date()
+      }
+    }, (insertErr, result) => {
+      if (insertErr) return callback(insertErr);
+      callback(null, { created: true, result });
+    });
+
+  } catch (ex) {
+    callback(ex);
+  }
+});
+
 
   // GET WIDGETS
   motherEmitter.on('getWidgets', (payload, callback) => {
@@ -112,8 +177,11 @@ function setupWidgetManagerEvents(motherEmitter) {
       if (!jwt) {
         return callback(new Error('[WM] getWidgets => No JWT provided.'));
       }
-      // widgetType ist optional → kann man filtern, muss man aber nicht
-      const filter = widgetType ? { widgetType } : {};
+      if (!widgetType) {
+        return callback(new Error('[WM] getWidgets => "widgetType" is required.'));
+      }
+
+      const targetTable = pickTable(widgetType);
 
       motherEmitter.emit(
         'dbSelect',
@@ -121,13 +189,29 @@ function setupWidgetManagerEvents(motherEmitter) {
           jwt,
           moduleName: 'widgetManager',
           moduleType: 'core',
-          table: 'widgets',
-          data: filter
+          table: targetTable,
+          data: {} // SELECT * from that table
         },
-        callback
+        (err, rows = []) => {
+          if (err) return callback(err);
+
+          // Remap the DB rows from snake_case → JS object
+          // so downstream modules can read "widgetId," "createdAt," etc.
+          const mapped = rows.map(r => ({
+            widgetId:   r.widget_id,
+            label:      r.label,
+            content:    r.content,
+            category:   r.category,
+            createdAt:  r.created_at,
+            // If you have an "order" column or something else, 
+            // you could map that here too.
+          }));
+
+          callback(null, mapped);
+        }
       );
-    } catch (err) {
-      callback(err);
+    } catch (ex) {
+      callback(ex);
     }
   });
 
@@ -140,12 +224,18 @@ function setupWidgetManagerEvents(motherEmitter) {
         widgetType,
         newLabel,
         newContent,
-        newCategory
+        newCategory,
+        newOrder
       } = payload || {};
 
       if (!jwt || !widgetId || !widgetType) {
         return callback(new Error('[WM] updateWidget => missing widgetId or widgetType.'));
       }
+
+      // Decide which placeholder to call for your DB
+      const rawSQL = (widgetType === 'admin')
+        ? 'UPDATE_WIDGET_ADMIN'
+        : 'UPDATE_WIDGET_PUBLIC';
 
       motherEmitter.emit(
         'dbUpdate',
@@ -153,35 +243,36 @@ function setupWidgetManagerEvents(motherEmitter) {
           jwt,
           moduleName: 'widgetManager',
           moduleType: 'core',
-          table: '__rawSQL__', // rawSQL => 'UPDATE_WIDGET'
+          table: '__rawSQL__', // meltdown placeholder
           data: {
-            rawSQL: 'UPDATE_WIDGET',
+            rawSQL,
             widgetId,
-            widgetType,
             newLabel,
             newContent,
-            newCategory
+            newCategory,
+            newOrder
           }
         },
         callback
       );
-    } catch (err) {
-      callback(err);
+    } catch (ex) {
+      callback(ex);
     }
   });
 
   // DELETE WIDGET
   motherEmitter.on('deleteWidget', (payload, callback) => {
     try {
-      const {
-        jwt,
-        widgetId,
-        widgetType
-      } = payload || {};
+      const { jwt, widgetId, widgetType } = payload || {};
 
       if (!jwt || !widgetId || !widgetType) {
-        return callback(new Error('[WM] deleteWidget => missing widgetId or widgetType.'));
+        return callback(new Error('[WM] deleteWidget => invalid payload (missing JWT/ID/type).'));
       }
+
+      // Decide which placeholder
+      const rawSQL = (widgetType === 'admin')
+        ? 'DELETE_WIDGET_ADMIN'
+        : 'DELETE_WIDGET_PUBLIC';
 
       motherEmitter.emit(
         'dbDelete',
@@ -189,17 +280,83 @@ function setupWidgetManagerEvents(motherEmitter) {
           jwt,
           moduleName: 'widgetManager',
           moduleType: 'core',
-          table: '__rawSQL__', // rawSQL => 'DELETE_WIDGET'
+          table: '__rawSQL__',
           where: {
-            rawSQL: 'DELETE_WIDGET',
-            widgetId,
-            widgetType
+            rawSQL,
+            widgetId
           }
         },
         callback
       );
-    } catch (err) {
-      callback(err);
+    } catch (ex) {
+      callback(ex);
     }
   });
+
+  // SAVE LAYOUT (v1)
+  motherEmitter.on('saveLayout.v1', (payload, callback) => {
+    try {
+      const { jwt, moduleName, layout, lane } = payload || {};
+      if (!jwt || !moduleName) {
+        return callback(new Error('[WM] saveLayout.v1 => missing jwt or moduleName.'));
+      }
+      if (!Array.isArray(layout)) {
+        return callback(new Error('[WM] saveLayout.v1 => layout must be an array.'));
+      }
+      if (!lane) {
+        return callback(new Error('[WM] saveLayout.v1 => "lane" is required (admin|public).'));
+      }
+
+      // We'll iterate over layout[] and call `updateWidget` 
+      // for each item to store the new `order` field
+      let updatedCount = 0;
+
+      const nextOne = () => {
+        updatedCount++;
+        if (updatedCount === layout.length) {
+          return callback(null, { success: true, updated: updatedCount });
+        }
+      };
+
+      if (layout.length === 0) {
+        // Nothing to update
+        return callback(null, { success: true, updated: 0 });
+      }
+
+      layout.forEach(({ widgetId, order }) => {
+        if (!widgetId) return nextOne(); // skip
+
+        motherEmitter.emit(
+          'updateWidget',
+          {
+            jwt,
+            moduleName,
+            widgetId,
+            widgetType: lane, // "public" or "admin"
+            newLabel:    null,
+            newContent:  null,
+            newCategory: null,
+            newOrder:    order
+          },
+          err => {
+            if (err) console.error('[WM] saveLayout.v1 => updateWidget error:', err.message);
+            nextOne();
+          }
+        );
+      });
+    } catch (ex) {
+      callback(ex);
+    }
+  });
+}
+
+/**
+ * pickTable(widgetType):
+ *   Return either 'widgets_admin' or 'widgets_public'.
+ *   Throws if widgetType is unknown.
+ */
+function pickTable(widgetType) {
+  if (widgetType === 'admin')  return 'widgets_admin';
+  if (widgetType === 'public') return 'widgets_public';
+  throw new Error(`[widgetManager] Unknown widgetType="${widgetType}". Must be "admin" or "public".`);
 }

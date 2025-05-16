@@ -22,6 +22,13 @@ const express      = require('express');
 const helmet       = require('helmet');
 const bodyParser   = require('body-parser');
 const cookieParser = require('cookie-parser');
+const csurf        = require('csurf');
+const crypto = require('crypto');
+
+
+
+
+
 
 const { motherEmitter } = require('./mother/emitters/motherEmitter');
 
@@ -121,6 +128,15 @@ function getModuleTokenForDbManager() {
   const app  = express();
   const port = process.env.PORT || 3000;
 
+  // Set up paths
+  const publicPath = path.join(__dirname, 'public');
+  const assetsPath = path.join(publicPath, 'assets');
+  app.use('/admin/assets', express.static(path.join(publicPath, 'assets')));
+  app.use('/assets/plainspace', express.static(path.join(assetsPath, 'plainspace')));
+  app.use('/assets', express.static(assetsPath));
+  app.use('/favicon.ico', express.static(path.join(publicPath,'favicon.ico')));
+  app.use('/fonts', express.static(path.join(publicPath,'fonts')));
+
   // Trust reverse proxy headers
   app.enable('trust proxy');
 
@@ -137,6 +153,11 @@ function getModuleTokenForDbManager() {
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(cookieParser());
+
+  // CSRF protection
+  const csrfProtection = csurf({
+    cookie: { httpOnly: true, sameSite: 'strict' }
+  })
 
   // 1) Load core Auth module
   console.log('[SERVER INIT] Loading Auth module…');
@@ -160,17 +181,18 @@ function getModuleTokenForDbManager() {
   // 3) Load other core modules
   const coreList = [
     { name:'databaseManager',     path:'mother/modules/databaseManager',     extra:{ app } },
+    { name:'notificationManager', path:'mother/modules/notificationManager', extra:{ app } },
+    { name:'settingsManager',     path:'mother/modules/settingsManager',     extra:{} },
+    { name:'widgetManager',       path:'mother/modules/widgetManager',       extra:{} },
     { name:'userManagement',      path:'mother/modules/userManagement',      extra:{ app } },
     { name:'pagesManager',        path:'mother/modules/pagesManager',        extra:{} },
-    { name:'settingsManager',     path:'mother/modules/settingsManager',     extra:{} },
-    { name:'notificationManager', path:'mother/modules/notificationManager', extra:{ app } },
     { name:'dependencyLoader',    path:'mother/modules/dependencyLoader',    extra:{} },
     { name:'unifiedSettings',     path:'mother/modules/unifiedSettings',     extra:{ app } },
     { name:'serverManager',       path:'mother/modules/serverManager',       extra:{ app } },
     { name:'mediaManager',        path:'mother/modules/mediaManager',        extra:{ app } },
     { name:'shareManager',        path:'mother/modules/shareManager',        extra:{ app } },
-    { name:'widgetManager',       path:'mother/modules/widgetManager',       extra:{} },
-    { name:'translationManager',  path:'mother/modules/translationManager',  extra:{} }
+    { name:'translationManager',  path:'mother/modules/translationManager',  extra:{} },
+    { name:'plainSpace',          path:'mother/modules/plainSpace',          extra:{ app } }
   ];
 
   for (const mod of coreList) {
@@ -186,7 +208,11 @@ function getModuleTokenForDbManager() {
     console.log(`[SERVER INIT] ${mod.name} loaded.`);
   }
 
-  // 4) Optional moduleLoader
+
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // 4) Load optional modules
+  // ──────────────────────────────────────────────────────────────────────────
   try {
     console.log('[SERVER INIT] Loading optional moduleLoader…');
     const loader = require(path.join(__dirname, 'mother', 'modules', 'moduleLoader', 'index.js'));
@@ -196,65 +222,402 @@ function getModuleTokenForDbManager() {
     console.error('[SERVER INIT] moduleLoader fizzled →', e.message);
   }
 
-  // 5) Determine active UI theme
-  console.log('[SERVER INIT] Fetching active UI theme…');
-  const activeUI = await new Promise((resolve, reject) => {
+  
+
+// ──────────────────────────────────────────────────────────────────────────
+// 5) Meltdown API – proxy front-end requests into motherEmitter events
+// ──────────────────────────────────────────────────────────────────────────
+
+app.post('/api/meltdown', (req, res) => {
+  // 1) Extract the JWT from the HttpOnly cookie
+  const jwt = req.cookies?.admin_jwt || null;
+  if (!jwt) {
+    return res.status(401).json({ error: 'Authentication required: missing JWT.' });
+  }
+
+  // 2) Pull out the event name & payload from the request body
+  const { eventName, payload = {} } = req.body;
+  payload.jwt = jwt;
+
+  // 3) Emit the event and return JSON
+  motherEmitter.emit(eventName, payload, (err, data) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    return res.json({ eventName, data });
+  });
+});
+
+
+
+// ─────────────────────────────────────────────────────────────────
+// 6) CSRF-protected login endpoint
+// ─────────────────────────────────────────────────────────────────
+
+app.post('/admin/api/login', csrfProtection, async (req, res) => {
+  console.log('CSRF token =>', req.csrfToken());
+
+  const { username, password } = req.body;
+  try {
+    // 1) Issue a “login” public JWT that’s safe for CSRF-guarded flows
+    const loginJwt = await new Promise((resolve, reject) => {
+      motherEmitter.emit(
+        'issuePublicToken',
+        { purpose: 'login', moduleName: 'auth' },
+        (err, token) => err ? reject(err) : resolve(token)
+      );
+    });
+
+    // 2) Perform the adminLocal authentication strategy
+    const user = await new Promise((resolve, reject) => {
+      motherEmitter.emit(
+        'loginWithStrategy',
+        {
+          jwt: loginJwt,
+          moduleName: 'loginRoute',
+          moduleType: 'public',
+          strategy: 'adminLocal',
+          payload: { username, password }
+        },
+        (err, user) => err || !user ? reject(err || new Error('Invalid credentials')) : resolve(user)
+      );
+    });
+
+    // 3) Set the HttpOnly admin_jwt cookie and return success
+    res.cookie('admin_jwt', user.jwt, {
+      path: '/',
+      httpOnly: true,
+      sameSite: 'strict',
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 2 * 60 * 60 * 1000  // 2 hours
+    });
+
+    return res.json({ success: true });
+
+  } catch (err) {
+    return res.status(401).json({ success: false, error: err.message });
+  }
+});
+
+
+
+// ──────────────────────────────────────────────────────────────────────────
+// 7a) Admin entry point: redirect to /admin/home and render shell
+// ──────────────────────────────────────────────────────────────────────────
+
+// Redirect plain /admin to /admin/home
+app.get('/admin', (_req, res) => {
+  // immediate redirect
+  return res.redirect('/admin/home');
+});
+
+// Admin Home Route
+app.get('/admin/home', csrfProtection, async (req, res) => {
+  try {
+    const publicJwt = await new Promise((resolve, reject) => {
+      motherEmitter.emit(
+        'issuePublicToken',
+        { purpose: 'login', moduleName: 'auth' },
+        (err, tok) => err ? reject(err) : resolve(tok)
+      );
+    });
+
+    const userCount = await new Promise((resolve, reject) => {
+      motherEmitter.emit(
+        'getUserCount',
+        { jwt: publicJwt, moduleName: 'userManagement', moduleType: 'core' },
+        (err, count = 0) => err ? reject(err) : resolve(count)
+      );
+    });
+
+    // User existiert noch nicht, zeige register.html
+    if (userCount === 0) {
+      return res.sendFile(path.join(publicPath, 'register.html'));
+    }
+
+    // Wenn Nutzer bereits authentifiziert ist, zeige admin.html
+    if (req.cookies?.admin_jwt) {
+      let html = fs.readFileSync(path.join(publicPath, 'admin.html'), 'utf8');
+      html = html.replace(
+        '</head>',
+        `<meta name="csrf-token" content="${req.csrfToken()}"></head>`
+      );
+      return res.send(html);
+    }
+
+    // User nicht eingeloggt, sende login.html mit CSRF-Token
+    let html = fs.readFileSync(path.join(publicPath, 'login.html'), 'utf8');
+    html = html.replace(
+      '{{CSRF_TOKEN}}', 
+      req.csrfToken()
+    );
+    return res.send(html);
+
+  } catch (err) {
+    console.error('[ADMIN /home] Error:', err);
+    let html = fs.readFileSync(path.join(publicPath, 'login.html'), 'utf8');
+    html = html.replace('{{CSRF_TOKEN}}', req.csrfToken());
+    return res.send(html);
+  }
+});
+
+
+
+// ──────────────────────────────────────────────────────────────────────────
+// 7b) Admin SPA shell for any /admin/<slug>
+// ──────────────────────────────────────────────────────────────────────────
+app.get('/admin/:slug(*)', async (req, res, next) => {
+  console.log('[DEBUG] /admin/:slug => userCookie.admin_jwt =', req.cookies?.admin_jwt);
+
+  const slug = req.params.slug;
+  const adminJwt = req.cookies?.admin_jwt;  // The user’s real admin token
+
+  if (!adminJwt) {
+    // Optionally redirect or do a 401
+    return res.status(401).send('Not logged in as admin.');
+  }
+
+  try {
+    // Retrieve the admin page data
+    const page = await new Promise((resolve, reject) => {
+      motherEmitter.emit(
+        'getPageBySlug',
+        {
+          jwt       : adminJwt,
+          moduleName: 'pagesManager',
+          moduleType: 'core',
+          slug,
+          lane      : 'admin'
+        },
+        (err, result) => (err ? reject(err) : resolve(result))
+      );
+    });
+
+    // If the page does not exist or isn't in admin lane, treat as a 404
+    if (!page?.id || page.lane !== 'admin') {
+      return next();  
+    }
+
+    // Generate a nonce for the inline script
+    const nonce = crypto.randomBytes(16).toString('base64');
+
+    // Load the admin.html shell
+    let html = fs.readFileSync(
+      path.join(__dirname, 'public', 'admin.html'),
+      'utf8'
+    );
+
+    // Inject the script with the nonce
+    const inject = `
+      <script nonce="${nonce}">
+        window.PAGE_ID     = ${page.id};
+        window.ADMIN_TOKEN = '${adminJwt}';
+      </script>
+    </head>`;
+    html = html.replace('</head>', inject);
+
+    // Set the Content Security Policy header to allow this nonce
+    res.setHeader(
+      'Content-Security-Policy',
+      `script-src 'self' 'nonce-${nonce}';`
+    );
+
+    // Return the final HTML to the client
+    res.send(html);
+
+  } catch (err) {
+    console.error('[ADMIN /admin/:slug] Error:', err);
+    next(err);
+  }
+});
+
+
+
+
+// ─────────────────────────────────────────────────────────────────
+// 8) Explicit /login route
+// ─────────────────────────────────────────────────────────────────
+app.get('/login', csrfProtection, (req, res) => {
+  let html = fs.readFileSync(path.join(publicPath, 'login.html'), 'utf8');
+  html = html.replace('{{CSRF_TOKEN}}', req.csrfToken());
+  res.send(html);
+});
+
+
+
+
+// ─────────────────────────────────────────────────────────────────
+// 9) Maintenance mode middleware
+// ─────────────────────────────────────────────────────────────────
+app.use(async (req, res, next) => {
+  // skip admin + assets
+  if (
+    req.path.startsWith('/admin') ||
+    req.path.startsWith('/assets') ||
+    req.path.startsWith('/api') ||
+    req.path === '/login' ||
+    req.path === '/favicon.ico'
+    ) return next();
+  
+
+  // check the flag
+  const isMaintenance = await new Promise((Y, N) =>
     motherEmitter.emit(
       'getSetting',
       {
-        jwt        : dbManagerToken,
-        moduleName : 'settingsManager',
-        moduleType : 'core',
-        key        : 'activeAdminUI'
+        jwt: dbManagerToken,
+        moduleName: 'settingsManager',
+        moduleType: 'core',
+        key: 'MAINTENANCE_MODE'
       },
-      (err, ui) => err ? reject(err) : resolve(ui || 'PlainSpaceUI')
+      (err, val) => err ? N(err) : Y(val === 'true')
+    )
+  ).catch(() => false);
+
+  if (isMaintenance) {
+    // if we're not already on /coming-soon, rewrite there:
+    if (req.path !== '/coming-soon') {
+      return res.redirect('/coming-soon');
+    }
+    // if path IS /coming-soon, let the normal dynamic page renderer handle it:
+  }
+
+  next();
+});
+
+
+// ─────────────────────────────────────────────────────────────────
+// 11) Public pages
+// ─────────────────────────────────────────────────────────────────
+const pageHtmlPath = path.join(__dirname, 'public', 'index.html');
+
+// Let "/" => slug = "home"
+app.get('/', (req, res, next) => {
+  req.params.slug = 'home';
+  return next();
+});
+
+// For any /:slug => fetch a public page from the DB
+app.get('/:slug', async (req, res, next) => {
+  try {
+    const slug = req.params.slug;
+    
+    // 1) Get the page object via meltdown (direct object, not {data:…}!)
+    const page = await new Promise((resolve, reject) => {
+      motherEmitter.emit(
+        'getPageBySlug',
+        {
+          jwt: global.pagesPublicToken,   // read-only token
+          moduleName: 'pagesManager',
+          moduleType: 'core',
+          slug
+        },
+        (err, record) => {
+          if (err) return reject(err);
+          resolve(record);  // “record” is the direct DB row
+        }
+      );
+    });
+
+    // 2) If no row or missing .id => 404 fallback
+    if (!page?.id) {
+      return next();  // triggers your 404 fallback or next route
+    }
+
+    // 3) Build your dynamic injection:
+    const pageId = page.id;
+    const lane   = 'public';
+    const token  = global.pagesPublicToken;
+
+    let html = fs.readFileSync(pageHtmlPath, 'utf8');
+    const inject = `<script>
+      window.PAGE_ID = ${pageId};
+      window.LANE    = '${lane}';
+      window.PUBLIC_TOKEN = '${token}';
+    </script>`;
+    html = html.replace('</head>', inject + '</head>');
+
+    // 4) Send the patched HTML
+    res.send(html);
+
+  } catch (err) {
+    console.error('[SERVER] /:slug render error →', err);
+    next(err);
+  }
+});
+
+
+// ─────────────────────────────────────────────────────────────────
+// 12) First-time setup
+// ─────────────────────────────────────────────────────────────────
+try {
+  const firstInstallDone = await new Promise((resolve, reject) => {
+    motherEmitter.emit(
+      'getSetting',
+      {
+        jwt         : dbManagerToken,
+        moduleName  : 'settingsManager',
+        moduleType  : 'core',
+        key         : 'FIRST_INSTALL_DONE'
+      },
+      (err, val) => err ? reject(err) : resolve(val)
     );
   });
 
-  // 6) Static assets (no CSRF)
-  console.log('[SERVER INIT] Mounting static assets (no CSRF)…');
-  const globalAssetsPath   = path.join(__dirname, 'assets');
-  const activeAssetsPath   = path.join(__dirname, 'adminui', activeUI, 'assets');
-  const adminViewsPath     = path.join(__dirname, 'views', 'admin-partials');
-  const publicPath         = path.join(__dirname, '..', 'public');
+  if (firstInstallDone !== 'true') {
+    console.log('[APP] Detected FIRST_INSTALL_DONE is false => running initial seeding now...');
+    
+    // 1) Perform any "only once" tasks:
+    //    - e.g. meltdown calls to create certain pages or roles, etc.
 
-  app.get('/favicon.ico', (_req, res) => res.sendStatus(204));
-  app.use('/admin/assets', express.static(activeAssetsPath));
-  app.use('/admin/assets', express.static(globalAssetsPath));
-  app.use('/admin/ui',     express.static(path.join(__dirname, 'adminui')));
-  app.use('/admin/views',  express.static(adminViewsPath, { index:false }));
-  app.use(express.static(publicPath));
-  console.log('[SERVER INIT] Static mounts armed.');
+    // 2) Then set FIRST_INSTALL_DONE => 'true'
+    await new Promise((resolve, reject) => {
+      motherEmitter.emit(
+        'setSetting',
+        {
+          jwt         : dbManagerToken,
+          moduleName  : 'settingsManager',
+          moduleType  : 'core',
+          key         : 'FIRST_INSTALL_DONE',
+          value       : 'true'
+        },
+        err => err ? reject(err) : resolve()
+      );
+    });
 
-  // 7) Content‑Security‑Policy
-  app.use((_, res, next) => {
-    res.setHeader(
-      'Content-Security-Policy',
-      [
-        "default-src 'self'",
-        "script-src 'self' 'unsafe-eval'",
-        "style-src  'self' 'unsafe-inline'",
-        "object-src 'none'",
-        "base-uri   'self'",
-        "frame-ancestors 'none'"
-      ].join('; ')
-    );
-    next();
+    console.log('[APP] Finished first-time setup => FIRST_INSTALL_DONE is now "true".');
+  } else {
+    console.log('[APP] FIRST_INSTALL_DONE is "true" => skipping initial seeding.');
+  }
+} catch (err) {
+  console.error('[APP] Could not check/set FIRST_INSTALL_DONE:', err.message);
+}
+
+// ─────────────────────────────────────────────────────────────────
+// 13) Lift-off
+// ─────────────────────────────────────────────────────────────────
+
+const server = app.listen(port, () => {
+  console.log(`[SERVER] BlogPosterCMS is listening on http://localhost:${port}/`);
+});
+
+process.on('SIGINT', () => {
+  console.log('Shutting down server (SIGINT)...');
+  server.close(() => {
+    console.log('Server shutdown complete!');
+    process.exit(0);
   });
+});
 
-  // 8) CSRF protection on /admin/api
-  app.use('/admin/api', require('./mother/routes/csr'));
-
-  const publicRouter = require('./mother/routes/public');
-app.use('/', publicRouter);          
-
-
-  // 9) Lift‑off
-  app.listen(port, () => {
-    console.log(`[SERVER] BlogPosterCMS is listening on http://localhost:${port}/`);
+process.on('SIGTERM', () => {
+  console.log('Shutting down server (SIGINT)...');
+  server.close(() => {
+    console.log('Server shutdown complete!');
+    process.exit(0);
   });
+});
 
 })().catch(err => {
-  console.error('[SERVER INIT] Catastrophic failure:', err);
+  console.error('[SERVER INIT] Shit happens..:', err);
   process.exit(1);
 });

@@ -1,0 +1,4 @@
+{
+  // …
+  "postStartCommand": "sudo service postgresql start"
+}

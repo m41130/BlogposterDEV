@@ -1,39 +1,28 @@
 /**
  * mother/emitters/motherEmitter.js
  *
- * The central meltdown event emitter that applies:
- *   - Public events (no JWT required)
- *   - skipJWT logic for certain 'auth' events
- *   - JWT validation for recognized "core" modules (or "community" for others)
- *   - meltdownSystem if any critical error occurs for a core module
- *   - Deactivation for community modules if invalid usage
- *   - onceCallback to ensure meltdown callbacks only fire once
- *   - Replaces 'jwt' in logs with '<JWT-REDACTED>'
- *   - Optionally sends critical meltdown notifications via notificationEmitter
+ * meltdown logic that keeps errors local to the offending module.
+ *
+ * - If meltdown triggers for a module, we set meltdownStates[module] = true
+ * - Then all future events from that module are immediately ignored.
+ * - We do NOT kill the entire server. The meltdown is local to that module.
+ * - We do NOT re-emit meltdown errors across multiple events.
  */
 
 require('dotenv').config();
 const EventEmitter = require('events');
 const jwt = require('jsonwebtoken');
 
-// We'll import notificationEmitter so we can send a "critical meltdown" alert
 const notificationEmitter = require('./notificationEmitter');
 
-/** Base JWT secret (from .env or fallback) */
-const JWT_SECRET = process.env.JWT_SECRET || 'default_secret';
-
-/** Additional salts for trust levels (e.g. TOKEN_SALT_HIGH, etc.) */
-const TOKEN_SALT_HIGH   = process.env.TOKEN_SALT_HIGH   || '';
-const TOKEN_SALT_MEDIUM = process.env.TOKEN_SALT_MEDIUM || '';
-const TOKEN_SALT_LOW    = process.env.TOKEN_SALT_LOW    || '';
-
-/** Auth module internal secret => used only by skipJWT meltdown calls (like issueModuleToken). */
+// For demonstration
+const JWT_SECRET         = process.env.JWT_SECRET || 'default_secret';
+const TOKEN_SALT_HIGH    = process.env.TOKEN_SALT_HIGH   || '';
+const TOKEN_SALT_MEDIUM  = process.env.TOKEN_SALT_MEDIUM || '';
+const TOKEN_SALT_LOW     = process.env.TOKEN_SALT_LOW    || '';
 const AUTH_MODULE_SECRET = process.env.AUTH_MODULE_INTERNAL_SECRET || '';
 
-/**
- * PUBLIC_EVENTS => meltdown checks are skipped entirely.
- * e.g. 'removeListenersByModule', 'deactivateModule' => no "No JWT" logs.
- */
+/** Public events skip meltdown checks entirely */
 const PUBLIC_EVENTS = [
   'issuePublicToken',
   'removeListenersByModule',
@@ -41,7 +30,8 @@ const PUBLIC_EVENTS = [
 ];
 
 /**
- * skipJWT events that are allowed only if moduleName='auth' AND matching authModuleSecret.
+ * skipJWT events => only valid if (moduleName === 'auth')
+ * and we have the correct authModuleSecret
  */
 const ALLOWED_SKIPJWT_EVENTS = [
   'issueUserToken',
@@ -50,255 +40,36 @@ const ALLOWED_SKIPJWT_EVENTS = [
 ];
 
 /**
- * onceCallback(cb):
- * Ensures that `cb` is only called once, to prevent meltdown recursion.
+ * meltdownStates stores moduleName -> boolean
+ * true => meltdown triggered for that module => ignore subsequent calls
+ */
+const meltdownStates = new Map();
+
+
+
+/**
+ * onceCallback => ensures meltdown callbacks only fire once
  */
 function onceCallback(originalCb) {
   let hasFired = false;
   return (...args) => {
     if (hasFired) return;
     hasFired = true;
-
     if (typeof originalCb === 'function') {
       originalCb(...args);
     } else {
-      console.warn('[MotherEmitter] WARNING: No valid callback provided to meltdown event.');
-      console.warn('[MotherEmitter] Potential missing second parameter in meltdown usage. Arguments =>', args);
+      console.warn('[MotherEmitter] meltdown event had no valid callback, oh well.');
     }
   };
 }
 
-/**
- * MotherEmitter class with meltdown logic in the overridden emit()
- */
-class MotherEmitter extends EventEmitter {
-  constructor() {
-    super();
-    console.log('[MotherEmitter] Initialized motherEmitter instance.');
-
-    // A map that decides if a module is "core" or "community" => used in meltdown checks
-    this._moduleTypes = Object.create(null);
-  }
-
-  /**
-   * registerModuleType(moduleName, 'core'|'community'):
-   *   Called from moduleLoader or main server
-   */
-  registerModuleType(moduleName, type) {
-    this._moduleTypes[moduleName] = type;
-    console.log(`[MotherEmitter] Registered module "${moduleName}" => type="${type}"`);
-  }
-
-  /**
-   * meltdownSystem(reason, moduleName):
-   *   Called when a critical meltdown occurs in a core module.
-   *   Logs an error, emits 'criticalError', and also sends a "critical meltdown" notification.
-   */
-  meltdownSystem(reason, moduleName) {
-    console.error(`[MotherEmitter] CRITICAL ERROR => ${reason} (Module: ${moduleName || 'unknown'})`);
-
-    // Optionally dispatch a notification about this meltdown
-    notificationEmitter.notify({
-      moduleName: 'motherEmitter',
-      notificationType: 'system',
-      priority: 'critical',
-      message: `CRITICAL meltdown from core module='${moduleName}' => ${reason}`
-    });
-
-    this.emit('criticalError', {
-      moduleName: moduleName || 'unknown',
-      errorCode: 'CORE_JWT_ERROR',
-      message: reason,
-      severity: 'critical',
-      timestamp: new Date().toISOString()
-    });
-  }
-
-  /**
-   * combineSecretWithSalt:
-   *   Merges JWT_SECRET with a salt for trustLevel (high/medium/low).
-   */
-  combineSecretWithSalt(baseSecret, trustLevel) {
-    switch ((trustLevel || '').toLowerCase()) {
-      case 'high':   return baseSecret + TOKEN_SALT_HIGH;
-      case 'medium': return baseSecret + TOKEN_SALT_MEDIUM;
-      default:       return baseSecret + TOKEN_SALT_LOW;
-    }
-  }
-
-  /**
-   * Overridden emit() applying meltdown checks
-   */
-  emit(eventName, ...args) {
-
-    // (1) If eventName==='criticalError' => skip meltdown checks
-    if (eventName === 'criticalError') {
-      console.log('[MotherEmitter] Skipping meltdown checks for "criticalError" event.');
-      return super.emit(eventName, ...args);
-    }
-
-    // (2) Preliminary check => if firstArg missing or no moduleName => ignore
-    const firstArg = args[0];
-    if (!firstArg || typeof firstArg !== 'object' || !firstArg.moduleName) {
-      console.warn(`[MotherEmitter] WARNING: Event "${eventName}" emitted with invalid or missing payload.moduleName. Ignoring event.`);
-      return false;
-    }
-
-    // (3) If no listeners => just warn
-    if (!this.listenerCount(eventName)) {
-      console.warn(`[MotherEmitter] WARNING: No listeners for event="${eventName}".`);
-      return false;
-    }
-
-    // meltdown payload
-    const moduleName        = firstArg.moduleName;
-    const providedJwt       = firstArg.jwt;
-    const providedSecret    = firstArg.authModuleSecret || '';
-    const isExternalRequest = !!firstArg.isExternalRequest;
-
-    // (4) If event is in PUBLIC_EVENTS => skip meltdown checks
-    if (PUBLIC_EVENTS.includes(eventName)) {
-      console.log(`[MotherEmitter] Public event => skipping meltdown checks for "${eventName}"`);
-      console.log(`[MotherEmitter] Emitting: "${eventName}" =>`, maskJwtInArgs(args));
-      return super.emit(eventName, ...args);
-    }
-
-    // (5) Distinguish 'core' vs. 'community'
-    const forcedType = this._moduleTypes[moduleName] || 'community';
-    const isCoreModule = (forcedType === 'core');
-
-    // (6) skipJWT logic
-    if (firstArg.skipJWT) {
-      // Only valid if (moduleName==='auth' && event in ALLOWED_SKIPJWT_EVENTS)
-      if (moduleName === 'auth' && ALLOWED_SKIPJWT_EVENTS.includes(eventName)) {
-        if (providedSecret !== AUTH_MODULE_SECRET) {
-          const reason = `Invalid authModuleSecret for skipJWT event="${eventName}" (module='auth')`;
-          if (isCoreModule && !isExternalRequest) {
-            this.meltdownSystem(reason, moduleName);
-          } else {
-            console.warn(`[MotherEmitter] WARNING: ${reason} => forcing deactivateModule("${moduleName}")`);
-            super.emit('deactivateModule', { moduleName, reason });
-          }
-          return false;
-        }
-        console.log(`[MotherEmitter] skipJWT => authorized for event="${eventName}". Normal emit.`);
-        return super.emit(eventName, ...args);
-      } else {
-        // skipJWT used incorrectly
-        const reason = `Unauthorized skipJWT usage => event="${eventName}" by module="${moduleName}"`;
-        if (isCoreModule && !isExternalRequest) {
-          this.meltdownSystem(reason, moduleName);
-        } else {
-          console.warn(`[MotherEmitter] WARNING: ${reason} => deactivating module="${moduleName}"`);
-          super.emit('deactivateModule', { moduleName, reason });
-        }
-        return false;
-      }
-    }
-
-    // (7) If no skipJWT => require a valid JWT if it's a core module
-    if (!providedJwt) {
-      if (isCoreModule && !isExternalRequest) {
-        this.meltdownSystem(`Core event "${eventName}" has no JWT`, moduleName);
-      } else {
-        // community => just "deactivateModule"
-        console.warn(`[MotherEmitter] WARNING: No JWT for "${eventName}". Deactivating the module.`);
-        super.emit('deactivateModule', {
-          moduleName,
-          reason: `Missing JWT for "${eventName}"`
-        });
-      }
-      return false;
-    }
-
-    // (8) decode the provided JWT
-    let decodedUnverified;
-    try {
-      decodedUnverified = jwt.decode(providedJwt) || {};
-    } catch (decodeErr) {
-      const reason = `Could not decode token => ${decodeErr.message}`;
-      if (isCoreModule && !isExternalRequest) {
-        this.meltdownSystem(reason, moduleName);
-      } else {
-        console.warn(`[MotherEmitter] WARNING: ${reason}. Deactivating module.`);
-        super.emit('deactivateModule', { moduleName, reason });
-      }
-      return false;
-    }
-
-    // fallback trustLevel
-    if (!decodedUnverified.trustLevel) {
-      decodedUnverified.trustLevel = 'low';
-    }
-
-    // (9) verify the JWT
-    const finalSecret = this.combineSecretWithSalt(JWT_SECRET, decodedUnverified.trustLevel);
-    try {
-      firstArg.decodedJWT = jwt.verify(providedJwt, finalSecret);
-    } catch (verifyErr) {
-      const reason = `Invalid JWT => ${verifyErr.message}`;
-      if (isCoreModule && !isExternalRequest) {
-        this.meltdownSystem(reason, moduleName);
-      } else {
-        console.warn(`[MotherEmitter] WARNING: ${reason}. Deactivating module.`);
-        super.emit('deactivateModule', { moduleName, reason });
-      }
-      return false;
-    }
-
-    // (10) If all checks pass => normal emit
-    const maskedArgs = maskJwtInArgs(args);
-    console.log(`[MotherEmitter] Emitting event="${eventName}" =>`, maskedArgs);
-    return super.emit(eventName, ...args);
-  }
-}
-
-// The main motherEmitter instance
-const motherEmitter = new MotherEmitter();
-
-/**
- * removeListenersByModule: a public event => meltdown checks are skipped
- */
-motherEmitter.on('removeListenersByModule', (payload) => {
-  const moduleName = (typeof payload === 'string') ? payload : payload?.moduleName;
-  if (!moduleName) {
-    console.warn('[MotherEmitter] removeListenersByModule => missing moduleName in payload.');
-    return;
-  }
-  console.warn(`[MotherEmitter] Removing all event listeners for broken module => ${moduleName}`);
-
-  motherEmitter.eventNames().forEach(eventName => {
-    motherEmitter.listeners(eventName).forEach(listener => {
-      if (listener.moduleName === moduleName) {
-        motherEmitter.removeListener(eventName, listener);
-        console.warn(`[MotherEmitter] Removed listener from event="${eventName}" for module="${moduleName}"`);
-      }
-    });
-  });
-});
-
-/**
- * deactivateModule => also a public event => meltdown checks are skipped
- */
-motherEmitter.on('deactivateModule', (payload) => {
-  const { moduleName, reason } = payload || {};
-  console.warn(`[MotherEmitter] Deactivating module "${moduleName}" => ${reason}`);
-
-  // remove any listeners for that module
-  motherEmitter.emit('removeListenersByModule', { moduleName });
-});
-
-/**
- * maskJwtInArgs(args): replaces any .jwt in meltdown payload with "<JWT-REDACTED>"
- */
+/** maskJwtInArgs => replaces any .jwt in meltdown payload with "<JWT-REDACTED>" */
 function maskJwtInArgs(args) {
   try {
     return args.map(arg => {
       if (arg && typeof arg === 'object') {
         const clone = { ...arg };
-        if (clone.jwt) {
-          clone.jwt = '<JWT-REDACTED>';
-        }
+        if (clone.jwt) clone.jwt = '<JWT-REDACTED>';
         return clone;
       }
       return arg;
@@ -307,6 +78,168 @@ function maskJwtInArgs(args) {
     return args;
   }
 }
+
+/**
+ * meltdownForModule => local meltdown that deactivates the module. 
+ * We remove all its listeners. No server kill (unless you want it).
+ */
+function meltdownForModule(reason, moduleName, motherEmitter) {
+  // Mark meltdown triggered => ignore subsequent events from that module
+  meltdownStates.set(moduleName, true);
+
+  // Possibly notify. Up to you if you want a “critical” priority or “warning”
+  notificationEmitter.notify({
+    moduleName,
+    notificationType: 'system',
+    priority: 'warning', // or 'critical' if you prefer
+    message: `Local meltdown for module='${moduleName}' => reason='${reason}'`
+  });
+
+  console.warn(`[MotherEmitter] meltdown => deactivating module="${moduleName}" => reason="${reason}"`);
+
+  // Deactivate means removing all listeners from that module
+  motherEmitter.emit('deactivateModule', { moduleName, reason });
+}
+
+class MotherEmitter extends EventEmitter {
+  constructor() {
+    super();
+    console.log('[MotherEmitter] Initialized motherEmitter instance.');
+    this._moduleTypes = Object.create(null); // track 'core'/'community' if desired
+  }
+
+  registerModuleType(moduleName, type) {
+    this._moduleTypes[moduleName] = type;
+    console.log(`[MotherEmitter] Registered module="${moduleName}" => type="${type}"`);
+  }
+
+  /** merges JWT_SECRET with salt depending on trustLevel */
+  combineSecretWithSalt(baseSecret, trustLevel) {
+    switch ((trustLevel || '').toLowerCase()) {
+      case 'high':   return baseSecret + TOKEN_SALT_HIGH;
+      case 'medium': return baseSecret + TOKEN_SALT_MEDIUM;
+      default:       return baseSecret + TOKEN_SALT_LOW;
+    }
+  }
+
+  emit(eventName, ...args) {
+    // (1) If no listeners => just warn. 
+    if (!this.listenerCount(eventName)) {
+      console.warn(`[MotherEmitter] WARNING: No listeners for event="${eventName}".`);
+      return false;
+    }
+
+    // (2) minimal payload check
+    const firstArg = args[0];
+    if (!firstArg || typeof firstArg !== 'object' || !firstArg.moduleName) {
+      console.warn(`[MotherEmitter] WARNING: Event="${eventName}" missing 'moduleName' in firstArg => ignoring.`);
+      return false;
+    }
+
+    const { moduleName, skipJWT, authModuleSecret, jwt: providedJwt, isExternalRequest } = firstArg;
+
+    // (3) If meltdown already triggered for that module => ignore
+    if (meltdownStates.get(moduleName)) {
+      console.warn(`[MotherEmitter] meltdown already triggered for module="${moduleName}". Ignoring event="${eventName}".`);
+      return false;
+    }
+
+    // (4) Public event => skip meltdown checks
+    if (PUBLIC_EVENTS.includes(eventName)) {
+      console.log(`[MotherEmitter] Public event => skipping meltdown => event="${eventName}".`);
+      console.log(`[MotherEmitter] Emitting =>`, maskJwtInArgs(args));
+      return super.emit(eventName, ...args);
+    }
+
+    // (5) skipJWT logic => only allowed if moduleName='auth' & event in ALLOWED_SKIPJWT_EVENTS & secret is correct
+    if (skipJWT) {
+      if (moduleName === 'auth' && ALLOWED_SKIPJWT_EVENTS.includes(eventName)) {
+        if (authModuleSecret !== AUTH_MODULE_SECRET) {
+          meltdownForModule(`Invalid authModuleSecret for skipJWT event="${eventName}"`, moduleName, this);
+          return false;
+        }
+        console.log(`[MotherEmitter] skipJWT => authorized => event="${eventName}" => normal emit.`);
+        return super.emit(eventName, ...args);
+      } else {
+        meltdownForModule(`Unauthorized skipJWT usage => event="${eventName}"`, moduleName, this);
+        return false;
+      }
+    }
+
+    // (6) If not skipJWT => require a valid JWT
+    if (!providedJwt) {
+      meltdownForModule(`No JWT provided => event="${eventName}"`, moduleName, this);
+      return false;
+    }
+
+    // (7) decode unverified
+    let decodedUnverified;
+    try {
+      decodedUnverified = jwt.decode(providedJwt) || {};
+    } catch (err) {
+      meltdownForModule(`Could not decode token => ${err.message}`, moduleName, this);
+      return false;
+    }
+    if (!decodedUnverified.trustLevel) decodedUnverified.trustLevel = 'low';
+
+    // (8) verify using salt
+    const finalSecret = this.combineSecretWithSalt(JWT_SECRET, decodedUnverified.trustLevel);
+    try {
+      firstArg.decodedJWT = jwt.verify(providedJwt, finalSecret);
+    } catch (verifyErr) {
+      meltdownForModule(`Invalid JWT => ${verifyErr.message}`, moduleName, this);
+      return false;
+    }
+
+    // (9) meltdown checks pass => do normal event
+    console.log(`[MotherEmitter] Emitting event="${eventName}" =>`, maskJwtInArgs(args));
+    return super.emit(eventName, ...args);
+  }
+}
+
+const motherEmitter = new MotherEmitter();
+
+/* ──────────────────────────────────────────────
+   DEBUG HOOK: log any getPageBySlug without JWT
+   ────────────────────────────────────────────── */
+   const origEmit = motherEmitter.emit.bind(motherEmitter);
+
+   motherEmitter.emit = function (event, payload, cb) {
+     if (event === 'getPageBySlug' && (!payload || !payload.jwt)) {
+       console.trace('[DEBUG] getPageBySlug **without** JWT from here ⇧');
+     }
+     return origEmit(event, payload, cb);
+   };
+
+/** 
+ * Public event => remove all event listeners for the given module
+ */
+motherEmitter.on('removeListenersByModule', (payload) => {
+  const modName = (typeof payload === 'string') ? payload : payload?.moduleName;
+  if (!modName) {
+    console.warn('[MotherEmitter] removeListenersByModule => missing moduleName => ignoring.');
+    return;
+  }
+  console.warn(`[MotherEmitter] Removing all listeners for module="${modName}"`);
+
+  motherEmitter.eventNames().forEach(evtName => {
+    motherEmitter.listeners(evtName).forEach(listener => {
+      if (listener.moduleName === modName) {
+        motherEmitter.removeListener(evtName, listener);
+        console.warn(`[MotherEmitter] Removed listener from event="${evtName}" for module="${modName}"`);
+      }
+    });
+  });
+});
+
+/**
+ * Public event => "deactivateModule" means remove all the module’s listeners
+ */
+motherEmitter.on('deactivateModule', (payload) => {
+  const { moduleName, reason } = payload || {};
+  console.warn(`[MotherEmitter] Deactivating module="${moduleName}" => reason="${reason}"`);
+  motherEmitter.emit('removeListenersByModule', { moduleName });
+});
 
 module.exports = {
   motherEmitter,

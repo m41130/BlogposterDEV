@@ -90,43 +90,44 @@ module.exports = {
       );
 
       // 5) Listen for widget registry requests
+      // widget.registry.request.v1 handler (plainSpace)
       motherEmitter.on('widget.registry.request.v1', (payload, callback) => {
         const { jwt, lane } = payload || {};
 
-        // Only handle public or admin lanes
-        if (![PUBLIC_LANE, ADMIN_LANE].includes(lane)) {
+        // Validate lane (must be either public or admin)
+        if (!['public', 'admin'].includes(lane)) {
           return callback(null, { widgets: [] });
         }
 
-        motherEmitter.emit(
-          'getWidgets',
-          {
-            jwt,
-            moduleName: 'widgetManager',
-            moduleType: 'core',
-            widgetType: lane
-          },
-          (err2, rows = []) => {
-            if (err2) {
-              console.error('[plainSpace] getWidgets error =>', err2.message);
-              // Return an empty list so UI doesn’t combust
-              return callback(null, { widgets: [] });
-            }
-            // Transform DB rows to the UI’s expected format
-            const widgets = rows.map((r) => ({
-              id: r.widgetid,
-              lane,
-              codeUrl: r.content,
-              checksum: '',
-              metadata: {
-                label: r.label,
-                category: r.category
-              }
-            }));
-            callback(null, { widgets });
+        // Forward the request to widgetManager
+        motherEmitter.emit('getWidgets', {
+          jwt,
+          moduleName: 'widgetManager',
+          moduleType: 'core',
+          widgetType: lane
+        }, (err, widgetRows = []) => {
+          if (err) {
+            console.error(`[plainSpace] Error fetching widgets from widgetManager: ${err.message}`);
+            return callback(null, { widgets: [] }); // graceful degradation
           }
-        );
+
+          // Map DB widget rows into frontend-friendly format
+          const formattedWidgets = widgetRows.map(row => ({
+            id: row.widgetId,           // ID from widgetManager
+            lane,
+            codeUrl: row.content,       // Path to widget JS file
+            checksum: '',               // Optional, currently unused
+            metadata: {
+              label: row.label,
+              category: row.category
+            }
+          }));
+
+          // Send the formatted widget array to frontend
+          callback(null, { widgets: formattedWidgets });
+        });
       });
+
 
       console.log('[plainSpace] Initialization complete!');
     } catch (err) {

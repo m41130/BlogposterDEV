@@ -1,238 +1,321 @@
 /* =============================================================================
-   site.css — minimal conflicts with GridStack
+   site.css — Branding & UI für BlogposterCMS gemäß Design-Guide
    ============================================================================= */
 
 /* -----------------------------------------------------------------------------
-   0. Global Variables
+   0. Variable Fonts einbinden
    ---------------------------------------------------------------------------- */
-   :root {
-    --color-bg: #F5F1F9;
-    --color-white: #FFFFFF;
-    --color-text: #1C1C1E;
-    --color-primary: #7C3AED;
-    --color-primary-light: #A78BFA;
-    --color-secondary: #F3E8FF;
-    --shadow-default: 0 4px 20px rgba(0,0,0,0.05);
-    --shadow-card: 0 2px 8px rgba(0,0,0,0.04);
-    --font-main: 'Inter', sans-serif;
+   @font-face {
+    font-family: 'Noto Sans Variable';
+    src: url('../fonts/NotoSans-VariableFont_wdth,wght.ttf') format('truetype');
+    font-weight: 100 900;
+    font-stretch: 75% 100%;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'Noto Sans Variable';
+    src: url('../fonts/NotoSans-Italic-VariableFont_wdth,wght.ttf') format('truetype');
+    font-weight: 100 900;
+    font-stretch: 75% 100%;
+    font-style: italic;
+  }
+  @font-face {
+    font-family: 'Open Sans Variable';
+    src: url('../fonts/OpenSans-VariableFont_wdth,wght.ttf') format('truetype');
+    font-weight: 100 900;
+    font-stretch: 75% 100%;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'Open Sans Variable';
+    src: url('../fonts/OpenSans-Italic-VariableFont_wdth,wght.ttf') format('truetype');
+    font-weight: 100 900;
+    font-stretch: 75% 100%;
+    font-style: italic;
   }
   
   /* -----------------------------------------------------------------------------
-     1. Scope Wrapper
-     Wrap everything in .app-scope so your styles don’t mess with GridStack
+     1. Global Variables (Branding)
+     ---------------------------------------------------------------------------- */
+  :root {
+    /* Farben */
+    --color-bg: #FFFFFF;                        /* Weiß */
+    --color-secondary-light: #F5F5F5;           /* Hellgrau für Container/Inputs */
+    --color-text: #333333;                      /* Charcoal für Texte */
+    --color-white: #FFFFFF;
+    --gradient-primary: linear-gradient(
+      90deg,
+      #008080, /* Teal */
+      #FF00FF, /* Magenta */
+      #FFA500  /* Orange */
+    );
+    --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.04);
+  
+    /* Typografie */
+    --font-body: 'Avenir Next', 'Noto Sans Variable', sans-serif;
+    --font-heading: 'Avenir Next Bold', 'Open Sans Variable', sans-serif;
+  }
+  
+  /* -----------------------------------------------------------------------------
+     2. Scope Wrapper
      ---------------------------------------------------------------------------- */
   .app-scope {
-    /* Basic page defaults */
     margin: 0;
     padding: 0;
-    font-family: var(--font-main);
+    font-family: var(--font-body);
     font-size: 16px;
-    line-height: 24px;
+    line-height: 1.5;
     background-color: var(--color-bg);
     color: var(--color-text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
-  
-  /* Box-sizing reset inside app-scope */
-  .app-scope * {
-    box-sizing: border-box;
-  }
+  .app-scope *,
   .app-scope *::before,
   .app-scope *::after {
-    box-sizing: inherit;
+    box-sizing: border-box;
+  }
+  .app-scope::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: inherit; /* übernimmt dein inline gesetztes Hintergrundbild */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: -3; /* liegt ganz unten */
+  }
+  .app-scope::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-color: rgba(255, 255, 255, 0.7); /* semi-transparente Schicht für dezentes Overlay */
+    z-index: -2; /* liegt über dem Bild, aber unter deinem Formular */
   }
   
-  /* -----------------------------------------------------------------------------
-     2. Container (generic layout box)
-     Avoid overflow or forcing widths/heights that might clip .grid-stack items
-     ---------------------------------------------------------------------------- */
-  .app-scope .container {
-    max-width: 1200px;
-    margin: 40px auto;
-    background-color: var(--color-white);
-    border-radius: 16px;
-    box-shadow: var(--shadow-default);
-  
-    /* Minimal constraints so GridStack can expand as needed. */
-    display: block;
-    padding: 24px;
-  
-    /* crucial: no overflow hidden */
-    overflow: visible;
-  
-    /* optional if you want stacking context, but keep it minimal */
-    position: relative;
-  }
   
   /* -----------------------------------------------------------------------------
      3. Basic Text Styles
      ---------------------------------------------------------------------------- */
-  .app-scope h1 {
-    font-size: 32px;
-    font-weight: 700;
-    margin: 0 0 16px;
+  .app-scope h1,
+  .app-scope h2,
+  .app-scope h3 {
+    font-family: var(--font-heading);
     color: var(--color-text);
-  }
-  
-  .app-scope p {
     margin: 0 0 16px;
   }
+  .app-scope h1 { font-size: 36px; font-weight: 700; }
+  .app-scope h2 { font-size: 28px; font-weight: 600; }
+  .app-scope h3 { font-size: 24px; font-weight: 600; }
+  .app-scope p { margin: 0 0 16px; }
   
   /* -----------------------------------------------------------------------------
      4. Buttons
      ---------------------------------------------------------------------------- */
-  .app-scope .button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 12px 24px;
-    border: none;
-    border-radius: 12px;
-    background: linear-gradient(135deg, var(--color-primary-light), var(--color-primary));
-    color: var(--color-white);
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: 0 2px 10px rgba(124, 58, 237, 0.3);
-    transition: opacity 0.2s ease;
-  }
-  
-  .app-scope .button:hover {
-    opacity: 0.9;
-  }
+     .app-scope .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 32px;
+      border: none;
+      border-radius: 999px; /* Pill-Shape */
+      background: var(--gradient-primary);
+      color: var(--color-white);
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    
+      /* Verbessertes visuelles Finish */
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.533);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .app-scope .button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      height: 100%;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.2);
+      transform: skewX(-45deg);
+      transition: left 0.5s ease;
+    }
+    
+    .app-scope .button:hover::before {
+      left: 200%;
+    }
+    
+    .app-scope .button:hover {
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+      transform: translateY(-2px);
+    }
+    
   
   /* -----------------------------------------------------------------------------
-     5. Forms (Login, Registration, etc.)
+     5. Forms
      ---------------------------------------------------------------------------- */
   .app-scope form {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
   }
-  
   .app-scope label {
+    font-family: var(--font-body);
     font-weight: 500;
     color: var(--color-text);
   }
-  
-  .app-scope input[type="text"],
-  .app-scope input[type="password"],
-  .app-scope input[type="email"],
+  .app-scope input,
   .app-scope textarea {
     width: 100%;
     padding: 12px;
-    border: 1px solid #D1D5DB;
-    border-radius: 8px;
-    font-size: 16px;
-    background-color: var(--color-white);
-    transition: border-color 0.2s ease;
+    border: none;
+    border-bottom: 2px solid #D1D5DB;
+    border-radius: 0;
+    font-size: 14px;
+    background-color: transparent;
+    transition: border 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
   }
-  
   .app-scope input:focus,
   .app-scope textarea:focus {
     outline: none;
-    border-color: var(--color-primary);
+    border-bottom: 2px solid transparent;
+    border-radius: 9px;
+    border-image: var(--gradient-primary) 1;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); 
+  /* Gradient-Text-Effekt bei Fokus */
+}
+
+  /* -----------------------------------------------------------------------------
+     5.1 Floating Labels (Login-Form)
+     ---------------------------------------------------------------------------- */
+  .app-scope .login-form .field {
+    position: relative;
+    margin-bottom: 1rem;
+  }
+  .app-scope .login-form .field input {
+    padding: 1.5rem 0.75rem 0.5rem;
+  }
+  .app-scope .login-form .field label {
+    position: absolute;
+    left: 0.75rem;
+    top: 1rem;
+    font-size: 1rem;
+    color: #888;
+    pointer-events: none;
+    transition: all 0.2s ease;
+    
+  }
+  .app-scope .login-form .field input:focus + label,
+  .app-scope .login-form .field input:not(:placeholder-shown) + label {
+    top: 0.25rem;
+    font-size: 0.75rem;
+    color: var(--gradient-primary);
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    caret-color: #333333; /* Caret sichtbar lassen */
   }
   
   /* -----------------------------------------------------------------------------
      6. Login Form Style
      ---------------------------------------------------------------------------- */
-  .app-scope .login-form {
+     .login-form {
+      position: relative;
+      z-index: 1; /* immer vorne */
+    }
+     .app-scope .login-form {
+    width: 100%;
     max-width: 400px;
-    margin: 0 auto;
-    background-color: var(--color-white);
     padding: 32px;
-    border-radius: 16px;
-    box-shadow: var(--shadow-default);
+    border-radius: 8px;
+    background-color: var(--color-secondary-light);
+    box-shadow: var(--shadow-card);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
-  
-  .app-scope .login-form h1 {
-    text-align: center;
-    margin-bottom: 24px;
+  .app-scope .login-form .logo {
+    width: 180px;
+    height: auto;
+    margin: 32px auto 16px;
   }
-  
+  .app-scope .login-form form {
+    width: 100%;
+  }
+  .app-scope .login-form .field {
+    width: 100%;
+  }
   .app-scope .login-form .button {
     width: 100%;
   }
   
   /* -----------------------------------------------------------------------------
-     7. Cards (optional example)
+     7. Cards (optional)
      ---------------------------------------------------------------------------- */
   .app-scope .card {
     background-color: var(--color-white);
-    border-radius: 12px;
+    border-radius: 8px;
     box-shadow: var(--shadow-card);
     padding: 16px;
     position: relative;
   }
-  
-  .app-scope .card--paragraph {
-    background-color: var(--color-secondary);
-  }
-  
+  .app-scope .card--paragraph { background-color: #F3E8FF; }
   .app-scope .card--quote,
-  .app-scope .card--image {
-    border: 2px solid var(--color-primary);
-  }
+  .app-scope .card--image { border: 2px solid var(--gradient-primary); }
   
   /* -----------------------------------------------------------------------------
-     8. If you need to style .grid-stack or .grid-stack-item, do so carefully:
-     ----------------------------------------------------------------------------
-     Example minimal override:
-     .grid-stack .grid-stack-item .grid-stack-item-content {
-       background-color: #FAFAFA;
-     }
-     But do NOT add overflow hidden, display flex, or forced height restrictions.
+     8. GridStack Overrides (wenn benötigt)
      ---------------------------------------------------------------------------- */
+  /* .grid-stack .grid-stack-item .grid-stack-item-content {
+       background-color: #FAFAFA;
+  } */
   
-
-     .top-header, .main-header, .sidebar {
-      display: flex;
-      align-items: center;
-      padding: 10px 20px;
+  /* -----------------------------------------------------------------------------
+     9. Header & Sidebar (falls du das nutzt)
+     ---------------------------------------------------------------------------- */
+  .top-header, .main-header, .sidebar {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+  }
+  .top-header {
+    justify-content: space-between;
+    border-bottom: 1px solid #eee;
+  }
+  .left-icons, .right-icons, .nav-icons { display: flex; gap: 15px; }
+  .logo-icon, .icon { height: 24px; width: 24px; stroke-width: 1.5px; }
+  .site-title { flex-grow: 1; font-size: 24px; }
+  .nav-icons a, .sidebar-nav a {
+    text-decoration: none;
+    color: #444;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 8px;
+  }
+  .sidebar {
+    flex-direction: column;
+    border-right: 1px solid #eee;
+    height: 100%;
+  }
+  .sidebar-nav { width: 100%; }
+  .sidebar-nav a:hover,
+  .nav-icons a:hover { background-color: #f4f4f4; }
+  
+  /* -----------------------------------------------------------------------------
+    10. Responsive Anpassungen
+  ----------------------------------------------------------------------------- */
+  @media (max-width: 500px) {
+    .app-scope .login-form {
+      padding: 24px;
+      margin: 0 16px;
     }
-    
-    .top-header {
-      justify-content: space-between;
-      border-bottom: 1px solid #eee;
-    }
-    
-    .left-icons, .right-icons, .nav-icons {
-      display: flex;
-      gap: 15px;
-    }
-    
-    .logo-icon, .icon {
-      height: 24px;
-      width: 24px;
-      stroke-width: 1.5px;
-    }
-    
-    .site-title {
-      flex-grow: 1;
-      font-size: 24px;
-    }
-    
-    .nav-icons a, .sidebar-nav a {
-      text-decoration: none;
-      color: #444;
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      padding: 8px;
-    }
-    
-    .sidebar {
-      flex-direction: column;
-      border-right: 1px solid #eee;
-      height: 100%;
-    }
-    
-    .sidebar-nav {
-      width: 100%;
-    }
-    
-    .sidebar-nav a:hover,
-    .nav-icons a:hover {
-      background-color: #f4f4f4;
-    }
-    
+  }
+  

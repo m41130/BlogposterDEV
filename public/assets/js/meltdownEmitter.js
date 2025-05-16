@@ -1,14 +1,17 @@
 // public/assets/js/meltdownEmitter.js
 ;(function(window) {
   window.meltdownEmit = async function(eventName, payload = {}) {
-    delete payload.jwt;
-
+    const headers = {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': window.CSRF_TOKEN
+    };
     const resp = await fetch('/api/meltdown', {
-      method:      'POST',
-      credentials: 'include',
-      headers:     { 'Content-Type': 'application/json' },
-      body:        JSON.stringify({ eventName, payload })
+      method: 'POST',
+      credentials: 'same-origin',
+      headers,
+      body: JSON.stringify({ eventName, payload })
     });
+    
 
     let json;
     try {

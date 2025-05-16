@@ -2,133 +2,214 @@
  * mother/modules/databaseManager/meltdownBridging/highLevelCrudEvents.js
  *
  * Registers meltdown events for dbInsert, dbSelect, dbUpdate, dbDelete.
- * Either calls out to a remote microservice via HTTP, or uses local meltdown bridging.
+ * Either calls out to a remote microservice via HTTP (if REMOTE_URL_<moduleName> is set),
+ * or uses local meltdown bridging (performDbOperation).
  */
+
 require('dotenv').config();
 const axios = require('axios');
 const { onceCallback } = require('../../../emitters/motherEmitter');
 
-// NEW: Notification Emitter for typed notifications
+// Notification emitter for typed notifications
 const notificationEmitter = require('../../../emitters/notificationEmitter');
 
+/**
+ * registerHighLevelCrudEvents:
+ *   Binds meltdown events:
+ *     - dbInsert
+ *     - dbSelect
+ *     - dbUpdate
+ *     - dbDelete
+ *
+ *   Each event can be handled either:
+ *     (a) via remote microservice call (if REMOTE_URL_MODULE is defined)
+ *     (b) or locally via localDbXYZ(...) → which calls `performDbOperation`.
+ */
 function registerHighLevelCrudEvents(motherEmitter) {
-  // 1) dbInsert
-  motherEmitter.on('dbInsert', Object.assign((payload, originalCb) => {
-    const callback = onceCallback(originalCb);
-    const { moduleName, table, data } = payload || {};
+  /*
+   * ========================
+   * 1) dbInsert
+   * ========================
+   */
+  motherEmitter.on(
+    'dbInsert',
+    Object.assign(async (payload, originalCb) => {
+      const callback = onceCallback(originalCb);
+      const { moduleName, table, data } = payload || {};
 
-    try {
-      if (!moduleName || !table || !data) {
-        throw new Error('dbInsert => missing moduleName, table, or data.');
+      try {
+        if (!moduleName || !table || !data) {
+          throw new Error('dbInsert => missing moduleName, table, or data.');
+        }
+
+        const remoteUrl = getRemoteUrlForModule(moduleName);
+        if (remoteUrl) {
+          // Remote scenario => call the remote service
+          try {
+            const result = await remoteDbInsert(remoteUrl, moduleName, table, data);
+            callback(null, result);
+          } catch (remoteErr) {
+            callback(remoteErr);
+          }
+          return; // Important! End here so we don't also do localDbInsert
+        }
+
+        // Otherwise handle it locally
+        localDbInsert(motherEmitter, payload, callback);
+
+      } catch (error) {
+        notificationEmitter.notify({
+          moduleName: moduleName || 'databaseManager',
+          notificationType: 'system',
+          priority: 'critical',
+          message: `dbInsert error => ${error.message}`
+        });
+        if (moduleName) {
+          motherEmitter.emit('deactivateModule', { moduleName, reason: error.message });
+        }
+        callback(error);
       }
+    }, { moduleName: 'databaseManager' })
+  );
 
-      const remoteUrl = getRemoteUrlForModule(moduleName);
-      if (remoteUrl) {
-        return remoteDbInsert(remoteUrl, moduleName, table, data, callback);
+  /*
+   * ========================
+   * 2) dbSelect
+   * ========================
+   */
+  motherEmitter.on(
+    'dbSelect',
+    Object.assign(async (payload, originalCb) => {
+      const callback = onceCallback(originalCb);
+      const { moduleName, table } = payload || {};
+
+      try {
+        if (!moduleName || !table) {
+          throw new Error('dbSelect => missing moduleName or table.');
+        }
+
+        const remoteUrl = getRemoteUrlForModule(moduleName);
+        if (remoteUrl) {
+          // Remote scenario => call the remote service
+          try {
+            const result = await remoteDbSelect(remoteUrl, moduleName, table, payload.where || {});
+            callback(null, result);
+          } catch (remoteErr) {
+            callback(remoteErr);
+          }
+          return;
+        }
+
+        // Otherwise handle it locally
+        localDbSelect(motherEmitter, payload, callback);
+
+      } catch (error) {
+        console.error(`[dbSelect] Error occurred: ${error.message}`);
+        notificationEmitter.notify({
+          moduleName: moduleName || 'databaseManager',
+          notificationType: 'system',
+          priority: 'critical',
+          message: `dbSelect error => ${error.message}`
+        });
+        if (moduleName) {
+          motherEmitter.emit('deactivateModule', { moduleName, reason: error.message });
+        }
+        callback(error);
       }
-      localDbInsert(motherEmitter, payload, callback);
-    } catch (error) {
-      notificationEmitter.notify({
-        moduleName: moduleName || 'databaseManager',
-        notificationType: 'system',
-        priority: 'critical',
-        message: `dbInsert error => ${error.message}`
-      });
-      motherEmitter.emit('deactivateModule', { moduleName, reason: error.message });
-      callback(error);
-    }
-  }, { moduleName: 'databaseManager' }));
+    }, { moduleName: 'databaseManager' })
+  );
 
-  // 2) dbSelect
-  motherEmitter.on('dbSelect', Object.assign((payload, originalCb) => {
-    const callback = onceCallback(originalCb);
-    const { moduleName, table } = payload || {};
+  /*
+   * ========================
+   * 3) dbUpdate
+   * ========================
+   */
+  motherEmitter.on(
+    'dbUpdate',
+    Object.assign(async (payload, originalCb) => {
+      const callback = onceCallback(originalCb);
+      const { moduleName, table, data } = payload || {};
 
-    try {
-      if (!moduleName || !table) {
-        throw new Error('dbSelect => missing moduleName or table.');
+      try {
+        if (!moduleName || !table || !data) {
+          throw new Error('dbUpdate => missing moduleName, table, or data.');
+        }
+
+        const remoteUrl = getRemoteUrlForModule(moduleName);
+        if (remoteUrl) {
+          // Remote scenario
+          try {
+            const result = await remoteDbUpdate(remoteUrl, moduleName, table, payload.where || {}, data);
+            callback(null, result);
+          } catch (remoteErr) {
+            callback(remoteErr);
+          }
+          return;
+        }
+
+        // Otherwise handle it locally
+        localDbUpdate(motherEmitter, payload, callback);
+
+      } catch (error) {
+        notificationEmitter.notify({
+          moduleName: moduleName || 'databaseManager',
+          notificationType: 'system',
+          priority: 'critical',
+          message: `dbUpdate error => ${error.message}`
+        });
+        if (moduleName) {
+          motherEmitter.emit('deactivateModule', { moduleName, reason: error.message });
+        }
+        callback(error);
       }
+    }, { moduleName: 'databaseManager' })
+  );
 
-      const remoteUrl = getRemoteUrlForModule(moduleName);
-      if (remoteUrl) {
-        console.debug(`[dbSelect] Remote URL detected for module: ${moduleName}, URL: ${remoteUrl}`);
-        console.debug(`[dbSelect] Payload:`, JSON.stringify(payload, null, 2));
-        return remoteDbSelect(remoteUrl, moduleName, table, payload.where || {}, callback);
+  /*
+   * ========================
+   * 4) dbDelete
+   * ========================
+   */
+  motherEmitter.on(
+    'dbDelete',
+    Object.assign(async (payload, originalCb) => {
+      const callback = onceCallback(originalCb);
+      const { moduleName, table, where } = payload || {};
+
+      try {
+        if (!moduleName || !table || !where) {
+          throw new Error('dbDelete => missing moduleName, table, or where.');
+        }
+
+        const remoteUrl = getRemoteUrlForModule(moduleName);
+        if (remoteUrl) {
+          // Remote scenario
+          try {
+            const result = await remoteDbDelete(remoteUrl, moduleName, table, where);
+            callback(null, result);
+          } catch (remoteErr) {
+            callback(remoteErr);
+          }
+          return;
+        }
+
+        // Otherwise handle it locally
+        localDbDelete(motherEmitter, payload, callback);
+
+      } catch (error) {
+        notificationEmitter.notify({
+          moduleName: moduleName || 'databaseManager',
+          notificationType: 'system',
+          priority: 'critical',
+          message: `dbDelete error => ${error.message}`
+        });
+        if (moduleName) {
+          motherEmitter.emit('deactivateModule', { moduleName, reason: error.message });
+        }
+        callback(error);
       }
-
-      console.debug(`[dbSelect] No remote URL detected. Using localDbSelect.`);
-      console.debug(`[dbSelect] Payload:`, JSON.stringify(payload, null, 2));
-      localDbSelect(motherEmitter, payload, callback);
-    } catch (error) {
-      console.error(`[dbSelect] Error occurred: ${error.message}`);
-      console.error(`[dbSelect] Stack trace:`, error.stack);
-      console.error(`[dbSelect] Payload:`, JSON.stringify(payload, null, 2));
-
-      notificationEmitter.notify({
-        moduleName: moduleName || 'databaseManager',
-        notificationType: 'system',
-        priority: 'critical',
-        message: `dbSelect error => ${error.message}`
-      });
-
-      motherEmitter.emit('deactivateModule', { moduleName, reason: error.message });
-      callback(error);
-    }
-  }, { moduleName: 'databaseManager' }));
-
-  // 3) dbUpdate
-  motherEmitter.on('dbUpdate', Object.assign((payload, originalCb) => {
-    const callback = onceCallback(originalCb);
-    const { moduleName, table, data } = payload || {};
-
-    try {
-      if (!moduleName || !table || !data) {
-        throw new Error('dbUpdate => missing moduleName, table, or data.');
-      }
-
-      const remoteUrl = getRemoteUrlForModule(moduleName);
-      if (remoteUrl) {
-        return remoteDbUpdate(remoteUrl, moduleName, table, payload.where || {}, data, callback);
-      }
-      localDbUpdate(motherEmitter, payload, callback);
-    } catch (error) {
-      notificationEmitter.notify({
-        moduleName: moduleName || 'databaseManager',
-        notificationType: 'system',
-        priority: 'critical',
-        message: `dbUpdate error => ${error.message}`
-      });
-      motherEmitter.emit('deactivateModule', { moduleName, reason: error.message });
-      callback(error);
-    }
-  }, { moduleName: 'databaseManager' }));
-
-  // 4) dbDelete
-  motherEmitter.on('dbDelete', Object.assign((payload, originalCb) => {
-    const callback = onceCallback(originalCb);
-    const { moduleName, table, where } = payload || {};
-
-    try {
-      if (!moduleName || !table || !where) {
-        throw new Error('dbDelete => missing moduleName, table, or where.');
-      }
-
-      const remoteUrl = getRemoteUrlForModule(moduleName);
-      if (remoteUrl) {
-        return remoteDbDelete(remoteUrl, moduleName, table, where, callback);
-      }
-      localDbDelete(motherEmitter, payload, callback);
-    } catch (error) {
-      notificationEmitter.notify({
-        moduleName: moduleName || 'databaseManager',
-        notificationType: 'system',
-        priority: 'critical',
-        message: `dbDelete error => ${error.message}`
-      });
-      motherEmitter.emit('deactivateModule', { moduleName, reason: error.message });
-      callback(error);
-    }
-  }, { moduleName: 'databaseManager' }));
+    }, { moduleName: 'databaseManager' })
+  );
 }
 
 /* ------------------------------------------------------------------
@@ -139,37 +220,24 @@ function getRemoteUrlForModule(moduleName) {
   return process.env[key] || null;
 }
 
-async function remoteDbInsert(baseUrl, moduleName, table, data, callback) {
-  try {
-    const resp = await axios.post(`${baseUrl}/dbInsert`, { moduleName, table, data });
-    callback(null, resp.data);
-  } catch (err) {
-    callback(err);
-  }
+async function remoteDbInsert(baseUrl, moduleName, table, data) {
+  const resp = await axios.post(`${baseUrl}/dbInsert`, { moduleName, table, data });
+  return resp.data;
 }
-async function remoteDbSelect(baseUrl, moduleName, table, where, callback) {
-  try {
-    const resp = await axios.post(`${baseUrl}/dbSelect`, { moduleName, table, where });
-    callback(null, resp.data);
-  } catch (err) {
-    callback(err);
-  }
+
+async function remoteDbSelect(baseUrl, moduleName, table, where) {
+  const resp = await axios.post(`${baseUrl}/dbSelect`, { moduleName, table, where });
+  return resp.data;
 }
-async function remoteDbUpdate(baseUrl, moduleName, table, where, data, callback) {
-  try {
-    const resp = await axios.post(`${baseUrl}/dbUpdate`, { moduleName, table, where, data });
-    callback(null, resp.data);
-  } catch (err) {
-    callback(err);
-  }
+
+async function remoteDbUpdate(baseUrl, moduleName, table, where, data) {
+  const resp = await axios.post(`${baseUrl}/dbUpdate`, { moduleName, table, where, data });
+  return resp.data;
 }
-async function remoteDbDelete(baseUrl, moduleName, table, where, callback) {
-  try {
-    const resp = await axios.post(`${baseUrl}/dbDelete`, { moduleName, table, where });
-    callback(null, resp.data);
-  } catch (err) {
-    callback(err);
-  }
+
+async function remoteDbDelete(baseUrl, moduleName, table, where) {
+  const resp = await axios.post(`${baseUrl}/dbDelete`, { moduleName, table, where });
+  return resp.data;
 }
 
 /* ------------------------------------------------------------------
@@ -194,7 +262,7 @@ function localDbInsert(motherEmitter, payload, callback) {
     return;
   }
 
-  // The "normal" insert approach
+  // Normal insert approach
   const columns = Object.keys(data);
   if (!columns.length) {
     return callback(new Error('[localDbInsert] No columns in data.'));
@@ -360,21 +428,23 @@ function localDbDelete(motherEmitter, payload, callback) {
   );
 }
 
+/**
+ * Helper function to handle rawSQL param arrays in meltdown payload
+ */
 function extractParamsIfNeeded(dataObj, whereObj) {
-    if (dataObj.params !== undefined) {
-     return Array.isArray(dataObj.params) ? dataObj.params
-                                         : [ dataObj.params ];
-    } 
-    const numericKeys = Object.keys(dataObj)
-                              .filter(k => /^\d+$/.test(k))
-                              .sort((a,b) => a-b);
-    if (numericKeys.length) {
-      return numericKeys.map(k => dataObj[k]);
-    }
-  
-    return [ dataObj ];
+  if (dataObj.params !== undefined) {
+    return Array.isArray(dataObj.params)
+      ? dataObj.params
+      : [ dataObj.params ];
+  }
+  const numericKeys = Object.keys(dataObj)
+    .filter(k => /^\d+$/.test(k))
+    .sort((a,b) => a - b);
+  if (numericKeys.length) {
+    return numericKeys.map(k => dataObj[k]);
+  }
 
-  
+  return [ dataObj ];
 }
 
 module.exports = {

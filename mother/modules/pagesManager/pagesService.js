@@ -121,7 +121,38 @@ function checkAndAlterPagesTable(motherEmitter, jwt, nonce) {
   });
 }
 
+async function getPageBySlugLocal(motherEmitter, jwt, slug, lane = 'public', language = 'en') {
+  return new Promise((resolve, reject) => {
+    motherEmitter.emit(
+      'dbSelect',
+      {
+        jwt,
+        moduleName: 'pagesManager',
+        moduleType: 'core',
+        table: '__rawSQL__',
+        data: {
+          rawSQL: 'GET_PAGE_BY_SLUG',
+          0: slug,
+          1: lane,
+          2: language
+        }
+      },
+      (err, result = null) => {
+        if (err) return reject(err);
+        const rows = Array.isArray(result)
+          ? result
+          : Array.isArray(result?.rows)
+            ? result.rows
+            : (result ? [result] : []);
+        resolve(rows[0] ?? null);
+      }
+    );
+  });
+}
+
+
 module.exports = {
   ensurepagesManagerDatabase,
-  ensurePageSchemaAndTable
+  ensurePageSchemaAndTable,
+  getPageBySlugLocal
 };

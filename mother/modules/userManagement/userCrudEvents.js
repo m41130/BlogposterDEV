@@ -86,22 +86,22 @@ function setupUserCrudEvents(motherEmitter) {
         moduleName: 'userManagement',
         table: 'users',
         data: dataToInsert
-      }, (dbErr, insertedRow) => {
-        clearTimeout(timeout);
-        if (dbErr) {
-          console.error('[USER MGMT] createUser => dbInsert error:', dbErr.message);
-          return callback(dbErr);
+      }, (dbErr, insertedRows) => {
+        if (dbErr) return callback(dbErr);
+      
+        // insertedRows ist ein Array – wir wollen das erste Element
+        const newUser = Array.isArray(insertedRows) ? insertedRows[0] : insertedRows;
+        if (!newUser || !newUser.id) {
+          return callback(new Error('No valid inserted user row'));
         }
-
-        console.log('[USER MGMT] createUser => User inserted:', insertedRow);
-        const newUser = insertedRow;
-
-        // If no role => done
+      
+        console.log('[USER MGMT] createUser => User inserted:', newUser);
+      
         if (!role) {
           return callback(null, newUser);
         }
-
-        // 4) Assign role if provided
+      
+        // Dann: DB-Select nach role_name
         motherEmitter.emit('dbSelect', {
           jwt,
           moduleName: 'userManagement',
@@ -112,17 +112,17 @@ function setupUserCrudEvents(motherEmitter) {
             console.error('[USER MGMT] createUser => Error selecting roles:', roleErr.message);
             return callback(roleErr);
           }
-          if (!rolesArr || rolesArr.length === 0) {
-            console.warn(`[USER MGMT] createUser => role "${role}" not found. User created w/o role.`);
+          if (!rolesArr || !rolesArr.length) {
+            console.warn(`[USER MGMT] createUser => role "${role}" not found. user created without role.`);
             return callback(null, newUser);
           }
-
+      
           const foundRole = rolesArr[0];
           motherEmitter.emit('assignRoleToUser', {
-            jwt, 
+            jwt,
             moduleName: 'userManagement',
             moduleType: 'core',
-            userId: newUser.id,
+            userId: newUser.id,    
             roleId: foundRole.id
           }, (assignErr) => {
             if (assignErr) {

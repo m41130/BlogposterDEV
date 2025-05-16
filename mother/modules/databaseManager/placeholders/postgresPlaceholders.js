@@ -115,6 +115,12 @@ switch (operation) {
             data JSONB,
             created_at TIMESTAMP DEFAULT NOW()
           );
+
+          INSERT INTO settingsManager.cms_settings (key, value, created_at, updated_at)
+          VALUES ('FIRST_INSTALL_DONE', 'false', NOW(), NOW())
+          ON CONFLICT (key)
+          DO NOTHING;
+
         `);
         return { done: true };
       }
@@ -163,79 +169,161 @@ switch (operation) {
     // ─────────────────────────────────────────────────────────────────────────
     // PAGES MANAGER
     // ─────────────────────────────────────────────────────────────────────────
+    /* ---------- CREATE SCHEMA ---------- */
     case 'INIT_PAGES_SCHEMA': {
-    await client.query(`CREATE SCHEMA IF NOT EXISTS pagesManager;`);
-    return { done: true };
+      // Spoiler: this creates the schema only if it doesn’t already exist.
+      await client.query(`CREATE SCHEMA IF NOT EXISTS pagesManager;`);
+      return { done: true };
     }
-    
-    case 'INIT_PAGES_TABLE': {
-    await client.query(`
-    CREATE TABLE IF NOT EXISTS pagesManager.pages (
-        id SERIAL PRIMARY KEY,
-        parent_id INT REFERENCES pagesManager.pages(id) ON DELETE SET NULL,
-        is_content BOOLEAN DEFAULT false,
-        is_start BOOLEAN DEFAULT false,
-        slug VARCHAR(255) UNIQUE NOT NULL,
-        status VARCHAR(50) DEFAULT 'draft',
-        seo_image VARCHAR(255),
-        created_at TIMESTAMP DEFAULT NOW(),
-        updated_at TIMESTAMP DEFAULT NOW()
 
-    );
-    
-    CREATE TABLE IF NOT EXISTS pagesManager.page_translations (
-        id SERIAL PRIMARY KEY,
-        page_id INT REFERENCES pagesManager.pages(id) ON DELETE CASCADE,
-        language VARCHAR(5),
-        title TEXT,
-        html TEXT,
-        css TEXT,
-        meta_desc TEXT,
-        seo_title TEXT,
-        seo_keywords TEXT,
-        created_at TIMESTAMP DEFAULT NOW(),
-        updated_at TIMESTAMP DEFAULT NOW(),
-        UNIQUE(page_id, language)
+    /* ---------- INITIAL TABLE CREATION ---------- */
+    case 'INIT_PAGES_TABLE': {
+      await client.query(`
+        /* Main pages table */
+        CREATE TABLE IF NOT EXISTS pagesManager.pages (
+          id          SERIAL PRIMARY KEY,
+          parent_id   INT REFERENCES pagesManager.pages(id) ON DELETE SET NULL,
+          is_content  BOOLEAN      DEFAULT false,
+          is_start    BOOLEAN      DEFAULT false,
+          slug        VARCHAR(255) NOT NULL,                -- yes, slug is mandatory
+          lane        VARCHAR(20)  NOT NULL DEFAULT 'public',
+          status      VARCHAR(50)  DEFAULT 'draft',
+          seo_image   VARCHAR(255),
+          language    VARCHAR(5)   DEFAULT 'en',
+          created_at  TIMESTAMP    DEFAULT NOW(),
+          updated_at  TIMESTAMP    DEFAULT NOW(),
+          /* NEW COLUMNS: */
+          title       TEXT,
+          meta        JSONB,
+          /* Composite unique constraint: slug+lane */
+          UNIQUE (slug, lane)
         );
-    `);
-    return { done: true };
+
+        /* Per‑language translations */
+        CREATE TABLE IF NOT EXISTS pagesManager.page_translations (
+          id          SERIAL PRIMARY KEY,
+          page_id     INT REFERENCES pagesManager.pages(id) ON DELETE CASCADE,
+          language    VARCHAR(5),
+          title       TEXT,
+          html        TEXT,
+          css         TEXT,
+          meta_desc   TEXT,
+          seo_title   TEXT,
+          seo_keywords TEXT,
+          created_at  TIMESTAMP DEFAULT NOW(),
+          updated_at  TIMESTAMP DEFAULT NOW(),
+          UNIQUE (page_id, language)
+        );
+      `);
+      return { done: true };
     }
-    
+
+    /* ---------- MIGRATION / SELF‑HEALING PATCH ---------- */
     case 'CHECK_AND_ALTER_PAGES_TABLE': {
+      /* 0. In case someone “accidentally” removed slug earlier … */
       await client.query(`
         ALTER TABLE pagesManager.pages
-          ADD COLUMN IF NOT EXISTS parent_id INT REFERENCES pagesManager.pages(id) ON DELETE SET NULL,
-          ADD COLUMN IF NOT EXISTS language VARCHAR(5) DEFAULT 'en',
-          ADD COLUMN IF NOT EXISTS is_content BOOLEAN DEFAULT false;
+          ADD COLUMN IF NOT EXISTS slug VARCHAR(255) NOT NULL;
+      `);
 
+      /* 1. Kill the zombie single‑column unique constraint & index */
+      await client.query(`
+        ALTER TABLE pagesManager.pages
+          DROP CONSTRAINT IF EXISTS pages_slug_key;
+      `);
+      await client.query(`
+        DROP INDEX IF EXISTS pagesManager.pages_slug_key;
+      `);
+
+      /* 2. Add any columns that might still be missing (one by one) */
+      await client.query(`
+        ALTER TABLE pagesManager.pages
+          ADD COLUMN IF NOT EXISTS parent_id INT REFERENCES pagesManager.pages(id) ON DELETE SET NULL;
+      `);
+      await client.query(`
+        ALTER TABLE pagesManager.pages
+          ADD COLUMN IF NOT EXISTS language VARCHAR(5) DEFAULT 'en';
+      `);
+      await client.query(`
+        ALTER TABLE pagesManager.pages
+          ADD COLUMN IF NOT EXISTS is_content BOOLEAN DEFAULT false;
+      `);
+      await client.query(`
+        ALTER TABLE pagesManager.pages
+          ADD COLUMN IF NOT EXISTS lane VARCHAR(20) NOT NULL DEFAULT 'public';
+      `);
+
+      /* NEW: add missing "title" + "meta" columns if not existing */
+      await client.query(`
+        ALTER TABLE pagesManager.pages
+          ADD COLUMN IF NOT EXISTS title TEXT;
+      `);
+      await client.query(`
+        ALTER TABLE pagesManager.pages
+          ADD COLUMN IF NOT EXISTS meta JSONB;
+      `);
+
+      /* 3. Create (or verify) the *proper* composite unique index */
+      await client.query(`
+        CREATE UNIQUE INDEX IF NOT EXISTS pages_slug_lane_unique
+          ON pagesManager.pages (slug, lane);
+      `);
+
+      /* 4. One start page per language – this index was already fine */
+      await client.query(`
         CREATE UNIQUE INDEX IF NOT EXISTS pages_start_unique
           ON pagesManager.pages (language)
           WHERE is_start = true;
       `);
-    
-    return { done: true };
+
+      return { done: true };
     }
-    
-    
+
+    /* ---------- CREATE_PAGE ---------- */
     case 'CREATE_PAGE': {
       const p = Array.isArray(params) ? (params[0] || {}) : (params || {});
-      const { slug, status, seo_image, translations, parent_id, is_content } = p;
-    
+      const {
+        slug,
+        status,
+        seo_image,
+        translations,
+        parent_id,
+        is_content,
+        lane,
+        language,
+        /* NEW fields: */
+        title,
+        meta
+      } = p;
+
       const result = await client.query(`
           INSERT INTO pagesManager.pages
-            (slug, status, seo_image, is_start, parent_id, is_content, created_at, updated_at)
-          VALUES ($1, $2, $3, false, $4, $5, NOW(), NOW())
+            (title, meta, slug, status, seo_image, is_start, parent_id, is_content, language, lane,
+            created_at, updated_at)
+          VALUES
+            ($1, $2, $3, $4, $5, false, $6, $7, $8, $9, NOW(), NOW())
           RETURNING id;
-      `, [slug, status || 'draft', seo_image || '', parent_id || null, is_content || false]);
-    
+      `, [
+        /* $1 */ title       || '',
+        /* $2 */ meta        || null,
+        /* $3 */ slug,
+        /* $4 */ status      || 'draft',
+        /* $5 */ seo_image   || '',
+        /* $6 */ parent_id   || null,
+        /* $7 */ is_content  || false,
+        /* $8 */ language    || 'en',
+        /* $9 */ lane        || 'public'
+      ]);
+
       const pageId = result.rows[0].id;
-    
+
+      /* Insert translations if any exist */
       for (const t of translations) {
         await client.query(`
           INSERT INTO pagesManager.page_translations
             (page_id, language, title, html, css,
-             meta_desc, seo_title, seo_keywords,
-             created_at, updated_at)
+            meta_desc, seo_title, seo_keywords,
+            created_at, updated_at)
           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,NOW(),NOW());
         `, [
           pageId,
@@ -248,11 +336,31 @@ switch (operation) {
           t.seoKeywords
         ]);
       }
-    
-      return { done: true, insertedId: pageId }; 
+
+      return { done: true, insertedId: pageId };
     }
-    
-    
+
+    /* ---------- GET_PAGES_BY_LANE ---------- */
+    case 'GET_PAGES_BY_LANE': {
+      const { lane } = params;
+      const { rows } = await client.query(`
+        SELECT p.*,
+              t.language AS trans_lang,
+              t.title AS trans_title,
+              t.html  AS trans_html,
+              t.css   AS trans_css,
+              t.meta_desc, t.seo_title, t.seo_keywords
+          FROM pagesManager.pages p
+          LEFT JOIN pagesManager.page_translations t
+                ON p.id = t.page_id
+        WHERE p.lane = $1
+        ORDER BY p.created_at DESC
+      `, [lane]);
+
+      return rows;
+    }
+
+    /* ---------- ADD_PARENT_CHILD_RELATION ---------- */
     case 'ADD_PARENT_CHILD_RELATION': {
       await client.query(`
         ALTER TABLE pagesManager.pages
@@ -260,73 +368,128 @@ switch (operation) {
       `);
       return { done: true };
     }
-    
+
+    /* ---------- GET_CHILD_PAGES ---------- */
     case 'GET_CHILD_PAGES': {
       const parentId = params[0];
-    
+
       const { rows } = await client.query(`
         SELECT *
-        FROM pagesManager.pages
+          FROM pagesManager.pages
         WHERE parent_id = $1
         ORDER BY created_at DESC;
       `, [parentId]);
-    
+
       return rows;
     }
-    
+
+    /* ---------- GET_ALL_PAGES ---------- */
     case 'GET_ALL_PAGES': {
-    const { rows } = await client.query(`SELECT * FROM pagesManager.pages ORDER BY id DESC`);
-    return rows;
+      const { rows } = await client.query(`
+        SELECT *
+          FROM pagesManager.pages
+        ORDER BY id DESC
+      `);
+      return rows;
     }
-    
+
+    /* ---------- GET_PAGE_BY_ID ---------- */
     case 'GET_PAGE_BY_ID': {
-    const pageId = params[0];
-    const lang = params[1] || 'en';
-    
-    const { rows } = await client.query(`
-        SELECT p.*, t.*
-        FROM pagesManager.pages p
-        LEFT JOIN pagesManager.page_translations t
-        ON p.id = t.page_id AND t.language = $2
+      const pageId = params[0];
+      const lang   = params[1] || 'en';
+
+      const { rows } = await client.query(`
+        SELECT p.*,
+              t.language AS trans_lang, t.title AS trans_title,
+              t.html, t.css, t.meta_desc, t.seo_title, t.seo_keywords
+          FROM pagesManager.pages p
+          LEFT JOIN pagesManager.page_translations t
+                ON p.id = t.page_id AND t.language = $2
         WHERE p.id = $1;
-    `, [pageId, lang]);
-    
-     return rows;
+      `, [pageId, lang]);
+
+      return rows;
     }
-    
+
+    /* ---------- GET_PAGE_BY_SLUG ---------- */
     case 'GET_PAGE_BY_SLUG': {
-    const slug = params[0];
-    const lang = params[1] || 'en';
-    
-    const { rows } = await client.query(`
-        SELECT p.*, t.*
-        FROM pagesManager.pages p
-        LEFT JOIN pagesManager.page_translations t
-        ON p.id = t.page_id AND t.language = $2
-        WHERE p.slug = $1;
-    `, [slug, lang]);
-    
-    return rows;
+      const slug   = params[0];
+      const lane   = params[1] || 'public';
+      const lang   = params[2] || 'en';
+
+      const { rows } = await client.query(`
+        SELECT p.*,
+              t.language AS trans_lang, t.title AS trans_title,
+              t.html, t.css, t.meta_desc, t.seo_title, t.seo_keywords
+          FROM pagesManager.pages p
+          LEFT JOIN pagesManager.page_translations t
+                ON (p.id = t.page_id AND t.language = $3)
+        WHERE p.slug = $1
+          AND p.lane = $2
+      `, [slug, lane, lang]);
+
+      return rows[0] || null;
     }
-    
+
+    /* ---------- UPDATE_PAGE ---------- */
     case 'UPDATE_PAGE': {
-      const { pageId, slug, status, seo_image, translations = [], parent_id, is_content } = params;
-    
+      const {
+        pageId,
+        slug,
+        status,
+        seo_image,
+        translations = [],
+        parent_id,
+        is_content,
+        lane,
+        language,
+        /* NEW fields: */
+        title,
+        meta
+      } = params;
+
       // Update main page
       await client.query(`
         UPDATE pagesManager.pages
-        SET slug=$2, status=$3, seo_image=$4, parent_id=$5, is_content=$6, updated_at=NOW()
-        WHERE id=$1;
-      `, [pageId, slug, status, seo_image, parent_id, is_content  || null]);
-    
+          SET title     = $2,
+              meta      = $3,
+              slug      = $4,
+              status    = $5,
+              seo_image = $6,
+              parent_id = $7,
+              is_content= $8,
+              lane      = $9,
+              language  = $10,
+              updated_at= NOW()
+        WHERE id = $1;
+      `, [
+        /* $1 */ pageId,
+        /* $2 */ title       || '',
+        /* $3 */ meta        || null,
+        /* $4 */ slug,
+        /* $5 */ status,
+        /* $6 */ seo_image,
+        /* $7 */ parent_id,
+        /* $8 */ is_content  || false,
+        /* $9 */ lane        || 'public',
+        /*$10*/ language     || 'en'
+      ]);
+
       // Upsert translations
       for (const t of translations) {
         await client.query(`
           INSERT INTO pagesManager.page_translations
-          (page_id, language, title, html, css, meta_desc, seo_title, seo_keywords, updated_at)
+                (page_id, language, title, html, css, meta_desc, seo_title, seo_keywords, updated_at)
           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,NOW())
-          ON CONFLICT (page_id, language) DO UPDATE SET
-            title=$3, html=$4, css=$5, meta_desc=$6, seo_title=$7, seo_keywords=$8, updated_at=NOW();
+          ON CONFLICT (page_id, language)
+          DO UPDATE SET
+            title      = EXCLUDED.title,
+            html       = EXCLUDED.html,
+            css        = EXCLUDED.css,
+            meta_desc  = EXCLUDED.meta_desc,
+            seo_title  = EXCLUDED.seo_title,
+            seo_keywords=EXCLUDED.seo_keywords,
+            updated_at = NOW();
         `, [
           pageId,
           t.language,
@@ -338,107 +501,106 @@ switch (operation) {
           t.seoKeywords
         ]);
       }
-    
+
       return { done: true };
     }
-     
 
+    /* ---------- SET_AS_START ---------- */
+    case 'SET_AS_START': {
+      const { pageId, language = 'en' } = params[0] || {};
+      if (!pageId) throw new Error('pageId required');
 
+      // Check page status
+      const { rows: statusRows } = await client.query(
+        `SELECT status FROM pagesManager.pages WHERE id = $1`,
+        [pageId]
+      );
 
-      case 'SET_AS_START': {
-        const { pageId, language = 'en' } = params[0] || {};
-        if (!pageId) throw new Error('pageId required');
-      
-        // Check page status
-        const { rows: statusRows } = await client.query(
-          `SELECT status FROM pagesManager.pages WHERE id = $1`,
-          [pageId]
-        );
-      
-        if (!statusRows[0]) {
-          throw new Error('Page not found');
-        }
-      
-        if (statusRows[0].status !== 'published') {
-          throw new Error('Only published pages can be set as the start page');
-        }
-      
-        const lang = language.toLowerCase();
-      
-        await client.query('BEGIN');
-      
-        try {
-          // Clear existing start page
-          await client.query(
-            `UPDATE pagesManager.pages
-             SET is_start = false
-             WHERE is_start = true AND language = $1`,
-            [lang]
-          );
-      
-          // Set new start page
-          await client.query(
-            `UPDATE pagesManager.pages
-             SET is_start = true, language = $2, updated_at = NOW()
-             WHERE id = $1`,
-            [pageId, lang]
-          );
-      
-          await client.query('COMMIT');
-        } catch (e) {
-          await client.query('ROLLBACK');
-          throw e;
-        }
-      
-        return { done: true };
-      }
-          
-
-      case 'GET_START_PAGE': {
-        /* params[0] = language (optional) */
-        const lang = (Array.isArray(params) && typeof params[0] === 'string')
-                 ? params[0].toLowerCase()
-                 : 'en';
-        const { rows } = await client.query(`
-          SELECT  p.*,
-                  t.language, t.title, t.html, t.css,
-                  t.meta_desc, t.seo_title, t.seo_keywords
-            FROM  pagesManager.pages            AS p
-            LEFT  JOIN pagesManager.page_translations AS t
-                   ON p.id = t.page_id AND t.language = $1
-           WHERE  p.is_start = true
-             AND  p.language = $1
-           LIMIT 1
-        `, [lang]);
-      
-        return rows;
+      if (!statusRows[0]) {
+        throw new Error('Page not found');
       }
 
-      //does actually not work yet
-      case 'GENERATE_XML_SITEMAP': {
-        const { rows } = await client.query(`
-          SELECT slug, updated_at, is_start
-          FROM pagesManager.pages
-          WHERE status='published'
-          ORDER BY id ASC
-        `);
-
-        const sitemapXml = buildSitemap(rows);
-        return sitemapXml;
+      if (statusRows[0].status !== 'published') {
+        throw new Error('Only published pages can be set as the start page');
       }
 
-      case 'DELETE_PAGE': {
-        const pageId = params[0];
-      
+      const lang = language.toLowerCase();
+
+      await client.query('BEGIN');
+
+      try {
+        // Clear existing start page
         await client.query(`
-          DELETE FROM pagesManager.pages
-          WHERE id = $1;
-        `, [pageId]);
-      
-        return { done: true };
+          UPDATE pagesManager.pages
+            SET is_start = false
+          WHERE is_start = true
+            AND language = $1
+        `, [lang]);
+
+        // Set new start page
+        await client.query(`
+          UPDATE pagesManager.pages
+            SET is_start  = true,
+                language  = $2,
+                updated_at= NOW()
+          WHERE id = $1
+        `, [pageId, lang]);
+
+        await client.query('COMMIT');
+      } catch (e) {
+        await client.query('ROLLBACK');
+        throw e;
       }
-      
-      
+
+      return { done: true };
+    }
+
+    /* ---------- GET_START_PAGE ---------- */
+    case 'GET_START_PAGE': {
+      /* params[0] = language (optional) */
+      const lang = (Array.isArray(params) && typeof params[0] === 'string')
+              ? params[0].toLowerCase()
+              : 'en';
+      const { rows } = await client.query(`
+        SELECT p.*,
+              t.language AS trans_lang, t.title AS trans_title,
+              t.html, t.css, t.meta_desc, t.seo_title, t.seo_keywords
+          FROM pagesManager.pages p
+          LEFT JOIN pagesManager.page_translations t
+                ON p.id = t.page_id AND t.language = $1
+        WHERE p.is_start = true
+          AND p.language = $1
+        LIMIT 1
+      `, [lang]);
+
+      return rows;
+    }
+
+    /* ---------- GENERATE_XML_SITEMAP ---------- */
+    case 'GENERATE_XML_SITEMAP': {
+      const { rows } = await client.query(`
+        SELECT slug, updated_at, is_start
+          FROM pagesManager.pages
+        WHERE status='published'
+        ORDER BY id ASC
+      `);
+
+      const sitemapXml = buildSitemap(rows); // your own function
+      return sitemapXml;
+    }
+
+    /* ---------- DELETE_PAGE ---------- */
+    case 'DELETE_PAGE': {
+      const pageId = params[0];
+
+      await client.query(`
+        DELETE FROM pagesManager.pages
+        WHERE id = $1;
+      `, [pageId]);
+
+      return { done: true };
+    }
+
 
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -847,119 +1009,160 @@ switch (operation) {
         // ─────────────────────────────────────────────────────────────────────────
     // WIDGET MANAGER
     // ─────────────────────────────────────────────────────────────────────────
-    case 'INIT_WIDGETS_TABLE': {
-    // Erstelle ggf. Schema "widgetmanager"
+ 
+    case 'INIT_WIDGETS_TABLE_PUBLIC': {
+    // Ensure schema widgetmanager exists
     await client.query(`CREATE SCHEMA IF NOT EXISTS widgetmanager;`);
 
-    // Erstelle Tabelle "widgets"
-    // Spalte "widget_type" => 'creator' oder 'adminui', etc.
     await client.query(`
-        CREATE TABLE IF NOT EXISTS widgetmanager.widgets (
-        id SERIAL PRIMARY KEY,
-        widget_id    VARCHAR(255) NOT NULL,
-        widget_type  VARCHAR(50) NOT NULL,
-        label        VARCHAR(255),
-        content      TEXT NOT NULL,
-        category     VARCHAR(255),
-        created_at   TIMESTAMP DEFAULT NOW(),
-        updated_at   TIMESTAMP DEFAULT NOW(),
-        UNIQUE(widget_id, widget_type)
+        CREATE TABLE IF NOT EXISTS widgetmanager.widgets_public (
+          id          SERIAL PRIMARY KEY,
+          widget_id   VARCHAR(255) NOT NULL,
+          label       VARCHAR(255),
+          content     TEXT NOT NULL,
+          category    VARCHAR(255),
+          "order"     INT DEFAULT 0,
+          created_at  TIMESTAMP DEFAULT NOW(),
+          updated_at  TIMESTAMP DEFAULT NOW(),
+          UNIQUE(widget_id)
         );
     `);
     return { done: true };
     }
 
-    case 'CREATE_WIDGET': {
-    // Erwartet params[0] = {
-    //   widgetId, widgetType, label, content, category
-    // }
-    const data = params[0] || {};
-    const {
-        widgetId,
-        widgetType,
-        label,
-        content,
-        category
-    } = data;
+    case 'INIT_WIDGETS_TABLE_ADMIN': {
+    await client.query(`CREATE SCHEMA IF NOT EXISTS widgetmanager;`);
 
     await client.query(`
-        INSERT INTO widgetmanager.widgets
-        (widget_id, widget_type, label, content, category, created_at, updated_at)
-        VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
-    `, [
-        widgetId,
-        widgetType,
-        label || '',
-        content || '',
-        category || ''
-    ]);
+        CREATE TABLE IF NOT EXISTS widgetmanager.widgets_admin (
+          id          SERIAL PRIMARY KEY,
+          widget_id   VARCHAR(255) NOT NULL,
+          label       VARCHAR(255),
+          content     TEXT NOT NULL,
+          category    VARCHAR(255),
+          "order"     INT DEFAULT 0,
+          created_at  TIMESTAMP DEFAULT NOW(),
+          updated_at  TIMESTAMP DEFAULT NOW(),
+          UNIQUE(widget_id)
+        );
+    `);
     return { done: true };
     }
 
-    case 'GET_WIDGETS': {
-    // Optional params[0] = { widgetType } => Filter
-    const data = params[0] || {};
-    const { widgetType } = data;
+    /* ---------- CRUD helpers (used by updateWidget & deleteWidget) ---------- */
 
-    let whereClause = '';
-    const values = [];
-    if (widgetType) {
-        whereClause = 'WHERE widget_type = $1';
-        values.push(widgetType);
-    }
-
-    const { rows } = await client.query(`
-        SELECT id, widget_id, widget_type, label, content, category,
-                created_at, updated_at
-        FROM widgetmanager.widgets
-        ${whereClause}
-        ORDER BY id ASC
-    `, values);
-    return rows;
-    }
-
-    case 'UPDATE_WIDGET': {
-    // params[0] = { widgetId, widgetType, newLabel, newContent, newCategory }
-    const data = params[0] || {};
-    const {
-        widgetId,
-        widgetType,
-        newLabel,
-        newContent,
-        newCategory
-    } = data;
-
+    case 'UPDATE_WIDGET_PUBLIC': {
+    // params[0] carries { widgetId, newLabel, newContent, newCategory, newOrder }
+    const d = params[0] || {};
     await client.query(`
-        UPDATE widgetmanager.widgets
-        SET
-        label     = COALESCE($3, label),
-        content   = COALESCE($4, content),
-        category  = COALESCE($5, category),
-        updated_at = NOW()
-        WHERE widget_id = $1
-        AND widget_type = $2
-    `, [
-        widgetId,
-        widgetType,
-        newLabel,
-        newContent,
-        newCategory
-    ]);
-    return { done: true };
+        UPDATE widgetmanager.widgets_public
+            SET label      = COALESCE($2,label),
+                content    = COALESCE($3,content),
+                category   = COALESCE($4,category),
+                "order"    = COALESCE($5,"order"),
+                updated_at = NOW()
+          WHERE widget_id  = $1
+    `, [d.widgetId, d.newLabel, d.newContent, d.newCategory, d.newOrder]);
+    return { done:true };
     }
 
-    case 'DELETE_WIDGET': {
-    // params[0] = { widgetId, widgetType }
-    const data = params[0] || {};
-    const { widgetId, widgetType } = data;
-
+    case 'UPDATE_WIDGET_ADMIN': {
+    const d = params[0] || {};
     await client.query(`
-        DELETE FROM widgetmanager.widgets
-        WHERE widget_id = $1
-        AND widget_type = $2
-    `, [widgetId, widgetType]);
-    return { done: true };
+        UPDATE widgetmanager.widgets_admin
+            SET label      = COALESCE($2,label),
+                content    = COALESCE($3,content),
+                category   = COALESCE($4,category),
+                "order"    = COALESCE($5,"order"),
+                updated_at = NOW()
+          WHERE widget_id  = $1
+    `, [d.widgetId, d.newLabel, d.newContent, d.newCategory, d.newOrder]);
+    return { done:true };
     }
+
+    case 'DELETE_WIDGET_PUBLIC': {
+    const { widgetId } = params[0] || {};
+    await client.query(`DELETE FROM widgetmanager.widgets_public WHERE widget_id = $1`, [widgetId]);
+    return { done:true };
+    }
+
+    case 'DELETE_WIDGET_ADMIN': {
+    const { widgetId } = params[0] || {};
+    await client.query(`DELETE FROM widgetmanager.widgets_admin WHERE widget_id = $1`, [widgetId]);
+    return { done:true };
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // PlainSpace
+    // ─────────────────────────────────────────────────────────────────────────
+    case 'INIT_PLAINSPACE_LAYOUTS': {
+      // We create a "plainspace" schema if not exists
+      await client.query('CREATE SCHEMA IF NOT EXISTS plainspace;');
+      // Then a table "plainspace.layouts" to store the layout JSON for each page + lane + viewport
+      // If you want advanced usage, you could store each widget row individually,
+      // but let's store the entire layout array as JSON in one column for each (pageId, lane, viewport).
+      await client.query(`
+        CREATE TABLE IF NOT EXISTS plainspace.layouts (
+          id           SERIAL PRIMARY KEY,
+          page_id      INT NOT NULL,       -- or page_slug VARCHAR(255), up to you
+          lane         VARCHAR(50) NOT NULL,  -- "public" or "admin"
+          viewport     VARCHAR(100) NOT NULL, -- e.g. "desktop", "mobile", "768px" etc
+          layout_json  JSONB NOT NULL,
+          updated_at   TIMESTAMP NOT NULL DEFAULT NOW(),
+          UNIQUE (page_id, lane, viewport)
+        );
+      `);
+      return { done:true };
+    }
+    
+    case 'UPSERT_PLAINSPACE_LAYOUT': {
+      // "params" => { pageId, lane, viewport, layoutArr }
+      const d = params[0] || {};
+      // We'll store d.layoutArr as JSON in layout_json.
+      // Because we want upsert, we can do an INSERT ... ON CONFLICT (...) DO UPDATE ...
+      // in Postgres.
+      await client.query(`
+        INSERT INTO plainspace.layouts (page_id, lane, viewport, layout_json, updated_at)
+        VALUES ($1, $2, $3, $4, NOW())
+        ON CONFLICT (page_id, lane, viewport)
+        DO UPDATE SET layout_json = EXCLUDED.layout_json,
+                      updated_at  = NOW()
+      `, [
+        d.pageId,
+        d.lane,
+        d.viewport,
+        JSON.stringify(d.layoutArr || [])
+      ]);
+      return { success:true };
+    }
+    
+    case 'GET_PLAINSPACE_LAYOUT': {
+      // "params" => { pageId, lane, viewport }
+      const d = params[0] || {};
+      const result = await client.query(`
+        SELECT layout_json
+          FROM plainspace.layouts
+         WHERE page_id = $1
+           AND lane    = $2
+           AND viewport = $3
+      `, [d.pageId, d.lane, d.viewport]);
+    
+      return result.rows;  // meltdown returns as array
+    }
+    
+    case 'GET_ALL_PLAINSPACE_LAYOUTS': {
+      // "params" => { pageId, lane }
+      const d = params[0] || {};
+      const result = await client.query(`
+        SELECT viewport, layout_json
+          FROM plainspace.layouts
+         WHERE page_id = $1
+           AND lane = $2
+         ORDER BY viewport ASC
+      `, [d.pageId, d.lane]);
+      return result.rows;
+    }
+    
 }
     notificationEmitter.notify({
       moduleName: 'databaseManager',
