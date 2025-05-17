@@ -1,5 +1,5 @@
 {
-    "name": "bloposter_cms",
+    "name": "blogposter_cms",
     "version": "0.0.1",
     "main": "app.js",
     "scripts": {
