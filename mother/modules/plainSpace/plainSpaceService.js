@@ -176,7 +176,7 @@ function registerPlainSpaceEvents(motherEmitter) {
         'dbSelect',
         {
           jwt,
-          moduleName: 'core',
+          moduleName: MODULE,
           moduleType: 'core',
           table: '__rawSQL__',
           data: {
@@ -209,7 +209,7 @@ function registerPlainSpaceEvents(motherEmitter) {
         'dbSelect',
         {
           jwt,
-          moduleName: 'core',
+          moduleName: MODULE,
           moduleType: 'core',
           table: '__rawSQL__',
           data: {
