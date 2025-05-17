@@ -12,7 +12,7 @@ module.exports = {
   /* HTTP & networking */
   port        : Number(env.PORT        ?? 3000),
   publicUrl   : env.PUBLIC_URL        ?? 'http://localhost:3000',
-  behindProxy : env.TRUST_PROXY === 'false',      // if you usee.g. nginx / Heroku make it "true"
+  behindProxy : env.TRUST_PROXY === 'false',      // if you use e.g. nginx / Heroku make it "true"
 
   /* Folders (resolved in mother/index.js) */
   paths: {
