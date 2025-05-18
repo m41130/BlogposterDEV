@@ -5,6 +5,9 @@
       'Content-Type': 'application/json',
       'X-CSRF-Token': window.CSRF_TOKEN
     };
+    if (window.PUBLIC_TOKEN) {
+      headers['X-Public-Token'] = window.PUBLIC_TOKEN;
+    }
     const resp = await fetch('/api/meltdown', {
       method: 'POST',
       credentials: 'same-origin',
