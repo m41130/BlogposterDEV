@@ -220,7 +220,8 @@ function setupPagesManagerEvents(motherEmitter) {
       parent_id = null,
       is_content = false,
       lane = 'public',
-      language = 'en'
+      language = 'en',
+      meta = null
     } = payload || {};
   
     if (!jwt || moduleName !== 'pagesManager' || moduleType !== 'core') {
@@ -287,10 +288,12 @@ function setupPagesManagerEvents(motherEmitter) {
               lane,
               parent_id: parent_id || null,
               is_content,
-              language
+              language,
+              title: mainTitle,
+              meta
             }
-          }
-        },
+         }
+       },
         (err, createRes) => {
           if (err && err.code === '23505') {
             tries++;
