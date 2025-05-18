@@ -1,6 +1,6 @@
 // mother/modules/plainSpace/config/adminPages.js
 // Only admin pages, no default widgets or anything else. Because minimalism is so 2020.
-export const ADMIN_PAGES = [
+module.exports.ADMIN_PAGES = [
   {
     title: 'home',
     slug: 'home',
