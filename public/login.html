@@ -5,12 +5,13 @@
   <title>Admin Panel</title>
   <link rel="stylesheet" href="/assets/css/site.css" />
   <meta name="csrf-token" content="{{CSRF_TOKEN}}">
-  <h1 class="branding-top-left ">BlogposterCMS</h1>
 </head>
 <body>
+  <h1 class="branding-top-left">BlogposterCMS</h1>
+
   <div class="app-scope login-page">
     <div class="login-form form-container">
-      <img id="logo" class="logo" src="/assets/logo/logo_blogposter_min_transparent.png" alt="Logo BlogposterCMS"/>
+      <img id="logo" class="logo" src="/assets/logo/logo_blogposter_min_transparent.png" alt="BlogposterCMS Logo"/>
       <div class="cms-title">Admin Panel</div>
 
       <form id="loginForm">
@@ -18,13 +19,14 @@
           <input id="username" name="username" required placeholder=" ">
           <label for="username">Username</label>
         </div>
+
         <div class="field">
           <input id="password" name="password" type="password" required placeholder=" ">
           <label for="password">Password</label>
         </div>
+
         <button class="button">Log In</button>
       </form>
-      
     </div>
   </div>
 
