@@ -229,8 +229,10 @@ function getModuleTokenForDbManager() {
 // ──────────────────────────────────────────────────────────────────────────
 
 app.post('/api/meltdown', (req, res) => {
-  // 1) Extract the JWT from the HttpOnly cookie
-  const jwt = req.cookies?.admin_jwt || null;
+  // 1) Extract the JWT from the HttpOnly cookie or fallback to a public token
+  const cookieJwt = req.cookies?.admin_jwt || null;
+  const headerJwt = req.get('X-Public-Token') || null;
+  const jwt = cookieJwt || headerJwt;
   if (!jwt) {
     return res.status(401).json({ error: 'Authentication required: missing JWT.' });
   }
