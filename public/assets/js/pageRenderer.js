@@ -138,6 +138,7 @@ import { fetchPartial } from '/assets/plainspace/admin/fetchPartial.js';
     try {
       console.debug('[pageRenderer] Fetching layout for viewport');
       layoutRes = await meltdownEmit('getLayoutForViewport', {
+        jwt:  window.ADMIN_TOKEN, 
         moduleName: 'plainspace',
         moduleType: 'core',
         pageId,
