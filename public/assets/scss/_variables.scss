@@ -2,17 +2,16 @@
    Global Variables (Branding)
    ============================================================================= */
 
-   :root {
-    // Farben
-    --color-bg: #FFFFFF; // Weiß
-    --color-secondary-light: #F5F5F5; // Hellgrau für Container/Inputs
-    --color-text: #333333; // Charcoal für Texte
-    --color-white: #FFFFFF;
-    --gradient-primary: linear-gradient(90deg, #008080, #FF00FF, #FFA500);
-    --shadow-card: 0 9px 18px rgba(0, 0, 0, 0.1);
-  
-    // Typografie
-    --font-body: 'Open Sans Variable' sans-serif;
-    --font-heading: 'Noto Sans Variable', sans-serif;
-  }
-  
+:root {
+  // Colors
+  --color-bg: #ffffff; // Reinweiß
+  --color-secondary-light: #F5F5F5; // Hellgrau für Inputs (nicht für Cards)
+  --color-text: #222222; // Dunkler für mehr Kontrast
+  --color-white: #FFFFFF;
+  --gradient-primary: linear-gradient(90deg, #008080, #FF00FF, #FFA500);
+  --shadow-card: 0 12px 28px rgba(0,0,0,0.07);
+
+  // Typography
+  --font-body: 'Manrope', sans-serif;
+  --font-heading: 'Oswald', sans-serif;
+}

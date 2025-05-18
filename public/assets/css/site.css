@@ -3,33 +3,34 @@
    Login Page Specific Styles
    ============================================================================= */
 @import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&display=swap");
 .app-scope.login-page {
-  position: relative; /* Ensure proper stacking context */
-  background: url("/assets/images/bg-bars-bottom-right.svg") center center/cover no-repeat fixed;
-  /* Corner SVG Background */
-  /* Semi-transparent white overlay */
+  position: relative;
+  background-color: var(--color-bg);
 }
 .app-scope.login-page::before {
   content: "";
   position: fixed;
   bottom: 0;
   right: 0;
-  width: 400px; /* SVG width */
-  height: 300px; /* SVG height */
+  width: 400px;
+  height: 300px;
   background: url("/assets/images/bg-bars-fixed-corner.svg") no-repeat bottom right;
   background-size: contain;
-  opacity: 0.9;
+  opacity: 1;
   z-index: -2;
+  pointer-events: none;
 }
 .app-scope.login-page::after {
   content: "";
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(255, 255, 255, 0.7); /* Adjust opacity as needed */
-  z-index: 0; /* Above background, below form */
+  inset: 0;
+  background-color: rgba(255, 255, 255, 0.8);
+  z-index: 0;
+  pointer-events: none;
 }
 
 /* Branding positioned at top-left */
@@ -39,6 +40,10 @@
   left: 20px;
   font-family: var(--font-heading);
   font-size: 24px;
+  font-weight: 600;
+  color: var(--color-text);
+  letter-spacing: 0.5px;
+  opacity: 0.9;
   z-index: 1;
 }
 
@@ -47,13 +52,13 @@
    ============================================================================= */
 .login-form {
   position: relative;
-  z-index: 1; /* Ensures form stays on top */
+  z-index: 1;
   width: 100%;
   max-width: 400px;
   padding: 32px;
-  border-radius: 8px;
-  background-color: var(--color-secondary-light);
-  box-shadow: var(--shadow-card);
+  border-radius: 14px;
+  background-color: #fff;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.07);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -62,17 +67,18 @@
 .login-form .cms-title {
   font-family: var(--font-heading);
   font-size: 22px;
-  color: #666;
+  color: #222;
+  font-weight: 500;
   margin-bottom: 24px;
   text-align: center;
   letter-spacing: 0.5px;
-  opacity: 0.8;
+  opacity: 0.92;
 }
 
 .login-form .logo {
-  width: 180px;
+  width: 160px;
   height: auto;
-  margin: 32px auto 16px;
+  margin: 24px auto 14px;
 }
 
 .login-form form {
@@ -84,38 +90,69 @@
   margin-bottom: 1rem;
   position: relative;
 }
-
 .login-form .field input {
+  width: 100%;
   padding: 1.5rem 0.75rem 0.5rem;
+  border: none;
+  border-bottom: 2px solid #e4e4e4;
+  background: transparent;
+  font-size: 1rem;
+  color: var(--color-text);
+  font-family: var(--font-body);
+  transition: border-color 0.2s;
 }
-
+.login-form .field input:focus {
+  outline: none;
+  border-bottom: 2px solid #008080;
+}
 .login-form .field label {
   position: absolute;
   left: 0.75rem;
   top: 1rem;
   font-size: 1rem;
   color: #888;
+  font-family: var(--font-body);
   pointer-events: none;
   transition: all 0.2s ease;
+  background: transparent;
 }
-
 .login-form .field input:not(:-moz-placeholder-shown) + label {
   top: 0.25rem;
   font-size: 0.75rem;
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  caret-color: #333333;
+  color: #008080;
+  background: none;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  opacity: 0.94;
 }
-
 .login-form .field input:focus + label,
 .login-form .field input:not(:placeholder-shown) + label {
   top: 0.25rem;
   font-size: 0.75rem;
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  caret-color: #333333;
+  color: #008080;
+  background: none;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  opacity: 0.94;
+}
+
+.login-form .button {
+  width: 100%;
+  padding: 0.9rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.08rem;
+  color: #fff;
+  background-image: var(--gradient-primary);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+  font-family: var(--font-body);
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 6px;
+  transition: opacity 0.18s;
+}
+.login-form .button:hover {
+  opacity: 0.92;
 }
 
 /* =============================================================================
@@ -125,7 +162,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh; /* Full-screen height */
+  min-height: 100vh;
   background-color: var(--color-bg);
 }
 
@@ -172,23 +209,20 @@
 /* OpenAI Sans ähnliche Fonts */
 /* Manrope (aktiviert) */
 /* Work Sans (deaktiviert) */
-/* @import url('https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600&display=swap'); */
 /* Plus Jakarta Sans (deaktiviert) */
-/* @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap'); */
 /* Sora (deaktiviert) */
-/* @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600&display=swap'); */
 /* =============================================================================
    Global Variables (Branding)
    ============================================================================= */
 :root {
-  --color-bg: #FFFFFF;
+  --color-bg: #ffffff;
   --color-secondary-light: #F5F5F5;
-  --color-text: #333333;
+  --color-text: #222222;
   --color-white: #FFFFFF;
   --gradient-primary: linear-gradient(90deg, #008080, #FF00FF, #FFA500);
-  --shadow-card: 0 9px 18px rgba(0, 0, 0, 0.1);
-  --font-body: "Open Sans Variable" sans-serif;
-  --font-heading: "Noto Sans Variable", sans-serif;
+  --shadow-card: 0 12px 28px rgba(0,0,0,0.07);
+  --font-body: "Manrope", sans-serif;
+  --font-heading: "Oswald", sans-serif;
 }
 
 /* =============================================================================
@@ -345,6 +379,9 @@ p {
 }
 .sidebar .sidebar-nav {
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 .sidebar .sidebar-nav .sidebar-item {
   position: relative;
@@ -379,7 +416,7 @@ p {
   pointer-events: none;
 }
 .sidebar .sidebar-nav .sidebar-item:hover {
-  background: var(--gradient-primary);
+  border: 1px solid var(--gradient-primary);
   border-radius: 999px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
