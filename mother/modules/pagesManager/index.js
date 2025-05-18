@@ -544,8 +544,8 @@ function setupPagesManagerEvents(motherEmitter) {
         translations,
         parent_id,
         is_content,
-        title,
-        meta
+        title = '',
+        meta = null
       } = payload || {};
 
       if (!jwt || moduleName !== 'pagesManager' || moduleType !== 'core') {
@@ -568,15 +568,17 @@ function setupPagesManagerEvents(motherEmitter) {
           table      : '__rawSQL__',
           data       : {
             rawSQL   : 'UPDATE_PAGE',
-            pageId,
-            slug,
-            status,
-            seo_image    : seoImage,
-            translations : translations,
-            parent_id    : parent_id || null,
-            is_content   : is_content || false,
-            title,
-            meta
+            params   : {
+              pageId,
+              slug,
+              status,
+              seo_image    : seoImage,
+              translations : translations,
+              parent_id    : parent_id || null,
+              is_content   : is_content || false,
+              title,
+              meta
+            }
           }
         },
         (err, result) => {
