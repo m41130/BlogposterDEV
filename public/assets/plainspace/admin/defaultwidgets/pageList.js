@@ -131,7 +131,7 @@ function renderPages(pages, list) {
     slugEl.addEventListener('blur', (e) => {
       const newSlug = e.target.textContent.trim();
       if (newSlug !== page.slug) {
-        updateSlug(page.id, newSlug);
+        updateSlug(page, newSlug);
       }
     });
 
@@ -143,7 +143,7 @@ function renderPages(pages, list) {
     li.querySelector('.edit-page').addEventListener('click', () => editPage(page.id));
 
     // Toggle draft
-    li.querySelector('.toggle-draft').addEventListener('click', () => toggleDraft(page.id, page.status !== 'draft'));
+    li.querySelector('.toggle-draft').addEventListener('click', () => toggleDraft(page));
 
     // Delete
     li.querySelector('.delete-page').addEventListener('click', () => deletePage(page.id));
@@ -154,47 +154,86 @@ function renderPages(pages, list) {
 
 // --------- API Call Placeholders ---------
 
-async function updateSlug(id, slug) {
-  await meltdownEmit('updatePage', {
-    jwt: window.ADMIN_TOKEN,
-    moduleName: 'pagesManager',
-    moduleType: 'core',
-    pageId: id,
-    slug
-  });
+async function updateSlug(page, slug) {
+  try {
+    await meltdownEmit('updatePage', {
+      jwt: window.ADMIN_TOKEN,
+      moduleName: 'pagesManager',
+      moduleType: 'core',
+      pageId: page.id,
+      slug,
+      status: page.status,
+      seo_image: page.seo_image,
+      parent_id: page.parent_id,
+      is_content: page.is_content,
+      lane: page.lane,
+      language: page.language,
+      title: page.title,
+      meta: page.meta
+    });
+    page.slug = slug;
+  } catch (err) {
+    console.error('updateSlug failed', err);
+    alert('Failed to update slug: ' + err.message);
+  }
 }
 
 async function setHomePage(id) {
-  await meltdownEmit('setAsStart', {
-    jwt: window.ADMIN_TOKEN,
+  try {
+    await meltdownEmit('setAsStart', {
+      jwt: window.ADMIN_TOKEN,
 
-    moduleName: 'pagesManager',
-    moduleType: 'core',
-    pageId: id
-  });
+      moduleName: 'pagesManager',
+      moduleType: 'core',
+      pageId: id
+    });
+  } catch (err) {
+    console.error('setHomePage failed', err);
+    alert('Failed to set start page: ' + err.message);
+  }
 }
 
 async function editPage(id) {
   window.location.href = `/admin/pages/edit/${id}`;
 }
 
-async function toggleDraft(id, isDraft) {
-  await meltdownEmit('updatePage', {
-    jwt: window.ADMIN_TOKEN,
-    moduleName: 'pagesManager',
-    moduleType: 'core',
-    pageId: id,
-    status: isDraft ? 'draft' : 'published'
-  });
+async function toggleDraft(page) {
+  const newStatus = page.status === 'draft' ? 'published' : 'draft';
+  try {
+    await meltdownEmit('updatePage', {
+      jwt: window.ADMIN_TOKEN,
+      moduleName: 'pagesManager',
+      moduleType: 'core',
+      pageId: page.id,
+      slug: page.slug,
+      status: newStatus,
+      seo_image: page.seo_image,
+      parent_id: page.parent_id,
+      is_content: page.is_content,
+      lane: page.lane,
+      language: page.language,
+      title: page.title,
+      meta: page.meta
+    });
+    page.status = newStatus;
+  } catch (err) {
+    console.error('toggleDraft failed', err);
+    alert('Failed to update status: ' + err.message);
+  }
 }
 
 async function deletePage(id) {
   if (confirm('Are you sure you want to delete this page?')) {
-    await meltdownEmit('deletePage', {
-      jwt: window.ADMIN_TOKEN,
-      moduleName: 'pagesManager',
-      moduleType: 'core',
-      pageId: id
-    });
+    try {
+      await meltdownEmit('deletePage', {
+        jwt: window.ADMIN_TOKEN,
+        moduleName: 'pagesManager',
+        moduleType: 'core',
+        pageId: id
+      });
+    } catch (err) {
+      console.error('deletePage failed', err);
+      alert('Failed to delete page: ' + err.message);
+    }
   }
 }
