@@ -107,15 +107,17 @@ function renderPages(pages, list) {
         <div class="page-name-row">
           <span class="page-name">${page.title}</span>
           <span class="page-actions">
-            ${page.is_start ? '<span class="icon">🏠</span>' : '<span class="icon set-home" title="Set as home">🏚️</span>'}
-            <span class="icon edit-page" title="Edit page">✏️</span>
-            <span class="icon toggle-draft" title="${page.status === 'draft' ? 'Mark as published' : 'Mark as draft'}">${page.status === 'draft' ? '🚧' : '✅'}</span>
-            <span class="icon delete-page" title="Delete page">🗑️</span>
+              ${page.is_start
+                ? window.featherIcon('home', 'is-home')
+                : window.featherIcon('setHome', 'set-home" title="Set as home')}
+              ${window.featherIcon('edit', 'edit-page" title="Edit page')}
+              ${window.featherIcon(page.status === 'draft' ? 'draft' : 'published', 'toggle-draft" title="' + (page.status === 'draft' ? 'Mark as published' : 'Mark as draft') + '"')}
+              ${window.featherIcon('delete', 'delete-page" title="Delete page')}
           </span>
         </div>
         <div class="page-slug-row">
           <span class="page-slug" contenteditable="true">${page.slug}</span>
-          <span class="icon edit-slug" title="Edit slug">✏️</span>
+          ${window.featherIcon('editSlug', 'edit-slug" title="Edit slug')}
         </div>
       </div>
     `;
@@ -151,6 +153,7 @@ function renderPages(pages, list) {
     list.appendChild(li);
   });
 }
+
 
 // --------- API Call Placeholders ---------
 
