@@ -20,7 +20,7 @@
 require('dotenv').config();
 
 const {
-  ensurepagesManagerDatabase,
+  ensurePagesManagerDatabase,
   ensurePageSchemaAndTable,
   getPageBySlugLocal
 } = require('./pagesService');
@@ -44,7 +44,7 @@ module.exports = {
 
     try {
       // 1) Ensure DB/schema
-      await ensurepagesManagerDatabase(motherEmitter, jwt, nonce);
+      await ensurePagesManagerDatabase(motherEmitter, jwt, nonce);
 
       // 2) Ensure table
       await ensurePageSchemaAndTable(motherEmitter, jwt, nonce);

@@ -10,7 +10,7 @@
 
 require('dotenv').config();
 
-function ensurepagesManagerDatabase(motherEmitter, jwt, nonce) {
+function ensurePagesManagerDatabase(motherEmitter, jwt, nonce) {
   return new Promise((resolve, reject) => {
     console.log('[PAGE SERVICE] Ensuring pagesManager DB/Schema via createDatabase meltdown...');
 
@@ -152,7 +152,7 @@ async function getPageBySlugLocal(motherEmitter, jwt, slug, lane = 'public', lan
 
 
 module.exports = {
-  ensurepagesManagerDatabase,
+  ensurePagesManagerDatabase,
   ensurePageSchemaAndTable,
   getPageBySlugLocal
 };
