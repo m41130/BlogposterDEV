@@ -2,13 +2,13 @@
 
 export async function render(el) {
   try {
-    const res = await meltdownEmit('getAllPages', {
+    const res = await meltdownEmit('getPagesByLane', {
       moduleName: 'pagesManager',
       moduleType: 'core',
       lane: 'public'
     });
 
-    const pages = res?.data ?? [];
+    const pages = Array.isArray(res) ? res : (res?.data ?? []);
 
     console.log('Pages from API:', pages);
 
