@@ -8,14 +8,14 @@ module.exports.DEFAULT_WIDGETS = [
     widgetId: 'pageList',
     widgetType: ADMIN_LANE,
     label: 'Page List',
-    content: '/assets/admin/plainspace/defaultwidgets/pageList.js',
+    content: '/assets/plainspace/admin/defaultwidgets/pageList.js',
     category: 'core'
   },
   {
     widgetId: 'pageStats',
     widgetType: ADMIN_LANE,
     label: 'Page Stats',
-    content: '/assets/admin/plainspace/defaultwidgets/pageStats.js',
+    content: '/assets/plainspace/admin/defaultwidgets/pageStats.js',
     category: 'core'
   }
 ];
