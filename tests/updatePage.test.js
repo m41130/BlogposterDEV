@@ -55,6 +55,8 @@ async function testUpdatePage() {
     moduleType: 'core',
     pageId: 1,
     slug: 'test',
+    lane: 'admin',
+    language: 'de',
     status: 'draft',
     translations: [],
     seoImage: '',
@@ -72,6 +74,8 @@ async function testUpdatePage() {
 
   assert.strictEqual(captured.data.params.title, 'Hello');
   assert.deepStrictEqual(captured.data.params.meta, { desc: 'a' });
+  assert.strictEqual(captured.data.params.lane, 'admin');
+  assert.strictEqual(captured.data.params.language, 'de');
 
   captured = null;
   await new Promise((resolve, reject) => {
@@ -82,6 +86,8 @@ async function testUpdatePage() {
 
   assert.strictEqual(captured.data.params.title, '');
   assert.strictEqual(captured.data.params.meta, null);
+  assert.strictEqual(captured.data.params.lane, 'public');
+  assert.strictEqual(captured.data.params.language, 'en');
 }
 
 (async () => {
