@@ -1,0 +1,21 @@
+#content {
+  flex: 1 1 0;
+  min-width: 0;     
+  width: 100%; 
+  display: flex;
+  flex-direction: column;
+}
+
+  .grid-stack,
+  .grid-stack * {
+    box-sizing: content-box;
+  }
+  
+.grid-stack {
+  width: 100%;          
+  min-width: 600px;      
+  min-height: 300px;
+  position: relative;
+  background: var(--color-bg);
+  overflow: visible;
+}

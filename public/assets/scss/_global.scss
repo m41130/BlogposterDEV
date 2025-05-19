@@ -6,7 +6,11 @@
   *::after {
     box-sizing: border-box;
   }
-  
+
+    /* GridStack relies on content-box sizing. Reset inside its container */
+
+
+
   /* Basic Text Styles */
   h1,
   h2,

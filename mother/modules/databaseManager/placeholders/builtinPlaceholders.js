@@ -27,7 +27,7 @@ module.exports = [
   'GET_CHILD_PAGES',
   'GET_PAGE_BY_ID',
   'GET_PAGE_BY_SLUG',
-  'GET_PAGE_BY_LANE',
+  'GET_PAGES_BY_LANE',
   'UPDATE_PAGE',
   'DELETE_PAGE',
   'GET_START_PAGE',      
