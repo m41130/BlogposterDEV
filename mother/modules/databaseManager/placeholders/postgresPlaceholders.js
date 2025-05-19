@@ -342,9 +342,17 @@ switch (operation) {
 
     /* ---------- GET_PAGES_BY_LANE ---------- */
     case 'GET_PAGES_BY_LANE': {
-      const { lane } = params;
+      let laneVal;
+      if (Array.isArray(params)) {
+        const first = params[0];
+        laneVal = typeof first === 'object' && first !== null ? first.lane : first;
+      } else if (params && typeof params === 'object') {
+        laneVal = params.lane;
+      } else {
+        laneVal = params;
+      }
       const { rows } = await client.query(`
-        SELECT p.*,
+        SELECT p.*, 
               t.language AS trans_lang,
               t.title AS trans_title,
               t.html  AS trans_html,
@@ -355,7 +363,7 @@ switch (operation) {
                 ON p.id = t.page_id
         WHERE p.lane = $1
         ORDER BY p.created_at DESC
-      `, [lane]);
+      `, [laneVal]);
 
       return rows;
     }
