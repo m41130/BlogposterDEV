@@ -377,7 +377,7 @@ function setupPagesManagerEvents(motherEmitter) {
           table: '__rawSQL__',
           data: {
             rawSQL: 'GET_PAGES_BY_LANE',
-            params: [lane]
+            params: { lane }
           }
         },
         (err, rows = []) => {
