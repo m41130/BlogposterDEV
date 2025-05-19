@@ -12,6 +12,7 @@
  *    - getPageBySlug
  *    - getChildPages
  *    - updatePage
+ *    - setAsDeleted
  *    - deletePage
  *    - setAsStart
  *    - generateXmlSitemap
@@ -544,6 +545,8 @@ function setupPagesManagerEvents(motherEmitter) {
         translations,
         parent_id,
         is_content,
+        lane = 'public',
+        language = 'en',
         title = '',
         meta = null
       } = payload || {};
@@ -576,6 +579,8 @@ function setupPagesManagerEvents(motherEmitter) {
               translations : translations,
               parent_id    : parent_id || null,
               is_content   : is_content || false,
+              lane,
+              language,
               title,
               meta
             }
@@ -585,6 +590,53 @@ function setupPagesManagerEvents(motherEmitter) {
           clearTimeout(to);
           if (err) return callback(err);
           callback(null, result || null);
+        }
+      );
+    } catch (ex) {
+      callback(ex);
+    }
+  });
+
+  // ─────────────────────────────────────────────────────────────────
+  // SET PAGE AS DELETED (status+slug update)
+  // ─────────────────────────────────────────────────────────────────
+  motherEmitter.on('setAsDeleted', (payload, originalCb) => {
+    const callback = onceCallback(originalCb);
+    try {
+      const { jwt, moduleName, moduleType, pageId } = payload || {};
+      if (!jwt || moduleName !== 'pagesManager' || moduleType !== 'core') {
+        return callback(new Error('[pagesManager] setAsDeleted => invalid meltdown payload.'));
+      }
+      if (!pageId) {
+        return callback(new Error('A valid pageId is required to mark as deleted.'));
+      }
+
+      motherEmitter.emit(
+        'getPageById',
+        { jwt, moduleName: 'pagesManager', moduleType: 'core', pageId },
+        (err, page) => {
+          if (err || !page) return callback(err || new Error('Page not found'));
+
+          motherEmitter.emit(
+            'updatePage',
+            {
+              jwt,
+              moduleName: 'pagesManager',
+              moduleType: 'core',
+              pageId,
+              slug: `deleted-${Date.now()}`,
+              status: 'deleted',
+              seoImage: page.seo_image,
+              parent_id: page.parent_id,
+              is_content: page.is_content,
+              lane: page.lane,
+              language: page.language,
+              title: page.title,
+              meta: page.meta,
+              translations: []
+            },
+            callback
+          );
         }
       );
     } catch (ex) {
@@ -606,26 +658,34 @@ function setupPagesManagerEvents(motherEmitter) {
         return callback(new Error('A valid pageId is required to delete a page.'));
       }
 
-      const to = setTimeout(() => {
-        callback(new Error('Timeout while deleting a page.'));
-      }, TIMEOUT_DURATION);
-
       motherEmitter.emit(
-        'dbDelete',
-        {
-          jwt,
-          moduleName : 'pagesManager',
-          moduleType : 'core',
-          table      : '__rawSQL__',
-          where      : {
-            rawSQL: 'DELETE_PAGE',
-            0     : pageId
-          }
-        },
-        (err, result) => {
-          clearTimeout(to);
+        'setAsDeleted',
+        { jwt, moduleName: 'pagesManager', moduleType: 'core', pageId },
+        (err) => {
           if (err) return callback(err);
-          callback(null, result || null);
+
+          const to = setTimeout(() => {
+            callback(new Error('Timeout while deleting a page.'));
+          }, TIMEOUT_DURATION);
+
+          motherEmitter.emit(
+            'dbDelete',
+            {
+              jwt,
+              moduleName : 'pagesManager',
+              moduleType : 'core',
+              table      : '__rawSQL__',
+              where      : {
+                rawSQL: 'DELETE_PAGE',
+                0     : pageId
+              }
+            },
+            (err2, result) => {
+              clearTimeout(to);
+              if (err2) return callback(err2);
+              callback(null, result || null);
+            }
+          );
         }
       );
     } catch (ex) {
