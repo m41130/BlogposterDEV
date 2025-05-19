@@ -167,6 +167,7 @@ async function updateSlug(id, slug) {
 async function setHomePage(id) {
   await meltdownEmit('setAsStart', {
     jwt: window.ADMIN_TOKEN,
+
     moduleName: 'pagesManager',
     moduleType: 'core',
     pageId: id
