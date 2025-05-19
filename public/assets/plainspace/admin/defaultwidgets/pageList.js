@@ -1,8 +1,14 @@
 // public/assets/admin/default/pageList.js
 
+// Global emitter for all helper functions
+const meltdownEmit = window.meltdownEmit;
+
 export async function render(el) {
+  const jwt = window.ADMIN_TOKEN;
+
   try {
     const res = await meltdownEmit('getPagesByLane', {
+      jwt,
       moduleName: 'pagesManager',
       moduleType: 'core',
       lane: 'public'
@@ -62,13 +68,13 @@ export async function render(el) {
       let filteredPages = pages;
       switch (currentFilter) {
         case 'Active':
-          filteredPages = pages.filter(p => !p.isDraft && !p.isDeleted);
+          filteredPages = pages.filter(p => p.status === 'published');
           break;
         case 'Drafts':
-          filteredPages = pages.filter(p => p.isDraft && !p.isDeleted);
+          filteredPages = pages.filter(p => p.status === 'draft');
           break;
         case 'Deleted':
-          filteredPages = pages.filter(p => p.isDeleted);
+          filteredPages = pages.filter(p => p.status === 'deleted');
           break;
       }
       list.innerHTML = '';
@@ -101,9 +107,9 @@ function renderPages(pages, list) {
         <div class="page-name-row">
           <span class="page-name">${page.title}</span>
           <span class="page-actions">
-            ${page.isHome ? '<span class="icon">🏠</span>' : '<span class="icon set-home" title="Set as home">🏚️</span>'}
+            ${page.is_start ? '<span class="icon">🏠</span>' : '<span class="icon set-home" title="Set as home">🏚️</span>'}
             <span class="icon edit-page" title="Edit page">✏️</span>
-            <span class="icon toggle-draft" title="${page.isDraft ? 'Mark as published' : 'Mark as draft'}">${page.isDraft ? '🚧' : '✅'}</span>
+            <span class="icon toggle-draft" title="${page.status === 'draft' ? 'Mark as published' : 'Mark as draft'}">${page.status === 'draft' ? '🚧' : '✅'}</span>
             <span class="icon delete-page" title="Delete page">🗑️</span>
           </span>
         </div>
@@ -137,7 +143,7 @@ function renderPages(pages, list) {
     li.querySelector('.edit-page').addEventListener('click', () => editPage(page.id));
 
     // Toggle draft
-    li.querySelector('.toggle-draft').addEventListener('click', () => toggleDraft(page.id, !page.isDraft));
+    li.querySelector('.toggle-draft').addEventListener('click', () => toggleDraft(page.id, page.status !== 'draft'));
 
     // Delete
     li.querySelector('.delete-page').addEventListener('click', () => deletePage(page.id));
@@ -150,6 +156,7 @@ function renderPages(pages, list) {
 
 async function updateSlug(id, slug) {
   await meltdownEmit('updatePage', {
+    jwt: window.ADMIN_TOKEN,
     moduleName: 'pagesManager',
     moduleType: 'core',
     pageId: id,
@@ -159,6 +166,8 @@ async function updateSlug(id, slug) {
 
 async function setHomePage(id) {
   await meltdownEmit('setAsStart', {
+    jwt: window.ADMIN_TOKEN,
+
     moduleName: 'pagesManager',
     moduleType: 'core',
     pageId: id
@@ -171,6 +180,7 @@ async function editPage(id) {
 
 async function toggleDraft(id, isDraft) {
   await meltdownEmit('updatePage', {
+    jwt: window.ADMIN_TOKEN,
     moduleName: 'pagesManager',
     moduleType: 'core',
     pageId: id,
@@ -180,6 +190,11 @@ async function toggleDraft(id, isDraft) {
 
 async function deletePage(id) {
   if (confirm('Are you sure you want to delete this page?')) {
-    await meltdownEmit('deletePage', { moduleName: 'pagesManager', data: { id } });
+    await meltdownEmit('deletePage', {
+      jwt: window.ADMIN_TOKEN,
+      moduleName: 'pagesManager',
+      moduleType: 'core',
+      pageId: id
+    });
   }
 }
