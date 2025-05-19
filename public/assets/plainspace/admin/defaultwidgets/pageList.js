@@ -149,11 +149,20 @@ function renderPages(pages, list) {
 // --------- API Call Placeholders ---------
 
 async function updateSlug(id, slug) {
-  await meltdownEmit('updatePageSlug', { moduleName: 'pagesManager', data: { id, slug } });
+  await meltdownEmit('updatePage', {
+    moduleName: 'pagesManager',
+    moduleType: 'core',
+    pageId: id,
+    slug
+  });
 }
 
 async function setHomePage(id) {
-  await meltdownEmit('setHomePage', { moduleName: 'pagesManager', data: { id } });
+  await meltdownEmit('setAsStart', {
+    moduleName: 'pagesManager',
+    moduleType: 'core',
+    pageId: id
+  });
 }
 
 async function editPage(id) {
@@ -161,7 +170,12 @@ async function editPage(id) {
 }
 
 async function toggleDraft(id, isDraft) {
-  await meltdownEmit('setPageDraft', { moduleName: 'pagesManager', data: { id, isDraft } });
+  await meltdownEmit('updatePage', {
+    moduleName: 'pagesManager',
+    moduleType: 'core',
+    pageId: id,
+    status: isDraft ? 'draft' : 'published'
+  });
 }
 
 async function deletePage(id) {
