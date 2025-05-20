@@ -1,8 +1,9 @@
 // mother/modules/plainSpace/config/adminPages.js
-// Only admin pages, no default widgets or anything else. Because minimalism is so 2020.
+// All admin pages: Home, Page Management, Page Builder. Minimalism is dead, flexibility wins.
+
 module.exports.ADMIN_PAGES = [
   {
-    title: 'home',
+    title: 'Home',
     slug: 'home',
     lane: 'admin',
     config: {
@@ -34,24 +35,11 @@ module.exports.ADMIN_PAGES = [
     config: {
       layout: {
         header: 'builder-header',
-        sidebar: 'empty-sidebar',
+        sidebar: 'sidebar-builder', // Special sidebar with draggable widget icons
         inheritsLayout: false
       },
-      widgets: ['builderWidget']
-    }
-  },
-  {
-    title: 'Layout Builder',
-    slug: 'layout-builder',
-    lane: 'admin',
-    config: {
-      layout: {
-        header: 'builder-header',
-        sidebar: 'empty-sidebar',
-        inheritsLayout: false
-      },
-      widgetLane: 'public',
-      widgets: ['counter', 'heroBanner', 'textBlock', 'imageWidget', 'headingWidget', 'buttonWidget']
+      widgetLane: 'public',  // <-- Show ALL public widgets in the builder, not preselected
+      widgets: []            // <-- No preselection, empty array: builder picks dynamically
     }
   }
 ];

@@ -1,192 +1,125 @@
+// public/assets/js/pageRenderer.js
+
 import { fetchPartial } from '/assets/plainspace/admin/fetchPartial.js';
+import { initBuilder } from '/assets/plainspace/admin/builderRenderer.js';
 
 (async () => {
   try {
-    // 1) Determine slug & lane
+    // 1. ROUTE BASICS
     const pathParts = window.location.pathname.split('/').filter(Boolean);
     const slug = pathParts[pathParts.length - 1] || 'dashboard';
     const lane = window.location.pathname.startsWith('/admin') ? 'admin' : 'public';
-    console.debug('[pageRenderer] Path parts:', pathParts, 'Slug:', slug, 'Lane:', lane);
 
-    // 2) Get page data
-    console.debug('[pageRenderer] Fetching page data for slug:', slug, 'lane:', lane);
+    // 2. FETCH PAGE META
     const pageRes = await meltdownEmit('getPageBySlug', {
       moduleName: 'pagesManager',
       moduleType: 'core',
       slug,
       lane
     });
-    console.debug('[pageRenderer] Page response:', pageRes);
 
     const page = pageRes?.data ?? pageRes ?? null;
     if (!page) {
-      console.error('[pageRenderer] Page not found for slug:', slug, 'lane:', lane, 'Response:', pageRes);
       alert('Page not found');
       return;
     }
 
     const config = page.meta || {};
-    console.debug('[pageRenderer] Page config:', config);
 
-    // Basic DOM references for layout
+    // 3. DOM REFERENCES
     const topHeaderEl = document.getElementById('top-header');
     const mainHeaderEl = document.getElementById('main-header');
     const sidebarEl = document.getElementById('sidebar');
     const contentEl = document.getElementById('content');
-    console.debug('[pageRenderer] DOM refs:', { topHeaderEl, mainHeaderEl, sidebarEl, contentEl });
-    if (!topHeaderEl || !mainHeaderEl || !sidebarEl || !contentEl) {
-      console.error('[pageRenderer] Missing containers in admin.html.', { topHeaderEl, mainHeaderEl, sidebarEl, contentEl });
-      return;
-    }
 
-    // 3) Load partials for headers
-    try {
-      console.debug('[pageRenderer] Fetching top-header partial');
-      const topHeaderHTML = await fetchPartial('top-header', 'headers');
-      topHeaderEl.innerHTML = topHeaderHTML;
-      console.debug('[pageRenderer] Top-header loaded');
+    if (!topHeaderEl || !mainHeaderEl || !sidebarEl || !contentEl) return;
 
-      console.debug('[pageRenderer] Fetching main-header partial');
-      const mainHeaderHTML = await fetchPartial('main-header', 'headers');
-      mainHeaderEl.innerHTML = mainHeaderHTML;
-      console.debug('[pageRenderer] Main-header loaded');
-    } catch (err) {
-      console.error('[pageRenderer] Header partial error →', err);
-      topHeaderEl.innerHTML = '';
-      mainHeaderEl.innerHTML = '';
-    }
+    // 4. LOAD HEADER PARTIALS
+    topHeaderEl.innerHTML = await fetchPartial(config.layout?.header || 'top-header', 'headers');
+    mainHeaderEl.innerHTML = await fetchPartial(config.layout?.mainHeader || 'main-header', 'headers');
 
-    // 4) Load sidebar partial
-    const sidebarPartial = (config.layout?.inheritsLayout === false)
-      ? 'empty-sidebar'
-      : (config.layout?.sidebar ?? 'default-sidebar');
-    console.debug('[pageRenderer] Sidebar partial to load:', sidebarPartial);
+    // 5. HANDLE BUILDER PAGE SEPARATELY
+    if (slug === 'builder') {
+      sidebarEl.innerHTML = '<div class="widget-drag-list"><div class="drag-icons"></div></div>';
 
-    if (sidebarPartial !== 'empty-sidebar') {
-      try {
-        console.debug('[pageRenderer] Fetching sidebar partial:', sidebarPartial);
-        const sidebarHTML = await fetchPartial(sidebarPartial, 'sidebars');
-        sidebarEl.innerHTML = sidebarHTML;
-        console.debug('[pageRenderer] Sidebar loaded');
-      } catch (err) {
-        console.error('[pageRenderer] Sidebar error →', err);
-        sidebarEl.innerHTML = '';
-      }
-    } else {
-      sidebarEl.innerHTML = '';
-      console.debug('[pageRenderer] Sidebar set to empty');
-    }
-
-    // 5) Fetch the full widget registry
-    let widgetLane = lane;
-    if (lane === 'admin') {
-      widgetLane = config.widgetLane || 'admin';
-    } else {
-      widgetLane = 'public'; // hard lock for public pages
-    }
-    let widgetRes;
-    try {
-      console.debug('[pageRenderer] Requesting widget registry for lane:', widgetLane);
-      widgetRes = await meltdownEmit('widget.registry.request.v1', {
-        lane: widgetLane,
+      const widgetRes = await meltdownEmit('widget.registry.request.v1', {
+        lane: 'public', // explicitly use public widgets for builder
         moduleName: 'plainspace',
         moduleType: 'core'
       });
-      console.debug('[pageRenderer] Widget registry response:', widgetRes);
-    } catch (err) {
-      console.error('[pageRenderer] API error on widgets request:', err);
-      widgetRes = { widgets: [] };
+
+      const allWidgets = Array.isArray(widgetRes?.widgets) ? widgetRes.widgets : [];
+
+      await initBuilder(sidebarEl, contentEl, allWidgets);
+
+      return;
     }
+
+    // 6. LOAD SIDEBAR PARTIAL FOR NON-BUILDER
+    const sidebarPartial = (config.layout?.inheritsLayout === false)
+      ? 'empty-sidebar'
+      : (config.layout?.sidebar || 'default-sidebar');
+
+    if (sidebarPartial !== 'empty-sidebar') {
+      sidebarEl.innerHTML = await fetchPartial(sidebarPartial, 'sidebars');
+    } else {
+      sidebarEl.innerHTML = '';
+    }
+
+    // 7. FETCH WIDGET REGISTRY
+    const widgetLane = lane === 'admin' ? (config.widgetLane || 'admin') : 'public';
+
+    const widgetRes = await meltdownEmit('widget.registry.request.v1', {
+      lane: widgetLane,
+      moduleName: 'plainspace',
+      moduleType: 'core'
+    });
+
     const allWidgets = Array.isArray(widgetRes?.widgets) ? widgetRes.widgets : [];
-    console.debug('[pageRenderer] All widgets:', allWidgets);
 
-    // 6) Figure out which widgets this page wants
-    //    from page.meta.widgets (public or admin)
-    const wantedIDs = config.widgets || [];
-    console.debug('[pageRenderer] Wanted widget IDs:', wantedIDs);
-    const matchedWidgets = allWidgets.filter(w => wantedIDs.includes(w.id));
-    console.debug('[pageRenderer] Matched widgets:', matchedWidgets);
-
-    // 7) If NOT admin, simply render them directly in #content
+    // 8. PUBLIC PAGE: DIRECTLY RENDER WIDGETS
     if (lane !== 'admin') {
-      console.debug('[pageRenderer] Not admin lane, rendering widgets directly');
+      const matchedWidgets = allWidgets.filter(w => (config.widgets || []).includes(w.id));
       if (!matchedWidgets.length) {
         contentEl.innerHTML = '<p class="empty-state">No widgets configured.</p>';
-        console.debug('[pageRenderer] No widgets configured for this page.');
         return;
       }
       for (const widgetDef of matchedWidgets) {
         const widgetContainer = document.createElement('div');
         widgetContainer.className = 'widget';
         contentEl.appendChild(widgetContainer);
-        console.debug('[pageRenderer] Rendering widget:', widgetDef);
 
         try {
           const mod = await import(widgetDef.codeUrl);
-          console.debug('[pageRenderer] Widget module loaded:', widgetDef.codeUrl, mod);
           mod.render?.(widgetContainer);
-          console.debug('[pageRenderer] Widget rendered:', widgetDef.id);
         } catch (err) {
-          console.error(`[pageRenderer] Widget "${widgetDef.id}" error:`, err);
+          console.error(`[Public] Widget ${widgetDef.id} import error:`, err);
         }
       }
       return;
     }
 
-    // 8) If admin, use GridStack
-    //    We also fetch the layout from meltdown (plainSpace)
-    //    Then place each matched widget in the grid.
-    const pageId   = page.id;
-    const viewport = 'desktop';  // you can dynamically pick this if needed
-    console.debug('[pageRenderer] Admin mode: pageId:', pageId, 'viewport:', viewport);
+    // 9. ADMIN PAGE: INIT GRIDSTACK
+    const layoutRes = await meltdownEmit('getLayoutForViewport', {
+      jwt: window.ADMIN_TOKEN,
+      moduleName: 'plainspace',
+      moduleType: 'core',
+      pageId: page.id,
+      lane,
+      viewport: 'desktop'
+    });
 
-    let layoutRes;
-    try {
-      console.debug('[pageRenderer] Fetching layout for viewport');
-      layoutRes = await meltdownEmit('getLayoutForViewport', {
-        jwt:  window.ADMIN_TOKEN, 
-        moduleName: 'plainspace',
-        moduleType: 'core',
-        pageId,
-        lane,
-        viewport
-      });
-      console.debug('[pageRenderer] Layout response:', layoutRes);
-    } catch (err) {
-      console.error('[pageRenderer] getLayoutForViewport error:', err);
-      layoutRes = { layout: [] };
-    }
-    const layout = Array.isArray(layoutRes?.layout) ? layoutRes.layout
-    : Array.isArray(layoutRes?.data?.layout) ? layoutRes.data.layout
-    : Array.isArray(layoutRes?.rows) ? layoutRes.rows
-    : [];
-    console.debug('[pageRenderer] Final layout array:', layout);
-  
-    // clear #content in case there is leftover "No widgets" etc.
-    contentEl.innerHTML = `
-      <div id="adminGrid" class="grid-stack"></div>
-    `;
-    const gridEl = contentEl.querySelector('#adminGrid');
-    if (!gridEl) {
-      console.error('[pageRenderer] #adminGrid not found in admin mode.');
-      return;
-    }
-    console.debug('[pageRenderer] #adminGrid element:', gridEl);
+    const layout = Array.isArray(layoutRes?.layout) ? layoutRes.layout : [];
 
-    // 9) Initialize GridStack
-    console.debug('[pageRenderer] Initializing GridStack');
+    contentEl.innerHTML = '<div id="adminGrid" class="grid-stack"></div>';
+    const gridEl = document.getElementById('adminGrid');
     const grid = GridStack.init({}, gridEl);
-    console.debug('[pageRenderer] GridStack initialized:', grid);
 
-    // 10) For each widget that the page wants, see if there's a saved layout
-    //     defaulting to x=0,y=0,w=4,h=2
+    const matchedWidgets = allWidgets.filter(w => (config.widgets || []).includes(w.id));
+
     matchedWidgets.forEach(def => {
-      const meta = layout.find(i => i.widgetId === def.id || i.widgetid === def.id) || {};
-      const x = meta.x ?? 0;
-      const y = meta.y ?? 0;
-      const w = meta.w ?? 4;
-      const h = meta.h ?? 2;
-      console.debug('[pageRenderer] Widget layout meta:', { id: def.id, meta, x, y, w, h });
+      const meta = layout.find(l => l.widgetId === def.id) || {};
+      const [x, y, w, h] = [meta.x ?? 0, meta.y ?? 0, meta.w ?? 4, meta.h ?? 2];
 
       const wrapper = document.createElement('div');
       wrapper.classList.add('grid-stack-item');
@@ -198,89 +131,37 @@ import { fetchPartial } from '/assets/plainspace/admin/fetchPartial.js';
 
       const content = document.createElement('div');
       content.className = 'grid-stack-item-content';
-      content.textContent = def.metadata?.label || def.id;
       wrapper.appendChild(content);
 
-      gridEl.appendChild(wrapper);  
-      console.debug('[pageRenderer] Widget wrapper added to grid:', wrapper);
-
+      gridEl.appendChild(wrapper);
       grid.makeWidget(wrapper);
-      console.debug('[pageRenderer] Widget made into GridStack widget:', wrapper);
 
-      // dynamically import the widget code and render it
       import(def.codeUrl)
-        .then(mod => {
-          console.debug('[pageRenderer|admin] Widget module loaded:', def.codeUrl, mod);
-          mod.render?.(content);
-          console.debug('[pageRenderer|admin] Widget rendered:', def.id);
-        })
-        .catch(err => console.error('[pageRenderer|admin] Widget error:', err));
+        .then(m => m.render?.(content))
+        .catch(err => console.error(`[Admin] Widget ${def.id} import error:`, err));
     });
 
-    // 11) Listen for layout changes => meltdown => saveLayoutForViewport
-    grid.on('change', async (_evt, items) => {
+    grid.on('change', async (_, items) => {
       const newLayout = items.map(i => ({
         widgetId: i.el.dataset.widgetId,
-        x: i.x,
-        y: i.y,
-        w: i.w,
-        h: i.h
+        x: i.x, y: i.y, w: i.w, h: i.h
       }));
-      console.debug('[pageRenderer|admin] GridStack layout changed:', newLayout);
+
       try {
         await meltdownEmit('saveLayoutForViewport', {
           moduleName: 'plainspace',
           moduleType: 'core',
-          pageId,
-          lane,
-          viewport,
+          pageId: page.id,
+          lane, viewport: 'desktop',
           layout: newLayout
         });
-        console.log('[pageRenderer|admin] Layout saved:', newLayout);
-      } catch (err) {
-        console.error('[pageRenderer|admin] Layout save error:', err);
+      } catch (e) {
+        console.error('[Admin] Layout save error:', e);
       }
     });
 
-    // 12) Manual save button (Layout Builder)
-    const saveBtn = document.getElementById('saveLayoutBtn');
-    const nameInput = document.getElementById('layoutNameInput');
-    if (saveBtn && nameInput) {
-      saveBtn.addEventListener('click', async () => {
-        const name = nameInput.value.trim();
-        if (!name) {
-          alert('Please enter a layout name.');
-          nameInput.focus();
-          return;
-        }
-        const items = Array.from(document.querySelectorAll('#adminGrid .grid-stack-item'));
-        const currentLayout = items.map(el => ({
-          widgetId: el.dataset.widgetId,
-          x: parseInt(el.getAttribute('gs-x')) || 0,
-          y: parseInt(el.getAttribute('gs-y')) || 0,
-          w: parseInt(el.getAttribute('gs-w')) || 1,
-          h: parseInt(el.getAttribute('gs-h')) || 1
-        }));
-        try {
-          await meltdownEmit('saveLayoutTemplate', {
-            moduleName: 'plainspace',
-            name,
-            lane: widgetLane,
-            viewport,
-            layout: currentLayout
-          });
-          alert('Layout template saved!');
-          nameInput.value = '';
-        } catch (err) {
-          console.error('[pageRenderer|admin] Layout template save error:', err);
-          alert('Layout save failed: ' + err.message);
-        }
-      });
-    }
-
-    console.log('[pageRenderer] Admin GridStack setup complete.');
-
   } catch (err) {
-    console.error('[pageRenderer] Unexpected error:', err);
+    console.error('[Renderer] Fatal error:', err);
+    alert('Renderer error: ' + err.message);
   }
 })();

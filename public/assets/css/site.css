@@ -714,32 +714,4 @@ p {
 .edit-slug:hover {
   fill: #FFA500;
   opacity: 1;
-}
-
-/* Layout Builder Header */
-.builder-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 24px;
-}
-
-.builder-header #saveLayoutBtn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.builder-header #saveLayoutBtn .icon {
-  width: 20px;
-  height: 20px;
-  fill: currentColor;
-}
-
-.builder-header .layout-name-input {
-  font-size: 1.25rem;
-  padding: 4px 8px;
-  flex: 1;
-  margin-right: 16px;
-}
-/*# sourceMappingURL=site.css.map */
+}/*# sourceMappingURL=site.css.map */
