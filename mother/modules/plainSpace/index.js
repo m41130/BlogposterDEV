@@ -89,6 +89,25 @@ module.exports = {
         }
       );
 
+      // 4b) Ensure DB table for layout templates
+      motherEmitter.emit(
+        'dbUpdate',
+        {
+          jwt,
+          moduleName: MODULE,
+          moduleType: 'core',
+          table: '__rawSQL__',
+          data: { rawSQL: 'INIT_PLAINSPACE_LAYOUT_TEMPLATES' }
+        },
+        (err) => {
+          if (err) {
+            console.error('[plainSpace] Could not create "plainspace.layout_templates" table:', err.message);
+          } else {
+            console.log('[plainSpace] "plainspace.layout_templates" table creation ensured.');
+          }
+        }
+      );
+
       // 5) Listen for widget registry requests
       // widget.registry.request.v1 handler (plainSpace)
       motherEmitter.on('widget.registry.request.v1', (payload, callback) => {

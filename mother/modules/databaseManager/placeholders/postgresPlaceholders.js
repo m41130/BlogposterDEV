@@ -1122,6 +1122,21 @@ switch (operation) {
       `);
       return { done:true };
     }
+
+    case 'INIT_PLAINSPACE_LAYOUT_TEMPLATES': {
+      await client.query('CREATE SCHEMA IF NOT EXISTS plainspace;');
+      await client.query(`
+        CREATE TABLE IF NOT EXISTS plainspace.layout_templates (
+          id SERIAL PRIMARY KEY,
+          name VARCHAR(255) NOT NULL UNIQUE,
+          lane VARCHAR(50) NOT NULL,
+          viewport VARCHAR(100) NOT NULL,
+          layout_json JSONB NOT NULL,
+          updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+        );
+      `);
+      return { done: true };
+    }
     
     case 'UPSERT_PLAINSPACE_LAYOUT': {
       // "params" => { pageId, lane, viewport, layoutArr }
@@ -1142,6 +1157,35 @@ switch (operation) {
         JSON.stringify(d.layoutArr || [])
       ]);
       return { success:true };
+    }
+
+    case 'UPSERT_PLAINSPACE_LAYOUT_TEMPLATE': {
+      const d = params[0] || {};
+      await client.query(`
+        INSERT INTO plainspace.layout_templates (name, lane, viewport, layout_json, updated_at)
+        VALUES ($1, $2, $3, $4, NOW())
+        ON CONFLICT (name)
+        DO UPDATE SET lane = EXCLUDED.lane,
+                      viewport = EXCLUDED.viewport,
+                      layout_json = EXCLUDED.layout_json,
+                      updated_at = NOW()
+      `, [
+        d.name,
+        d.lane,
+        d.viewport,
+        JSON.stringify(d.layoutArr || [])
+      ]);
+      return { success:true };
+    }
+
+    case 'GET_PLAINSPACE_LAYOUT_TEMPLATE': {
+      const d = params[0] || {};
+      const result = await client.query(`
+        SELECT layout_json
+          FROM plainspace.layout_templates
+         WHERE name = $1
+      `, [d.name]);
+      return result.rows;
     }
     
     case 'GET_PLAINSPACE_LAYOUT': {
