@@ -39,7 +39,7 @@ import { initBuilder } from '/assets/plainspace/admin/builderRenderer.js';
     if (config.layout?.inheritsLayout === false && !config.layout?.defaultHeader) {
       mainHeaderEl.innerHTML = '';
     } else {
-      mainHeaderEl.innerHTML = await fetchPartial(config.layout?.mainHeader || 'default-header', 'headers');
+      mainHeaderEl.innerHTML = await fetchPartial(config.layout?.defaultHeader || 'default-header', 'headers');
     }
 
     // 5. HANDLE BUILDER PAGE SEPARATELY
