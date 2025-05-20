@@ -28,7 +28,7 @@ import { initBuilder } from '/assets/plainspace/admin/builderRenderer.js';
 
     // 3. DOM REFERENCES
     const topHeaderEl = document.getElementById('top-header');
-    const mainHeaderEl = document.getElementById('main-header');
+    const mainHeaderEl = document.getElementById('default-header');
     const sidebarEl = document.getElementById('sidebar');
     const contentEl = document.getElementById('content');
 
@@ -36,10 +36,10 @@ import { initBuilder } from '/assets/plainspace/admin/builderRenderer.js';
 
     // 4. LOAD HEADER PARTIALS
     topHeaderEl.innerHTML = await fetchPartial(config.layout?.header || 'top-header', 'headers');
-    if (config.layout?.inheritsLayout === false && !config.layout?.mainHeader) {
+    if (config.layout?.inheritsLayout === false && !config.layout?.defaultHeader) {
       mainHeaderEl.innerHTML = '';
     } else {
-      mainHeaderEl.innerHTML = await fetchPartial(config.layout?.mainHeader || 'main-header', 'headers');
+      mainHeaderEl.innerHTML = await fetchPartial(config.layout?.mainHeader || 'default-header', 'headers');
     }
 
     // 5. HANDLE BUILDER PAGE SEPARATELY
