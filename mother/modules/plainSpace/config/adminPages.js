@@ -39,5 +39,19 @@ module.exports.ADMIN_PAGES = [
       },
       widgets: ['builderWidget']
     }
+  },
+  {
+    title: 'Layout Builder',
+    slug: 'layout-builder',
+    lane: 'admin',
+    config: {
+      layout: {
+        header: 'builder-header',
+        sidebar: 'empty-sidebar',
+        inheritsLayout: false
+      },
+      widgetLane: 'public',
+      widgets: ['counter', 'heroBanner', 'textBlock', 'imageWidget', 'headingWidget', 'buttonWidget']
+    }
   }
 ];
