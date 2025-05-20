@@ -78,11 +78,17 @@ import { fetchPartial } from '/assets/plainspace/admin/fetchPartial.js';
     }
 
     // 5) Fetch the full widget registry
+    let widgetLane = lane;
+    if (lane === 'admin') {
+      widgetLane = config.widgetLane || 'admin';
+    } else {
+      widgetLane = 'public'; // hard lock for public pages
+    }
     let widgetRes;
     try {
-      console.debug('[pageRenderer] Requesting widget registry');
+      console.debug('[pageRenderer] Requesting widget registry for lane:', widgetLane);
       widgetRes = await meltdownEmit('widget.registry.request.v1', {
-        lane,
+        lane: widgetLane,
         moduleName: 'plainspace',
         moduleType: 'core'
       });
