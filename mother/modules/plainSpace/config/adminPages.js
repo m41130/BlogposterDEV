@@ -8,7 +8,7 @@ module.exports.ADMIN_PAGES = [
     lane: 'admin',
     config: {
       layout: {
-        header: 'default-header',
+        header: 'top-header',
         sidebar: 'default-sidebar',
         inheritsLayout: true
       },
@@ -21,7 +21,7 @@ module.exports.ADMIN_PAGES = [
     lane: 'admin',
     config: {
       layout: {
-        header: 'default-header',
+        header: 'top-header',
         sidebar: 'default-sidebar',
         inheritsLayout: true
       },
@@ -34,7 +34,7 @@ module.exports.ADMIN_PAGES = [
     lane: 'admin',
     config: {
       layout: {
-        header: 'builder-header',
+        header: 'top-header',
         sidebar: 'sidebar-builder', // Special sidebar with draggable widget icons
         inheritsLayout: false
       },
