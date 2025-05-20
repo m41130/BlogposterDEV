@@ -242,6 +242,42 @@ import { fetchPartial } from '/assets/plainspace/admin/fetchPartial.js';
       }
     });
 
+    // 12) Manual save button (Layout Builder)
+    const saveBtn = document.getElementById('saveLayoutBtn');
+    const nameInput = document.getElementById('layoutNameInput');
+    if (saveBtn && nameInput) {
+      saveBtn.addEventListener('click', async () => {
+        const name = nameInput.value.trim();
+        if (!name) {
+          alert('Please enter a layout name.');
+          nameInput.focus();
+          return;
+        }
+        const items = Array.from(document.querySelectorAll('#adminGrid .grid-stack-item'));
+        const currentLayout = items.map(el => ({
+          widgetId: el.dataset.widgetId,
+          x: parseInt(el.getAttribute('gs-x')) || 0,
+          y: parseInt(el.getAttribute('gs-y')) || 0,
+          w: parseInt(el.getAttribute('gs-w')) || 1,
+          h: parseInt(el.getAttribute('gs-h')) || 1
+        }));
+        try {
+          await meltdownEmit('saveLayoutTemplate', {
+            moduleName: 'plainspace',
+            name,
+            lane: widgetLane,
+            viewport,
+            layout: currentLayout
+          });
+          alert('Layout template saved!');
+          nameInput.value = '';
+        } catch (err) {
+          console.error('[pageRenderer|admin] Layout template save error:', err);
+          alert('Layout save failed: ' + err.message);
+        }
+      });
+    }
+
     console.log('[pageRenderer] Admin GridStack setup complete.');
 
   } catch (err) {

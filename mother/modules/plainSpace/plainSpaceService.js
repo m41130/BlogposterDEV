@@ -137,6 +137,8 @@ async function checkOrCreateWidget(motherEmitter, jwt, widgetData) {
  *   - saveLayoutForViewport
  *   - getLayoutForViewport
  *   - getAllLayoutsForPage
+ *   - saveLayoutTemplate
+ *   - getLayoutTemplate
  */
 function registerPlainSpaceEvents(motherEmitter) {
   // 1) saveLayoutForViewport
@@ -224,6 +226,64 @@ function registerPlainSpaceEvents(motherEmitter) {
             layout: r.layout_json || []
           }));
           cb(null, { layouts });
+        }
+      );
+    } catch (err) {
+      cb(err);
+    }
+  });
+
+  // 4) saveLayoutTemplate
+  motherEmitter.on('saveLayoutTemplate', (payload, cb) => {
+    try {
+      const { jwt, name, lane, viewport, layout } = payload || {};
+      if (!jwt || !name || !lane || !viewport || !Array.isArray(layout)) {
+        return cb(new Error('[plainSpace] Invalid payload in saveLayoutTemplate.'));
+      }
+      motherEmitter.emit(
+        'dbUpdate',
+        {
+          jwt,
+          moduleName: MODULE,
+          moduleType: 'core',
+          table: '__rawSQL__',
+          data: {
+            rawSQL: 'UPSERT_PLAINSPACE_LAYOUT_TEMPLATE',
+            params: { name, lane, viewport, layoutArr: layout }
+          }
+        },
+        cb
+      );
+    } catch (err) {
+      cb(err);
+    }
+  });
+
+  // 5) getLayoutTemplate
+  motherEmitter.on('getLayoutTemplate', (payload, cb) => {
+    try {
+      const { jwt, name } = payload || {};
+      if (!jwt || !name) {
+        return cb(new Error('[plainSpace] Invalid payload in getLayoutTemplate.'));
+      }
+      motherEmitter.emit(
+        'dbSelect',
+        {
+          jwt,
+          moduleName: MODULE,
+          moduleType: 'core',
+          table: '__rawSQL__',
+          data: {
+            rawSQL: 'GET_PLAINSPACE_LAYOUT_TEMPLATE',
+            params: { name }
+          }
+        },
+        (err, rows = []) => {
+          if (err) return cb(err);
+          if (!rows.length) {
+            return cb(null, { layout: [] });
+          }
+          cb(null, { layout: rows[0].layout_json || [] });
         }
       );
     } catch (err) {
