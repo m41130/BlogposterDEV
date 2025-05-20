@@ -36,11 +36,16 @@ import { initBuilder } from '/assets/plainspace/admin/builderRenderer.js';
 
     // 4. LOAD HEADER PARTIALS
     topHeaderEl.innerHTML = await fetchPartial(config.layout?.header || 'top-header', 'headers');
-    mainHeaderEl.innerHTML = await fetchPartial(config.layout?.mainHeader || 'main-header', 'headers');
+    if (config.layout?.inheritsLayout === false && !config.layout?.mainHeader) {
+      mainHeaderEl.innerHTML = '';
+    } else {
+      mainHeaderEl.innerHTML = await fetchPartial(config.layout?.mainHeader || 'main-header', 'headers');
+    }
 
     // 5. HANDLE BUILDER PAGE SEPARATELY
     if (slug === 'builder') {
-      sidebarEl.innerHTML = '<div class="widget-drag-list"><div class="drag-icons"></div></div>';
+      const builderSidebar = config.layout?.sidebar || 'sidebar-builder';
+      sidebarEl.innerHTML = await fetchPartial(builderSidebar, 'sidebars');
 
       const widgetRes = await meltdownEmit('widget.registry.request.v1', {
         lane: 'public', // explicitly use public widgets for builder
