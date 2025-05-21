@@ -23,16 +23,40 @@ export async function initPageEditor(contentEl) {
     const trans = (page.translations && page.translations[0]) || {};
 
     contentEl.innerHTML = `
-      <div class="page-editor-form">
-        <div id="widget-info"></div>
-        <div id="widget-settings"></div>
-        <div id="widget-image"></div>
-        <button id="pe-save">Save</button>
-      </div>
+      <div id="editorGrid" class="grid-stack page-editor-grid"></div>
+      <div class="page-editor-actions"><button id="pe-save">Save</button></div>
     `;
+    
     renderInfo(document.getElementById('widget-info'), page, trans);
     await renderSettings(document.getElementById('widget-settings'), page, meltdownEmit, jwt);
     renderSeoImage(document.getElementById('widget-image'), page);
+
+    const gridEl = document.getElementById('editorGrid');
+    const grid = GridStack.init({}, gridEl);
+
+    const widgets = [
+      { id: 'info', render: (c) => renderInfo(c, page, trans) },
+      { id: 'settings', render: (c) => renderSettings(c, page, meltdownEmit, jwt) },
+      { id: 'seoimg', render: (c) => renderSeoImage(c, page) }
+    ];
+
+    widgets.forEach((w, idx) => {
+      const item = document.createElement('div');
+      item.className = 'grid-stack-item';
+      item.dataset.widgetId = w.id;
+      item.setAttribute('gs-x', 0);
+      item.setAttribute('gs-y', idx * 2);
+      item.setAttribute('gs-w', 6);
+      item.setAttribute('gs-h', 2);
+
+      const content = document.createElement('div');
+      content.className = 'grid-stack-item-content';
+      item.appendChild(content);
+      gridEl.appendChild(item);
+      grid.makeWidget(item);
+
+      w.render(content);
+    });
 
     document.getElementById('pe-save').addEventListener('click', async () => {
       const title = document.getElementById('pe-title').value.trim();
