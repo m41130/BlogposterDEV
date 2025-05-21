@@ -371,6 +371,7 @@ app.get('/admin/home', csrfProtection, async (req, res) => {
 
 // Capture any admin page slug via wildcard and parse req.params[0]
 app.get('/admin/*', async (req, res, next) => {
+
   console.log('[DEBUG] /admin/* => userCookie.admin_jwt =', req.cookies?.admin_jwt);
 
   const adminJwt = req.cookies?.admin_jwt;
