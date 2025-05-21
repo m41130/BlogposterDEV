@@ -368,103 +368,71 @@ app.get('/admin/home', csrfProtection, async (req, res) => {
 // ──────────────────────────────────────────────────────────────────────────
 // 7b) Admin SPA shell for any /admin/<slug>
 // ──────────────────────────────────────────────────────────────────────────
-app.get('/admin/pages/edit/:id', async (req, res, next) => {
-  const adminJwt = req.cookies?.admin_jwt;
-  if (!adminJwt) return res.status(401).send('Not logged in as admin.');
-
-  const pageId = parseInt(req.params.id, 10);
-  if (!pageId) return res.status(400).send('Invalid page id');
-
-  try {
-    const slug = 'pages/edit';
-    const basePage = await new Promise((resolve, reject) => {
-      motherEmitter.emit(
-        'getPageBySlug',
-        { jwt: adminJwt, moduleName: 'pagesManager', moduleType: 'core', slug, lane: 'admin' },
-        (err, result) => (err ? reject(err) : resolve(result))
-      );
-    });
-
-    if (!basePage?.id) return next();
-
-    const nonce = crypto.randomBytes(16).toString('base64');
-    let html = fs.readFileSync(path.join(__dirname, 'public', 'admin.html'), 'utf8');
-    const inject = `
-      <script nonce="${nonce}">
-        window.PAGE_ID     = ${pageId};
-        window.PAGE_SLUG   = '${slug}';
-        window.ADMIN_TOKEN = '${adminJwt}';
-      </script>
-    </head>`;
-    html = html.replace('</head>', inject);
-    res.setHeader('Content-Security-Policy', `script-src 'self' 'nonce-${nonce}';`);
-    res.send(html);
-  } catch (err) {
-    next(err);
-  }
-});
-
 // ──────────────────────────────────────────────────────────────────────────
 // 7c) Admin SPA shell for any /admin/<slug>
 // ──────────────────────────────────────────────────────────────────────────
 app.get('/admin/:slug(*)', async (req, res, next) => {
   console.log('[DEBUG] /admin/:slug => userCookie.admin_jwt =', req.cookies?.admin_jwt);
 
-  const slug = req.params.slug;
-  const adminJwt = req.cookies?.admin_jwt;  // The user’s real admin token
-
+  const adminJwt = req.cookies?.admin_jwt;
   if (!adminJwt) {
-    // Optionally redirect or do a 401
     return res.status(401).send('Not logged in as admin.');
   }
 
+  let rawSlug = req.params.slug || '';
+  let pageId = null;
+  const idMatch = rawSlug.match(/(.+?)\/(\d+)$/);
+  if (idMatch) {
+    rawSlug = idMatch[1];
+    pageId = parseInt(idMatch[2], 10) || null;
+  }
+
+  const sanitize = (str) => String(str)
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .substring(0, 96);
+
+  const slug = sanitize(rawSlug);
+
   try {
-    // Retrieve the admin page data
     const page = await new Promise((resolve, reject) => {
       motherEmitter.emit(
         'getPageBySlug',
         {
-          jwt       : adminJwt,
+          jwt: adminJwt,
           moduleName: 'pagesManager',
           moduleType: 'core',
           slug,
-          lane      : 'admin'
+          lane: 'admin'
         },
         (err, result) => (err ? reject(err) : resolve(result))
       );
     });
 
-    // If the page does not exist or isn't in admin lane, treat as a 404
     if (!page?.id || page.lane !== 'admin') {
-      return next();  
+      return next();
     }
 
-    // Generate a nonce for the inline script
     const nonce = crypto.randomBytes(16).toString('base64');
 
-    // Load the admin.html shell
     let html = fs.readFileSync(
       path.join(__dirname, 'public', 'admin.html'),
       'utf8'
     );
 
-    // Inject the script with the nonce
     const inject = `
       <script nonce="${nonce}">
-        window.PAGE_ID     = ${page.id};
+        window.PAGE_ID     = ${pageId ?? page.id};
         window.PAGE_SLUG   = '${slug}';
         window.ADMIN_TOKEN = '${adminJwt}';
       </script>
     </head>`;
     html = html.replace('</head>', inject);
 
-    // Set the Content Security Policy header to allow this nonce
-    res.setHeader(
-      'Content-Security-Policy',
-      `script-src 'self' 'nonce-${nonce}';`
-    );
-
-    // Return the final HTML to the client
+    res.setHeader('Content-Security-Policy', `script-src 'self' 'nonce-${nonce}';`);
     res.send(html);
 
   } catch (err) {

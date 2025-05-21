@@ -44,7 +44,9 @@ module.exports.ADMIN_PAGES = [
   },
   {
     title: 'Page Editor',
-    slug: 'pages/edit',
+    // Slug sanitized by pagesManager => slashes become hyphens
+    slug: 'edit',
+    parentSlug: 'pages',
     lane: 'admin',
     config: {
       layout: {

@@ -4,6 +4,15 @@
 require('dotenv').config();
 const { onceCallback } = require('../../emitters/motherEmitter');
 
+function meltdownEmit(emitter, event, payload) {
+  return new Promise((resolve, reject) => {
+    emitter.emit(event, payload, onceCallback((err, res) => {
+      if (err) return reject(err);
+      resolve(res);
+    }));
+  });
+}
+
 const MODULE      = 'plainspace';
 const PUBLIC_LANE = 'public';
 const ADMIN_LANE  = 'admin';
@@ -16,59 +25,91 @@ const ADMIN_LANE  = 'admin';
 // plainSpaceService.js
 async function seedAdminPages(motherEmitter, jwt, adminPages = []) {
   for (const page of adminPages) {
-    await new Promise((resolve) => {
-      motherEmitter.emit(
-        'getPageBySlug',
-        {
+    let parentId = null;
+    let finalSlugForCheck = page.slug.replace(/\//g, '-');
+    let finalSlugForCreate = page.slug;
+
+    if (page.parentSlug) {
+      const parentSlugSanitized = page.parentSlug.replace(/\//g, '-');
+      finalSlugForCheck = `${parentSlugSanitized}-${page.slug.replace(/\//g, '-')}`;
+
+      let parent = await meltdownEmit(motherEmitter, 'getPageBySlug', {
+        jwt,
+        moduleName: 'pagesManager',
+        moduleType: 'core',
+        slug: parentSlugSanitized,
+        lane: page.lane
+      }).catch(() => null);
+
+      if (!parent) {
+        const parentTitle = page.parentSlug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+        const res = await meltdownEmit(motherEmitter, 'createPage', {
           jwt,
           moduleName: 'pagesManager',
           moduleType: 'core',
-          slug: page.slug,
-          lane: page.lane
-        },
-        onceCallback((err, existingPage) => {
-          console.debug('[plainSpace] Debug existingPage für', page.slug, existingPage);
-          const exists = Array.isArray(existingPage)
-              ? existingPage.length > 0    
-              : Boolean(existingPage);
+          title: parentTitle,
+          slug: page.parentSlug,
+          lane: page.lane,
+          status: 'published',
+          meta: {},
+          translations: [{
+            language: 'en',
+            title: parentTitle,
+            html: '<div id="root"></div>',
+            css: '',
+            metaDesc: '',
+            seoTitle: parentTitle,
+            seoKeywords: ''
+          }]
+        }).catch(err => { console.error(`[plainSpace] Error creating parent "${page.parentSlug}":`, err.message); return null; });
+        parentId = res?.pageId || null;
+      } else {
+        parentId = parent.id;
+      }
 
-          if (exists) {
-            console.log(`[plainSpace] Admin page "${page.slug}" already exists.`);
-            return resolve();
-          }
+      finalSlugForCreate = `${page.parentSlug}/${page.slug}`;
+    }
 
-          motherEmitter.emit(
-            'createPage',
-            {
-              jwt,
-              moduleName: 'pagesManager',
-              moduleType: 'core',
-              title: page.title,
-              slug: page.slug,
-              lane: page.lane,
-              status: 'published',
-              meta: page.config,
-              translations: [{
-                language: 'en',
-                title: page.title,
-                html: '<div id="root"></div>',
-                css: '',
-                metaDesc: '',
-                seoTitle: page.title,
-                seoKeywords: ''
-              }]
-            },
-            onceCallback((err2) => {
-              if (err2) {
-                console.error(`[plainSpace] Error creating "${page.slug}":`, err2.message);
-              } else {
-                console.log(`[plainSpace] ✅ Admin page "${page.slug}" successfully created.`);
-              }
-              resolve();
-            })
-          );
-        })
-      );
+    const existingPage = await meltdownEmit(motherEmitter, 'getPageBySlug', {
+      jwt,
+      moduleName: 'pagesManager',
+      moduleType: 'core',
+      slug: finalSlugForCheck,
+      lane: page.lane
+    }).catch(() => null);
+
+    const exists = Array.isArray(existingPage)
+      ? existingPage.length > 0
+      : Boolean(existingPage);
+
+    if (exists) {
+      console.log(`[plainSpace] Admin page "${finalSlugForCheck}" already exists.`);
+      continue;
+    }
+
+    await meltdownEmit(motherEmitter, 'createPage', {
+      jwt,
+      moduleName: 'pagesManager',
+      moduleType: 'core',
+      title: page.title,
+      slug: finalSlugForCreate,
+      lane: page.lane,
+      status: 'published',
+      parent_id: parentId,
+      meta: page.config,
+      translations: [{
+        language: 'en',
+        title: page.title,
+        html: '<div id="root"></div>',
+        css: '',
+        metaDesc: '',
+        seoTitle: page.title,
+        seoKeywords: ''
+      }]
+    }).then(() => {
+      console.log(`[plainSpace] ✅ Admin page "${finalSlugForCheck}" successfully created.`);
+    }).catch(err => {
+      console.error(`[plainSpace] Error creating "${finalSlugForCheck}":`, err.message);
     });
   }
 }
