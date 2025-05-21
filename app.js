@@ -512,7 +512,21 @@ app.get('/', (req, res, next) => {
 app.get('/:slug', async (req, res, next) => {
   try {
     const slug = req.params.slug;
-    
+
+    // Ensure a valid public token is available (refresh when expired)
+    try {
+      global.pagesPublicToken = await new Promise((resolve, reject) => {
+        motherEmitter.emit(
+          'ensurePublicToken',
+          { moduleName: 'pagesManager' },
+          (err, token) => (err ? reject(err) : resolve(token))
+        );
+      });
+    } catch (tokenErr) {
+      console.error('[SERVER] Failed to obtain public token →', tokenErr);
+      return res.status(500).send('Server misconfiguration');
+    }
+
     // 1) Get the page object via meltdown (direct object, not {data:…}!)
     const page = await new Promise((resolve, reject) => {
       motherEmitter.emit(

@@ -281,6 +281,40 @@ function setupEventListeners({ motherEmitter, JWT_SECRET }) {
     }
   });
 
+  // E2) ensurePublicToken – return a valid public token, refreshing if needed
+  motherEmitter.on('ensurePublicToken', (payload, cb) => {
+    const callback = onceCallback(cb);
+    let current = global.pagesPublicToken;
+    let needsRefresh = true;
+    if (current) {
+      try {
+        const decoded = jwt.verify(
+          current,
+          combineSecretWithSalt(JWT_SECRET, 'low')
+        );
+        if (decoded && decoded.exp * 1000 > Date.now()) {
+          needsRefresh = false;
+        }
+      } catch (_) {
+        needsRefresh = true;
+      }
+    }
+
+    if (!current || needsRefresh) {
+      motherEmitter.emit(
+        'issuePublicToken',
+        { purpose: 'public', moduleName: 'auth' },
+        (err, newTok) => {
+          if (err) return callback(err);
+          global.pagesPublicToken = newTok;
+          callback(null, newTok);
+        }
+      );
+    } else {
+      callback(null, current);
+    }
+  });
+
   // F) validateToken
   motherEmitter.on('validateToken', (payload, cb) => {
     const callback = onceCallback(cb);
