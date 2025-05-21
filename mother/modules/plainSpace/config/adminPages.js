@@ -41,5 +41,18 @@ module.exports.ADMIN_PAGES = [
       widgetLane: 'public',  // <-- Show ALL public widgets in the builder, not preselected
       widgets: []            // <-- No preselection, empty array: builder picks dynamically
     }
+  },
+  {
+    title: 'Page Editor',
+    slug: 'pages/edit',
+    lane: 'admin',
+    config: {
+      layout: {
+        header: 'top-header',
+        sidebar: 'default-sidebar',
+        inheritsLayout: true
+      },
+      widgets: []
+    }
   }
 ];

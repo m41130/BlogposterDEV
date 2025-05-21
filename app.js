@@ -368,6 +368,45 @@ app.get('/admin/home', csrfProtection, async (req, res) => {
 // ──────────────────────────────────────────────────────────────────────────
 // 7b) Admin SPA shell for any /admin/<slug>
 // ──────────────────────────────────────────────────────────────────────────
+app.get('/admin/pages/edit/:id', async (req, res, next) => {
+  const adminJwt = req.cookies?.admin_jwt;
+  if (!adminJwt) return res.status(401).send('Not logged in as admin.');
+
+  const pageId = parseInt(req.params.id, 10);
+  if (!pageId) return res.status(400).send('Invalid page id');
+
+  try {
+    const slug = 'pages/edit';
+    const basePage = await new Promise((resolve, reject) => {
+      motherEmitter.emit(
+        'getPageBySlug',
+        { jwt: adminJwt, moduleName: 'pagesManager', moduleType: 'core', slug, lane: 'admin' },
+        (err, result) => (err ? reject(err) : resolve(result))
+      );
+    });
+
+    if (!basePage?.id) return next();
+
+    const nonce = crypto.randomBytes(16).toString('base64');
+    let html = fs.readFileSync(path.join(__dirname, 'public', 'admin.html'), 'utf8');
+    const inject = `
+      <script nonce="${nonce}">
+        window.PAGE_ID     = ${pageId};
+        window.PAGE_SLUG   = '${slug}';
+        window.ADMIN_TOKEN = '${adminJwt}';
+      </script>
+    </head>`;
+    html = html.replace('</head>', inject);
+    res.setHeader('Content-Security-Policy', `script-src 'self' 'nonce-${nonce}';`);
+    res.send(html);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ──────────────────────────────────────────────────────────────────────────
+// 7c) Admin SPA shell for any /admin/<slug>
+// ──────────────────────────────────────────────────────────────────────────
 app.get('/admin/:slug(*)', async (req, res, next) => {
   console.log('[DEBUG] /admin/:slug => userCookie.admin_jwt =', req.cookies?.admin_jwt);
 
@@ -413,6 +452,7 @@ app.get('/admin/:slug(*)', async (req, res, next) => {
     const inject = `
       <script nonce="${nonce}">
         window.PAGE_ID     = ${page.id};
+        window.PAGE_SLUG   = '${slug}';
         window.ADMIN_TOKEN = '${adminJwt}';
       </script>
     </head>`;
@@ -534,6 +574,7 @@ app.get('/:slug', async (req, res, next) => {
     let html = fs.readFileSync(pageHtmlPath, 'utf8');
     const inject = `<script>
       window.PAGE_ID = ${pageId};
+      window.PAGE_SLUG = '${slug}';
       window.LANE    = '${lane}';
       window.PUBLIC_TOKEN = '${token}';
     </script>`;
