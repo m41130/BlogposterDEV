@@ -366,9 +366,10 @@ app.get('/admin/home', csrfProtection, async (req, res) => {
 
 
 // ──────────────────────────────────────────────────────────────────────────
-// 7b) Admin SPA shell for any /admin/<slug>
+// 7b) Admin SPA shell for any /admin/<slug> path
 // ──────────────────────────────────────────────────────────────────────────
 
+// Capture any admin page slug via wildcard and parse req.params[0]
 app.get('/admin/*', async (req, res, next) => {
   console.log('[DEBUG] /admin/* => userCookie.admin_jwt =', req.cookies?.admin_jwt);
 
@@ -378,7 +379,7 @@ app.get('/admin/*', async (req, res, next) => {
     return res.status(401).send('Not logged in as admin.');
   }
 
-  let rawSlug = req.params.slug || '';
+  let rawSlug = req.params[0] || '';
   let pageId = null;
   const idMatch = rawSlug.match(/(.+?)\/(\d+)$/);
   if (idMatch) {
