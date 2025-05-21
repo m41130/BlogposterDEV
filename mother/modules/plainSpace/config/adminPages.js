@@ -67,11 +67,8 @@ module.exports.ADMIN_PAGES = [
         sidebar: 'default-sidebar',
         inheritsLayout: true
       },
-      widgets: [
-        'pageInfoEditor',
-        'pageSettingsEditor',
-        'seoImageEditor'
-      ]
+      widgets: ['pageInfoWidget', 'pageSettingsWidget', 'seoImageWidget', 'savePageWidget']
+      
     }
   }
 ];

@@ -1,4 +1,27 @@
-export function render(el, page, trans) {
+export async function render(el) {
+  const meltdownEmit = window.meltdownEmit;
+  const jwt = window.ADMIN_TOKEN;
+  const pageId = window.PAGE_ID;
+
+  if (!jwt || !pageId) {
+    el.innerHTML = '<p>Missing credentials or page id.</p>';
+    return;
+  }
+
+  let page = {};
+  let trans = {};
+  try {
+    const res = await meltdownEmit('getPageById', {
+      jwt,
+      moduleName: 'pagesManager',
+      moduleType: 'core',
+      pageId
+    });
+    page = res?.data ?? res ?? {};
+    trans = (page.translations && page.translations[0]) || {};
+  } catch (err) {
+    console.error('pageInfoWidget fetch error', err);
+  }
   const container = document.createElement('div');
   container.className = 'page-info-widget';
 
@@ -28,4 +51,3 @@ export function render(el, page, trans) {
   el.innerHTML = '';
   el.appendChild(container);
 }
-

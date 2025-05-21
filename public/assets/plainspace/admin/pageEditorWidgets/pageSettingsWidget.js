@@ -1,4 +1,26 @@
-export async function render(el, page, meltdownEmit, jwt) {
+export async function render(el) {
+  const meltdownEmit = window.meltdownEmit;
+  const jwt = window.ADMIN_TOKEN;
+  const pageId = window.PAGE_ID;
+
+  if (!jwt || !pageId) {
+    el.innerHTML = '<p>Missing credentials or page id.</p>';
+    return;
+  }
+
+  let page = {};
+  try {
+    const res = await meltdownEmit('getPageById', {
+      jwt,
+      moduleName: 'pagesManager',
+      moduleType: 'core',
+      pageId
+    });
+    page = res?.data ?? res ?? {};
+  } catch (err) {
+    console.error('pageSettingsWidget fetch error', err);
+  }
+
   const container = document.createElement('div');
   container.className = 'page-settings-widget';
 
@@ -77,4 +99,3 @@ export async function render(el, page, meltdownEmit, jwt) {
   el.innerHTML = '';
   el.appendChild(container);
 }
-

@@ -2,7 +2,6 @@
 
 import { fetchPartial } from '/assets/plainspace/admin/fetchPartial.js';
 import { initBuilder } from '/assets/plainspace/admin/builderRenderer.js';
-import { initPageEditor } from '/assets/plainspace/admin/pageEditor.js';
 
 (async () => {
   try {
@@ -58,14 +57,6 @@ import { initPageEditor } from '/assets/plainspace/admin/pageEditor.js';
 
       await initBuilder(sidebarEl, contentEl, allWidgets);
 
-      return;
-    }
-
-    // 5b. HANDLE PAGE EDITOR PAGE
-    // page editor uses sanitized slug 'pages-edit'
-    if (slug === 'pages-edit') {
-      sidebarEl.innerHTML = await fetchPartial(config.layout?.sidebar || 'default-sidebar', 'sidebars');
-      await initPageEditor(contentEl);
       return;
     }
 
