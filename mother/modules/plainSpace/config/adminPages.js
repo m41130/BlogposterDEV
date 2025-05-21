@@ -44,7 +44,7 @@ module.exports.ADMIN_PAGES = [
   },
   {
     title: 'Page Editor',
-    // This slug will be combined with parentSlug during seeding
+    // Slug sanitized by pagesManager => slashes become hyphens
     slug: 'edit',
     parentSlug: 'pages',
     lane: 'admin',

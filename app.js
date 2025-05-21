@@ -369,24 +369,24 @@ app.get('/admin/home', csrfProtection, async (req, res) => {
 // 7b) Admin SPA shell for any /admin/<slug>
 // ──────────────────────────────────────────────────────────────────────────
 
-// ──────────────────────────────────────────────────────────────────────────
-// 7c) Admin SPA shell for any /admin/<slug>
-// ──────────────────────────────────────────────────────────────────────────
 app.get('/admin/*', async (req, res, next) => {
   console.log('[DEBUG] /admin/* => userCookie.admin_jwt =', req.cookies?.admin_jwt);
 
-  const adminJwt = req.cookies?.admin_jwt;  // The user’s real admin token
+  const adminJwt = req.cookies?.admin_jwt;
 
-  const pathAfterAdmin = req.path.slice('/admin/'.length);
-  const segments = pathAfterAdmin.split('/').filter(Boolean);
-  let pageId = null;
-
-  if (segments.length && /^\d+$/.test(segments[segments.length - 1])) {
-    pageId = parseInt(segments.pop(), 10);
+  if (!adminJwt) {
+    return res.status(401).send('Not logged in as admin.');
   }
 
-  const rawSlug = segments.join('/');
-  const slug = rawSlug
+  let rawSlug = req.params.slug || '';
+  let pageId = null;
+  const idMatch = rawSlug.match(/(.+?)\/(\d+)$/);
+  if (idMatch) {
+    rawSlug = idMatch[1];
+    pageId = parseInt(idMatch[2], 10) || null;
+  }
+
+  const sanitize = (str) => String(str)
     .toLowerCase()
     .normalize('NFKD')
     .replace(/[\u0300-\u036f]/g, '')
@@ -394,58 +394,44 @@ app.get('/admin/*', async (req, res, next) => {
     .replace(/^-+|-+$/g, '')
     .substring(0, 96);
 
-  if (!adminJwt) {
-    // Optionally redirect or do a 401
-    return res.status(401).send('Not logged in as admin.');
-  }
+  const slug = sanitize(rawSlug);
 
   try {
-    // Retrieve the admin page data
     const page = await new Promise((resolve, reject) => {
       motherEmitter.emit(
         'getPageBySlug',
         {
-          jwt       : adminJwt,
+          jwt: adminJwt,
           moduleName: 'pagesManager',
           moduleType: 'core',
           slug,
-          lane      : 'admin'
+          lane: 'admin'
         },
         (err, result) => (err ? reject(err) : resolve(result))
       );
     });
 
-    // If the page does not exist or isn't in admin lane, treat as a 404
     if (!page?.id || page.lane !== 'admin') {
-      return next();  
+      return next();
     }
 
-    // Generate a nonce for the inline script
     const nonce = crypto.randomBytes(16).toString('base64');
 
-    // Load the admin.html shell
     let html = fs.readFileSync(
       path.join(__dirname, 'public', 'admin.html'),
       'utf8'
     );
 
-    // Inject the script with the nonce
     const inject = `
       <script nonce="${nonce}">
-        window.PAGE_ID     = ${pageId || page.id};
+        window.PAGE_ID     = ${pageId ?? page.id};
         window.PAGE_SLUG   = '${slug}';
         window.ADMIN_TOKEN = '${adminJwt}';
       </script>
     </head>`;
     html = html.replace('</head>', inject);
 
-    // Set the Content Security Policy header to allow this nonce
-    res.setHeader(
-      'Content-Security-Policy',
-      `script-src 'self' 'nonce-${nonce}';`
-    );
-
-    // Return the final HTML to the client
+    res.setHeader('Content-Security-Policy', `script-src 'self' 'nonce-${nonce}';`);
     res.send(html);
 
   } catch (err) {
