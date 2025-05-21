@@ -43,6 +43,19 @@ module.exports.ADMIN_PAGES = [
     }
   },
   {
+    title: 'Media',
+    slug: 'media',
+    lane: 'admin',
+    config: {
+      layout: {
+        header: 'top-header',
+        sidebar: 'default-sidebar',
+        inheritsLayout: true
+      },
+      widgets: ['mediaExplorer']
+    }
+  },
+  {
     title: 'Page Editor',
     // Slug sanitized by pagesManager => slashes become hyphens
     slug: 'edit',
