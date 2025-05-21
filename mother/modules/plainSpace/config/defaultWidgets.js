@@ -59,5 +59,26 @@ module.exports.DEFAULT_WIDGETS = [
     label: 'Activity Log',
     content: '/assets/plainspace/admin/activityLogWidget.js',
     category: 'core'
+  },
+  {
+    widgetId: 'pageInfoEditor',
+    widgetType: ADMIN_LANE,
+    label: 'Page Info Editor',
+    content: '/assets/plainspace/admin/pageEditorWidgets/pageInfoWidget.js',
+    category: 'core'
+  },
+  {
+    widgetId: 'pageSettingsEditor',
+    widgetType: ADMIN_LANE,
+    label: 'Page Settings Editor',
+    content: '/assets/plainspace/admin/pageEditorWidgets/pageSettingsWidget.js',
+    category: 'core'
+  },
+  {
+    widgetId: 'seoImageEditor',
+    widgetType: ADMIN_LANE,
+    label: 'SEO Image Editor',
+    content: '/assets/plainspace/admin/pageEditorWidgets/seoImageWidget.js',
+    category: 'core'
   }
 ];
