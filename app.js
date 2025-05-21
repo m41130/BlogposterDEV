@@ -556,19 +556,23 @@ app.get('/:slug', async (req, res, next) => {
       return next();  // triggers your 404 fallback or next route
     }
 
-    // 3) Build your dynamic injection:
+    // 3) Build your dynamic injection with a nonce for CSP
     const pageId = page.id;
     const lane   = 'public';
     const token  = global.pagesPublicToken;
 
+    const nonce = crypto.randomBytes(16).toString('base64');
+
     let html = fs.readFileSync(pageHtmlPath, 'utf8');
-    const inject = `<script>
+    const inject = `<script nonce="${nonce}">
       window.PAGE_ID = ${pageId};
       window.PAGE_SLUG = '${slug}';
       window.LANE    = '${lane}';
       window.PUBLIC_TOKEN = '${token}';
     </script>`;
     html = html.replace('</head>', inject + '</head>');
+
+    res.setHeader('Content-Security-Policy', `script-src 'self' 'nonce-${nonce}';`);
 
     // 4) Send the patched HTML
     res.send(html);
