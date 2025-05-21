@@ -80,5 +80,12 @@ module.exports.DEFAULT_WIDGETS = [
     label: 'SEO Image Editor',
     content: '/assets/plainspace/admin/pageEditorWidgets/seoImageWidget.js',
     category: 'core'
+  },
+  {
+    widgetId: 'mediaExplorer',
+    widgetType: ADMIN_LANE,
+    label: 'Media Explorer',
+    content: '/assets/plainspace/admin/mediaExplorerWidget.js',
+    category: 'core'
   }
 ];

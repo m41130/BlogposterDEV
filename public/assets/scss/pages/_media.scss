@@ -1,0 +1,15 @@
+.media-explorer {
+  padding: 10px;
+}
+.media-list {
+  list-style: none;
+  padding: 0;
+}
+.media-list li {
+  padding: 4px 6px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.media-list li:hover {
+  background: #f2f2f2;
+}
