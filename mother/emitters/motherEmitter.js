@@ -25,6 +25,7 @@ const AUTH_MODULE_SECRET = process.env.AUTH_MODULE_INTERNAL_SECRET || '';
 /** Public events skip meltdown checks entirely */
 const PUBLIC_EVENTS = [
   'issuePublicToken',
+  'ensurePublicToken',
   'removeListenersByModule',
   'deactivateModule'
 ];
