@@ -524,6 +524,7 @@ app.get('/:slug', async (req, res, next) => {
       });
     } catch (tokenErr) {
       console.error('[SERVER] Failed to obtain public token →', tokenErr);
+
       return res.status(500).send('Server misconfiguration');
     }
 

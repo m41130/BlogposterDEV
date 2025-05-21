@@ -260,6 +260,8 @@ function setupEventListeners({ motherEmitter, JWT_SECRET }) {
   motherEmitter.on('issuePublicToken', (payload, cb) => {
     const callback = onceCallback(cb);
     try {
+
+
       const jti = crypto.randomBytes(16).toString('hex');
       const trustLevel = 'low';
       const finalSecret = combineSecretWithSalt(JWT_SECRET, trustLevel);
@@ -312,6 +314,7 @@ function setupEventListeners({ motherEmitter, JWT_SECRET }) {
       );
     } else {
       callback(null, current);
+
     }
   });
 
