@@ -584,7 +584,7 @@ switch (operation) {
       return rows;
     }
 
-    /* ---------- GENERATE_XML_SITEMAP ---------- */
+    /* ---------- GENERATE_XML_SITEMAP (returns page data) ---------- */
     case 'GENERATE_XML_SITEMAP': {
       const { rows } = await client.query(`
         SELECT slug, updated_at, is_start
@@ -593,8 +593,7 @@ switch (operation) {
         ORDER BY id ASC
       `);
 
-      const sitemapXml = buildSitemap(rows); // your own function
-      return sitemapXml;
+      return rows;
     }
 
     /* ---------- DELETE_PAGE ---------- */

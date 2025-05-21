@@ -519,8 +519,8 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
   
   
     /**
-     * 15) Generate an XML sitemap for published pages, just like Postgres version.
-     *     We assume you have some 'buildSitemap' function somewhere. 
+     * 15) Retrieve data for building an XML sitemap.
+     *     PagesManager will turn this result into XML.
      */
     case 'GENERATE_XML_SITEMAP': {
       const pages = await db.collection('pages')
@@ -528,9 +528,8 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
                             .project({ slug: 1, updated_at: 1, is_start: 1 })
                             .sort({ _id: 1 })
                             .toArray();
-  
-      const xml = buildSitemap(pages);
-      return xml;
+
+      return pages;
     }
   
   
