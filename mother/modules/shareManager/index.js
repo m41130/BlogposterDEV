@@ -73,7 +73,8 @@ function setupShareEventListeners(motherEmitter) {
         moduleType,
         filePath,
         userId,         // who is creating
-        isPublic = true // optional flag
+        isPublic = true, // optional flag
+        expiresAt       // optional timestamp
       } = payload || {};
 
       if (!jwt || moduleName !== 'shareManager' || moduleType !== 'core') {
@@ -91,7 +92,8 @@ function setupShareEventListeners(motherEmitter) {
         shortToken,
         filePath,
         userId,
-        isPublic
+        isPublic,
+        expiresAt: expiresAt || null
       };
 
       const to = setTimeout(() => {
@@ -120,7 +122,7 @@ function setupShareEventListeners(motherEmitter) {
           const fileName = extractFileName(filePath);
           const shareURL = `${baseDomain}/s/${shortToken}/${fileName}`;
 
-          callback(null, { shortToken, shareURL, result });
+          callback(null, { shortToken, shareURL, expiresAt: dataObj.expiresAt, result });
         }
       );
     } catch (ex) {
@@ -213,7 +215,11 @@ function setupShareEventListeners(motherEmitter) {
           if (!rows || rows.length === 0) {
             return callback(null, null);
           }
-          callback(null, rows[0]);
+          const row = rows[0];
+          if (row.expiresAt && Date.now() > new Date(row.expiresAt).getTime()) {
+            return callback(null, null);
+          }
+          callback(null, row);
         }
       );
     } catch (ex) {

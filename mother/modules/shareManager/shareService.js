@@ -42,6 +42,8 @@ function ensureShareManagerDatabase(motherEmitter, jwt, nonce) {
 /**
  * ensureShareTables:
  *   meltdown => dbUpdate => { rawSQL: 'INIT_SHARED_LINKS_TABLE' }
+ *   expected schema columns: shortToken, filePath, userId, isPublic,
+ *   expiresAt TIMESTAMP
  */
 function ensureShareTables(motherEmitter, jwt, nonce) {
   return new Promise((resolve, reject) => {
