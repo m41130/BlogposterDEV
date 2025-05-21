@@ -366,10 +366,11 @@ app.get('/admin/home', csrfProtection, async (req, res) => {
 
 
 // ──────────────────────────────────────────────────────────────────────────
-// 7b) Admin SPA shell for any /admin/<slug>
+// 7b) Admin SPA shell for any /admin/<slug> path
 // ──────────────────────────────────────────────────────────────────────────
 
-app.get('/admin/*', async (req, res, next) => {
+// Capture any admin page slug, including nested paths
+app.get('/admin/:slug*', async (req, res, next) => {
   console.log('[DEBUG] /admin/* => userCookie.admin_jwt =', req.cookies?.admin_jwt);
 
   const adminJwt = req.cookies?.admin_jwt;
