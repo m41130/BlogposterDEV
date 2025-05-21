@@ -121,14 +121,105 @@ function setupMediaManagerEvents(motherEmitter) {
     }
   });
 
+  // meltdown => createLocalFolder
+  motherEmitter.on('createLocalFolder', (payload, originalCb) => {
+    const callback = onceCallback(originalCb);
+    try {
+      const { jwt, currentPath = '', newFolderName } = payload || {};
+      if (!jwt || !newFolderName) {
+        return callback(new Error('[MEDIA MANAGER] createLocalFolder => missing parameters.'));
+      }
+
+      const targetDir = path.join(libraryRoot, currentPath, newFolderName);
+      if (!targetDir.startsWith(libraryRoot)) {
+        return callback(new Error('Invalid path.'));
+      }
+
+      fs.mkdirSync(targetDir, { recursive: true });
+      callback(null);
+    } catch (err) {
+      callback(err);
+    }
+  });
+
+  // meltdown => renameLocalItem
+  motherEmitter.on('renameLocalItem', (payload, originalCb) => {
+    const callback = onceCallback(originalCb);
+    try {
+      const { jwt, currentPath = '', oldName, newName } = payload || {};
+      if (!jwt || !oldName || !newName) {
+        return callback(new Error('[MEDIA MANAGER] renameLocalItem => missing parameters.'));
+      }
+
+      const oldPath = path.join(libraryRoot, currentPath, oldName);
+      const newPath = path.join(libraryRoot, currentPath, newName);
+      if (!oldPath.startsWith(libraryRoot) || !newPath.startsWith(libraryRoot)) {
+        return callback(new Error('Invalid path.'));
+      }
+
+      fs.renameSync(oldPath, newPath);
+      callback(null);
+    } catch (err) {
+      callback(err);
+    }
+  });
+
+  // meltdown => deleteLocalItem
+  motherEmitter.on('deleteLocalItem', (payload, originalCb) => {
+    const callback = onceCallback(originalCb);
+    try {
+      const { jwt, currentPath = '', itemName } = payload || {};
+      if (!jwt || !itemName) {
+        return callback(new Error('[MEDIA MANAGER] deleteLocalItem => missing parameters.'));
+      }
+
+      const target = path.join(libraryRoot, currentPath, itemName);
+      if (!target.startsWith(libraryRoot)) {
+        return callback(new Error('Invalid path.'));
+      }
+
+      fs.rmSync(target, { recursive: true, force: true });
+      callback(null);
+    } catch (err) {
+      callback(err);
+    }
+  });
+
   // meltdown => uploadFileToFolder
   motherEmitter.on('uploadFileToFolder', (payload, originalCb) => {
     const callback = onceCallback(originalCb);
+    try {
+      const {
+        jwt,
+        fileName,
+        fileData,
+        subPath = '',
+        mimeType
+      } = payload || {};
+      if (!jwt || !fileName || !fileData) {
+        return callback(new Error('[MEDIA MANAGER] uploadFileToFolder => missing parameters.'));
+      }
 
-    // ... existing code for uploading a file ...
-    // This snippet is presumably not shown, so we won't re-implement it here.
-    // Just remember: you now have "callback" as a safe once-callback.
-    callback(null, { success: true, message: 'File uploaded (in theory).' });
+      const targetDir = path.join(libraryRoot, subPath);
+      if (!targetDir.startsWith(libraryRoot)) {
+        return callback(new Error('Invalid path.'));
+      }
+      fs.mkdirSync(targetDir, { recursive: true });
+
+      let finalName = fileName;
+      const fullPath = path.join(targetDir, finalName);
+      if (fs.existsSync(fullPath)) {
+        const timestamp = Date.now();
+        const ext = path.extname(fileName);
+        const base = path.basename(fileName, ext);
+        finalName = `${base}-${timestamp}${ext}`;
+      }
+
+      fs.writeFileSync(path.join(targetDir, finalName), fileData);
+      callback(null, { success: true, fileName: finalName, mimeType });
+    } catch (err) {
+      callback(err);
+    }
   });
 
   /*

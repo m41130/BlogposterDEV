@@ -19,7 +19,7 @@ const { requirePermission } = require('../../modules/auth/permissionMiddleware')
 /**
  * POST /admin/share
  * => meltdown => createShareLink
- * Body: { filePath, isPublic } (optional isPublic)
+ * Body: { filePath, isPublic, expiresAt } (expiresAt optional timestamp)
  */
 router.post(
   '/',
@@ -28,7 +28,7 @@ router.post(
   (req, res) => {
     const userToken = req.cookies?.admin_jwt;
     const userId    = req.user?.id; // from the auth middleware
-    const { filePath, isPublic = true } = req.body;
+    const { filePath, isPublic = true, expiresAt } = req.body;
 
     if (!filePath) {
       return res.status(400).json({
@@ -45,7 +45,8 @@ router.post(
         moduleType: 'core',
         filePath,
         userId,
-        isPublic
+        isPublic,
+        expiresAt
       },
       (err, result) => {
         if (err) {
@@ -110,6 +111,7 @@ router.delete(
  * GET /admin/share/:shortToken
  * => meltdown => getShareDetails
  * Allows the UI to retrieve info about a share link (e.g. filePath, isPublic).
+ * Expired links return `details: null`.
  */
 router.get(
   '/:shortToken',
