@@ -18,7 +18,7 @@ const router  = express.Router();
 const { motherEmitter } = require('../../emitters/motherEmitter');
 
 // Middleware to check if the request is coming from a public route
-router.get('*', (req, res, next) => {
+router.get('*', async (req, res, next) => {
   console.log(`[PUBLIC ROUTER DEBUG] Requested slug: "${req.path}"`);
   next();
 });
@@ -49,14 +49,15 @@ router.get('*', (req, res, next) => {
     return next(); // Hand over to CSR router
   }
 
-  /* Fetch public token from global setup (required) */
-  const pagesPublicToken = global.pagesPublicToken;
+  /* Ensure we have a valid public token */
+  const pagesPublicToken = await new Promise((resolve, reject) => {
+    motherEmitter.emit(
+      'ensurePublicToken',
+      { moduleName: 'pagesManager' },
+      (err, tok) => (err ? reject(err) : resolve(tok))
+    );
+  });
   console.log('[DEBUG] Public token:', pagesPublicToken);
-
-  if (!pagesPublicToken) {
-    console.error('[DEBUG] Public token is missing');
-    return res.status(500).json({ error: 'Server mis-config: public token missing' });
-  }
 
   /* Choose SQL placeholder based on requested path */
   const isStartRequest = slug === '';

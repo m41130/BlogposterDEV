@@ -46,13 +46,21 @@ function getActiveUI (jwt) {
 /* ------------------------------------------------------------------------ */
 
 /** root – redirects either to /register (when no users) or /login */
-router.get('/', (_, res) => {
-  motherEmitter.emit('getUserCount',
-    { jwt:global.pagesPublicToken, moduleName:'userManagement', moduleType:'core' },
-    (err, count = 1) => {
-      if (err) return res.status(500).send('Error checking user count');
-      res.redirect(count === 0 ? '/admin/register' : '/admin/login');
+router.get('/', async (_, res) => {
+  try {
+    const pubTok = await new Promise((resolve, reject) => {
+      motherEmitter.emit('ensurePublicToken', { moduleName:'userManagement' }, (e,t) => e ? reject(e) : resolve(t));
     });
+
+    motherEmitter.emit('getUserCount',
+      { jwt:pubTok, moduleName:'userManagement', moduleType:'core' },
+      (err, count = 1) => {
+        if (err) return res.status(500).send('Error checking user count');
+        res.redirect(count === 0 ? '/admin/register' : '/admin/login');
+      });
+  } catch (err) {
+    res.status(500).send('Error checking user count');
+  }
 });
 
 /** simple static login page */
@@ -60,45 +68,61 @@ router.get('/login', (_req, res) =>
   res.sendFile(path.join(__dirname, '../../adminui/PlainSpaceUI/login.html')));
 
 /** first‑time registration page (only shown if no users exist) */
-router.get('/register', (_req, res) => {
-  motherEmitter.emit('getUserCount',
-    { jwt:global.pagesPublicToken, moduleName:'userManagement', moduleType:'core' },
-    (err, count = 1) => {
-      if (err) return res.status(500).send('Error checking user count');
-      if (count > 0) return res.redirect('/admin/login');
-
-      res.sendFile(path.join(__dirname, '../../adminui/PlainSpaceUI/register.html'));
+router.get('/register', async (_req, res) => {
+  try {
+    const pubTok = await new Promise((resolve, reject) => {
+      motherEmitter.emit('ensurePublicToken', { moduleName:'userManagement' }, (e,t)=> e?reject(e):resolve(t));
     });
+
+    motherEmitter.emit('getUserCount',
+      { jwt:pubTok, moduleName:'userManagement', moduleType:'core' },
+      (err, count = 1) => {
+        if (err) return res.status(500).send('Error checking user count');
+        if (count > 0) return res.redirect('/admin/login');
+
+        res.sendFile(path.join(__dirname, '../../adminui/PlainSpaceUI/register.html'));
+      });
+  } catch (err) {
+    res.status(500).send('Error checking user count');
+  }
 });
 
 /** POST /api/register – bootstrap very first admin user */
-router.post('/api/register', (req, res) => {
+router.post('/api/register', async (req, res) => {
   const { username, password } = req.body || {};
   if (!username || !password) {
     return res.status(400).json({ error:'username + password required' });
   }
 
-  motherEmitter.emit('getUserCount',
-    { jwt:global.pagesPublicToken, moduleName:'userManagement', moduleType:'core' },
-    (err, count = 1) => {
-      if (err)  return res.status(500).json({ error:err.message });
-      if (count > 0) return res.status(403).json({ error:'Registration closed' });
-
-      motherEmitter.emit('createUser',
-        { jwt:global.pagesPublicToken, moduleName:'userManagement', moduleType:'core',
-          username, password, role:'admin' },
-        (eCreate, user) => {
-          if (eCreate) return res.status(500).json({ error:eCreate.message });
-
-          notificationEmitter.notify({
-            moduleName:'adminRoutes',
-            notificationType:'system',
-            priority:'info',
-            message:`New admin "${user.username}" created`
-          });
-          res.json({ success:true, user });
-        });
+  try {
+    const pubTok = await new Promise((resolve, reject) => {
+      motherEmitter.emit('ensurePublicToken', { moduleName:'userManagement' }, (e,t)=> e?reject(e):resolve(t));
     });
+
+    motherEmitter.emit('getUserCount',
+      { jwt:pubTok, moduleName:'userManagement', moduleType:'core' },
+      (err, count = 1) => {
+        if (err)  return res.status(500).json({ error:err.message });
+        if (count > 0) return res.status(403).json({ error:'Registration closed' });
+
+        motherEmitter.emit('createUser',
+          { jwt:pubTok, moduleName:'userManagement', moduleType:'core',
+            username, password, role:'admin' },
+          (eCreate, user) => {
+            if (eCreate) return res.status(500).json({ error:eCreate.message });
+
+            notificationEmitter.notify({
+              moduleName:'adminRoutes',
+              notificationType:'system',
+              priority:'info',
+              message:`New admin "${user.username}" created`
+            });
+            res.json({ success:true, user });
+          });
+      });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 /* ------------------------------------------------------------------------ */
