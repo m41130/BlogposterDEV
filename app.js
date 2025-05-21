@@ -518,8 +518,14 @@ app.get('/:slug', async (req, res, next) => {
       global.pagesPublicToken = await new Promise((resolve, reject) => {
         motherEmitter.emit(
           'ensurePublicToken',
-          { moduleName: 'pagesManager' },
-          (err, token) => (err ? reject(err) : resolve(token))
+          { 
+            currentToken: global.pagesPublicToken, 
+            purpose: 'public',
+            moduleName: 'publicRoute',
+            moduleType: 'core'
+          },
+          (err, data) => (err ? reject(err) : resolve(data))
+
         );
       });
     } catch (tokenErr) {
