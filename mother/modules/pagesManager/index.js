@@ -761,13 +761,33 @@ function setupPagesManagerEvents(motherEmitter) {
             languages: languages || []
           }
         },
-        (err, sitemapXml) => {
+        (err, pages) => {
           if (err) return callback(err);
-          callback(null, sitemapXml);
+          const xml = buildSitemap(pages);
+          callback(null, xml);
         }
       );
     } catch (ex) {
       callback(ex);
     }
   });
+}
+
+function buildSitemap(pages, baseUrl = process.env.APP_BASE_URL || 'https://example.com') {
+  if (!Array.isArray(pages)) return '';
+
+  const cleanBase = String(baseUrl).replace(/\/+$/, '');
+  const header = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+  const footer = '</urlset>';
+
+  const urlEntries = pages.map(page => {
+    const slug = (page.slug || '').replace(/^\/+/, '');
+    const loc = `${cleanBase}/${slug}`;
+    const lastmod = page.updated_at ? new Date(page.updated_at).toISOString() : new Date().toISOString();
+    const priority = page.is_start ? '1.0' : '0.5';
+
+    return `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <priority>${priority}</priority>\n  </url>`;
+  }).join('\n');
+
+  return `${header}\n${urlEntries}\n${footer}`;
 }
