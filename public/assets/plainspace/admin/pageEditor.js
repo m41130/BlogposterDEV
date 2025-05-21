@@ -26,6 +26,10 @@ export async function initPageEditor(contentEl) {
       <div id="editorGrid" class="grid-stack page-editor-grid"></div>
       <div class="page-editor-actions"><button id="pe-save">Save</button></div>
     `;
+    
+    renderInfo(document.getElementById('widget-info'), page, trans);
+    await renderSettings(document.getElementById('widget-settings'), page, meltdownEmit, jwt);
+    renderSeoImage(document.getElementById('widget-image'), page);
 
     const gridEl = document.getElementById('editorGrid');
     const grid = GridStack.init({}, gridEl);
