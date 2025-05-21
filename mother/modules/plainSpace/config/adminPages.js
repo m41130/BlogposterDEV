@@ -44,7 +44,9 @@ module.exports.ADMIN_PAGES = [
   },
   {
     title: 'Page Editor',
-    slug: 'pages/edit',
+    // This slug will be combined with parentSlug during seeding
+    slug: 'edit',
+    parentSlug: 'pages',
     lane: 'admin',
     config: {
       layout: {
