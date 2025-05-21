@@ -2,12 +2,13 @@
 
 import { fetchPartial } from '/assets/plainspace/admin/fetchPartial.js';
 import { initBuilder } from '/assets/plainspace/admin/builderRenderer.js';
+import { initPageEditor } from '/assets/plainspace/admin/pageEditor.js';
 
 (async () => {
   try {
     // 1. ROUTE BASICS
     const pathParts = window.location.pathname.split('/').filter(Boolean);
-    const slug = pathParts[pathParts.length - 1] || 'dashboard';
+    let slug = window.PAGE_SLUG || pathParts[pathParts.length - 1] || 'dashboard';
     const lane = window.location.pathname.startsWith('/admin') ? 'admin' : 'public';
 
     // 2. FETCH PAGE META
@@ -57,6 +58,13 @@ import { initBuilder } from '/assets/plainspace/admin/builderRenderer.js';
 
       await initBuilder(sidebarEl, contentEl, allWidgets);
 
+      return;
+    }
+
+    // 5b. HANDLE PAGE EDITOR PAGE
+    if (slug === 'pages/edit') {
+      sidebarEl.innerHTML = await fetchPartial(config.layout?.sidebar || 'default-sidebar', 'sidebars');
+      await initPageEditor(contentEl);
       return;
     }
 
