@@ -281,6 +281,41 @@ function setupEventListeners({ motherEmitter, JWT_SECRET }) {
     }
   });
 
+  // E1) ensurePublicToken
+  motherEmitter.on('ensurePublicToken', (payload, cb) => {
+    const callback = onceCallback(cb);
+    try {
+      const { currentToken, purpose } = payload || {};
+      let needsNew = true;
+
+      if (currentToken) {
+        try {
+          const decoded = jwt.decode(currentToken);
+          if (decoded && decoded.exp > Math.floor(Date.now() / 1000)) {
+            needsNew = false;
+          }
+        } catch (_err) {
+          needsNew = true;
+        }
+      }
+
+      if (!needsNew) {
+        return callback(null, { token: currentToken, renewed: false });
+      }
+
+      motherEmitter.emit(
+        'issuePublicToken',
+        { purpose },
+        (err, newToken) => {
+          if (err) return callback(err);
+          callback(null, { token: newToken, renewed: true });
+        }
+      );
+    } catch (err) {
+      callback(err);
+    }
+  });
+
   // F) validateToken
   motherEmitter.on('validateToken', (payload, cb) => {
     const callback = onceCallback(cb);
