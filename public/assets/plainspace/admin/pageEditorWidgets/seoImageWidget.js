@@ -1,22 +1,4 @@
-export async function render(el) {
-  const meltdownEmit = window.meltdownEmit;
-  const jwt = window.ADMIN_TOKEN;
-  const pageId = window.PAGE_ID;
-
-  let page = {};
-  if (jwt && pageId) {
-    try {
-      const res = await meltdownEmit('getPageById', {
-        jwt,
-        moduleName: 'pagesManager',
-        moduleType: 'core',
-        pageId
-      });
-      page = res?.data ?? res ?? {};
-    } catch (err) {
-      console.error('seoImageWidget fetch error', err);
-    }
-  }
+export function render(el, page) {
   const container = document.createElement('div');
   container.className = 'seo-image-widget';
 
@@ -34,3 +16,4 @@ export async function render(el) {
   el.innerHTML = '';
   el.appendChild(container);
 }
+
