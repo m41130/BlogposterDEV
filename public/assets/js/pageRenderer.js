@@ -62,7 +62,8 @@ import { initPageEditor } from '/assets/plainspace/admin/pageEditor.js';
     }
 
     // 5b. HANDLE PAGE EDITOR PAGE
-    if (slug === 'pages/edit') {
+    // page editor uses sanitized slug 'pages-edit'
+    if (slug === 'pages-edit') {
       sidebarEl.innerHTML = await fetchPartial(config.layout?.sidebar || 'default-sidebar', 'sidebars');
       await initPageEditor(contentEl);
       return;

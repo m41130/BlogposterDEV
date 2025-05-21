@@ -15,58 +15,101 @@ const ADMIN_LANE  = 'admin';
  */
 // plainSpaceService.js
 async function seedAdminPages(motherEmitter, jwt, adminPages = []) {
+  const makeSlug = (str) =>
+    String(str)
+      .toLowerCase()
+      .normalize('NFKD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .substring(0, 96);
+
   for (const page of adminPages) {
-    await new Promise((resolve) => {
+    let slugPath = page.slug;
+    let parentId = null;
+
+    if (page.parentSlug) {
+      const parentSlugSan = makeSlug(page.parentSlug);
+      const parentPage = await new Promise((resolve) => {
+        motherEmitter.emit(
+          'getPageBySlug',
+          {
+            jwt,
+            moduleName: 'pagesManager',
+            moduleType: 'core',
+            slug: parentSlugSan,
+            lane: page.lane
+          },
+          onceCallback((_err, existing) => resolve(existing || null))
+        );
+      });
+
+      if (parentPage?.id) {
+        parentId = parentPage.id;
+        slugPath = `${parentPage.slug}/${page.slug}`;
+      } else {
+        console.warn(`[plainSpace] Parent page "${page.parentSlug}" not found for "${page.slug}".`);
+      }
+    }
+
+    const finalSlug = makeSlug(slugPath);
+
+    const exists = await new Promise((resolve) => {
       motherEmitter.emit(
         'getPageBySlug',
         {
           jwt,
           moduleName: 'pagesManager',
           moduleType: 'core',
-          slug: page.slug,
+          slug: finalSlug,
           lane: page.lane
         },
-        onceCallback((err, existingPage) => {
-          console.debug('[plainSpace] Debug existingPage für', page.slug, existingPage);
-          const exists = Array.isArray(existingPage)
-              ? existingPage.length > 0    
-              : Boolean(existingPage);
+        onceCallback((_err, existingPage) => {
+          const found = Array.isArray(existingPage)
+            ? existingPage.length > 0
+            : Boolean(existingPage);
+          resolve(found);
+        })
+      );
+    });
 
-          if (exists) {
-            console.log(`[plainSpace] Admin page "${page.slug}" already exists.`);
-            return resolve();
-          }
+    if (exists) {
+      console.log(`[plainSpace] Admin page "${finalSlug}" already exists.`);
+      continue;
+    }
 
-          motherEmitter.emit(
-            'createPage',
+    await new Promise((resolve) => {
+      motherEmitter.emit(
+        'createPage',
+        {
+          jwt,
+          moduleName: 'pagesManager',
+          moduleType: 'core',
+          title: page.title,
+          slug: slugPath,
+          parent_id: parentId,
+          lane: page.lane,
+          status: 'published',
+          meta: page.config,
+          translations: [
             {
-              jwt,
-              moduleName: 'pagesManager',
-              moduleType: 'core',
+              language: 'en',
               title: page.title,
-              slug: page.slug,
-              lane: page.lane,
-              status: 'published',
-              meta: page.config,
-              translations: [{
-                language: 'en',
-                title: page.title,
-                html: '<div id="root"></div>',
-                css: '',
-                metaDesc: '',
-                seoTitle: page.title,
-                seoKeywords: ''
-              }]
-            },
-            onceCallback((err2) => {
-              if (err2) {
-                console.error(`[plainSpace] Error creating "${page.slug}":`, err2.message);
-              } else {
-                console.log(`[plainSpace] ✅ Admin page "${page.slug}" successfully created.`);
-              }
-              resolve();
-            })
-          );
+              html: '<div id="root"></div>',
+              css: '',
+              metaDesc: '',
+              seoTitle: page.title,
+              seoKeywords: ''
+            }
+          ]
+        },
+        onceCallback((err2) => {
+          if (err2) {
+            console.error(`[plainSpace] Error creating "${slugPath}":`, err2.message);
+          } else {
+            console.log(`[plainSpace] ✅ Admin page "${slugPath}" successfully created.`);
+          }
+          resolve();
         })
       );
     });
