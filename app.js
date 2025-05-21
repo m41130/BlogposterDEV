@@ -518,7 +518,12 @@ app.get('/:slug', async (req, res, next) => {
       const result = await new Promise((resolve, reject) => {
         motherEmitter.emit(
           'ensurePublicToken',
-          { currentToken: global.pagesPublicToken, purpose: 'public' },
+          { 
+            currentToken: global.pagesPublicToken, 
+            purpose: 'public',
+            moduleName: 'publicRoute',
+            moduleType: 'core'
+          },
           (err, data) => (err ? reject(err) : resolve(data))
         );
       });
