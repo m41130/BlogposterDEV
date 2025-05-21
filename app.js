@@ -368,13 +368,12 @@ app.get('/admin/home', csrfProtection, async (req, res) => {
 // ──────────────────────────────────────────────────────────────────────────
 // 7b) Admin SPA shell for any /admin/<slug>
 // ──────────────────────────────────────────────────────────────────────────
-// ──────────────────────────────────────────────────────────────────────────
-// 7c) Admin SPA shell for any /admin/<slug>
-// ──────────────────────────────────────────────────────────────────────────
-app.get('/admin/:slug(*)', async (req, res, next) => {
-  console.log('[DEBUG] /admin/:slug => userCookie.admin_jwt =', req.cookies?.admin_jwt);
+
+app.get('/admin/*', async (req, res, next) => {
+  console.log('[DEBUG] /admin/* => userCookie.admin_jwt =', req.cookies?.admin_jwt);
 
   const adminJwt = req.cookies?.admin_jwt;
+
   if (!adminJwt) {
     return res.status(401).send('Not logged in as admin.');
   }
@@ -436,7 +435,7 @@ app.get('/admin/:slug(*)', async (req, res, next) => {
     res.send(html);
 
   } catch (err) {
-    console.error('[ADMIN /admin/:slug] Error:', err);
+    console.error('[ADMIN /admin/*] Error:', err);
     next(err);
   }
 });

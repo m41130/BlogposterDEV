@@ -24,6 +24,15 @@ const ADMIN_LANE  = 'admin';
  */
 // plainSpaceService.js
 async function seedAdminPages(motherEmitter, jwt, adminPages = []) {
+  const makeSlug = (str) =>
+    String(str)
+      .toLowerCase()
+      .normalize('NFKD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .substring(0, 96);
+
   for (const page of adminPages) {
     let parentId = null;
     let finalSlugForCheck = page.slug.replace(/\//g, '-');
@@ -110,6 +119,7 @@ async function seedAdminPages(motherEmitter, jwt, adminPages = []) {
       console.log(`[plainSpace] ✅ Admin page "${finalSlugForCheck}" successfully created.`);
     }).catch(err => {
       console.error(`[plainSpace] Error creating "${finalSlugForCheck}":`, err.message);
+
     });
   }
 }
