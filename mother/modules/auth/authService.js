@@ -260,6 +260,8 @@ function setupEventListeners({ motherEmitter, JWT_SECRET }) {
   motherEmitter.on('issuePublicToken', (payload, cb) => {
     const callback = onceCallback(cb);
     try {
+
+
       const jti = crypto.randomBytes(16).toString('hex');
       const trustLevel = 'low';
       const finalSecret = combineSecretWithSalt(JWT_SECRET, trustLevel);
@@ -281,38 +283,38 @@ function setupEventListeners({ motherEmitter, JWT_SECRET }) {
     }
   });
 
-  // E1) ensurePublicToken
+  // E2) ensurePublicToken – return a valid public token, refreshing if needed
   motherEmitter.on('ensurePublicToken', (payload, cb) => {
     const callback = onceCallback(cb);
-    try {
-      const { currentToken, purpose } = payload || {};
-      let needsNew = true;
-
-      if (currentToken) {
-        try {
-          const decoded = jwt.decode(currentToken);
-          if (decoded && decoded.exp > Math.floor(Date.now() / 1000)) {
-            needsNew = false;
-          }
-        } catch (_err) {
-          needsNew = true;
+    let current = global.pagesPublicToken;
+    let needsRefresh = true;
+    if (current) {
+      try {
+        const decoded = jwt.verify(
+          current,
+          combineSecretWithSalt(JWT_SECRET, 'low')
+        );
+        if (decoded && decoded.exp * 1000 > Date.now()) {
+          needsRefresh = false;
         }
+      } catch (_) {
+        needsRefresh = true;
       }
+    }
 
-      if (!needsNew) {
-        return callback(null, { token: currentToken, renewed: false });
-      }
-
+    if (!current || needsRefresh) {
       motherEmitter.emit(
         'issuePublicToken',
-        { purpose },
-        (err, newToken) => {
+        { purpose: 'public', moduleName: 'auth' },
+        (err, newTok) => {
           if (err) return callback(err);
-          callback(null, { token: newToken, renewed: true });
+          global.pagesPublicToken = newTok;
+          callback(null, newTok);
         }
       );
-    } catch (err) {
-      callback(err);
+    } else {
+      callback(null, current);
+
     }
   });
 

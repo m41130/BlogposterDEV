@@ -513,9 +513,9 @@ app.get('/:slug', async (req, res, next) => {
   try {
     const slug = req.params.slug;
 
-    // Ensure we have a valid public token via the auth module
+    // Ensure a valid public token is available (refresh when expired)
     try {
-      const result = await new Promise((resolve, reject) => {
+      global.pagesPublicToken = await new Promise((resolve, reject) => {
         motherEmitter.emit(
           'ensurePublicToken',
           { 
@@ -525,11 +525,12 @@ app.get('/:slug', async (req, res, next) => {
             moduleType: 'core'
           },
           (err, data) => (err ? reject(err) : resolve(data))
+
         );
       });
-      global.pagesPublicToken = result.token;
     } catch (tokenErr) {
-      console.error('[SERVER] Failed to ensure public token →', tokenErr);
+      console.error('[SERVER] Failed to obtain public token →', tokenErr);
+
       return res.status(500).send('Server misconfiguration');
     }
 
