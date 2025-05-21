@@ -1,27 +1,20 @@
 export async function render(el) {
   const meltdownEmit = window.meltdownEmit;
   const jwt = window.ADMIN_TOKEN;
-  const pageId = window.PAGE_ID;
 
-  if (!jwt || !pageId) {
+  const page = await window.pageDataLoader.load('getPageById', {
+    moduleName: 'pagesManager',
+    moduleType: 'core',
+    pageId: window.PAGE_ID
+  });
+
+  if (!jwt || !page) {
     el.innerHTML = '<p>Missing credentials or page id.</p>';
     return;
   }
 
-  let page = {};
-  let trans = {};
-  try {
-    const res = await meltdownEmit('getPageById', {
-      jwt,
-      moduleName: 'pagesManager',
-      moduleType: 'core',
-      pageId
-    });
-    page = res?.data ?? res ?? {};
-    trans = (page.translations && page.translations[0]) || {};
-  } catch (err) {
-    console.error('savePageWidget fetch error', err);
-  }
+  const pageId = window.PAGE_ID;
+  const trans = (page.translations && page.translations[0]) || {};
 
   const button = document.createElement('button');
   button.id = 'pe-save';
