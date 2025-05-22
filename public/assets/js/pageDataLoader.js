@@ -8,7 +8,8 @@
   const cache = new Map();
 
   function sanitize(data, fields) {
-    if (!fields || !data || typeof data !== 'object') return data;
+    if (!fields) return (data && typeof data === 'object') ? data : null;
+    if (!data || typeof data !== 'object') return null;
     const out = {};
     for (const f of fields) {
       if (Object.hasOwn(data, f)) out[f] = data[f];
@@ -21,13 +22,18 @@
     const key = `${eventName}:${JSON.stringify(payload)}`;
     if (cache.has(key)) return cache.get(key);
 
-    const p = meltdownEmit(eventName, { jwt, ...payload })
-      .then(res => sanitize(res?.data ?? res ?? null, opts.fields))
-      .catch(err => {
-        console.error('[pageDataLoader] fetch error', err);
-        cache.delete(key);
-        return null;
-      });
+      const p = meltdownEmit(eventName, { jwt, ...payload })
+    .then(res => {
+      console.log('[LOADER-DEBUG] API-RAW:', res);
+      const sanitized = sanitize(res?.data ?? res ?? null, opts.fields);
+      console.log('[LOADER-DEBUG] Sanitized:', sanitized);
+      return sanitized;
+    })
+  .catch(err => {
+    console.error('[pageDataLoader] fetch error', err);
+    cache.delete(key);
+    return null;
+  });
 
     cache.set(key, p);
     return p;
