@@ -3,12 +3,21 @@
 import { fetchPartial } from '/assets/plainspace/admin/fetchPartial.js';
 import { initBuilder } from '/assets/plainspace/admin/builderRenderer.js';
 
-function ensureLayout(layout = {}) {
+function ensureLayout(layout = {}, lane = 'public') {
   let scope = document.querySelector('.app-scope');
   if (!scope) {
     scope = document.createElement('div');
     scope.className = 'app-scope';
     document.body.prepend(scope);
+  }
+
+  if (lane !== 'admin') {
+    if (!document.getElementById('content')) {
+      const content = document.createElement('section');
+      content.id = 'content';
+      scope.appendChild(content);
+    }
+    return;
   }
 
   const inherit = layout.inheritsLayout !== false;
@@ -83,7 +92,7 @@ function ensureLayout(layout = {}) {
 
     const config = page.meta || {};
 
-    ensureLayout(config.layout || {});
+    ensureLayout(config.layout || {}, lane);
 
     // 3. DOM REFERENCES
     const topHeaderEl = document.getElementById('top-header');
