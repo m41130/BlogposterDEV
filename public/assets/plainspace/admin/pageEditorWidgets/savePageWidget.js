@@ -2,11 +2,7 @@ export async function render(el) {
   const meltdownEmit = window.meltdownEmit;
   const jwt = window.ADMIN_TOKEN;
 
-  const page = await window.pageDataLoader.load('getPageById', {
-    moduleName: 'pagesManager',
-    moduleType: 'core',
-    pageId: window.PAGE_ID
-  });
+  const page = await window.pageDataPromise;
 
   if (!jwt || !page) {
     el.innerHTML = '<p>Missing credentials or page id.</p>';
