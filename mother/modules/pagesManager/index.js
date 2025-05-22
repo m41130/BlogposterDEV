@@ -494,7 +494,62 @@ function setupPagesManagerEvents(motherEmitter) {
       callback(ex);
     }
   });
-  
+
+  // ─────────────────────────────────────────────────────────────────
+  // GET START PAGE BY LANGUAGE
+  // ─────────────────────────────────────────────────────────────────
+  motherEmitter.on('getStartPage', (payload, originalCb) => {
+    const callback = onceCallback(originalCb);
+
+    try {
+      const {
+        jwt,
+        moduleName,
+        moduleType,
+        language = 'en'
+      } = payload || {};
+
+      if (!jwt || moduleName !== 'pagesManager' || moduleType !== 'core') {
+        return callback(new Error('[pagesManager] getStartPage => invalid payload.'));
+      }
+
+      const safeLang = String(language).trim().toLowerCase() || 'en';
+
+      const to = setTimeout(() => {
+        callback(new Error('Timeout while fetching start page.'));
+      }, TIMEOUT_DURATION);
+
+      motherEmitter.emit(
+        'dbSelect',
+        {
+          jwt,
+          moduleName: 'pagesManager',
+          moduleType: 'core',
+          table: '__rawSQL__',
+          data: {
+            rawSQL: 'GET_START_PAGE',
+            0: safeLang
+          }
+        },
+        (err, result = null) => {
+          clearTimeout(to);
+
+          if (err) return callback(err);
+
+          const rows = Array.isArray(result)
+            ? result
+            : Array.isArray(result?.rows)
+              ? result.rows
+              : (result ? [result] : []);
+
+          callback(null, rows[0] ?? null);
+        }
+      );
+    } catch (ex) {
+      callback(ex);
+    }
+  });
+
   // ─────────────────────────────────────────────────────────────────
   // GET CHILD PAGES BY PARENT ID
   // ─────────────────────────────────────────────────────────────────

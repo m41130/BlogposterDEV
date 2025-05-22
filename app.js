@@ -502,16 +502,12 @@ app.use(async (req, res, next) => {
 // ─────────────────────────────────────────────────────────────────
 const pageHtmlPath = path.join(__dirname, 'public', 'index.html');
 
-// Let "/" => slug = "home"
-app.get('/', (req, res, next) => {
-  req.params.slug = 'home';
-  return next();
-});
-
-// For any /:slug => fetch a public page from the DB
-app.get('/:slug', async (req, res, next) => {
+// Handle public pages ("/" or "/:slug")
+app.get('/:slug?', async (req, res, next) => {
   try {
-    const slug = req.params.slug;
+    const requestedSlug = req.params.slug;
+
+    const slug = typeof requestedSlug === 'string' ? requestedSlug : '';
 
     // Ensure a valid public token is available (refresh when expired)
     try {
@@ -536,19 +532,15 @@ app.get('/:slug', async (req, res, next) => {
 
     // 1) Get the page object via meltdown (direct object, not {data:…}!)
     const page = await new Promise((resolve, reject) => {
-      motherEmitter.emit(
-        'getPageBySlug',
-        {
-          jwt: global.pagesPublicToken,   // read-only token
-          moduleName: 'pagesManager',
-          moduleType: 'core',
-          slug
-        },
-        (err, record) => {
-          if (err) return reject(err);
-          resolve(record);  // “record” is the direct DB row
-        }
-      );
+      const eventName = slug ? 'getPageBySlug' : 'getStartPage';
+      const payload = slug
+        ? { jwt: global.pagesPublicToken, moduleName: 'pagesManager', moduleType: 'core', slug }
+        : { jwt: global.pagesPublicToken, moduleName: 'pagesManager', moduleType: 'core' };
+
+      motherEmitter.emit(eventName, payload, (err, record) => {
+        if (err) return reject(err);
+        resolve(record);
+      });
     });
 
     // 2) If no row or missing .id => 404 fallback
@@ -560,13 +552,14 @@ app.get('/:slug', async (req, res, next) => {
     const pageId = page.id;
     const lane   = 'public';
     const token  = global.pagesPublicToken;
+    const slugToUse = slug || page.slug;
 
     const nonce = crypto.randomBytes(16).toString('base64');
 
     let html = fs.readFileSync(pageHtmlPath, 'utf8');
     const inject = `<script nonce="${nonce}">
       window.PAGE_ID = ${pageId};
-      window.PAGE_SLUG = '${slug}';
+      window.PAGE_SLUG = '${slugToUse}';
       window.LANE    = '${lane}';
       window.PUBLIC_TOKEN = '${token}';
     </script>`;
