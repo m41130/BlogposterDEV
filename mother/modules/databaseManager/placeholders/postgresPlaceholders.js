@@ -441,6 +441,7 @@ switch (operation) {
 
     /* ---------- UPDATE_PAGE ---------- */
     case 'UPDATE_PAGE': {
+      const p = Array.isArray(params) ? (params[0] || {}) : (params || {});
       const {
         pageId,
         slug,
@@ -454,7 +455,7 @@ switch (operation) {
         /* NEW fields: */
         title,
         meta
-      } = params;
+      } = p;
 
       // Update main page
       await client.query(`
