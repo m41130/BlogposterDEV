@@ -11,7 +11,6 @@ export async function render(el) {
   }
 
   const page = pageData;
-  const trans = (page.translations && page.translations[0]) || {};
   const container = document.createElement('div');
   container.className = 'page-info-widget';
 
@@ -21,7 +20,7 @@ export async function render(el) {
   titleInput.id = 'pe-title';
   titleInput.type = 'text';
   titleInput.placeholder = 'Title';
-  titleInput.value = page.title || '';
+  titleInput.value = page.trans_title || page.title || '';
   titleLabel.appendChild(document.createElement('br'));
   titleLabel.appendChild(titleInput);
 
@@ -30,7 +29,7 @@ export async function render(el) {
   const descTextarea = document.createElement('textarea');
   descTextarea.id = 'pe-desc';
   descTextarea.placeholder = 'Description';
-  descTextarea.textContent = trans.meta_desc || '';
+  descTextarea.textContent = page.meta_desc || '';
   descLabel.appendChild(document.createElement('br'));
   descLabel.appendChild(descTextarea);
 
