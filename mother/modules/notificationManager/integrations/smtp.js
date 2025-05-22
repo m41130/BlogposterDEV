@@ -1,12 +1,27 @@
 /**
  * mother/modules/notificationManager/integrations/smtp.js
  */
-//const nodemailer = require('nodemailer');
+// nodemailer is optional because the environment may not have it installed
+let nodemailer = null;
+try {
+  nodemailer = require('nodemailer');
+} catch (err) {
+  console.warn('[SMTP Integration] nodemailer not installed => e-mail notifications disabled');
+}
 
 module.exports = {
   integrationName: 'SMTP',
 
   initialize: async (config) => {
+    if (!nodemailer) {
+      // If nodemailer isn't available we return a no-op notifier
+      return {
+        notify: async () => {
+          console.warn('[SMTP Integration] notify() called but nodemailer is missing');
+        }
+      };
+    }
+
     // transporter erstellen
     const transporter = nodemailer.createTransport({
       host: config.host,

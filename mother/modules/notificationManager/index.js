@@ -16,20 +16,26 @@ module.exports = {
     // Lade alle Integrationen
     const integrations = await loadIntegrations();
 
+    // Initialisiere aktive Integrationen einmalig
+    const activeInstances = {};
+    for (const name of Object.keys(integrations)) {
+      const integration = integrations[name];
+      if (!integration.active) continue;
+      try {
+        activeInstances[name] = await integration.module.initialize(integration.config);
+      } catch (err) {
+        console.error(`[NOTIFICATION MANAGER] Failed to init integration "${name}" =>`, err.message);
+      }
+    }
+
     // NotificationEmitter-Listener => verarbeiten Notifications
     notificationEmitter.on('notify', async (payload) => {
-      const { notificationType, priority, message } = payload;
+      const { notificationType, priority } = payload;
       console.log('[NOTIFICATION MANAGER] Received notification =>', { notificationType, priority });
 
-      // Finde alle aktiven Integrationen
-      for (const name of Object.keys(integrations)) {
-        const integration = integrations[name];
-        if (!integration.active) continue; // nur aktive Integrationen
-
+      for (const name of Object.keys(activeInstances)) {
         try {
-          const instance = await integration.module.initialize(integration.config);
-          // Sende Notification
-          await instance.notify(payload);
+          await activeInstances[name].notify(payload);
         } catch (err) {
           console.error(`[NOTIFICATION MANAGER] Integration "${name}" error =>`, err.message);
         }
