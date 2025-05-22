@@ -348,6 +348,7 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
      *     We "upsert" translations if not present, just like in Postgres.
      */
     case 'UPDATE_PAGE': {
+      const p = Array.isArray(params) ? (params[0] || {}) : (params || {});
       const {
         pageId,
         slug,
@@ -356,7 +357,7 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
         translations = [],
         parent_id,
         is_content
-      } = params;
+      } = p;
   
       // 1) Update the main page
       await db.collection('pages').updateOne(
