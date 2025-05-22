@@ -1,3 +1,4 @@
+//public/assets/plainspace/admin/pageEditorWidgets/savePageWidget.js
 export async function render(el) {
   const meltdownEmit = window.meltdownEmit;
   const jwt = window.ADMIN_TOKEN;
@@ -8,6 +9,7 @@ export async function render(el) {
     el.innerHTML = '<p>Missing credentials or page id.</p>';
     return;
   }
+console.log('[DEBUG] pageData', pageData);
 
   const pageId = window.PAGE_ID;
   const trans = {

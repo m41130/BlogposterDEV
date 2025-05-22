@@ -1,3 +1,4 @@
+//public/assets/plainspace/admin/pageEditorWidgets/pageInfoWidget.js
 export async function render(el) {
   const pageData = await window.pageDataPromise;
 
@@ -5,6 +6,7 @@ export async function render(el) {
     el.innerHTML = '<p>Missing credentials or page id.</p>';
     return;
   }
+console.log('[DEBUG] pageData', pageData);
 
   const page = pageData;
   const container = document.createElement('div');
