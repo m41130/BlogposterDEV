@@ -43,6 +43,10 @@ router.get('*', (req, res, next) => {
   const slug = req.path.substring(1);
   console.log('[DEBUG] Extracted slug:', slug);
 
+  /* Convert nested paths ("foo/bar") to the stored slug format ("foo-bar") */
+  const sanitizedSlug = slug.replace(/\//g, '-');
+  console.log('[DEBUG] Sanitized slug:', sanitizedSlug);
+
   /* Ignore admin backend routes */
   if (slug.toLowerCase().startsWith('admin')) {
     console.log('[DEBUG] Ignoring admin route');
@@ -67,7 +71,7 @@ router.get('*', (req, res, next) => {
   /* Explicitly set language to "en" for consistency */
   const dataObj = isStartRequest
     ? { rawSQL: rawSQLName, 0: 'en' }
-    : { rawSQL: rawSQLName, 0: slug, 1: 'en' };
+    : { rawSQL: rawSQLName, 0: sanitizedSlug, 1: 'en' };
   console.log('[DEBUG] Data object for DB query:', dataObj);
 
   /* Emit dbSelect event to query page data */
