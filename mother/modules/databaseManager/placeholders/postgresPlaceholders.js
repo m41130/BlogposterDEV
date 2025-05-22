@@ -436,7 +436,7 @@ switch (operation) {
           AND p.lane = $2
       `, [slug, lane, lang]);
 
-      return rows[0] || null;
+      return rows;
     }
 
     /* ---------- UPDATE_PAGE ---------- */
