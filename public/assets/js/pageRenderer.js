@@ -115,6 +115,7 @@ import { initBuilder } from '/assets/plainspace/admin/builderRenderer.js';
 
       matchedWidgets.forEach(def => {
         if (DEBUG) console.debug('[Renderer] render widget', def.id);
+
         const meta = layout.find(l => l.widgetId === def.id) || {};
         const [x, y, w, h] = [meta.x ?? 0, meta.y ?? 0, meta.w ?? 4, meta.h ?? 2];
 
