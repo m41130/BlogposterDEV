@@ -14,7 +14,12 @@ export async function render(el) {
   }
 
   const pageId = window.PAGE_ID;
-  const trans = (page.translations && page.translations[0]) || {};
+  const trans = {
+    html: page.html || '',
+    css: page.css || '',
+    seo_title: page.seo_title || '',
+    seo_keywords: page.seo_keywords || ''
+  };
 
   const button = document.createElement('button');
   button.id = 'pe-save';
@@ -48,11 +53,11 @@ export async function render(el) {
         translations: [{
           language: page.language,
           title,
-          html: trans.html || '',
-          css: trans.css || '',
+          html: trans.html,
+          css: trans.css,
           metaDesc: seoDesc,
-          seoTitle: trans.seo_title || '',
-          seoKeywords: trans.seo_keywords || ''
+          seoTitle: trans.seo_title,
+          seoKeywords: trans.seo_keywords
         }],
         meta: { ...(page.meta || {}), publish_at: publishAt, layoutTemplate: layoutName }
       });
