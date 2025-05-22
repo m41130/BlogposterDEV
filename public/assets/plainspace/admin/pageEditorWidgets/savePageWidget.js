@@ -60,6 +60,15 @@ export async function render(el) {
         meta: { ...(page.meta || {}), publish_at: publishAt, layoutTemplate: layoutName }
       });
 
+      // Clear cached page data so subsequent loads fetch the updated values
+      if (window.pageDataLoader) {
+        window.pageDataLoader.clear('getPageById', {
+          moduleName: 'pagesManager',
+          moduleType: 'core',
+          pageId
+        });
+      }
+
       if (layoutName) {
         const layoutRes = await meltdownEmit('getLayoutTemplate', {
           jwt,
