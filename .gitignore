@@ -11,6 +11,8 @@ yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
 server.log
+mother/modules/notificationManager/server.log
+
 
 # Sensitive files
 .pgpass
