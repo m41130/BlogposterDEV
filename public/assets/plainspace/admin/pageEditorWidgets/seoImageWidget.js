@@ -6,7 +6,7 @@ export async function render(el) {
     el.innerHTML = '<p>Missing credentials or page id.</p>';
     return;
   }
-  console.log('[DEBUG] pageData', pageData);
+  console.log('[DEBUG] pageData', page);
 
   
   const container = document.createElement('div');
