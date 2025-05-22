@@ -3,7 +3,7 @@
 import { fetchPartial } from '/assets/plainspace/admin/fetchPartial.js';
 import { initBuilder } from '/assets/plainspace/admin/builderRenderer.js';
 
-function ensureLayout() {
+function ensureLayout(layout = {}) {
   let scope = document.querySelector('.app-scope');
   if (!scope) {
     scope = document.createElement('div');
@@ -11,16 +11,22 @@ function ensureLayout() {
     document.body.prepend(scope);
   }
 
-  if (!document.getElementById('top-header')) {
-    const topHeader = document.createElement('header');
-    topHeader.id = 'top-header';
-    scope.appendChild(topHeader);
+  const inherit = layout.inheritsLayout !== false;
+
+  if (inherit || layout.header) {
+    if (!document.getElementById('top-header')) {
+      const topHeader = document.createElement('header');
+      topHeader.id = 'top-header';
+      scope.appendChild(topHeader);
+    }
   }
 
-  if (!document.getElementById('main-header')) {
-    const mainHeader = document.createElement('header');
-    mainHeader.id = 'main-header';
-    scope.appendChild(mainHeader);
+  if (inherit) {
+    if (!document.getElementById('main-header')) {
+      const mainHeader = document.createElement('header');
+      mainHeader.id = 'main-header';
+      scope.appendChild(mainHeader);
+    }
   }
 
   let mainContent = document.querySelector('.main-content');
@@ -30,10 +36,12 @@ function ensureLayout() {
     scope.appendChild(mainContent);
   }
 
-  if (!document.getElementById('sidebar')) {
-    const sidebar = document.createElement('aside');
-    sidebar.id = 'sidebar';
-    mainContent.appendChild(sidebar);
+  if (inherit || layout.sidebar) {
+    if (!document.getElementById('sidebar')) {
+      const sidebar = document.createElement('aside');
+      sidebar.id = 'sidebar';
+      mainContent.appendChild(sidebar);
+    }
   }
 
   if (!document.getElementById('content')) {
@@ -45,7 +53,6 @@ function ensureLayout() {
 
 (async () => {
   try {
-    ensureLayout();
     // 1. ROUTE BASICS
     const pathParts = window.location.pathname.split('/').filter(Boolean);
     const lane = window.location.pathname.startsWith('/admin') ? 'admin' : 'public';
@@ -76,26 +83,34 @@ function ensureLayout() {
 
     const config = page.meta || {};
 
+    ensureLayout(config.layout || {});
+
     // 3. DOM REFERENCES
     const topHeaderEl = document.getElementById('top-header');
     const mainHeaderEl = document.getElementById('main-header');
     const sidebarEl = document.getElementById('sidebar');
     const contentEl = document.getElementById('content');
 
-    if (!topHeaderEl || !mainHeaderEl || !sidebarEl || !contentEl) return;
+    if (!contentEl) return;
 
     // 4. LOAD HEADER PARTIALS
-    topHeaderEl.innerHTML = await fetchPartial(config.layout?.header || 'top-header', 'headers');
-    if (config.layout?.inheritsLayout === false && !config.layout?.topHeader) {
-      mainHeaderEl.innerHTML = '';
-    } else {
-      mainHeaderEl.innerHTML = await fetchPartial(config.layout?.mainHeader || 'main-header', 'headers');
+    if (topHeaderEl) {
+      topHeaderEl.innerHTML = await fetchPartial(config.layout?.header || 'top-header', 'headers');
+    }
+    if (mainHeaderEl) {
+      if (config.layout?.inheritsLayout === false && !config.layout?.topHeader) {
+        mainHeaderEl.innerHTML = '';
+      } else {
+        mainHeaderEl.innerHTML = await fetchPartial(config.layout?.mainHeader || 'main-header', 'headers');
+      }
     }
 
     // 5. HANDLE BUILDER PAGE SEPARATELY
     if (slug === 'builder') {
       const builderSidebar = config.layout?.sidebar || 'sidebar-builder';
-      sidebarEl.innerHTML = await fetchPartial(builderSidebar, 'sidebars');
+      if (sidebarEl) {
+        sidebarEl.innerHTML = await fetchPartial(builderSidebar, 'sidebars');
+      }
 
       const widgetRes = await meltdownEmit('widget.registry.request.v1', {
         lane: 'public', // explicitly use public widgets for builder
@@ -119,10 +134,12 @@ function ensureLayout() {
       ? 'empty-sidebar'
       : (config.layout?.sidebar || 'default-sidebar');
 
-    if (sidebarPartial !== 'empty-sidebar') {
-      sidebarEl.innerHTML = await fetchPartial(sidebarPartial, 'sidebars');
-    } else {
-      sidebarEl.innerHTML = '';
+    if (sidebarEl) {
+      if (sidebarPartial !== 'empty-sidebar') {
+        sidebarEl.innerHTML = await fetchPartial(sidebarPartial, 'sidebars');
+      } else {
+        sidebarEl.innerHTML = '';
+      }
     }
 
     // 7. FETCH WIDGET REGISTRY
