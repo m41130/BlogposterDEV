@@ -111,6 +111,7 @@ function renderPages(pages, list) {
                 ? window.featherIcon('home', 'is-home')
                 : window.featherIcon('setHome', 'set-home" title="Set as home')}
               ${window.featherIcon('edit', 'edit-page" title="Edit page')}
+              ${window.featherIcon('pencil', 'edit-layout" title="Edit layout')}
               ${window.featherIcon(page.status === 'draft' ? 'draft' : 'published', 'toggle-draft" title="' + (page.status === 'draft' ? 'Mark as published' : 'Mark as draft') + '"')}
               ${window.featherIcon('delete', 'delete-page" title="Delete page')}
           </span>
@@ -143,6 +144,9 @@ function renderPages(pages, list) {
 
     // Edit page
     li.querySelector('.edit-page').addEventListener('click', () => editPage(page.id));
+
+    // Edit layout
+    li.querySelector('.edit-layout').addEventListener('click', () => editLayout(page.id));
 
     // Toggle draft
     li.querySelector('.toggle-draft').addEventListener('click', () => toggleDraft(page));
@@ -198,6 +202,10 @@ async function setHomePage(id) {
 
 async function editPage(id) {
   window.location.href = `/admin/pages/edit/${id}`;
+}
+
+async function editLayout(id) {
+  window.location.href = `/admin/builder?pageId=${id}`;
 }
 
 async function toggleDraft(page) {
