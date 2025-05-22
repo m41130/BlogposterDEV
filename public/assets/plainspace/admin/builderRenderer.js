@@ -91,8 +91,7 @@ export async function initBuilder(sidebarEl, contentEl, allWidgets, pageId = nul
   controls.className = 'builder-controls-bar';
   controls.innerHTML = `
     <input id="layoutNameInput" placeholder="Layout name…" />
-    <button id="saveLayoutBtn">💾 Save Layout</button>
-    ${pageId ? '<button id="savePageLayoutBtn">📄 Save to Page</button>' : ''}`;
+    <button id="saveLayoutBtn">💾 Save Layout</button>`;
   contentEl.prepend(controls);
 
   controls.querySelector('#saveLayoutBtn').addEventListener('click', async () => {
@@ -114,25 +113,8 @@ export async function initBuilder(sidebarEl, contentEl, allWidgets, pageId = nul
         viewport: 'desktop',
         layout
       });
-      alert('Layout template saved');
-    } catch (err) {
-      console.error('[Builder] saveLayoutTemplate error', err);
-      alert('Save failed: ' + err.message);
-    }
-  });
 
-  if (pageId) {
-    const btn = controls.querySelector('#savePageLayoutBtn');
-    btn.addEventListener('click', async () => {
-      const items = Array.from(gridEl.querySelectorAll('.grid-stack-item'));
-      const layout = items.map(el => ({
-        widgetId: el.dataset.widgetId,
-        x: +el.getAttribute('gs-x'),
-        y: +el.getAttribute('gs-y'),
-        w: +el.getAttribute('gs-w'),
-        h: +el.getAttribute('gs-h')
-      }));
-      try {
+      if (pageId) {
         await meltdownEmit('saveLayoutForViewport', {
           jwt: window.ADMIN_TOKEN,
           moduleName: 'plainspace',
@@ -142,11 +124,12 @@ export async function initBuilder(sidebarEl, contentEl, allWidgets, pageId = nul
           viewport: 'desktop',
           layout
         });
-        alert('Page layout saved');
-      } catch (err) {
-        console.error('[Builder] saveLayoutForViewport error', err);
-        alert('Save failed: ' + err.message);
       }
-    });
-  }
+
+      alert('Layout template saved');
+    } catch (err) {
+      console.error('[Builder] saveLayoutTemplate error', err);
+      alert('Save failed: ' + err.message);
+    }
+  });
 }
