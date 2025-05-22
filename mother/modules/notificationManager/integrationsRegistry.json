@@ -14,5 +14,11 @@
     "config": {
       "webhookUrl": "https://hooks.slack.com/services/..."
     }
+  },
+  "FileLog": {
+    "active": true,
+    "config": {
+      "logPath": "./mother/modules/notificationManager/server.log"
+    }
   }
 }
