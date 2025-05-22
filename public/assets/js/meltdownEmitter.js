@@ -2,9 +2,13 @@
 ;(function(window) {
   window.meltdownEmit = async function(eventName, payload = {}) {
     const headers = {
-      'Content-Type': 'application/json',
-      'X-CSRF-Token': window.CSRF_TOKEN
+      'Content-Type': 'application/json'
     };
+
+    if (window.CSRF_TOKEN) {
+      headers['X-CSRF-Token'] = window.CSRF_TOKEN;
+    }
+
     if (window.PUBLIC_TOKEN) {
       headers['X-Public-Token'] = window.PUBLIC_TOKEN;
     }

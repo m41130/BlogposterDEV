@@ -9,6 +9,8 @@ import { initBuilder } from '/assets/plainspace/admin/builderRenderer.js';
     const pathParts = window.location.pathname.split('/').filter(Boolean);
     let slug = window.PAGE_SLUG || pathParts[pathParts.length - 1] || 'dashboard';
     const lane = window.location.pathname.startsWith('/admin') ? 'admin' : 'public';
+    const DEBUG = window.DEBUG_RENDERER;
+    if (DEBUG) console.debug('[Renderer] boot', { slug, lane });
 
     // 2. FETCH PAGE META
     const pageRes = await meltdownEmit('getPageBySlug', {
@@ -17,6 +19,7 @@ import { initBuilder } from '/assets/plainspace/admin/builderRenderer.js';
       slug,
       lane
     });
+    if (DEBUG) console.debug('[Renderer] pageRes', pageRes);
 
     const page = pageRes?.data ?? pageRes ?? null;
     if (!page) {
@@ -52,6 +55,7 @@ import { initBuilder } from '/assets/plainspace/admin/builderRenderer.js';
         moduleName: 'plainspace',
         moduleType: 'core'
       });
+      if (DEBUG) console.debug('[Renderer] builder widgetRes', widgetRes);
 
       const allWidgets = Array.isArray(widgetRes?.widgets) ? widgetRes.widgets : [];
 
@@ -82,6 +86,7 @@ import { initBuilder } from '/assets/plainspace/admin/builderRenderer.js';
       moduleName: 'plainspace',
       moduleType: 'core'
     });
+    if (DEBUG) console.debug('[Renderer] widgetRes', widgetRes);
 
     const allWidgets = Array.isArray(widgetRes?.widgets) ? widgetRes.widgets : [];
 
@@ -100,6 +105,7 @@ import { initBuilder } from '/assets/plainspace/admin/builderRenderer.js';
         lane,
         viewport: 'desktop'
       });
+      if (DEBUG) console.debug('[Renderer] layoutRes', layoutRes);
 
       const layout = Array.isArray(layoutRes?.layout) ? layoutRes.layout : [];
 
@@ -108,6 +114,8 @@ import { initBuilder } from '/assets/plainspace/admin/builderRenderer.js';
       const grid = GridStack.init({ staticGrid: true }, gridEl);
 
       matchedWidgets.forEach(def => {
+        if (DEBUG) console.debug('[Renderer] render widget', def.id);
+
         const meta = layout.find(l => l.widgetId === def.id) || {};
         const [x, y, w, h] = [meta.x ?? 0, meta.y ?? 0, meta.w ?? 4, meta.h ?? 2];
 
@@ -142,6 +150,7 @@ import { initBuilder } from '/assets/plainspace/admin/builderRenderer.js';
       lane,
       viewport: 'desktop'
     });
+    if (DEBUG) console.debug('[Renderer] admin layoutRes', layoutRes);
 
     const layout = Array.isArray(layoutRes?.layout) ? layoutRes.layout : [];
 
@@ -152,6 +161,7 @@ import { initBuilder } from '/assets/plainspace/admin/builderRenderer.js';
     const matchedWidgets = allWidgets.filter(w => (config.widgets || []).includes(w.id));
 
     matchedWidgets.forEach(def => {
+      if (DEBUG) console.debug('[Renderer] admin render widget', def.id);
       const meta = layout.find(l => l.widgetId === def.id) || {};
       const [x, y, w, h] = [meta.x ?? 0, meta.y ?? 0, meta.w ?? 4, meta.h ?? 2];
 
