@@ -700,7 +700,7 @@ function setupPagesManagerEvents(motherEmitter) {
   motherEmitter.on('setAsStart', (payload, originalCb) => {
     const callback = onceCallback(originalCb);
     try {
-      const { jwt, moduleName, moduleType, pageId, language = 'en' } = payload || {};
+      const { jwt, moduleName, moduleType, pageId } = payload || {};
       if (!jwt || moduleName !== 'pagesManager' || moduleType !== 'core') {
         return callback(new Error('[pagesManager] setAsStart => invalid meltdown payload.'));
       }
@@ -717,6 +717,8 @@ function setupPagesManagerEvents(motherEmitter) {
             return callback(new Error('Only a published page can be set as the start page.'));
           }
 
+          const finalLanguage = payload.language || page.language || 'en';
+
           motherEmitter.emit(
             'dbUpdate',
             {
@@ -726,7 +728,7 @@ function setupPagesManagerEvents(motherEmitter) {
               table: '__rawSQL__',
               data: {
                 rawSQL: 'SET_AS_START',
-                params: [ { pageId, language } ]
+                params: [ { pageId, language: finalLanguage } ]
               }
             },
             callback
