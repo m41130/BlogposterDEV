@@ -27,3 +27,31 @@
 [CRITICAL] 2025-03-13T08:19:55.748Z | Module: dependencyLoader | CORE_JWT_ERROR | Core event "performDbOperation" has no JWT
 [CRITICAL] 2025-03-15T11:58:00.252Z | Module: userManagement | CORE_JWT_ERROR | Core event "dbSelect" has no JWT
 [CRITICAL] 2025-04-11T13:35:04.883Z | Module: userManagement | CORE_JWT_ERROR | Core event "userLogin" has no JWT
+[DEBUG] 2025-05-22T06:24:32.872Z | Module: databaseManager | Schema "settingsmanager" already exists in DB "postgres".
+[INFO] 2025-05-22T06:24:32.873Z | Module: databaseManager | Successfully created/fixed shared schema in Postgres main DB for "settingsManager".
+[DEBUG] 2025-05-22T06:24:32.881Z | Module: databaseManager | [PLACEHOLDER REGISTRY] No existing JSON => skipping load.
+[DEBUG] 2025-05-22T06:24:32.882Z | Module: databaseManager | [PostgresEngine] Created global main DB pool => postgres
+[DEBUG] 2025-05-22T06:24:32.965Z | Module: databaseManager | Schema "usermanagement" already exists in DB "postgres".
+[INFO] 2025-05-22T06:24:32.966Z | Module: databaseManager | Successfully created/fixed shared schema in Postgres main DB for "userManagement".
+[DEBUG] 2025-05-22T06:24:33.015Z | Module: databaseManager | Schema "pagesmanager" already exists in DB "postgres".
+[INFO] 2025-05-22T06:24:33.016Z | Module: databaseManager | Successfully created/fixed shared schema in Postgres main DB for "pagesManager".
+[DEBUG] 2025-05-22T06:24:33.163Z | Module: databaseManager | Schema "servermanager" already exists in DB "postgres".
+[INFO] 2025-05-22T06:24:33.164Z | Module: databaseManager | Successfully created/fixed shared schema in Postgres main DB for "serverManager".
+[DEBUG] 2025-05-22T06:24:33.197Z | Module: databaseManager | Schema "mediamanager" already exists in DB "postgres".
+[INFO] 2025-05-22T06:24:33.198Z | Module: databaseManager | Successfully created/fixed shared schema in Postgres main DB for "mediaManager".
+[DEBUG] 2025-05-22T06:24:33.233Z | Module: databaseManager | Schema "sharemanager" already exists in DB "postgres".
+[INFO] 2025-05-22T06:24:33.234Z | Module: databaseManager | Successfully created/fixed shared schema in Postgres main DB for "shareManager".
+[DEBUG] 2025-05-22T06:43:54.942Z | Module: databaseManager | Schema "settingsmanager" already exists in DB "postgres".
+[INFO] 2025-05-22T06:43:54.944Z | Module: databaseManager | Successfully created/fixed shared schema in Postgres main DB for "settingsManager".
+[DEBUG] 2025-05-22T06:43:54.952Z | Module: databaseManager | [PLACEHOLDER REGISTRY] No existing JSON => skipping load.
+[DEBUG] 2025-05-22T06:43:54.953Z | Module: databaseManager | [PostgresEngine] Created global main DB pool => postgres
+[DEBUG] 2025-05-22T06:43:55.030Z | Module: databaseManager | Schema "usermanagement" already exists in DB "postgres".
+[INFO] 2025-05-22T06:43:55.031Z | Module: databaseManager | Successfully created/fixed shared schema in Postgres main DB for "userManagement".
+[DEBUG] 2025-05-22T06:43:55.070Z | Module: databaseManager | Schema "pagesmanager" already exists in DB "postgres".
+[INFO] 2025-05-22T06:43:55.071Z | Module: databaseManager | Successfully created/fixed shared schema in Postgres main DB for "pagesManager".
+[DEBUG] 2025-05-22T06:43:55.165Z | Module: databaseManager | Schema "servermanager" already exists in DB "postgres".
+[INFO] 2025-05-22T06:43:55.165Z | Module: databaseManager | Successfully created/fixed shared schema in Postgres main DB for "serverManager".
+[DEBUG] 2025-05-22T06:43:55.185Z | Module: databaseManager | Schema "mediamanager" already exists in DB "postgres".
+[INFO] 2025-05-22T06:43:55.185Z | Module: databaseManager | Successfully created/fixed shared schema in Postgres main DB for "mediaManager".
+[DEBUG] 2025-05-22T06:43:55.205Z | Module: databaseManager | Schema "sharemanager" already exists in DB "postgres".
+[INFO] 2025-05-22T06:43:55.206Z | Module: databaseManager | Successfully created/fixed shared schema in Postgres main DB for "shareManager".

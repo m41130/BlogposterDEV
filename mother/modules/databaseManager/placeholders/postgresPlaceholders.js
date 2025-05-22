@@ -416,7 +416,7 @@ switch (operation) {
         WHERE p.id = $1;
       `, [pageId, lang]);
 
-      return rows;
+      return rows[0] || null;
     }
 
     /* ---------- GET_PAGE_BY_SLUG ---------- */
