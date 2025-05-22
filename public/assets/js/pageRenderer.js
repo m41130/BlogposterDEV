@@ -156,12 +156,6 @@ function ensureLayout(layout = {}) {
 
     // 8. PUBLIC PAGE: render widgets using stored layout in static grid
     if (lane !== 'admin') {
-      const matchedWidgets = allWidgets.filter(w => (config.widgets || []).includes(w.id));
-      if (!matchedWidgets.length) {
-        contentEl.innerHTML = '<p class="empty-state">No widgets configured.</p>';
-        return;
-      }
-
       const layoutRes = await meltdownEmit('getLayoutForViewport', {
         moduleName: 'plainspace',
         moduleType: 'core',
@@ -172,6 +166,14 @@ function ensureLayout(layout = {}) {
       if (DEBUG) console.debug('[Renderer] layoutRes', layoutRes);
 
       const layout = Array.isArray(layoutRes?.layout) ? layoutRes.layout : [];
+
+      const widgetIds = layout.map(l => l.widgetId);
+      const sourceIds = widgetIds.length ? widgetIds : (config.widgets || []);
+      const matchedWidgets = allWidgets.filter(w => sourceIds.includes(w.id));
+      if (!matchedWidgets.length) {
+        contentEl.innerHTML = '<p class="empty-state">No widgets configured.</p>';
+        return;
+      }
 
       contentEl.innerHTML = '<div id="publicGrid" class="grid-stack"></div>';
       const gridEl = document.getElementById('publicGrid');
