@@ -5,7 +5,7 @@
     "scripts": {
         "start": "node app.js",
         "dev": "nodemon app.js",
-        "test": "node tests/updatePage.test.js && node tests/notificationManager.test.js"
+        "test": "node tests/setAsStart.test.js && node tests/updatePage.test.js && node tests/notificationManager.test.js"
     },
     "dependencies": {
         "@rc-component/color-picker": "^2.0.1",

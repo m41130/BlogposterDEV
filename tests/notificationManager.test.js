@@ -27,7 +27,7 @@ function loadNotificationManager() {
 }
 
 async function testFileLogIntegration() {
-  const logPath = path.resolve(__dirname, '../mother/modules/notificationManager/server.log');
+  const logPath = path.resolve(__dirname, '../mother/modules/notificationManager/blogposter.log');
   const beforeSize = fs.existsSync(logPath) ? fs.statSync(logPath).size : 0;
 
   const nm = loadNotificationManager();
