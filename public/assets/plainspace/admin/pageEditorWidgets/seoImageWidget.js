@@ -1,9 +1,5 @@
 export async function render(el) {
-  const page = await window.pageDataLoader.load('getPageById', {
-    moduleName: 'pagesManager',
-    moduleType: 'core',
-    pageId: window.PAGE_ID
-  });
+  const page = await window.pageDataPromise;
 
   if (!page) {
     el.innerHTML = '<p>Missing credentials or page id.</p>';
