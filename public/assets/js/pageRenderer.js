@@ -3,12 +3,59 @@
 import { fetchPartial } from '/assets/plainspace/admin/fetchPartial.js';
 import { initBuilder } from '/assets/plainspace/admin/builderRenderer.js';
 
+function ensureLayout() {
+  let scope = document.querySelector('.app-scope');
+  if (!scope) {
+    scope = document.createElement('div');
+    scope.className = 'app-scope';
+    document.body.prepend(scope);
+  }
+
+  if (!document.getElementById('top-header')) {
+    const topHeader = document.createElement('header');
+    topHeader.id = 'top-header';
+    scope.appendChild(topHeader);
+  }
+
+  if (!document.getElementById('main-header')) {
+    const mainHeader = document.createElement('header');
+    mainHeader.id = 'main-header';
+    scope.appendChild(mainHeader);
+  }
+
+  let mainContent = document.querySelector('.main-content');
+  if (!mainContent) {
+    mainContent = document.createElement('div');
+    mainContent.className = 'main-content';
+    scope.appendChild(mainContent);
+  }
+
+  if (!document.getElementById('sidebar')) {
+    const sidebar = document.createElement('aside');
+    sidebar.id = 'sidebar';
+    mainContent.appendChild(sidebar);
+  }
+
+  if (!document.getElementById('content')) {
+    const content = document.createElement('section');
+    content.id = 'content';
+    mainContent.appendChild(content);
+  }
+}
+
 (async () => {
   try {
+    ensureLayout();
     // 1. ROUTE BASICS
     const pathParts = window.location.pathname.split('/').filter(Boolean);
-    let slug = window.PAGE_SLUG || pathParts[pathParts.length - 1] || 'dashboard';
     const lane = window.location.pathname.startsWith('/admin') ? 'admin' : 'public';
+    let slug;
+    if (window.PAGE_SLUG) {
+      slug = window.PAGE_SLUG;
+    } else {
+      const parts = lane === 'admin' ? pathParts.slice(1) : pathParts;
+      slug = parts.join('-') || 'dashboard';
+    }
     const DEBUG = window.DEBUG_RENDERER;
     if (DEBUG) console.debug('[Renderer] boot', { slug, lane });
 
