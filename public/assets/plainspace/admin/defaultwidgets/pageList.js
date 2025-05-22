@@ -108,7 +108,7 @@ function renderPages(pages, list) {
           <span class="page-name">${page.title}</span>
           <span class="page-actions">
               ${page.is_start
-                ? window.featherIcon('home', 'is-home')
+                ? '<span class="home-indicator" title="Current home page">Home</span>'
                 : window.featherIcon('setHome', 'set-home" title="Set as home')}
               ${window.featherIcon('edit', 'edit-page" title="Edit page')}
               ${window.featherIcon('pencil', 'edit-layout" title="Edit layout')}
