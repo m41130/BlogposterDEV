@@ -42,7 +42,7 @@ export async function render(el) {
         pageId,
         slug,
         status,
-        seoImage,
+        seo_image: seoImage,
         parent_id: page.parent_id,
         is_content: page.is_content,
         lane: page.lane,

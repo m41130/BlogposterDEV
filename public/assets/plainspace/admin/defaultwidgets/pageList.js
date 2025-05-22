@@ -166,7 +166,7 @@ async function updateSlug(page, slug) {
       pageId: page.id,
       slug,
       status: page.status,
-      seoImage: page.seo_image,
+      seo_Image: page.seo_image,
       parent_id: page.parent_id,
       is_content: page.is_content,
       lane: page.lane,

@@ -1,14 +1,17 @@
-//public/assets/plainspace/admin/pageEditorWidgets/pageInfoWidget.js
 export async function render(el) {
-  const pageData = await window.pageDataPromise;
+  const pageData = await window.pageDataLoader.load('getPageById', {
+    moduleName: 'pagesManager',
+    moduleType: 'core',
+    pageId: window.PAGE_ID
+  });
+
+  console.log('[Widget DEBUG] pageData:', pageData);
 
   if (!pageData) {
     el.innerHTML = '<p>Missing credentials or page id.</p>';
     return;
   }
-console.log('[DEBUG] pageData', pageData);
 
-  const page = pageData;
   const container = document.createElement('div');
   container.className = 'page-info-widget';
 
@@ -18,7 +21,7 @@ console.log('[DEBUG] pageData', pageData);
   titleInput.id = 'pe-title';
   titleInput.type = 'text';
   titleInput.placeholder = 'Title';
-  titleInput.value = page.trans_title || page.title || '';
+  titleInput.value = pageData.trans_title || pageData.title || '';
   titleLabel.appendChild(document.createElement('br'));
   titleLabel.appendChild(titleInput);
 
@@ -27,7 +30,7 @@ console.log('[DEBUG] pageData', pageData);
   const descTextarea = document.createElement('textarea');
   descTextarea.id = 'pe-desc';
   descTextarea.placeholder = 'Description';
-  descTextarea.textContent = page.meta_desc || '';
+  descTextarea.textContent = pageData.meta_desc || '';
   descLabel.appendChild(document.createElement('br'));
   descLabel.appendChild(descTextarea);
 
