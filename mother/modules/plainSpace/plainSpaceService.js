@@ -190,6 +190,7 @@ async function checkOrCreateWidget(motherEmitter, jwt, widgetData) {
  *   - getAllLayoutsForPage
  *   - saveLayoutTemplate
  *   - getLayoutTemplate
+ *   - getLayoutTemplateNames
  */
 function registerPlainSpaceEvents(motherEmitter) {
   // 1) saveLayoutForViewport
@@ -335,6 +336,36 @@ function registerPlainSpaceEvents(motherEmitter) {
             return cb(null, { layout: [] });
           }
           cb(null, { layout: rows[0].layout_json || [] });
+        }
+      );
+    } catch (err) {
+      cb(err);
+    }
+  });
+
+  // 6) getLayoutTemplateNames
+  motherEmitter.on('getLayoutTemplateNames', (payload, cb) => {
+    try {
+      const { jwt, lane } = payload || {};
+      if (!jwt || !lane) {
+        return cb(new Error('[plainSpace] Invalid payload in getLayoutTemplateNames.'));
+      }
+      motherEmitter.emit(
+        'dbSelect',
+        {
+          jwt,
+          moduleName: MODULE,
+          moduleType: 'core',
+          table: '__rawSQL__',
+          data: {
+            rawSQL: 'GET_PLAINSPACE_LAYOUT_TEMPLATE_NAMES',
+            params: { lane }
+          }
+        },
+        (err, rows = []) => {
+          if (err) return cb(err);
+          const templates = rows.map(r => r.name);
+          cb(null, { templates });
         }
       );
     } catch (err) {

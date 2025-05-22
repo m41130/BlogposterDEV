@@ -1186,6 +1186,17 @@ switch (operation) {
       `, [d.name]);
       return result.rows;
     }
+
+    case 'GET_PLAINSPACE_LAYOUT_TEMPLATE_NAMES': {
+      const d = params[0] || {};
+      const result = await client.query(`
+        SELECT name
+          FROM plainspace.layout_templates
+         WHERE lane = $1
+         ORDER BY name ASC
+      `, [d.lane]);
+      return result.rows;
+    }
     
     case 'GET_PLAINSPACE_LAYOUT': {
       // "params" => { pageId, lane, viewport }
