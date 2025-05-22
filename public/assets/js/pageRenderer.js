@@ -55,7 +55,10 @@ import { initBuilder } from '/assets/plainspace/admin/builderRenderer.js';
 
       const allWidgets = Array.isArray(widgetRes?.widgets) ? widgetRes.widgets : [];
 
-      await initBuilder(sidebarEl, contentEl, allWidgets);
+      const urlParams = new URLSearchParams(window.location.search);
+      const pageIdParam = parseInt(urlParams.get('pageId'), 10) || null;
+
+      await initBuilder(sidebarEl, contentEl, allWidgets, pageIdParam);
 
       return;
     }
