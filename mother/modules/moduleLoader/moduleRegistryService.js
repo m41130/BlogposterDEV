@@ -9,6 +9,7 @@ require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
 const { onceCallback } = require('../../emitters/motherEmitter');
+const { hasPermission } = require('../userManagement/permissionUtils');
 
 async function ensureModuleRegistrySchema(motherEmitter, jwt) {
   // meltdown => dbUpdate => 'INIT_MODULE_REGISTRY_TABLE'
@@ -48,6 +49,10 @@ function initGetModuleRegistryEvent(motherEmitter) {
     const { jwt, moduleName, moduleType } = payload;
     if (!jwt || moduleName !== 'moduleLoader' || moduleType !== 'core') {
       return callback(new Error('[MODULE LOADER] meltdown => must come from moduleLoader+core.'));
+    }
+
+    if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'modules.list')) {
+      return callback(new Error('Forbidden – missing permission: modules.list'));
     }
 
     try {
@@ -97,6 +102,10 @@ function initListActiveGrapesModulesEvent(motherEmitter) {
     const { jwt, moduleName, moduleType } = payload;
     if (!jwt || moduleName !== 'moduleLoader' || moduleType !== 'core') {
       return callback(new Error('[MODULE LOADER] meltdown => must come from moduleLoader/core.'));
+    }
+
+    if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'modules.listActive')) {
+      return callback(new Error('Forbidden – missing permission: modules.listActive'));
     }
 
     try {

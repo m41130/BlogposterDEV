@@ -8,6 +8,7 @@ const {
 
 // Because meltdown can be quirky
 const { onceCallback } = require('../../emitters/motherEmitter');
+const { hasPermission } = require('../userManagement/permissionUtils');
 
 /**
  * initialize:
@@ -68,6 +69,9 @@ function setupSettingsListeners(motherEmitter) {
       if (!jwt || moduleName !== 'settingsManager' || moduleType !== 'core') {
         return callback(new Error('[SETTINGS MANAGER] getSetting => invalid meltdown payload'));
       }
+      if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'settings.core.view')) {
+        return callback(new Error('Forbidden – missing permission: settings.core.view'));
+      }
       if (!key) {
         return callback(new Error('[SETTINGS MANAGER] getSetting => "key" is required'));
       }
@@ -107,6 +111,9 @@ function setupSettingsListeners(motherEmitter) {
       if (!jwt || moduleName !== 'settingsManager' || moduleType !== 'core') {
         return callback(new Error('[SETTINGS MANAGER] setSetting => invalid meltdown payload'));
       }
+      if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'settings.core.edit')) {
+        return callback(new Error('Forbidden – missing permission: settings.core.edit'));
+      }
       if (!key) {
         return callback(new Error('[SETTINGS MANAGER] setSetting => "key" is required'));
       }
@@ -138,6 +145,9 @@ function setupSettingsListeners(motherEmitter) {
       if (!jwt || moduleName !== 'settingsManager' || moduleType !== 'core') {
         return callback(new Error('[SETTINGS MANAGER] getAllSettings => invalid meltdown payload'));
       }
+      if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'settings.core.view')) {
+        return callback(new Error('Forbidden – missing permission: settings.core.view'));
+      }
 
       motherEmitter.emit(
         'dbSelect',
@@ -165,6 +175,9 @@ function setupSettingsListeners(motherEmitter) {
       const { jwt, moduleName, moduleType, mode } = payload || {};
       if (!jwt || moduleName !== 'settingsManager' || moduleType !== 'core') {
         return callback(new Error('[SETTINGS MANAGER] setCmsMode => invalid meltdown payload'));
+      }
+      if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'settings.core.edit')) {
+        return callback(new Error('Forbidden – missing permission: settings.core.edit'));
       }
       if (!mode) {
         return callback(new Error('Mode is required (e.g., cms, shop, headless)'));
@@ -196,6 +209,9 @@ function setupSettingsListeners(motherEmitter) {
       const { jwt, moduleName, moduleType } = payload || {};
       if (!jwt || moduleName !== 'settingsManager' || moduleType !== 'core') {
         return callback(new Error('[SETTINGS MANAGER] getCmsMode => invalid meltdown payload'));
+      }
+      if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'settings.core.view')) {
+        return callback(new Error('Forbidden – missing permission: settings.core.view'));
       }
 
       motherEmitter.emit(

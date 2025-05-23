@@ -18,6 +18,7 @@ require('dotenv').config();
 
 // We'll import onceCallback from motherEmitter to avoid meltdown meltdown.
 const { onceCallback } = require('../../emitters/motherEmitter');
+const { hasPermission } = require('../userManagement/permissionUtils');
 
 // Simple in-memory registry => { moduleName: settingsSchemaObject }
 let schemaRegistry = {};
@@ -49,6 +50,10 @@ function initSettingsRegistry(motherEmitter) {
         return callback(new Error(
           '[UNIFIED SETTINGS] Missing or invalid fields in registerModuleSettingsSchema payload.'
         ));
+      }
+
+      if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'settings.unified.editSchemas')) {
+        return callback(new Error('Forbidden – missing permission: settings.unified.editSchemas'));
       }
 
       // Store in the in-memory registry
@@ -84,6 +89,10 @@ function initSettingsRegistry(motherEmitter) {
       return settingCallback(
         new Error('[UNIFIED SETTINGS] meltdown check failed in getModuleSettingValue')
       );
+    }
+
+    if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'settings.unified.viewSettings')) {
+      return settingCallback(new Error('Forbidden – missing permission: settings.unified.viewSettings'));
     }
 
     // Retrieve the stored value via meltdown => 'getSetting'
@@ -132,6 +141,10 @@ function initSettingsRegistry(motherEmitter) {
       ));
     }
 
+    if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'settings.unified.viewSettings')) {
+      return callback(new Error('Forbidden – missing permission: settings.unified.viewSettings'));
+    }
+
     const schema = retrieveSchemaForModule(targetModule);
     if (!schema) {
       return callback(
@@ -163,6 +176,10 @@ function initSettingsRegistry(motherEmitter) {
       return settingCallback(
         new Error('[UNIFIED SETTINGS] meltdown check failed in updateModuleSettingValue')
       );
+    }
+
+    if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'settings.unified.editSettings')) {
+      return settingCallback(new Error('Forbidden – missing permission: settings.unified.editSettings'));
     }
 
     // We'll store the value in "settingsManager" DB via meltdown => 'setSetting'
@@ -206,6 +223,10 @@ function initSettingsRegistry(motherEmitter) {
       return callback(new Error(
         '[UNIFIED SETTINGS] Missing targetModule field in listModuleSettings payload'
       ));
+    }
+
+    if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'settings.unified.viewSettings')) {
+      return callback(new Error('Forbidden – missing permission: settings.unified.viewSettings'));
     }
 
     // meltdown => dbSelect => bridging can do Postgres or Mongo
