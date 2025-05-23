@@ -10,5 +10,6 @@ window.featherIcons = {
 };
 
 window.featherIcon = function(name, extraClass = '') {
-  return `<img class="icon ${extraClass}" src="${window.featherIcons[name]}" alt="${name}" />`;
+  const src = window.featherIcons[name] || `/assets/icons/${name}.svg`;
+  return `<img class="icon ${extraClass}" src="${src}" alt="${name}" />`;
 };

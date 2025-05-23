@@ -1,8 +1,35 @@
 // public/assets/plainspace/admin/builderRenderer.js
 export async function initBuilder(sidebarEl, contentEl, allWidgets, pageId = null) {
+  const ICON_MAP = {
+    counter: 'activity',
+    heroBanner: 'image',
+    textBlock: 'align-left',
+    imageWidget: 'image',
+    headingWidget: 'type',
+    buttonWidget: 'mouse-pointer',
+    systemInfo: 'info',
+    activityLog: 'list',
+    pageInfoEditor: 'file-text',
+    pageSettingsEditor: 'settings',
+    seoImageEditor: 'image',
+    mediaExplorer: 'folder',
+    pageList: 'list',
+    pageStats: 'bar-chart-2',
+    pageInfoWidget: 'file-text',
+    pageSettingsWidget: 'settings',
+    seoImageWidget: 'image',
+    savePageWidget: 'save'
+  };
+
+  function getWidgetIcon(w) {
+    const iconName = w.metadata?.icon || ICON_MAP[w.id] || w.id;
+    return window.featherIcon ? window.featherIcon(iconName) :
+      `<img src="/assets/icons/${iconName}.svg" alt="${iconName}" />`;
+  }
+
   sidebarEl.querySelector('.drag-icons').innerHTML = allWidgets.map(w => `
     <div class="drag-widget-icon" draggable="true" data-widget-id="${w.id}" title="${w.metadata.label}">
-      <img src="/assets/icons/${w.id}.svg" alt="${w.metadata.label}" />
+      ${getWidgetIcon(w)}
       <span>${w.metadata.label}</span>
     </div>
   `).join('');
@@ -46,7 +73,7 @@ export async function initBuilder(sidebarEl, contentEl, allWidgets, pageId = nul
     wrapper.setAttribute('gs-h', item.h ?? 2);
     const content = document.createElement('div');
     content.className = 'grid-stack-item-content';
-    content.textContent = widgetDef.metadata?.label || widgetDef.id;
+    content.innerHTML = `${getWidgetIcon(widgetDef)}<span>${widgetDef.metadata?.label || widgetDef.id}</span>`;
     wrapper.appendChild(content);
     gridEl.appendChild(wrapper);
     grid.makeWidget(wrapper);
@@ -78,7 +105,7 @@ export async function initBuilder(sidebarEl, contentEl, allWidgets, pageId = nul
 
     const content = document.createElement('div');
     content.className = 'grid-stack-item-content';
-    content.textContent = widgetDef.metadata?.label || widgetDef.id;
+    content.innerHTML = `${getWidgetIcon(widgetDef)}<span>${widgetDef.metadata?.label || widgetDef.id}</span>`;
     wrapper.appendChild(content);
     gridEl.appendChild(wrapper);
     grid.makeWidget(wrapper);
