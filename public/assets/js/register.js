@@ -1,17 +1,39 @@
 //public/assets/js/register.js
 // A tiny emitter: wraps /api/meltdown calls
 async function meltdownEmit(eventName, payload) {
-    const resp = await fetch('/api/meltdown', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ eventName, payload })
-    });
-    const json = await resp.json();
-    if (!resp.ok || json.error) {
-      throw new Error(json.error || resp.statusText);
-    }
-    return json.data;
+  const resp = await fetch('/api/meltdown', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ eventName, payload })
+  });
+  const json = await resp.json();
+  if (!resp.ok || json.error) {
+    throw new Error(json.error || resp.statusText);
   }
+  return json.data;
+}
+
+// Redirect to login if FIRST_INSTALL_DONE is already true
+(async () => {
+  try {
+    const pubTok = await meltdownEmit('issuePublicToken', {
+      purpose: 'checkFirstInstall',
+      moduleName: 'auth'
+    });
+    const val = await meltdownEmit('getSetting', {
+      jwt: pubTok,
+      moduleName: 'settingsManager',
+      moduleType: 'core',
+      key: 'FIRST_INSTALL_DONE'
+    });
+    if (val === 'true') {
+      window.location.href = '/login';
+      return;
+    }
+  } catch (err) {
+    console.error('[register] FIRST_INSTALL check failed', err);
+  }
+})();
   
   document
     .getElementById('registerForm')
