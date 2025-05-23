@@ -229,19 +229,30 @@ function getModuleTokenForDbManager() {
 // ──────────────────────────────────────────────────────────────────────────
 
 app.post('/api/meltdown', (req, res) => {
-  // 1) Extract the JWT from the HttpOnly cookie or fallback to a public token
+  // 1) Read event name first so we know if it is public
+  const { eventName, payload = {} } = req.body || {};
+  const PUBLIC_EVENTS = [
+    'issuePublicToken',
+    'ensurePublicToken',
+    'removeListenersByModule',
+    'deactivateModule'
+  ];
+
+  // 2) Extract the JWT from the HttpOnly cookie or from the X-Public-Token header
   const cookieJwt = req.cookies?.admin_jwt || null;
   const headerJwt = req.get('X-Public-Token') || null;
   const jwt = cookieJwt || headerJwt;
-  if (!jwt) {
+
+  // 3) If no JWT and this is not a public event => reject
+  if (!jwt && !PUBLIC_EVENTS.includes(eventName)) {
     return res.status(401).json({ error: 'Authentication required: missing JWT.' });
   }
 
-  // 2) Pull out the event name & payload from the request body
-  const { eventName, payload = {} } = req.body;
-  payload.jwt = jwt;
+  if (jwt) {
+    payload.jwt = jwt;
+  }
 
-  // 3) Emit the event and return JSON
+  // 4) Emit the event and return JSON
   motherEmitter.emit(eventName, payload, (err, data) => {
     if (err) {
       return res.status(500).json({ error: err.message });
