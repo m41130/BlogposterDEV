@@ -17,6 +17,7 @@ const TIMEOUT_DURATION = 5000;
 
 // meltdown meltdown...
 const { onceCallback } = require('../../emitters/motherEmitter');
+const { hasPermission } = require('./permissionUtils');
 
 /**
  * setupRoleCrudEvents:
@@ -36,6 +37,10 @@ function setupRoleCrudEvents(motherEmitter) {
     }
     if (!roleName) {
       return callback(new Error('roleName is required.'));
+    }
+
+    if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'userManagement.createRole')) {
+      return callback(new Error('Forbidden – missing permission: userManagement.createRole'));
     }
 
     const permJson = permissions || {};
@@ -71,6 +76,10 @@ function setupRoleCrudEvents(motherEmitter) {
       return callback(new Error('[USER MGMT] getAllRoles => invalid meltdown payload.'));
     }
 
+    if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'userManagement.listRoles')) {
+      return callback(new Error('Forbidden – missing permission: userManagement.listRoles'));
+    }
+
     motherEmitter.emit('dbSelect', {
       jwt,
       moduleName: 'userManagement',
@@ -96,6 +105,10 @@ function setupRoleCrudEvents(motherEmitter) {
     }
     if (!roleId) {
       return callback(new Error('Missing roleId.'));
+    }
+
+    if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'userManagement.editRole')) {
+      return callback(new Error('Forbidden – missing permission: userManagement.editRole'));
     }
 
     // First, fetch the existing role
@@ -147,6 +160,10 @@ function setupRoleCrudEvents(motherEmitter) {
     }
     if (!roleId) {
       return callback(new Error('Missing roleId.'));
+    }
+
+    if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'userManagement.deleteRole')) {
+      return callback(new Error('Forbidden – missing permission: userManagement.deleteRole'));
     }
 
     // Check if the role is system or not
@@ -202,6 +219,10 @@ function setupRoleCrudEvents(motherEmitter) {
       return callback(new Error('Missing userId or roleId.'));
     }
 
+    if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'userManagement.editRole')) {
+      return callback(new Error('Forbidden – missing permission: userManagement.editRole'));
+    }
+
     // Insert into user_roles
     motherEmitter.emit('dbInsert', {
       jwt,
@@ -248,6 +269,10 @@ function setupRoleCrudEvents(motherEmitter) {
     if (!userId) {
       console.error('[USER MGMT] getRolesForUser => Missing userId => meltdown meltdown.');
       return callback(new Error('Missing userId.'));
+    }
+
+    if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'userManagement.listRoles')) {
+      return callback(new Error('Forbidden – missing permission: userManagement.listRoles'));
     }
 
     console.log('[USER MGMT] getRolesForUser => Emitting "dbSelect" on user_roles for userId:', userId);
@@ -300,6 +325,10 @@ function setupRoleCrudEvents(motherEmitter) {
       return callback(new Error('Missing userId or roleId.'));
     }
 
+    if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'userManagement.editRole')) {
+      return callback(new Error('Forbidden – missing permission: userManagement.editRole'));
+    }
+
     // Delete the row from user_roles
     motherEmitter.emit('dbDelete', {
       jwt,
@@ -335,6 +364,10 @@ function setupRoleCrudEvents(motherEmitter) {
     if (!jwt || moduleName !== 'userManagement' || !userId) {
       console.error('[USER MGMT] incrementUserTokenVersion => invalid meltdown payload => meltdown meltdown.');
       return callback(new Error('[USER MGMT] incrementUserTokenVersion => invalid payload.'));
+    }
+
+    if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'userManagement.editUser')) {
+      return callback(new Error('Forbidden – missing permission: userManagement.editUser'));
     }
 
     console.log('[USER MGMT] incrementUserTokenVersion => Fetching current token_version for userId:', userId);

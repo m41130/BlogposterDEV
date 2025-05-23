@@ -11,6 +11,7 @@
 const path = require('path');
 const fs = require('fs');
 const { onceCallback } = require('../../emitters/motherEmitter');
+const { hasPermission } = require('../userManagement/permissionUtils');
 const {
   updateModuleLastError,
   deactivateModule
@@ -25,6 +26,10 @@ function initModuleRegistryAdminEvents(motherEmitter, app) {
       const { jwt, moduleName, moduleType, targetModuleName } = payload;
       if (!jwt || moduleName !== 'moduleLoader' || moduleType !== 'core') {
         return callback(new Error('[REGISTRY EVENTS] meltdown => must come from moduleLoader/core.'));
+      }
+
+      if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'modules.activate')) {
+        return callback(new Error('Forbidden – missing permission: modules.activate'));
       }
 
       // meltdown => dbUpdate => set is_active=TRUE
@@ -66,6 +71,10 @@ function initModuleRegistryAdminEvents(motherEmitter, app) {
       const { jwt, moduleName, moduleType, targetModuleName } = payload;
       if (!jwt || moduleName !== 'moduleLoader' || moduleType !== 'core') {
         return callback(new Error('[REGISTRY EVENTS] meltdown => must come from moduleLoader/core.'));
+      }
+
+      if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'modules.deactivate')) {
+        return callback(new Error('Forbidden – missing permission: modules.deactivate'));
       }
 
       // meltdown => dbUpdate => is_active=FALSE

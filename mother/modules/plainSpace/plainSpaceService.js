@@ -3,6 +3,7 @@
 
 require('dotenv').config();
 const { onceCallback } = require('../../emitters/motherEmitter');
+const { hasPermission } = require('../userManagement/permissionUtils');
 
 function meltdownEmit(emitter, event, payload) {
   return new Promise((resolve, reject) => {
@@ -196,9 +197,12 @@ function registerPlainSpaceEvents(motherEmitter) {
   // 1) saveLayoutForViewport
   motherEmitter.on('saveLayoutForViewport', (payload, cb) => {
     try {
-      const { jwt, moduleName, pageId, lane, viewport, layout } = payload || {};
+      const { jwt, moduleName, pageId, lane, viewport, layout, decodedJWT } = payload || {};
       if (!jwt || !moduleName || !pageId || !lane || !viewport || !Array.isArray(layout)) {
         return cb(new Error('[plainSpace] Invalid payload in saveLayoutForViewport.'));
+      }
+      if (decodedJWT && !hasPermission(decodedJWT, 'plainspace.saveLayout')) {
+        return cb(new Error('Forbidden – missing permission: plainspace.saveLayout'));
       }
       motherEmitter.emit(
         'dbUpdate',
@@ -288,9 +292,12 @@ function registerPlainSpaceEvents(motherEmitter) {
   // 4) saveLayoutTemplate
   motherEmitter.on('saveLayoutTemplate', (payload, cb) => {
     try {
-      const { jwt, name, lane, viewport, layout } = payload || {};
+      const { jwt, name, lane, viewport, layout, decodedJWT } = payload || {};
       if (!jwt || !name || !lane || !viewport || !Array.isArray(layout)) {
         return cb(new Error('[plainSpace] Invalid payload in saveLayoutTemplate.'));
+      }
+      if (decodedJWT && !hasPermission(decodedJWT, 'plainspace.saveLayoutTemplate')) {
+        return cb(new Error('Forbidden – missing permission: plainspace.saveLayoutTemplate'));
       }
       motherEmitter.emit(
         'dbUpdate',

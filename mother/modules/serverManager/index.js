@@ -13,6 +13,7 @@ const {
 
 // Because meltdown might double-fire callbacks if we’re careless
 const { onceCallback } = require('../../emitters/motherEmitter');
+const { hasPermission } = require('../userManagement/permissionUtils');
 
 module.exports = {
   async initialize({ motherEmitter, isCore, jwt, nonce }) {
@@ -63,6 +64,9 @@ function setupServerManagerEventListeners(motherEmitter) {
       if (!jwt) {
         return callback(new Error('[SERVER MANAGER] addServerLocation => missing jwt.'));
       }
+      if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'serverManager.createLocation')) {
+        return callback(new Error('Forbidden – missing permission: serverManager.createLocation'));
+      }
       if (!serverName || !ipAddress) {
         return callback(new Error('serverName and ipAddress are required to add a server location.'));
       }
@@ -98,6 +102,9 @@ function setupServerManagerEventListeners(motherEmitter) {
       if (!jwt) {
         return callback(new Error('[SERVER MANAGER] getServerLocation => missing jwt.'));
       }
+      if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'serverManager.viewLocations')) {
+        return callback(new Error('Forbidden – missing permission: serverManager.viewLocations'));
+      }
       if (!locationId) {
         return callback(new Error('locationId is required to fetch a server location.'));
       }
@@ -131,6 +138,9 @@ function setupServerManagerEventListeners(motherEmitter) {
       if (!jwt) {
         return callback(new Error('[SERVER MANAGER] listServerLocations => missing jwt.'));
       }
+      if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'serverManager.viewLocations')) {
+        return callback(new Error('Forbidden – missing permission: serverManager.viewLocations'));
+      }
 
       motherEmitter.emit(
         'dbSelect',
@@ -157,6 +167,9 @@ function setupServerManagerEventListeners(motherEmitter) {
       const { jwt, locationId } = payload || {};
       if (!jwt) {
         return callback(new Error('[SERVER MANAGER] deleteServerLocation => missing jwt.'));
+      }
+      if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'serverManager.deleteLocation')) {
+        return callback(new Error('Forbidden – missing permission: serverManager.deleteLocation'));
       }
       if (!locationId) {
         return callback(new Error('locationId is required.'));
@@ -190,6 +203,9 @@ function setupServerManagerEventListeners(motherEmitter) {
       const { jwt, locationId, newName, newIp, newNotes } = payload || {};
       if (!jwt) {
         return callback(new Error('[SERVER MANAGER] updateServerLocation => missing jwt.'));
+      }
+      if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'serverManager.editLocation')) {
+        return callback(new Error('Forbidden – missing permission: serverManager.editLocation'));
       }
       if (!locationId) {
         return callback(new Error('locationId is required.'));
