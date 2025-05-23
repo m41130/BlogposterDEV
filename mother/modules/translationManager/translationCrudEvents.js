@@ -7,6 +7,7 @@
 
 // We'll import onceCallback to avoid meltdown meltdown
 const { onceCallback } = require('../../emitters/motherEmitter');
+const { hasPermission } = require('../userManagement/permissionUtils');
 
 function setupTranslationCrudEvents(motherEmitter, jwt) {
   console.log('[TRANSLATION MANAGER] Setting up translation CRUD meltdown events...');
@@ -31,6 +32,11 @@ function setupTranslationCrudEvents(motherEmitter, jwt) {
       }
       if (!objectId || !fieldName || !languageCode) {
         return callback(new Error('objectId, fieldName, and languageCode are required.'));
+      }
+
+      const { decodedJWT } = payload;
+      if (decodedJWT && !hasPermission(decodedJWT, 'translations.create')) {
+        return callback(new Error('Forbidden – missing permission: translations.create'));
       }
 
       motherEmitter.emit(
@@ -79,6 +85,11 @@ function setupTranslationCrudEvents(motherEmitter, jwt) {
         return callback(new Error('objectId, fieldName, and languageCode are required.'));
       }
 
+      const { decodedJWT } = payload;
+      if (decodedJWT && !hasPermission(decodedJWT, 'translations.read')) {
+        return callback(new Error('Forbidden – missing permission: translations.read'));
+      }
+
       motherEmitter.emit(
         'dbSelect',
         {
@@ -124,6 +135,11 @@ function setupTranslationCrudEvents(motherEmitter, jwt) {
         return callback(new Error('Missing textId or newTextValue.'));
       }
 
+      const { decodedJWT } = payload;
+      if (decodedJWT && !hasPermission(decodedJWT, 'translations.update')) {
+        return callback(new Error('Forbidden – missing permission: translations.update'));
+      }
+
       motherEmitter.emit(
         'dbUpdate',
         {
@@ -165,6 +181,11 @@ function setupTranslationCrudEvents(motherEmitter, jwt) {
         return callback(new Error('Missing textId.'));
       }
 
+      const { decodedJWT } = payload;
+      if (decodedJWT && !hasPermission(decodedJWT, 'translations.delete')) {
+        return callback(new Error('Forbidden – missing permission: translations.delete'));
+      }
+
       motherEmitter.emit(
         'dbDelete',
         {
@@ -203,6 +224,11 @@ function setupTranslationCrudEvents(motherEmitter, jwt) {
         return callback(new Error('languageCode and languageName are required.'));
       }
 
+      const { decodedJWT } = payload;
+      if (decodedJWT && !hasPermission(decodedJWT, 'translations.addLanguage')) {
+        return callback(new Error('Forbidden – missing permission: translations.addLanguage'));
+      }
+
       motherEmitter.emit(
         'dbInsert',
         {
@@ -233,6 +259,11 @@ function setupTranslationCrudEvents(motherEmitter, jwt) {
       const { jwt, moduleName, moduleType } = payload || {};
       if (!jwt || moduleName !== 'translationManager' || moduleType !== 'core') {
         return callback(new Error('[TRANSLATION CRUD] listLanguages => invalid meltdown payload.'));
+      }
+
+      const { decodedJWT } = payload;
+      if (decodedJWT && !hasPermission(decodedJWT, 'translations.listLanguages')) {
+        return callback(new Error('Forbidden – missing permission: translations.listLanguages'));
       }
 
       motherEmitter.emit(

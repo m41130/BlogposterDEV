@@ -27,6 +27,7 @@ const {
 } = require('./pagesService');
 const { DEFAULT_WIDGETS } = require('./config/defaultWidgets');
 const { onceCallback } = require('../../emitters/motherEmitter');
+const { hasPermission } = require('../userManagement/permissionUtils');
 
 const TIMEOUT_DURATION = 5000;
 
@@ -230,6 +231,11 @@ function setupPagesManagerEvents(motherEmitter) {
     }
     if (!['public', 'admin'].includes(lane)) {
       return callback(new Error(`[pagesManager] createPage => invalid lane "${lane}". Must be "public" or "admin".`));
+    }
+
+    const { decodedJWT } = payload;
+    if (decodedJWT && !hasPermission(decodedJWT, 'pages.create')) {
+      return callback(new Error('Forbidden – missing permission: pages.create'));
     }
   
     const mainTitle = rawTitle.trim() || (translations[0]?.title ?? '').trim();
@@ -614,6 +620,11 @@ function setupPagesManagerEvents(motherEmitter) {
         return callback(new Error('pageId is required to update a page.'));
       }
 
+      const { decodedJWT } = payload;
+      if (decodedJWT && !hasPermission(decodedJWT, 'pages.update')) {
+        return callback(new Error('Forbidden – missing permission: pages.update'));
+      }
+
       const to = setTimeout(() => {
         callback(new Error('Timeout while updating page.'));
       }, TIMEOUT_DURATION);
@@ -667,6 +678,11 @@ function setupPagesManagerEvents(motherEmitter) {
         return callback(new Error('A valid pageId is required to mark as deleted.'));
       }
 
+      const { decodedJWT } = payload;
+      if (decodedJWT && !hasPermission(decodedJWT, 'pages.delete')) {
+        return callback(new Error('Forbidden – missing permission: pages.delete'));
+      }
+
       motherEmitter.emit(
         'getPageById',
         { jwt, moduleName: 'pagesManager', moduleType: 'core', pageId },
@@ -712,6 +728,11 @@ function setupPagesManagerEvents(motherEmitter) {
       }
       if (!pageId) {
         return callback(new Error('A valid pageId is required to delete a page.'));
+      }
+
+      const { decodedJWT } = payload;
+      if (decodedJWT && !hasPermission(decodedJWT, 'pages.delete')) {
+        return callback(new Error('Forbidden – missing permission: pages.delete'));
       }
 
       motherEmitter.emit(
@@ -761,6 +782,11 @@ function setupPagesManagerEvents(motherEmitter) {
       }
       if (!pageId) {
         return callback(new Error('A pageId is required to set as start.'));
+      }
+
+      const { decodedJWT } = payload;
+      if (decodedJWT && !hasPermission(decodedJWT, 'pages.manage')) {
+        return callback(new Error('Forbidden – missing permission: pages.manage'));
       }
 
       motherEmitter.emit(

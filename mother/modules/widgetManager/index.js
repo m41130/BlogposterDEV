@@ -17,6 +17,7 @@
  */
 
 require('dotenv').config();
+const { hasPermission } = require('../userManagement/permissionUtils');
 
 module.exports = {
   async initialize({ motherEmitter, isCore, jwt, nonce }) {
@@ -124,6 +125,10 @@ motherEmitter.on('createWidget', async (payload, callback) => {
     return callback(new Error('[WM] createWidget => invalid payload.'));
   }
 
+  if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'widgets.create')) {
+    return callback(new Error('Forbidden – missing permission: widgets.create'));
+  }
+
   const targetTable = pickTable(widgetType);
 
   try {
@@ -181,6 +186,10 @@ motherEmitter.on('createWidget', async (payload, callback) => {
         return callback(new Error('[WM] getWidgets => "widgetType" is required.'));
       }
 
+      if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'widgets.read')) {
+        return callback(new Error('Forbidden – missing permission: widgets.read'));
+      }
+
       const targetTable = pickTable(widgetType);
 
       motherEmitter.emit(
@@ -232,6 +241,10 @@ motherEmitter.on('createWidget', async (payload, callback) => {
         return callback(new Error('[WM] updateWidget => missing widgetId or widgetType.'));
       }
 
+      if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'widgets.update')) {
+        return callback(new Error('Forbidden – missing permission: widgets.update'));
+      }
+
       // Decide which placeholder to call for your DB
       const rawSQL = (widgetType === 'admin')
         ? 'UPDATE_WIDGET_ADMIN'
@@ -267,6 +280,10 @@ motherEmitter.on('createWidget', async (payload, callback) => {
 
       if (!jwt || !widgetId || !widgetType) {
         return callback(new Error('[WM] deleteWidget => invalid payload (missing JWT/ID/type).'));
+      }
+
+      if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'widgets.delete')) {
+        return callback(new Error('Forbidden – missing permission: widgets.delete'));
       }
 
       // Decide which placeholder
@@ -305,6 +322,10 @@ motherEmitter.on('createWidget', async (payload, callback) => {
       }
       if (!lane) {
         return callback(new Error('[WM] saveLayout.v1 => "lane" is required (admin|public).'));
+      }
+
+      if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'widgets.saveLayout')) {
+        return callback(new Error('Forbidden – missing permission: widgets.saveLayout'));
       }
 
       // We'll iterate over layout[] and call `updateWidget` 

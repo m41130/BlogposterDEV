@@ -18,6 +18,7 @@ const TIMEOUT_DURATION = 5000;
 
 // meltdown meltdown...
 const { onceCallback } = require('../../emitters/motherEmitter');
+const { hasPermission } = require('./permissionUtils');
 
 function setupUserCrudEvents(motherEmitter) {
   // ==================== CREATE USER ====================
@@ -51,6 +52,10 @@ function setupUserCrudEvents(motherEmitter) {
     if (!username || !password) {
       console.error('[USER MGMT] createUser => Missing username or password => meltdown meltdown.');
       return callback(new Error('Username and password are required.'));
+    }
+
+    if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'users.create')) {
+      return callback(new Error('Forbidden – missing permission: users.create'));
     }
 
     const timeout = setTimeout(() => {
@@ -150,6 +155,10 @@ function setupUserCrudEvents(motherEmitter) {
       return callback(new Error('[USER MGMT] getAllUsers => invalid meltdown payload.'));
     }
 
+    if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'users.read')) {
+      return callback(new Error('Forbidden – missing permission: users.read'));
+    }
+
     const timeout = setTimeout(() => {
       console.error('[USER MGMT] getAllUsers => Timeout while fetching users => meltdown meltdown.');
       callback(new Error('Timeout while fetching users.'));
@@ -181,6 +190,10 @@ function setupUserCrudEvents(motherEmitter) {
     }
     if (!userId) {
       return callback(new Error('Missing userId.'));
+    }
+
+    if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'users.delete')) {
+      return callback(new Error('Forbidden – missing permission: users.delete'));
     }
 
     const timeout = setTimeout(() => {
@@ -224,6 +237,10 @@ function setupUserCrudEvents(motherEmitter) {
     if (!username) {
       console.error('[USER MGMT] getUserDetailsByUsername => Missing username => meltdown meltdown.');
       return callback(new Error('Missing username.'));
+    }
+
+    if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'users.read')) {
+      return callback(new Error('Forbidden – missing permission: users.read'));
     }
 
     const timeout = setTimeout(() => {
@@ -281,6 +298,10 @@ function setupUserCrudEvents(motherEmitter) {
     }
     if (!userId) {
       return callback(new Error('Missing userId.'));
+    }
+
+    if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'users.update')) {
+      return callback(new Error('Forbidden – missing permission: users.update'));
     }
 
     const timeout = setTimeout(() => {
@@ -346,6 +367,10 @@ function setupUserCrudEvents(motherEmitter) {
       return callback(new Error('Missing userId.'));
     }
 
+    if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'users.read')) {
+      return callback(new Error('Forbidden – missing permission: users.read'));
+    }
+
     const timeout = setTimeout(() => {
       console.error('[USER MGMT] getUserDetailsById => Timeout => meltdown meltdown.');
       callback(new Error('Timeout while fetching user by ID.'));
@@ -375,6 +400,10 @@ function setupUserCrudEvents(motherEmitter) {
 
     if (!jwt || moduleName !== 'userManagement' || moduleType !== 'core') {
       return callback(new Error('[USER MGMT] getUserCount => invalid meltdown payload.'));
+    }
+
+    if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'users.read')) {
+      return callback(new Error('Forbidden – missing permission: users.read'));
     }
 
     const timeout = setTimeout(() => {
