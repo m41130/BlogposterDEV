@@ -454,6 +454,11 @@ app.get('/login', csrfProtection, (req, res) => {
   res.send(html);
 });
 
+// Convenience redirect for first-time registration
+app.get('/register', (_req, res) => {
+  res.redirect('/admin/home');
+});
+
 
 
 
