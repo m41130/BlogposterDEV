@@ -15,8 +15,11 @@ const jwt = require('jsonwebtoken');
 const NOTIFICATION_JWT_SECRET = process.env.NOTIFICATION_JWT_SECRET || 'some_secret';
 const NOTIFICATION_SALT = process.env.NOTIFICATION_SALT || '_notify_salt';
 
-// Mögliche Notification-Typen/Gruppen => "security", "system", "user", etc.
-const KNOWN_NOTIFICATION_TYPES = ['security', 'system', 'user'];
+// Mögliche Notification-Typen/Gruppen.
+// Erweitert um "info" und "debug" damit Module diese Typen verwenden können,
+// ohne dass ein Fallback zu "system" ausgelöst wird. Dadurch kann der
+// Frontend‑Client nach Typ filtern.
+const KNOWN_NOTIFICATION_TYPES = ['security', 'system', 'user', 'info', 'debug'];
 
 class NotificationEmitter extends EventEmitter {
   constructor() {
