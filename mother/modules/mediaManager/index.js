@@ -14,7 +14,7 @@ const { ensureMediaManagerDatabase, ensureMediaTables } = require('./mediaServic
 // Because meltdown events might get double-called, we import onceCallback
 const { onceCallback } = require('../../emitters/motherEmitter');
 
-const { mergeAllPermissions } = require('../userManagement/permissionUtils');
+const { hasPermission } = require('../userManagement/permissionUtils');
 
 let libraryRoot;
 
@@ -242,31 +242,16 @@ function setupMediaManagerEvents(motherEmitter) {
       return callback(new Error('Missing userId or filePath in makeFilePublic.'));
     }
 
-    // 2) If admin => skip permission check
-    if (isAdmin) {
-      return actuallyMoveFileToPublic(motherEmitter, { jwt, userId, filePath }, callback);
+    const { decodedJWT } = payload;
+
+    // 2) Permission check (admins or users with media.makePublic)
+    const canProceed = isAdmin || (decodedJWT && hasPermission(decodedJWT, 'media.makePublic'));
+    if (!canProceed) {
+      return callback(new Error('[MEDIA MANAGER] Permission denied => media.makePublic'));
     }
 
-    // 3) Normal user => check if has "media.makePublic"
-    motherEmitter.emit('getRolesForUser', {
-      jwt,
-      moduleName: 'userManagement',
-      moduleType: 'core',
-      userId
-    }, (roleErr, rolesArr) => {
-      if (roleErr) return callback(roleErr);
-      if (!rolesArr) return callback(new Error('No roles found for user.'));
-
-      // mergeAllPermissions => merges all roles' permissions
-      mergeAllPermissions(motherEmitter, jwt, rolesArr, (mergedPermissions) => {
-        const canMakePublic = (mergedPermissions.media && mergedPermissions.media.makePublic === true);
-        if (!canMakePublic) {
-          return callback(new Error('[MEDIA MANAGER] User lacks permission => media.makePublic'));
-        }
-        // proceed
-        actuallyMoveFileToPublic(motherEmitter, { jwt, userId, filePath }, callback);
-      });
-    });
+    // proceed
+    actuallyMoveFileToPublic(motherEmitter, { jwt, userId, filePath }, callback);
   });
 }
 

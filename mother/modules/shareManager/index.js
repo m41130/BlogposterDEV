@@ -13,6 +13,7 @@ const { ensureShareManagerDatabase, ensureShareTables } = require('./shareServic
 
 // Because meltdown can be sneaky
 const { onceCallback } = require('../../emitters/motherEmitter');
+const { hasPermission } = require('../userManagement/permissionUtils');
 
 const TIMEOUT_DURATION = 5000;
 
@@ -84,6 +85,11 @@ function setupShareEventListeners(motherEmitter) {
         return callback(new Error('Missing filePath or userId.'));
       }
 
+      const { decodedJWT } = payload;
+      if (decodedJWT && !hasPermission(decodedJWT, 'share.create')) {
+        return callback(new Error('Forbidden – missing permission: share.create'));
+      }
+
       // We'll create a short token ourselves, or rely on bridging code
       const shortToken = generateRandomToken(8);
 
@@ -150,6 +156,11 @@ function setupShareEventListeners(motherEmitter) {
         return callback(new Error('Missing shortToken or userId.'));
       }
 
+      const { decodedJWT } = payload;
+      if (decodedJWT && !hasPermission(decodedJWT, 'share.revoke')) {
+        return callback(new Error('Forbidden – missing permission: share.revoke'));
+      }
+
       const to = setTimeout(() => {
         callback(new Error('Timeout while revoking share link.'));
       }, TIMEOUT_DURATION);
@@ -190,6 +201,11 @@ function setupShareEventListeners(motherEmitter) {
       }
       if (!shortToken) {
         return callback(new Error('Missing shortToken.'));
+      }
+
+      const { decodedJWT } = payload;
+      if (decodedJWT && !hasPermission(decodedJWT, 'share.read')) {
+        return callback(new Error('Forbidden – missing permission: share.read'));
       }
 
       const to = setTimeout(() => {

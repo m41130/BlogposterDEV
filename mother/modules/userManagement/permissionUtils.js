@@ -93,7 +93,32 @@ function mergeAllPermissions(motherEmitter, jwt, rolesArr, doneCallback) {
   });
 }
 
+/**
+ * hasPermission:
+ *   Checks if a decoded JWT contains the given permission path.
+ *   Supports wildcard (*) at any level and dot notation paths.
+ */
+function hasPermission(decodedJWT, keyPath) {
+  try {
+    if (!decodedJWT || !decodedJWT.permissions) return false;
+    const perms = decodedJWT.permissions;
+    if (perms['*'] === true) return true;
+
+    const parts = keyPath.split('.');
+    let current = perms;
+    for (const part of parts) {
+      if (current['*'] === true) return true;
+      if (typeof current[part] === 'undefined') return false;
+      current = current[part];
+    }
+    return current === true;
+  } catch {
+    return false;
+  }
+}
+
 module.exports = {
   mergeAllPermissions,
-  deepMerge
+  deepMerge,
+  hasPermission
 };
