@@ -1,9 +1,15 @@
 //public/assets/js/register.js
 // A tiny emitter: wraps /api/meltdown calls
-async function meltdownEmit(eventName, payload) {
+async function meltdownEmit(eventName, payload = {}) {
+  const headers = { 'Content-Type': 'application/json' };
+
+  if (payload.jwt) {
+    headers['X-Public-Token'] = payload.jwt;
+  }
+
   const resp = await fetch('/api/meltdown', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify({ eventName, payload })
   });
   const json = await resp.json();
