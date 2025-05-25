@@ -6,7 +6,7 @@
 
   // GridStack target
   const grid = GridStack.init({
-    cellHeight: 'auto',
+    cellHeight: 5,
     float:      false,
     disableResize: true
   }, '#pagePickerGrid');
