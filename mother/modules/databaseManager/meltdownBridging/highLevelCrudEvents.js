@@ -359,15 +359,32 @@ function localDbUpdate(motherEmitter, payload, callback) {
   if (!setKeys.length) {
     return callback(new Error('[localDbUpdate] No update data provided.'));
   }
-  const setClauses = setKeys.map((col, i) => `"${col}" = $${i+1}`);
-  const setValues = Object.values(data);
+  // Support raw expressions with { __raw_expr: 'sql' }
+  const setClauses = [];
+  const setValues = [];
+  let paramIndex = 1;
+  for (const col of setKeys) {
+    const val = data[col];
+    if (val && typeof val === 'object' && Object.prototype.hasOwnProperty.call(val, '__raw_expr')) {
+      setClauses.push(`"${col}" = ${val.__raw_expr}`);
+    } else {
+      setClauses.push(`"${col}" = $${paramIndex}`);
+      setValues.push(val);
+      paramIndex += 1;
+    }
+  }
 
   const whereKeys = Object.keys(where || {});
   if (!whereKeys.length) {
     return callback(new Error('[localDbUpdate] Missing WHERE condition => too dangerous.'));
   }
-  const whereClauses = whereKeys.map((col, i) => `"${col}" = $${i + setKeys.length + 1}`);
-  const whereValues = Object.values(where);
+  const whereClauses = [];
+  const whereValues = [];
+  for (const col of whereKeys) {
+    whereClauses.push(`"${col}" = $${paramIndex}`);
+    whereValues.push(where[col]);
+    paramIndex += 1;
+  }
 
   const allValues = [...setValues, ...whereValues];
 
