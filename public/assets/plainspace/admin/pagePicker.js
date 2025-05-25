@@ -8,7 +8,8 @@
   const grid = GridStack.init({
     cellHeight: 5,
     float:      false,
-    disableResize: true
+    disableResize: true,
+    columnWidth: 5
   }, '#pagePickerGrid');
 
   // 1) load & render all public pages
