@@ -9,7 +9,8 @@
     cellHeight: 5,
     float:      false,
     disableResize: true,
-    columnWidth: 5
+    columnWidth: 5,
+    column: 24
   }, '#pagePickerGrid');
 
   // 1) load & render all public pages
