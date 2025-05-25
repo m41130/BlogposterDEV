@@ -92,17 +92,22 @@ function setupUserCrudEvents(motherEmitter) {
         table: 'users',
         data: dataToInsert
       }, (dbErr, insertedRows) => {
-        if (dbErr) return callback(dbErr);
+        if (dbErr) {
+          clearTimeout(timeout);
+          return callback(dbErr);
+        }
       
         // insertedRows ist ein Array – wir wollen das erste Element
         const newUser = Array.isArray(insertedRows) ? insertedRows[0] : insertedRows;
         if (!newUser || !newUser.id) {
+          clearTimeout(timeout);
           return callback(new Error('No valid inserted user row'));
         }
       
         console.log('[USER MGMT] createUser => User inserted:', newUser);
       
         if (!role) {
+          clearTimeout(timeout);
           return callback(null, newUser);
         }
       
@@ -114,10 +119,12 @@ function setupUserCrudEvents(motherEmitter) {
           where: { role_name: role }
         }, (roleErr, rolesArr) => {
           if (roleErr) {
+            clearTimeout(timeout);
             console.error('[USER MGMT] createUser => Error selecting roles:', roleErr.message);
             return callback(roleErr);
           }
           if (!rolesArr || !rolesArr.length) {
+            clearTimeout(timeout);
             console.warn(`[USER MGMT] createUser => role "${role}" not found. user created without role.`);
             return callback(null, newUser);
           }
@@ -127,12 +134,13 @@ function setupUserCrudEvents(motherEmitter) {
             jwt,
             moduleName: 'userManagement',
             moduleType: 'core',
-            userId: newUser.id,    
+            userId: newUser.id,
             roleId: foundRole.id
           }, (assignErr) => {
             if (assignErr) {
               console.warn('[USER MGMT] createUser => Error assigning role =>', assignErr.message);
             }
+            clearTimeout(timeout);
             callback(null, newUser);
           });
         });
