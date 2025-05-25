@@ -3,26 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <title>First-Time Registration</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&display=swap">
   <link rel="stylesheet" href="/assets/css/site.css" />
 </head>
 <body>
-  <!-- NEU: scope Wrapper -->
-  <div class="app-scope">
+  <h1 class="branding-top-left">BlogposterCMS</h1>
 
-    <!-- Optional container if you want a centered card style -->
-    <div class="login-form">
-      <h1>First-Time Registration</h1>
+  <div class="app-scope login-page">
+    <div class="login-form form-container">
+      <img id="logo" class="logo" src="/assets/logo/logo_blogposter_min_transparent.png" alt="BlogposterCMS Logo"/>
+      <div class="cms-title">First-Time Registration</div>
+
       <form id="registerForm">
-        <label>Username</label>
-        <input name="username" required />
+        <div class="field">
+          <input name="username" required placeholder=" ">
+          <label>Username</label>
+        </div>
 
-        <label>Password</label>
-        <input name="password" type="password" required />
+        <div class="field">
+          <input name="password" type="password" required placeholder=" ">
+          <label>Password</label>
+        </div>
 
         <button type="submit" class="button">Register</button>
       </form>
     </div>
-
   </div><!-- .app-scope -->
 
   <script src="/assets/js/register.js"></script>
