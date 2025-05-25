@@ -5,12 +5,15 @@
       'Content-Type': 'application/json'
     };
 
-    if (window.CSRF_TOKEN) {
-      headers['X-CSRF-Token'] = window.CSRF_TOKEN;
+    if (payload.jwt) {
+      headers['X-Public-Token'] = payload.jwt;
+      delete payload.jwt;
+    } else if (window.PUBLIC_TOKEN) {
+      headers['X-Public-Token'] = window.PUBLIC_TOKEN;
     }
 
-    if (window.PUBLIC_TOKEN) {
-      headers['X-Public-Token'] = window.PUBLIC_TOKEN;
+    if (window.CSRF_TOKEN) {
+      headers['X-CSRF-Token'] = window.CSRF_TOKEN;
     }
 
     // Advanced debug: log outgoing request
