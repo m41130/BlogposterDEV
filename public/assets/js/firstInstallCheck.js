@@ -8,7 +8,7 @@
       purpose: 'firstInstallCheck',
       moduleName: 'auth'
     });
-    const val = await window.meltdownEmit('getSetting', {
+    const val = await window.meltdownEmit('getPublicSetting', {
       jwt: pubJwt,
       moduleName: 'settingsManager',
       moduleType: 'core',
