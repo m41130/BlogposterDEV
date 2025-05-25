@@ -27,3 +27,11 @@
   box-shadow: var(--shadow-card);
   transition: all 0.2s ease;
 }
+
+// Ensure widget content always fills the grid cell
+.grid-stack-item-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
