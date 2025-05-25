@@ -10,7 +10,7 @@
     float:      false,
     disableResize: true,
     columnWidth: 5,
-    column: 24
+    column: 36
   }, '#pagePickerGrid');
 
   // 1) load & render all public pages
