@@ -44,7 +44,7 @@ export async function initBuilder(sidebarEl, contentEl, allWidgets, pageId = nul
   contentEl.innerHTML = `<div id="builderGrid" class="grid-stack builder-grid"></div>`;
   const gridEl = document.getElementById('builderGrid');
   // Enable floating mode for easier widget placement in the builder
-  const grid = GridStack.init({ float: true, cellHeight: 5, columnWidth: 5, column: 36 }, gridEl);
+  const grid = GridStack.init({ float: true, cellHeight: 5, columnWidth: 5, column: 64 }, gridEl);
 
   let initialLayout = [];
   if (pageId) {
@@ -105,7 +105,7 @@ export async function initBuilder(sidebarEl, contentEl, allWidgets, pageId = nul
     if (!widgetDef) return;
 
     const [x, y, w, h] = [
-      Math.floor((e.offsetX / gridEl.offsetWidth) * 36) || 0,
+      Math.floor((e.offsetX / gridEl.offsetWidth) * 64) || 0,
       Math.floor((e.offsetY / gridEl.offsetHeight) * 6) || 0,
       4, DEFAULT_ROWS
     ];
