@@ -186,7 +186,7 @@ function ensureLayout(layout = {}, lane = 'public') {
 
       contentEl.innerHTML = '<div id="publicGrid" class="grid-stack"></div>';
       const gridEl = document.getElementById('publicGrid');
-      const grid = GridStack.init({ staticGrid: true, float: true, cellHeight: 5, columnWidth: 5, column: 36 }, gridEl);
+      const grid = GridStack.init({ staticGrid: true, float: true, cellHeight: 5, columnWidth: 5, column: 64 }, gridEl);
 
       matchedWidgets.forEach(def => {
         if (DEBUG) console.debug('[Renderer] render widget', def.id);
@@ -231,7 +231,7 @@ function ensureLayout(layout = {}, lane = 'public') {
 
     contentEl.innerHTML = '<div id="adminGrid" class="grid-stack"></div>';
     const gridEl = document.getElementById('adminGrid');
-    const grid = GridStack.init({ cellHeight: 5, columnWidth: 5, column: 36 }, gridEl);
+    const grid = GridStack.init({ cellHeight: 5, columnWidth: 5, column: 64 }, gridEl);
 
     const matchedWidgets = allWidgets.filter(w => (config.widgets || []).includes(w.id));
 
