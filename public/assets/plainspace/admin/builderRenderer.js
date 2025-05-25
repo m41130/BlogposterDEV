@@ -1,5 +1,6 @@
 // public/assets/plainspace/admin/builderRenderer.js
 export async function initBuilder(sidebarEl, contentEl, allWidgets, pageId = null) {
+  const DEFAULT_ROWS = 10; // around 50px with 5px grid cells
   const ICON_MAP = {
     counter: 'activity',
     heroBanner: 'image',
@@ -83,7 +84,7 @@ export async function initBuilder(sidebarEl, contentEl, allWidgets, pageId = nul
     wrapper.setAttribute('gs-x', item.x ?? 0);
     wrapper.setAttribute('gs-y', item.y ?? 0);
     wrapper.setAttribute('gs-w', item.w ?? 4);
-    wrapper.setAttribute('gs-h', item.h ?? 2);
+    wrapper.setAttribute('gs-h', item.h ?? DEFAULT_ROWS);
     const content = document.createElement('div');
     content.className = 'grid-stack-item-content';
     content.innerHTML = `${getWidgetIcon(widgetDef)}<span>${widgetDef.metadata?.label || widgetDef.id}</span>`;
@@ -106,7 +107,7 @@ export async function initBuilder(sidebarEl, contentEl, allWidgets, pageId = nul
     const [x, y, w, h] = [
       Math.floor((e.offsetX / gridEl.offsetWidth) * 24) || 0,
       Math.floor((e.offsetY / gridEl.offsetHeight) * 6) || 0,
-      4, 2
+      4, DEFAULT_ROWS
     ];
 
     const wrapper = document.createElement('div');
