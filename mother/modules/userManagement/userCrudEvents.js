@@ -402,8 +402,12 @@ function setupUserCrudEvents(motherEmitter) {
       return callback(new Error('[USER MGMT] getUserCount => invalid meltdown payload.'));
     }
 
-    if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'users.read')) {
-      return callback(new Error('Forbidden – missing permission: users.read'));
+    if (payload.decodedJWT) {
+      const { decodedJWT } = payload;
+      const isPublicLogin = decodedJWT.isPublic && decodedJWT.purpose === 'login';
+      if (!isPublicLogin && !hasPermission(decodedJWT, 'users.read')) {
+        return callback(new Error('Forbidden – missing permission: users.read'));
+      }
     }
 
     const timeout = setTimeout(() => {
