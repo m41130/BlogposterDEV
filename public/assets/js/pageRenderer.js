@@ -186,7 +186,11 @@ function ensureLayout(layout = {}, lane = 'public') {
 
       contentEl.innerHTML = '<div id="publicGrid" class="grid-stack"></div>';
       const gridEl = document.getElementById('publicGrid');
-      const grid = GridStack.init({ staticGrid: true }, gridEl);
+      const grid = GridStack.init({
+        staticGrid: true,
+        float: true,
+        cellHeight: 5
+      }, gridEl);
 
       matchedWidgets.forEach(def => {
         if (DEBUG) console.debug('[Renderer] render widget', def.id);

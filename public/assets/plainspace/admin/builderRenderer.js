@@ -42,7 +42,10 @@ export async function initBuilder(sidebarEl, contentEl, allWidgets, pageId = nul
 
   contentEl.innerHTML = `<div id="builderGrid" class="grid-stack builder-grid"></div>`;
   const gridEl = document.getElementById('builderGrid');
-  const grid = GridStack.init({}, gridEl);
+  const grid = GridStack.init({
+    float: true,
+    cellHeight: 5
+  }, gridEl);
 
   let initialLayout = [];
   if (pageId) {
