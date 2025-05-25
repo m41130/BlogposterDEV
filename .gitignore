@@ -1,6 +1,8 @@
 #not ready yet
 /library
 /mother/modeMiddleware.js
+public/assets/css/site.css
+public/assets/css/site.css.map
 
 # Logs
 logs
