@@ -98,3 +98,26 @@
     }
   }
 }
+
+.grid-stack-item .widget-remove {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: transparent;
+  border: none;
+  padding: 2px;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.grid-stack-item:hover .widget-remove {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.grid-stack-item .widget-remove .icon {
+  width: 16px;
+  height: 16px;
+}

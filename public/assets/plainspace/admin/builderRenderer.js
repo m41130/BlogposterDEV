@@ -61,6 +61,18 @@ export async function initBuilder(sidebarEl, contentEl, allWidgets, pageId = nul
     }
   }
 
+  function attachRemoveButton(el) {
+    const btn = document.createElement('button');
+    btn.className = 'widget-remove';
+    btn.innerHTML = window.featherIcon ? window.featherIcon('x') :
+      '<img src="/assets/icons/x.svg" alt="remove" />';
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      grid.removeWidget(el);
+    });
+    el.appendChild(btn);
+  }
+
   initialLayout.forEach(item => {
     const widgetDef = allWidgets.find(w => w.id === item.widgetId);
     if (!widgetDef) return;
@@ -75,6 +87,7 @@ export async function initBuilder(sidebarEl, contentEl, allWidgets, pageId = nul
     content.className = 'grid-stack-item-content';
     content.innerHTML = `${getWidgetIcon(widgetDef)}<span>${widgetDef.metadata?.label || widgetDef.id}</span>`;
     wrapper.appendChild(content);
+    attachRemoveButton(wrapper);
     gridEl.appendChild(wrapper);
     grid.makeWidget(wrapper);
     import(widgetDef.codeUrl).then(m => m.render?.(content))
@@ -107,6 +120,7 @@ export async function initBuilder(sidebarEl, contentEl, allWidgets, pageId = nul
     content.className = 'grid-stack-item-content';
     content.innerHTML = `${getWidgetIcon(widgetDef)}<span>${widgetDef.metadata?.label || widgetDef.id}</span>`;
     wrapper.appendChild(content);
+    attachRemoveButton(wrapper);
     gridEl.appendChild(wrapper);
     grid.makeWidget(wrapper);
 
