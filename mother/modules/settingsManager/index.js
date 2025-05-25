@@ -103,6 +103,47 @@ function setupSettingsListeners(motherEmitter) {
     }
   });
 
+  const PUBLIC_SETTING_KEYS = ['FIRST_INSTALL_DONE', 'ALLOW_REGISTRATION'];
+
+  // A2) getPublicSetting
+  motherEmitter.on('getPublicSetting', (payload, originalCb) => {
+    const callback = onceCallback(originalCb);
+    try {
+      const { jwt, moduleName, moduleType, key } = payload || {};
+      if (!jwt || moduleName !== 'settingsManager' || moduleType !== 'core') {
+        return callback(new Error('[SETTINGS MANAGER] getPublicSetting => invalid meltdown payload'));
+      }
+      if (!key || !PUBLIC_SETTING_KEYS.includes(key)) {
+        return callback(new Error('Forbidden – key not allowed'));
+      }
+
+      motherEmitter.emit(
+        'dbSelect',
+        {
+          jwt,
+          moduleName: 'settingsManager',
+          moduleType: 'core',
+          table: '__rawSQL__',
+          data: { rawSQL: 'GET_SETTING', key }
+        },
+        (err, result) => {
+          if (err) return callback(err);
+          if (!result) return callback(null, null);
+
+          let value = null;
+          if (Array.isArray(result) && result[0] && result[0].value !== undefined) {
+            value = result[0].value;
+          } else if (result.value !== undefined) {
+            value = result.value;
+          }
+          callback(null, value);
+        }
+      );
+    } catch (ex) {
+      callback(ex);
+    }
+  });
+
   // B) setSetting
   motherEmitter.on('setSetting', (payload, originalCb) => {
     const callback = onceCallback(originalCb);

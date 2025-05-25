@@ -29,8 +29,11 @@ BlogposterCMS is a modern, modular Node.js content management system built with 
 7. **Configuration & Feature Toggles**  
    You can turn major features or modules on/off through configuration without touching code. A layered config system (environment variables, runtime config files, secrets files, etc.) allows deep customization of how your CMS runs in different environments. For example, enabling/disabling a feature module or switching authentication modes is as simple as updating a config file. This makes BlogposterCMS *adaptable* — suitable for a simple blog or a complex site — by toggling features appropriate to your needs.
 
-8. **(Experimental) Microservice Support**  
+8. **(Experimental) Microservice Support**
    Because we apparently *need* more complexity, BlogposterCMS is laying the foundation to run individual modules on separate servers. Yes, you can soon scatter your modules all over the place, so that if one server crashes, you can chase down the error in yet another location. But rest assured, the fundamental scaffolding is already in place! Because who doesn’t love microservices?
+
+9. **Public Settings & Registration**
+   The `getPublicSetting` event exposes only whitelisted keys (such as `FIRST_INSTALL_DONE`) so the front-end can check installation state without elevated permissions. Alongside the `publicRegister` event, users can self-register while the system keeps admin-only settings private.
 
 *(More core features like a widget system, media management, and internationalization are also in progress, thanks to the modular design. As development continues, these will be fleshed out as separate modules… if we don’t get bored first.)*
 

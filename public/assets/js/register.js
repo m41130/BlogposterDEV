@@ -26,7 +26,7 @@ async function meltdownEmit(eventName, payload = {}) {
       purpose: 'checkFirstInstall',
       moduleName: 'auth'
     });
-    const val = await meltdownEmit('getSetting', {
+    const val = await meltdownEmit('getPublicSetting', {
       jwt: pubTok,
       moduleName: 'settingsManager',
       moduleType: 'core',
@@ -58,9 +58,9 @@ async function meltdownEmit(eventName, payload = {}) {
           purpose: 'registration',
           moduleName: 'auth'
         });
-  
-        // 2) create the admin user
-        await meltdownEmit('createUser', {
+
+        // 2) create the admin user via the public registration event
+        await meltdownEmit('publicRegister', {
           jwt: pubJwt,
           moduleName: 'userManagement',
           moduleType: 'core',

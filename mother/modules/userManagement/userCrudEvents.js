@@ -144,6 +144,62 @@ function setupUserCrudEvents(motherEmitter) {
     }
   });
 
+  // ==================== PUBLIC REGISTER ====================
+  motherEmitter.on('publicRegister', (payload, originalCb) => {
+    const callback = onceCallback(originalCb);
+
+    const {
+      jwt,
+      moduleName,
+      moduleType,
+      username,
+      password,
+      role
+    } = payload || {};
+
+    if (!jwt || moduleName !== 'userManagement' || moduleType !== 'core') {
+      return callback(new Error('[USER MGMT] publicRegister => invalid meltdown payload.'));
+    }
+    if (!payload.decodedJWT || payload.decodedJWT.isPublic !== true) {
+      return callback(new Error('Forbidden – public token required'));
+    }
+    if (!username || !password) {
+      return callback(new Error('Username and password are required.'));
+    }
+
+    const authModuleSecret = process.env.AUTH_MODULE_INTERNAL_SECRET;
+    if (!authModuleSecret) {
+      return callback(new Error('Missing AUTH_MODULE_INTERNAL_SECRET'));
+    }
+
+    motherEmitter.emit(
+      'issueModuleToken',
+      {
+        skipJWT: true,
+        authModuleSecret,
+        moduleName: 'auth',
+        moduleType: 'core',
+        trustLevel: 'high',
+        signAsModule: 'userManagement'
+      },
+      (err, highTok) => {
+        if (err) return callback(err);
+        motherEmitter.emit(
+          'createUser',
+          {
+            jwt: highTok,
+            moduleName: 'userManagement',
+            moduleType: 'core',
+            username,
+            password,
+            role: role || 'standard'
+          },
+          callback
+        );
+      }
+    );
+  });
+
   // ==================== GET ALL USERS ====================
   motherEmitter.on('getAllUsers', (payload, originalCb) => {
     const callback = onceCallback(originalCb);
