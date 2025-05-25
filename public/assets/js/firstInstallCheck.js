@@ -14,8 +14,22 @@
       moduleType: 'core',
       key: 'FIRST_INSTALL_DONE'
     });
+
     if (val !== 'true') {
-      window.location.href = '/register';
+      let userCount = 0;
+      try {
+        userCount = await window.meltdownEmit('getUserCount', {
+          jwt: pubJwt,
+          moduleName: 'userManagement',
+          moduleType: 'core'
+        });
+      } catch (err) {
+        console.warn('[firstInstallCheck] Failed to fetch user count', err);
+      }
+
+      if (userCount === 0) {
+        window.location.href = '/register';
+      }
     }
   } catch (err) {
     console.error('[firstInstallCheck] Error checking setting', err);
