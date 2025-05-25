@@ -469,7 +469,8 @@ function setupUserCrudEvents(motherEmitter) {
     if (payload.decodedJWT) {
       const { decodedJWT } = payload;
       const isPublicLogin = decodedJWT.isPublic && decodedJWT.purpose === 'login';
-      if (!isPublicLogin && !hasPermission(decodedJWT, 'users.read')) {
+      const isPublicFirstInstall = decodedJWT.isPublic && decodedJWT.purpose === 'firstInstallCheck';
+      if (!isPublicLogin && !isPublicFirstInstall && !hasPermission(decodedJWT, 'users.read')) {
         return callback(new Error('Forbidden – missing permission: users.read'));
       }
     }
