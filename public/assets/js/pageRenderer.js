@@ -3,6 +3,21 @@
 import { fetchPartial } from '/assets/plainspace/admin/fetchPartial.js';
 import { initBuilder } from '/assets/plainspace/admin/builderRenderer.js';
 
+function renderWidget(wrapper, def) {
+  const data = JSON.parse(localStorage.getItem(`widgetCode_${def.id}`) || 'null');
+  const root = wrapper.attachShadow({ mode: 'open' });
+  if (data) {
+    root.innerHTML = `<style>${data.css || ''}</style>${data.html || ''}`;
+    if (data.js) {
+      try { new Function('root', data.js).call(wrapper, root); } catch (e) { console.error('[Renderer] custom js error', e); }
+    }
+    return;
+  }
+  import(def.codeUrl)
+    .then(m => m.render?.(root))
+    .catch(err => console.error(`[Widget ${def.id}] import error:`, err));
+}
+
 function ensureLayout(layout = {}, lane = 'public') {
   let scope = document.querySelector('.app-scope');
   if (!scope) {
@@ -200,9 +215,7 @@ function ensureLayout(layout = {}, lane = 'public') {
         gridEl.appendChild(wrapper);
         grid.makeWidget(wrapper);
 
-        import(def.codeUrl)
-          .then(m => m.render?.(content))
-          .catch(err => console.error(`[Public] Widget ${def.id} import error:`, err));
+        renderWidget(content, def);
       });
       return;
     }
@@ -246,9 +259,7 @@ function ensureLayout(layout = {}, lane = 'public') {
       gridEl.appendChild(wrapper);
       grid.makeWidget(wrapper);
 
-      import(def.codeUrl)
-        .then(m => m.render?.(content))
-        .catch(err => console.error(`[Admin] Widget ${def.id} import error:`, err));
+      renderWidget(content, def);
     });
 
     grid.on('change', async (_, items) => {
