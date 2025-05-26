@@ -169,9 +169,8 @@
 
 .grid-stack-item .widget-code-editor {
   position: absolute;
-  top: 24px;
-  left: 0;
-  right: 0;
+  top: 0;
+  width: 280px;
   background: white;
   border: 1px solid #ccc;
   padding: 8px;
@@ -179,11 +178,25 @@
   display: none;
 }
 
+.grid-stack-item .widget-code-editor.right {
+  left: calc(100% + 8px);
+}
+
+.grid-stack-item .widget-code-editor.left {
+  right: calc(100% + 8px);
+}
+
 .widget-code-editor textarea {
   width: 100%;
   height: 60px;
   margin-bottom: 4px;
   font-family: monospace;
+}
+
+.widget-code-editor .preview {
+  border: 1px solid #ddd;
+  margin-top: 6px;
+  padding: 4px;
 }
 
 .widget-code-editor .editor-actions {
