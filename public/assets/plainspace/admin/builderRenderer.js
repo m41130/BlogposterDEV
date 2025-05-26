@@ -71,8 +71,29 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
               <button class="save-btn">Save</button>
               <button class="cancel-btn">Cancel</button>
             </div>
+            <div class="preview"></div>
           </div>`;
         el.appendChild(overlay);
+
+        const htmlEl = overlay.querySelector('.editor-html');
+        const cssEl = overlay.querySelector('.editor-css');
+        const jsEl = overlay.querySelector('.editor-js');
+        const prevEl = overlay.querySelector('.preview');
+
+        const updatePreview = () => {
+          const root = prevEl.shadowRoot || prevEl.attachShadow({ mode: 'open' });
+          root.innerHTML = `<style>${cssEl.value}</style>${htmlEl.value}`;
+          const js = jsEl.value;
+          if (js) {
+            try { new Function('root', js).call(el, root); } catch (err) { console.error('[Builder] preview js error', err); }
+          }
+        };
+
+        htmlEl.addEventListener('input', updatePreview);
+        cssEl.addEventListener('input', updatePreview);
+        jsEl.addEventListener('input', updatePreview);
+
+        overlay.updatePreview = updatePreview;
       }
       const codeData = codeMap[widgetDef.id] ? { ...codeMap[widgetDef.id] } : {};
 
@@ -88,7 +109,19 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       overlay.querySelector('.editor-html').value = codeData.html || '';
       overlay.querySelector('.editor-css').value = codeData.css || '';
       overlay.querySelector('.editor-js').value = codeData.js || codeData.sourceJs || '';
+
+      const rect = el.getBoundingClientRect();
+      const spaceRight = window.innerWidth - rect.right;
+      const spaceLeft = rect.left;
+      overlay.classList.remove('left', 'right');
+      if (spaceRight >= 300 || spaceRight >= spaceLeft) {
+        overlay.classList.add('right');
+      } else {
+        overlay.classList.add('left');
+      }
+
       overlay.style.display = 'block';
+      overlay.updatePreview && overlay.updatePreview();
       overlay.querySelector('.save-btn').onclick = () => {
         codeMap[widgetDef.id] = {
           html: overlay.querySelector('.editor-html').value,
