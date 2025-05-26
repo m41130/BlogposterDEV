@@ -30,25 +30,21 @@ export async function render(el) {
   hiddenInput.onchange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = async () => {
-      const base64 = reader.result.split(',')[1];
-      try {
-        await emitter('uploadFileToFolder', {
-          jwt,
-          moduleName: 'mediaManager',
-          moduleType: 'core',
-          fileName: file.name,
-          fileData: base64,
-          subPath: currentPath,
-          mimeType: file.type
-        });
-        await load(currentPath);
-      } catch (err) {
-        alert('Upload failed: ' + err.message);
-      }
-    };
-    reader.readAsDataURL(file);
+    const form = new FormData();
+    form.append('file', file);
+    try {
+      const resp = await fetch('/admin/api/upload?subPath=' + encodeURIComponent(currentPath), {
+        method: 'POST',
+        headers: { 'X-CSRF-Token': window.CSRF_TOKEN },
+        body: form,
+        credentials: 'same-origin'
+      });
+      const json = await resp.json();
+      if (!resp.ok || json.error) throw new Error(json.error || resp.statusText);
+      await load(currentPath);
+    } catch (err) {
+      alert('Upload failed: ' + err.message);
+    }
   };
 
   folderBtn.onclick = async () => {

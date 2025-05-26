@@ -10,6 +10,9 @@
 const fs = require('fs');
 const path = require('path');
 const { ensureMediaManagerDatabase, ensureMediaTables } = require('./mediaService');
+const csurf = require('csurf');
+const { requireAuthCookie } = require('../auth/authMiddleware');
+const createUpload = require('../../utils/streamUploadMiddleware');
 
 // Because meltdown events might get double-called, we import onceCallback
 const { onceCallback } = require('../../emitters/motherEmitter');
@@ -26,7 +29,7 @@ module.exports = {
    *  3) Ensures the "library" folder is created
    *  4) Registers meltdown events
    */
-  async initialize({ motherEmitter, isCore, jwt }) {
+  async initialize({ motherEmitter, app, isCore, jwt }) {
     if (!isCore) {
       console.error('[MEDIA MANAGER] Must be loaded as a core module. Aborting meltdown.');
       return;
@@ -49,6 +52,10 @@ module.exports = {
 
       // Register meltdown events for local FS actions
       setupMediaManagerEvents(motherEmitter);
+
+      if (app) {
+        setupUploadRoute(app);
+      }
 
       console.log('[MEDIA MANAGER] Ready!');
     } catch (err) {
@@ -255,6 +262,24 @@ function setupMediaManagerEvents(motherEmitter) {
 
     // proceed
     actuallyMoveFileToPublic(motherEmitter, { jwt, userId, filePath }, callback);
+  });
+}
+
+function setupUploadRoute(app) {
+  const csrfProtection = csurf({ cookie: { httpOnly: true, sameSite: 'strict' } });
+
+  app.post('/admin/api/upload', requireAuthCookie, csrfProtection, createUpload({
+    fieldName: 'file',
+    destResolver: (req, filename) => {
+      const sub = decodeURIComponent(req.query.subPath || '');
+      const target = path.join(libraryRoot, sub);
+      if (!target.startsWith(libraryRoot)) throw new Error('Invalid path');
+      return target;
+    },
+    maxFileSize: parseInt(process.env.MAX_UPLOAD_BYTES || '20000000', 10),
+    allowedMimeTypes: ['image/jpeg','image/png','image/gif','image/webp','image/svg+xml']
+  }), (req, res) => {
+    res.json({ success: true, fileName: req.uploadFile.finalName, mimeType: req.uploadFile.mimeType });
   });
 }
 
