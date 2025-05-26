@@ -24,6 +24,8 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     contentSummary: 'activity'
   };
 
+  const codeMap = {};
+
   function getWidgetIcon(w) {
     const iconName = w.metadata?.icon || ICON_MAP[w.id] || w.id;
     return window.featherIcon ? window.featherIcon(iconName) :
@@ -31,7 +33,8 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   }
 
   function renderWidget(wrapper, widgetDef) {
-    const data = JSON.parse(localStorage.getItem(`widgetCode_${widgetDef.id}`) || 'null');
+    const data = codeMap[widgetDef.id] || null;
+
     const content = wrapper.querySelector('.grid-stack-item-content');
     content.innerHTML = '';
     const root = content.attachShadow({ mode: 'open' });
@@ -70,7 +73,8 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
           </div>`;
         el.appendChild(overlay);
       }
-      const codeData = JSON.parse(localStorage.getItem(`widgetCode_${widgetDef.id}`) || 'null') || {};
+      const codeData = codeMap[widgetDef.id] ? { ...codeMap[widgetDef.id] } : {};
+
       if (!codeData.sourceJs) {
         try {
           const resp = await fetch(widgetDef.codeUrl);
@@ -85,12 +89,15 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       overlay.querySelector('.editor-js').value = codeData.js || codeData.sourceJs || '';
       overlay.style.display = 'block';
       overlay.querySelector('.save-btn').onclick = () => {
-        codeData.html = overlay.querySelector('.editor-html').value;
-        codeData.css = overlay.querySelector('.editor-css').value;
-        codeData.js = overlay.querySelector('.editor-js').value;
-        localStorage.setItem(`widgetCode_${widgetDef.id}`, JSON.stringify(codeData));
+        codeMap[widgetDef.id] = {
+          html: overlay.querySelector('.editor-html').value,
+          css: overlay.querySelector('.editor-css').value,
+          js: overlay.querySelector('.editor-js').value
+        };
         overlay.style.display = 'none';
         renderWidget(el, widgetDef);
+        if (pageId) saveCurrentLayout();
+
       };
       overlay.querySelector('.cancel-btn').onclick = () => {
         overlay.style.display = 'none';
@@ -128,6 +135,36 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   const gridEl = document.getElementById('builderGrid');
   // Enable floating mode for easier widget placement in the builder
   const grid = GridStack.init({ float: true, cellHeight: 5, columnWidth: 5, column: 64 }, gridEl);
+
+  function getCurrentLayout() {
+    const items = Array.from(gridEl.querySelectorAll('.grid-stack-item'));
+    return items.map(el => ({
+      widgetId: el.dataset.widgetId,
+      x: +el.getAttribute('gs-x'),
+      y: +el.getAttribute('gs-y'),
+      w: +el.getAttribute('gs-w'),
+      h: +el.getAttribute('gs-h'),
+      code: codeMap[el.dataset.widgetId] || null
+    }));
+  }
+
+  async function saveCurrentLayout() {
+    if (!pageId) return;
+    const layout = getCurrentLayout();
+    try {
+      await meltdownEmit('saveLayoutForViewport', {
+        jwt: window.ADMIN_TOKEN,
+        moduleName: 'plainspace',
+        moduleType: 'core',
+        pageId,
+        lane: 'public',
+        viewport: 'desktop',
+        layout
+      });
+    } catch (err) {
+      console.error('[Builder] saveLayoutForViewport error', err);
+    }
+  }
 
   let initialLayout = [];
   let pageData = null;
@@ -171,6 +208,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   initialLayout.forEach(item => {
     const widgetDef = allWidgets.find(w => w.id === item.widgetId);
     if (!widgetDef) return;
+    if (item.code) codeMap[widgetDef.id] = item.code;
     const wrapper = document.createElement('div');
     wrapper.classList.add('grid-stack-item');
     wrapper.dataset.widgetId = widgetDef.id;
@@ -187,6 +225,8 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     gridEl.appendChild(wrapper);
     grid.makeWidget(wrapper);
     renderWidget(wrapper, widgetDef);
+    if (pageId) saveCurrentLayout();
+
   });
 
   gridEl.addEventListener('dragover',  e => { e.preventDefault(); gridEl.classList.add('drag-over'); });
@@ -322,14 +362,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   saveBtn.addEventListener('click', async () => {
     const name = nameInput ? nameInput.value.trim() : (layoutName || '').trim();
     if (!name) { alert('Enter a name'); return; }
-    const items = Array.from(gridEl.querySelectorAll('.grid-stack-item'));
-    const layout = items.map(el => ({
-      widgetId: el.dataset.widgetId,
-      x: +el.getAttribute('gs-x'),
-      y: +el.getAttribute('gs-y'),
-      w: +el.getAttribute('gs-w'),
-      h: +el.getAttribute('gs-h')
-    }));
+    const layout = getCurrentLayout();
     try {
       await meltdownEmit('saveLayoutTemplate', {
         moduleName: 'plainspace',

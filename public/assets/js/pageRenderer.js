@@ -3,13 +3,13 @@
 import { fetchPartial } from '/assets/plainspace/admin/fetchPartial.js';
 import { initBuilder } from '/assets/plainspace/admin/builderRenderer.js';
 
-function renderWidget(wrapper, def) {
-  const data = JSON.parse(localStorage.getItem(`widgetCode_${def.id}`) || 'null');
+function renderWidget(wrapper, def, code = null) {
   const root = wrapper.attachShadow({ mode: 'open' });
-  if (data) {
-    root.innerHTML = `<style>${data.css || ''}</style>${data.html || ''}`;
-    if (data.js) {
-      try { new Function('root', data.js).call(wrapper, root); } catch (e) { console.error('[Renderer] custom js error', e); }
+  if (code) {
+    root.innerHTML = `<style>${code.css || ''}</style>${code.html || ''}`;
+    if (code.js) {
+      try { new Function('root', code.js).call(wrapper, root); } catch (e) { console.error('[Renderer] custom js error', e); }
+
     }
     return;
   }
@@ -215,7 +215,8 @@ function ensureLayout(layout = {}, lane = 'public') {
         gridEl.appendChild(wrapper);
         grid.makeWidget(wrapper);
 
-        renderWidget(content, def);
+        renderWidget(content, def, meta.code || null);
+
       });
       return;
     }
@@ -259,13 +260,15 @@ function ensureLayout(layout = {}, lane = 'public') {
       gridEl.appendChild(wrapper);
       grid.makeWidget(wrapper);
 
-      renderWidget(content, def);
+      renderWidget(content, def, meta.code || null);
+
     });
 
     grid.on('change', async (_, items) => {
       const newLayout = items.map(i => ({
         widgetId: i.el.dataset.widgetId,
-        x: i.x, y: i.y, w: i.w, h: i.h
+        x: i.x, y: i.y, w: i.w, h: i.h,
+        code: layout.find(l => l.widgetId === i.el.dataset.widgetId)?.code || null
       }));
 
       try {
@@ -276,6 +279,7 @@ function ensureLayout(layout = {}, lane = 'public') {
           lane, viewport: 'desktop',
           layout: newLayout
         });
+        layout = newLayout;
       } catch (e) {
         console.error('[Admin] Layout save error:', e);
       }
