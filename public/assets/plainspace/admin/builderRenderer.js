@@ -33,6 +33,24 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       console.error('[Builder] missing nonce');
       return;
     }
+    code = code.trim();
+    // If the code looks like an ES module, execute it via dynamic import
+    if (/^import\s|^export\s/m.test(code)) {
+      const blob = new Blob([code], { type: 'text/javascript' });
+      const url = URL.createObjectURL(blob);
+      import(url).then(m => {
+        if (typeof m.render === 'function') {
+          try { m.render.call(wrapper, root); } catch (err) {
+            console.error('[Builder] module render error', err);
+          }
+        }
+        URL.revokeObjectURL(url);
+      }).catch(err => {
+        console.error('[Builder] module import error', err);
+        URL.revokeObjectURL(url);
+      });
+      return;
+    }
     window.__builderRoot = root;
     window.__builderWrapper = wrapper;
     const script = document.createElement('script');

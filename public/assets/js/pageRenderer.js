@@ -10,6 +10,24 @@ function executeJs(code, wrapper, root) {
     console.error('[Renderer] missing nonce');
     return;
   }
+  code = code.trim();
+  // If the code contains ES module syntax, run it via dynamic import
+  if (/^import\s|^export\s/m.test(code)) {
+    const blob = new Blob([code], { type: 'text/javascript' });
+    const url = URL.createObjectURL(blob);
+    import(url).then(m => {
+      if (typeof m.render === 'function') {
+        try { m.render.call(wrapper, root); } catch (err) {
+          console.error('[Renderer] module render error', err);
+        }
+      }
+      URL.revokeObjectURL(url);
+    }).catch(err => {
+      console.error('[Renderer] module import error', err);
+      URL.revokeObjectURL(url);
+    });
+    return;
+  }
   window.__rendererRoot = root;
   window.__rendererWrapper = wrapper;
   const script = document.createElement('script');
