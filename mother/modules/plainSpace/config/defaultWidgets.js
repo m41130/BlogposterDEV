@@ -61,6 +61,13 @@ module.exports.DEFAULT_WIDGETS = [
     category: 'core'
   },
   {
+    widgetId: 'contentSummary',
+    widgetType: ADMIN_LANE,
+    label: 'Content Summary',
+    content: '/assets/plainspace/admin/contentSummaryWidget.js',
+    category: 'core'
+  },
+  {
     widgetId: 'pageInfoEditor',
     widgetType: ADMIN_LANE,
     label: 'Page Info Editor',

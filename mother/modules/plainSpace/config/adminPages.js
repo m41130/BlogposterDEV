@@ -16,8 +16,22 @@ module.exports.ADMIN_PAGES = [
     }
   },
   {
+    title: 'Content',
+    slug: 'content',
+    lane: 'admin',
+    config: {
+      layout: {
+        header: 'top-header',
+        sidebar: 'default-sidebar',
+        inheritsLayout: true
+      },
+      widgets: ['contentSummary']
+    }
+  },
+  {
     title: 'Page Management',
     slug: 'pages',
+    parentSlug: 'content',
     lane: 'admin',
     config: {
       layout: {
@@ -45,6 +59,7 @@ module.exports.ADMIN_PAGES = [
   {
     title: 'Media',
     slug: 'media',
+    parentSlug: 'content',
     lane: 'admin',
     config: {
       layout: {
@@ -53,6 +68,34 @@ module.exports.ADMIN_PAGES = [
         inheritsLayout: true
       },
       widgets: ['mediaExplorer']
+    }
+  },
+  {
+    title: 'Widgets',
+    slug: 'widgets',
+    parentSlug: 'content',
+    lane: 'admin',
+    config: {
+      layout: {
+        header: 'top-header',
+        sidebar: 'default-sidebar',
+        inheritsLayout: true
+      },
+      widgets: []
+    }
+  },
+  {
+    title: 'Menu',
+    slug: 'menu',
+    parentSlug: 'content',
+    lane: 'admin',
+    config: {
+      layout: {
+        header: 'top-header',
+        sidebar: 'default-sidebar',
+        inheritsLayout: true
+      },
+      widgets: []
     }
   },
   {
