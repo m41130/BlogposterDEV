@@ -238,10 +238,11 @@ app.post('/api/meltdown', (req, res) => {
     'deactivateModule'
   ];
 
-  // 2) Extract the JWT from the HttpOnly cookie or from the X-Public-Token header
-  const cookieJwt = req.cookies?.admin_jwt || null;
+  // 2) Extract the JWT. Explicit header token overrides the cookie
+  //    to allow public operations even if a stale admin cookie exists.
   const headerJwt = req.get('X-Public-Token') || null;
-  const jwt = cookieJwt || headerJwt;
+  const cookieJwt = req.cookies?.admin_jwt || null;
+  const jwt = headerJwt || cookieJwt;
 
   // 3) If no JWT and this is not a public event => reject
   if (!jwt && !PUBLIC_EVENTS.includes(eventName)) {
