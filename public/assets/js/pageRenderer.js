@@ -115,17 +115,24 @@ function ensureLayout(layout = {}, lane = 'public') {
     const sidebarEl = document.getElementById('sidebar');
     const contentEl = document.getElementById('content');
 
+    if (slug === 'builder') {
+      topHeaderEl?.remove();
+      mainHeaderEl?.remove();
+    }
+
     if (!contentEl) return;
 
     // 4. LOAD HEADER PARTIALS
-    if (topHeaderEl) {
-      topHeaderEl.innerHTML = await fetchPartial(config.layout?.header || 'top-header', 'headers');
-    }
-    if (mainHeaderEl) {
-      if (config.layout?.inheritsLayout === false && !config.layout?.topHeader) {
-        mainHeaderEl.innerHTML = '';
-      } else {
-        mainHeaderEl.innerHTML = await fetchPartial(config.layout?.mainHeader || 'main-header', 'headers');
+    if (slug !== 'builder') {
+      if (topHeaderEl) {
+        topHeaderEl.innerHTML = await fetchPartial(config.layout?.header || 'top-header', 'headers');
+      }
+      if (mainHeaderEl) {
+        if (config.layout?.inheritsLayout === false && !config.layout?.topHeader) {
+          mainHeaderEl.innerHTML = '';
+        } else {
+          mainHeaderEl.innerHTML = await fetchPartial(config.layout?.mainHeader || 'main-header', 'headers');
+        }
       }
     }
 
