@@ -68,7 +68,7 @@ function setupShareEventListeners(motherEmitter) {
     const callback = onceCallback(originalCb);
 
     try {
-      const {
+      let {
         jwt,
         moduleName,
         moduleType,
@@ -81,8 +81,15 @@ function setupShareEventListeners(motherEmitter) {
       if (!jwt || moduleName !== 'shareManager' || moduleType !== 'core') {
         return callback(new Error('[SHARE MANAGER] createShareLink => meltdown check failed.'));
       }
-      if (!filePath || !userId) {
-        return callback(new Error('Missing filePath or userId.'));
+      if (!filePath) {
+        return callback(new Error('Missing filePath.'));
+      }
+
+      if (!userId && payload.decodedJWT) {
+        userId = payload.decodedJWT.userId || payload.decodedJWT.id;
+      }
+      if (!userId) {
+        return callback(new Error('Missing userId.'));
       }
 
       const { decodedJWT } = payload;
@@ -141,7 +148,7 @@ function setupShareEventListeners(motherEmitter) {
     const callback = onceCallback(originalCb);
 
     try {
-      const {
+      let {
         jwt,
         moduleName,
         moduleType,
@@ -152,8 +159,15 @@ function setupShareEventListeners(motherEmitter) {
       if (!jwt || moduleName !== 'shareManager' || moduleType !== 'core') {
         return callback(new Error('[SHARE MANAGER] revokeShareLink => meltdown check failed.'));
       }
-      if (!shortToken || !userId) {
-        return callback(new Error('Missing shortToken or userId.'));
+      if (!shortToken) {
+        return callback(new Error('Missing shortToken.'));
+      }
+
+      if (!userId && payload.decodedJWT) {
+        userId = payload.decodedJWT.userId || payload.decodedJWT.id;
+      }
+      if (!userId) {
+        return callback(new Error('Missing userId.'));
       }
 
       const { decodedJWT } = payload;

@@ -215,7 +215,10 @@ function setupMediaManagerEvents(motherEmitter) {
         finalName = `${base}-${timestamp}${ext}`;
       }
 
-      fs.writeFileSync(path.join(targetDir, finalName), fileData);
+      const buffer = Buffer.isBuffer(fileData)
+        ? fileData
+        : Buffer.from(fileData, 'base64');
+      fs.writeFileSync(path.join(targetDir, finalName), buffer);
       callback(null, { success: true, fileName: finalName, mimeType });
     } catch (err) {
       callback(err);
