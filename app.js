@@ -149,9 +149,10 @@ function getModuleTokenForDbManager() {
     app.use(httpsRedirect);
   }
 
-  // Body parser + cookies
-  app.use(bodyParser.json());
-  app.use(bodyParser.urlencoded({ extended: true }));
+  // Body parser + cookies (allow larger payloads for media uploads)
+  const bodyLimit = process.env.BODY_LIMIT || '20mb';
+  app.use(bodyParser.json({ limit: bodyLimit }));
+  app.use(bodyParser.urlencoded({ extended: true, limit: bodyLimit }));
   app.use(cookieParser());
 
   // CSRF protection
