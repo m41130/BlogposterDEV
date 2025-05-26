@@ -121,19 +121,10 @@ function ensureLayout(layout = {}, lane = 'public') {
         sidebarEl.innerHTML = await fetchPartial(builderSidebar, 'sidebars');
       }
 
-      const widgetRes = await meltdownEmit('widget.registry.request.v1', {
-        lane: 'public', // explicitly use public widgets for builder
-        moduleName: 'plainspace',
-        moduleType: 'core'
-      });
-      if (DEBUG) console.debug('[Renderer] builder widgetRes', widgetRes);
-
-      const allWidgets = Array.isArray(widgetRes?.widgets) ? widgetRes.widgets : [];
-
       const urlParams = new URLSearchParams(window.location.search);
       const pageIdParam = parseInt(urlParams.get('pageId'), 10) || null;
 
-      await initBuilder(sidebarEl, contentEl, allWidgets, pageIdParam);
+      await initBuilder(sidebarEl, contentEl, pageIdParam);
 
       return;
     }

@@ -1,5 +1,5 @@
 // public/assets/plainspace/admin/builderRenderer.js
-export async function initBuilder(sidebarEl, contentEl, allWidgets, pageId = null) {
+export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   const DEFAULT_ROWS = 10; // around 50px with 5px grid cells
   const ICON_MAP = {
     counter: 'activity',
@@ -26,6 +26,18 @@ export async function initBuilder(sidebarEl, contentEl, allWidgets, pageId = nul
     const iconName = w.metadata?.icon || ICON_MAP[w.id] || w.id;
     return window.featherIcon ? window.featherIcon(iconName) :
       `<img src="/assets/icons/${iconName}.svg" alt="${iconName}" />`;
+  }
+
+  let allWidgets = [];
+  try {
+    const widgetRes = await meltdownEmit('widget.registry.request.v1', {
+      lane: 'public',
+      moduleName: 'plainspace',
+      moduleType: 'core'
+    });
+    allWidgets = Array.isArray(widgetRes?.widgets) ? widgetRes.widgets : [];
+  } catch (err) {
+    console.error('[Builder] failed to load widgets', err);
   }
 
   sidebarEl.querySelector('.drag-icons').innerHTML = allWidgets.map(w => `
