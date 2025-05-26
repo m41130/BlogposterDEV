@@ -19,7 +19,8 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     pageInfoWidget: 'file-text',
     pageSettingsWidget: 'settings',
     seoImageWidget: 'image',
-    savePageWidget: 'save'
+    savePageWidget: 'save',
+    contentSummary: 'activity'
   };
 
   function getWidgetIcon(w) {
