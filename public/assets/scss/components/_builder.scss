@@ -2,26 +2,48 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 24px;
+  padding: 12px 16px;
+  gap: 12px;
 }
 
-.builder-header #saveLayoutBtn {
+.builder-header .builder-back-btn,
+.builder-header .builder-save-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.builder-header .layout-info {
   display: flex;
   align-items: center;
   gap: 6px;
+  flex: 1;
 }
 
-.builder-header #saveLayoutBtn .icon {
-  width: 20px;
-  height: 20px;
-  fill: currentColor;
+.builder-header .layout-name {
+  font-size: 1.25rem;
+  font-weight: 500;
+  outline: none;
+}
+
+.builder-header .edit-name-icon {
+  margin-left: 6px;
+  cursor: pointer;
 }
 
 .builder-header .layout-name-input {
   font-size: 1.25rem;
   padding: 4px 8px;
   flex: 1;
-  margin-right: 16px;
+}
+
+.builder-header .page-link {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.builder-header .page-select {
+  padding: 4px 8px;
 }
 
 .builder-sidebar {

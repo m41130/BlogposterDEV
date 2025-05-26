@@ -34,6 +34,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
 
   function renderWidget(wrapper, widgetDef) {
     const data = codeMap[widgetDef.id] || null;
+
     const content = wrapper.querySelector('.grid-stack-item-content');
     content.innerHTML = '';
     const root = content.attachShadow({ mode: 'open' });
@@ -73,6 +74,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
         el.appendChild(overlay);
       }
       const codeData = codeMap[widgetDef.id] ? { ...codeMap[widgetDef.id] } : {};
+
       if (!codeData.sourceJs) {
         try {
           const resp = await fetch(widgetDef.codeUrl);
@@ -95,6 +97,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
         overlay.style.display = 'none';
         renderWidget(el, widgetDef);
         if (pageId) saveCurrentLayout();
+
       };
       overlay.querySelector('.cancel-btn').onclick = () => {
         overlay.style.display = 'none';
@@ -164,6 +167,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   }
 
   let initialLayout = [];
+  let pageData = null;
   if (pageId) {
     try {
       const layoutRes = await meltdownEmit('getLayoutForViewport', {
@@ -175,8 +179,16 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
         viewport: 'desktop'
       });
       initialLayout = Array.isArray(layoutRes?.layout) ? layoutRes.layout : [];
+
+      const pageRes = await meltdownEmit('getPageById', {
+        jwt: window.ADMIN_TOKEN,
+        moduleName: 'pagesManager',
+        moduleType: 'core',
+        pageId
+      });
+      pageData = pageRes?.data ?? pageRes ?? null;
     } catch (err) {
-      console.error('[Builder] load layout error', err);
+      console.error('[Builder] load layout or page error', err);
     }
   }
 
@@ -214,6 +226,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     grid.makeWidget(wrapper);
     renderWidget(wrapper, widgetDef);
     if (pageId) saveCurrentLayout();
+
   });
 
   gridEl.addEventListener('dragover',  e => { e.preventDefault(); gridEl.classList.add('drag-over'); });
@@ -250,15 +263,104 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     renderWidget(wrapper, widgetDef);
   });
 
-  const controls = document.createElement('div');
-  controls.className = 'builder-controls-bar';
-  controls.innerHTML = `
-    <input id="layoutNameInput" placeholder="Layout name…" />
-    <button id="saveLayoutBtn">💾 Save Layout</button>`;
-  contentEl.prepend(controls);
+  const topBar = document.createElement('div');
+  topBar.className = 'builder-header';
 
-  controls.querySelector('#saveLayoutBtn').addEventListener('click', async () => {
-    const name = controls.querySelector('#layoutNameInput').value.trim();
+  const backBtn = document.createElement('button');
+  backBtn.className = 'builder-back-btn';
+  backBtn.innerHTML = window.featherIcon ? window.featherIcon('arrow-left') :
+    '<img src="/assets/icons/arrow-left.svg" alt="Back" />';
+  backBtn.addEventListener('click', () => history.back());
+  topBar.appendChild(backBtn);
+
+  let nameInput = null;
+  let pageSelect = null;
+  let layoutName = pageData?.meta?.layoutTemplate || '';
+
+  const infoWrap = document.createElement('div');
+  infoWrap.className = 'layout-info';
+
+  if (layoutName) {
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'layout-name';
+    nameSpan.textContent = layoutName;
+    nameSpan.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); nameSpan.blur(); }
+    });
+    nameSpan.addEventListener('blur', () => {
+      layoutName = nameSpan.textContent.trim();
+      nameSpan.contentEditable = 'false';
+    });
+    const editIcon = document.createElement('span');
+    editIcon.className = 'edit-name-icon';
+    editIcon.innerHTML = window.featherIcon ? window.featherIcon('edit') :
+      '<img src="/assets/icons/edit-2.svg" alt="Edit" />';
+    editIcon.addEventListener('click', () => {
+      nameSpan.contentEditable = 'true';
+      nameSpan.focus();
+    });
+    const nameWrap = document.createElement('span');
+    nameWrap.appendChild(nameSpan);
+    nameWrap.appendChild(editIcon);
+    infoWrap.appendChild(nameWrap);
+  } else {
+    nameInput = document.createElement('input');
+    nameInput.id = 'layoutNameInput';
+    nameInput.className = 'layout-name-input';
+    nameInput.placeholder = 'Layout name…';
+    infoWrap.appendChild(nameInput);
+  }
+
+  const editFor = document.createElement('span');
+  editFor.textContent = 'editing for';
+  infoWrap.appendChild(editFor);
+
+  if (pageData?.title) {
+    const pageLink = document.createElement('a');
+    pageLink.className = 'page-link';
+    pageLink.href = `/admin/pages/edit/${pageId}`;
+    pageLink.textContent = pageData.title;
+    infoWrap.appendChild(pageLink);
+  } else {
+    const none = document.createElement('span');
+    none.textContent = 'not attached to a page';
+    infoWrap.appendChild(none);
+
+    pageSelect = document.createElement('select');
+    pageSelect.className = 'page-select';
+    pageSelect.multiple = true;
+    try {
+      const { pages = [] } = await meltdownEmit('getPagesByLane', {
+        jwt: window.ADMIN_TOKEN,
+        moduleName: 'pagesManager',
+        moduleType: 'core',
+        lane: 'public'
+      });
+      (Array.isArray(pages) ? pages : []).forEach(p => {
+        const o = document.createElement('option');
+        o.value = p.id;
+        o.textContent = p.title;
+        pageSelect.appendChild(o);
+      });
+    } catch (err) {
+      console.warn('[Builder] failed to load pages', err);
+    }
+    infoWrap.appendChild(pageSelect);
+  }
+
+  topBar.appendChild(infoWrap);
+
+  const saveBtn = document.createElement('button');
+  saveBtn.id = 'saveLayoutBtn';
+  saveBtn.className = 'builder-save-btn';
+  saveBtn.innerHTML = window.featherIcon ? window.featherIcon('save') :
+    '<img src="/assets/icons/save.svg" alt="Save" />';
+  topBar.appendChild(saveBtn);
+
+  contentEl.prepend(topBar);
+
+  saveBtn.addEventListener('click', async () => {
+    const name = nameInput ? nameInput.value.trim() : (layoutName || '').trim();
     if (!name) { alert('Enter a name'); return; }
     const layout = getCurrentLayout();
     try {
@@ -270,12 +372,15 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
         layout
       });
 
-      if (pageId) {
+      const targetIds = pageId
+        ? [pageId]
+        : Array.from(pageSelect?.selectedOptions || []).map(o => parseInt(o.value, 10));
+      for (const id of targetIds) {
         await meltdownEmit('saveLayoutForViewport', {
           jwt: window.ADMIN_TOKEN,
           moduleName: 'plainspace',
           moduleType: 'core',
-          pageId,
+          pageId: id,
           lane: 'public',
           viewport: 'desktop',
           layout

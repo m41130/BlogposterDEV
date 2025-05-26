@@ -9,6 +9,7 @@ function renderWidget(wrapper, def, code = null) {
     root.innerHTML = `<style>${code.css || ''}</style>${code.html || ''}`;
     if (code.js) {
       try { new Function('root', code.js).call(wrapper, root); } catch (e) { console.error('[Renderer] custom js error', e); }
+
     }
     return;
   }
@@ -215,6 +216,7 @@ function ensureLayout(layout = {}, lane = 'public') {
         grid.makeWidget(wrapper);
 
         renderWidget(content, def, meta.code || null);
+
       });
       return;
     }
@@ -259,6 +261,7 @@ function ensureLayout(layout = {}, lane = 'public') {
       grid.makeWidget(wrapper);
 
       renderWidget(content, def, meta.code || null);
+
     });
 
     grid.on('change', async (_, items) => {
