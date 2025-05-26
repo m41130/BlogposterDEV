@@ -1,5 +1,6 @@
 // public/assets/plainspace/admin/builderRenderer.js
 export async function initBuilder(sidebarEl, contentEl, pageId = null) {
+  document.body.classList.add('builder-mode');
   const DEFAULT_ROWS = 10; // around 50px with 5px grid cells
   const ICON_MAP = {
     counter: 'activity',
