@@ -29,9 +29,9 @@ export async function initBuilder(sidebarEl, contentEl, allWidgets, pageId = nul
   }
 
   sidebarEl.querySelector('.drag-icons').innerHTML = allWidgets.map(w => `
-    <div class="drag-widget-icon" draggable="true" data-widget-id="${w.id}" title="${w.metadata.label}">
+    <div class="sidebar-item drag-widget-icon" draggable="true" data-widget-id="${w.id}">
       ${getWidgetIcon(w)}
-      <span>${w.metadata.label}</span>
+      <span class="label">${w.metadata.label}</span>
     </div>
   `).join('');
 
