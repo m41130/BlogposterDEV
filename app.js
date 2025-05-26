@@ -447,7 +447,7 @@ app.get('/admin/*', async (req, res, next) => {
     </head>`;
     html = html.replace('</head>', inject);
 
-    res.setHeader('Content-Security-Policy', `script-src 'self' 'nonce-${nonce}';`);
+    res.setHeader('Content-Security-Policy', `script-src 'self' blob: 'nonce-${nonce}';`);
     res.send(html);
 
   } catch (err) {
@@ -585,7 +585,7 @@ app.get('/:slug?', async (req, res, next) => {
     </script>`;
     html = html.replace('</head>', inject + '</head>');
 
-    res.setHeader('Content-Security-Policy', `script-src 'self' 'nonce-${nonce}';`);
+    res.setHeader('Content-Security-Policy', `script-src 'self' blob: 'nonce-${nonce}';`);
 
     // 4) Send the patched HTML
     res.send(html);
