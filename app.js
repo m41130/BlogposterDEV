@@ -442,6 +442,7 @@ app.get('/admin/*', async (req, res, next) => {
         window.PAGE_ID     = ${pageId ?? page.id};
         window.PAGE_SLUG   = '${slug}';
         window.ADMIN_TOKEN = '${adminJwt}';
+        window.NONCE       = '${nonce}';
       </script>
     </head>`;
     html = html.replace('</head>', inject);
@@ -580,6 +581,7 @@ app.get('/:slug?', async (req, res, next) => {
       window.PAGE_SLUG = '${slugToUse}';
       window.LANE    = '${lane}';
       window.PUBLIC_TOKEN = '${token}';
+      window.NONCE  = '${nonce}';
     </script>`;
     html = html.replace('</head>', inject + '</head>');
 
