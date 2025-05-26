@@ -346,7 +346,8 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     renderWidget(wrapper, widgetDef);
   });
 
-  const topBar = document.createElement('div');
+  const topBar = document.createElement('header');
+  topBar.id = 'builder-header';
   topBar.className = 'builder-header';
 
   const backBtn = document.createElement('button');
@@ -356,43 +357,18 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   backBtn.addEventListener('click', () => history.back());
   topBar.appendChild(backBtn);
 
-  let nameInput = null;
   let pageSelect = null;
-  let layoutName = pageData?.meta?.layoutTemplate || '';
+  const layoutName = pageData?.meta?.layoutTemplate || 'default';
 
   const infoWrap = document.createElement('div');
   infoWrap.className = 'layout-info';
 
-  if (layoutName) {
-    const nameSpan = document.createElement('span');
-    nameSpan.className = 'layout-name';
-    nameSpan.textContent = layoutName;
-    nameSpan.addEventListener('keydown', e => {
-      if (e.key === 'Enter') { e.preventDefault(); nameSpan.blur(); }
-    });
-    nameSpan.addEventListener('blur', () => {
-      layoutName = nameSpan.textContent.trim();
-      nameSpan.contentEditable = 'false';
-    });
-    const editIcon = document.createElement('span');
-    editIcon.className = 'edit-name-icon';
-    editIcon.innerHTML = window.featherIcon ? window.featherIcon('edit') :
-      '<img src="/assets/icons/edit-2.svg" alt="Edit" />';
-    editIcon.addEventListener('click', () => {
-      nameSpan.contentEditable = 'true';
-      nameSpan.focus();
-    });
-    const nameWrap = document.createElement('span');
-    nameWrap.appendChild(nameSpan);
-    nameWrap.appendChild(editIcon);
-    infoWrap.appendChild(nameWrap);
-  } else {
-    nameInput = document.createElement('input');
-    nameInput.id = 'layoutNameInput';
-    nameInput.className = 'layout-name-input';
-    nameInput.placeholder = 'Layout name…';
-    infoWrap.appendChild(nameInput);
-  }
+  const nameInput = document.createElement('input');
+  nameInput.id = 'layoutNameInput';
+  nameInput.className = 'layout-name-input';
+  nameInput.placeholder = 'Layout name…';
+  nameInput.value = layoutName;
+  infoWrap.appendChild(nameInput);
 
   const editFor = document.createElement('span');
   editFor.textContent = 'editing for';
@@ -440,10 +416,16 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     '<img src="/assets/icons/save.svg" alt="Save" />';
   topBar.appendChild(saveBtn);
 
-  contentEl.prepend(topBar);
+  const appScope = document.querySelector('.app-scope');
+  const mainContent = document.querySelector('.main-content');
+  if (appScope && mainContent) {
+    appScope.insertBefore(topBar, mainContent);
+  } else {
+    contentEl.prepend(topBar);
+  }
 
   saveBtn.addEventListener('click', async () => {
-    const name = nameInput ? nameInput.value.trim() : (layoutName || '').trim();
+    const name = nameInput.value.trim();
     if (!name) { alert('Enter a name'); return; }
     const layout = getCurrentLayout();
     try {
