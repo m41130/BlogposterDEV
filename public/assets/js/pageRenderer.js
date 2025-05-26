@@ -275,7 +275,7 @@ function ensureLayout(layout = {}, lane = 'public') {
     });
     if (DEBUG) console.debug('[Renderer] admin layoutRes', layoutRes);
 
-    const layout = Array.isArray(layoutRes?.layout) ? layoutRes.layout : [];
+    let layout = Array.isArray(layoutRes?.layout) ? layoutRes.layout : [];
 
     contentEl.innerHTML = '<div id="adminGrid" class="grid-stack"></div>';
     const gridEl = document.getElementById('adminGrid');
