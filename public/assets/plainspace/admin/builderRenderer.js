@@ -30,6 +30,75 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       `<img src="/assets/icons/${iconName}.svg" alt="${iconName}" />`;
   }
 
+  function renderWidget(wrapper, widgetDef) {
+    const data = JSON.parse(localStorage.getItem(`widgetCode_${widgetDef.id}`) || 'null');
+    const content = wrapper.querySelector('.grid-stack-item-content');
+    content.innerHTML = '';
+    const root = content.attachShadow({ mode: 'open' });
+    if (data) {
+      root.innerHTML = `<style>${data.css || ''}</style>${data.html || ''}`;
+      if (data.js) {
+        try { new Function('root', data.js).call(wrapper, root); } catch (e) { console.error('[Builder] custom js error', e); }
+      }
+      return;
+    }
+    import(widgetDef.codeUrl).then(m => m.render?.(root)).catch(err => console.error('[Builder] widget import error', err));
+  }
+
+  function attachEditButton(el, widgetDef) {
+    const btn = document.createElement('button');
+    btn.className = 'widget-edit';
+    btn.innerHTML = window.featherIcon ? window.featherIcon('edit') : '<img src="/assets/icons/edit.svg" alt="edit" />';
+    btn.addEventListener('click', async e => {
+      e.stopPropagation();
+      let overlay = el.querySelector('.widget-code-editor');
+      if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = 'widget-code-editor';
+        overlay.innerHTML = `
+          <div class="editor-inner">
+            <label>HTML</label>
+            <textarea class="editor-html"></textarea>
+            <label>CSS</label>
+            <textarea class="editor-css"></textarea>
+            <label>JS</label>
+            <textarea class="editor-js"></textarea>
+            <div class="editor-actions">
+              <button class="save-btn">Save</button>
+              <button class="cancel-btn">Cancel</button>
+            </div>
+          </div>`;
+        el.appendChild(overlay);
+      }
+      const codeData = JSON.parse(localStorage.getItem(`widgetCode_${widgetDef.id}`) || 'null') || {};
+      if (!codeData.sourceJs) {
+        try {
+          const resp = await fetch(widgetDef.codeUrl);
+          codeData.sourceJs = await resp.text();
+        } catch (err) {
+          console.error('[Builder] fetch widget source error', err);
+          codeData.sourceJs = '';
+        }
+      }
+      overlay.querySelector('.editor-html').value = codeData.html || '';
+      overlay.querySelector('.editor-css').value = codeData.css || '';
+      overlay.querySelector('.editor-js').value = codeData.js || codeData.sourceJs || '';
+      overlay.style.display = 'block';
+      overlay.querySelector('.save-btn').onclick = () => {
+        codeData.html = overlay.querySelector('.editor-html').value;
+        codeData.css = overlay.querySelector('.editor-css').value;
+        codeData.js = overlay.querySelector('.editor-js').value;
+        localStorage.setItem(`widgetCode_${widgetDef.id}`, JSON.stringify(codeData));
+        overlay.style.display = 'none';
+        renderWidget(el, widgetDef);
+      };
+      overlay.querySelector('.cancel-btn').onclick = () => {
+        overlay.style.display = 'none';
+      };
+    });
+    el.appendChild(btn);
+  }
+
   let allWidgets = [];
   try {
     const widgetRes = await meltdownEmit('widget.registry.request.v1', {
@@ -89,6 +158,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     el.appendChild(btn);
   }
 
+
   initialLayout.forEach(item => {
     const widgetDef = allWidgets.find(w => w.id === item.widgetId);
     if (!widgetDef) return;
@@ -104,10 +174,10 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     content.innerHTML = `${getWidgetIcon(widgetDef)}<span>${widgetDef.metadata?.label || widgetDef.id}</span>`;
     wrapper.appendChild(content);
     attachRemoveButton(wrapper);
+    attachEditButton(wrapper, widgetDef);
     gridEl.appendChild(wrapper);
     grid.makeWidget(wrapper);
-    import(widgetDef.codeUrl).then(m => m.render?.(content))
-      .catch(err => console.error('[Builder] widget import error', err));
+    renderWidget(wrapper, widgetDef);
   });
 
   gridEl.addEventListener('dragover',  e => { e.preventDefault(); gridEl.classList.add('drag-over'); });
@@ -137,11 +207,11 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     content.innerHTML = `${getWidgetIcon(widgetDef)}<span>${widgetDef.metadata?.label || widgetDef.id}</span>`;
     wrapper.appendChild(content);
     attachRemoveButton(wrapper);
+    attachEditButton(wrapper, widgetDef);
     gridEl.appendChild(wrapper);
     grid.makeWidget(wrapper);
 
-    import(widgetDef.codeUrl).then(m => m.render?.(content))
-      .catch(err => console.error('[Builder] widget import error', err));
+    renderWidget(wrapper, widgetDef);
   });
 
   const controls = document.createElement('div');
