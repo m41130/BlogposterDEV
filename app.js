@@ -389,7 +389,8 @@ app.get('/admin/*', async (req, res, next) => {
   const adminJwt = req.cookies?.admin_jwt;
 
   if (!adminJwt) {
-    return res.status(401).send('Not logged in as admin.');
+    const jump = `/login?redirectTo=${encodeURIComponent(req.originalUrl)}`;
+    return res.redirect(jump);
   }
 
   let rawSlug = req.params[0] || '';

@@ -40,21 +40,21 @@ function attachWildcardIfAdmin(decoded) {
 
 /* ──────────────────────────────────────────────────────────────── *
  *  1) Cookie‑based auth for SSR routes
- *     – No token? → polite redirect to /admin/login
+ *     – No token? → polite redirect to /login
  * ──────────────────────────────────────────────────────────────── */
 function requireAuthCookie(req, res, next) {
   const token = req.cookies?.admin_jwt;
 
   if (!token) {
     const jump =
-      `/admin/login?redirectTo=${encodeURIComponent(req.originalUrl)}`;
+      `/login?redirectTo=${encodeURIComponent(req.originalUrl)}`;
     return res.redirect(jump);
   }
 
   verifyToken(token, (err, decoded) => {
     if (err || !decoded) {
       const jump =
-        `/admin/login?redirectTo=${encodeURIComponent(req.originalUrl)}`;
+        `/login?redirectTo=${encodeURIComponent(req.originalUrl)}`;
       return res.redirect(jump);
     }
 

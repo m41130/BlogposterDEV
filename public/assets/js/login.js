@@ -2,6 +2,12 @@ document.getElementById('loginForm').addEventListener('submit', async e => {
   e.preventDefault();
   const { username, password } = e.target;
 
+  const params = new URLSearchParams(window.location.search);
+  let redirectTo = params.get('redirectTo') || '/admin';
+  if (!redirectTo.startsWith('/admin') || redirectTo.startsWith('//')) {
+    redirectTo = '/admin';
+  }
+
   const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]').content;
 
   const resp = await fetch('/admin/api/login', {
@@ -22,5 +28,5 @@ document.getElementById('loginForm').addEventListener('submit', async e => {
     throw new Error(errText || 'Login failed');
   }
 
-  window.location.href = '/admin';
+  window.location.href = redirectTo;
 });
