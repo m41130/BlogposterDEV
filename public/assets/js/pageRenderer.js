@@ -225,10 +225,9 @@ function ensureLayout(layout = {}, lane = 'public') {
 
       const layout = Array.isArray(layoutRes?.layout) ? layoutRes.layout : [];
 
-      const widgetIds = layout.map(l => l.widgetId);
-      const sourceIds = widgetIds.length ? widgetIds : (config.widgets || []);
-      const matchedWidgets = allWidgets.filter(w => sourceIds.includes(w.id));
-      if (!matchedWidgets.length) {
+      const items = layout.length ? layout : (config.widgets || []).map((id, idx) => ({ id: `w${idx}`, widgetId: id, x:0,y:idx*2,w:4,h:2, code:null }));
+
+      if (!items.length) {
         contentEl.innerHTML = '<p class="empty-state">No widgets configured.</p>';
         return;
       }
@@ -237,11 +236,12 @@ function ensureLayout(layout = {}, lane = 'public') {
       const gridEl = document.getElementById('publicGrid');
       const grid = GridStack.init({ staticGrid: true, float: true, cellHeight: 5, columnWidth: 5, column: 64 }, gridEl);
 
-      matchedWidgets.forEach(def => {
-        if (DEBUG) console.debug('[Renderer] render widget', def.id);
+      items.forEach(item => {
+        const def = allWidgets.find(w => w.id === item.widgetId);
+        if (!def) return;
+        if (DEBUG) console.debug('[Renderer] render widget', def.id, item.id);
 
-        const meta = layout.find(l => l.widgetId === def.id) || {};
-        const [x, y, w, h] = [meta.x ?? 0, meta.y ?? 0, meta.w ?? 4, meta.h ?? 2];
+        const [x, y, w, h] = [item.x ?? 0, item.y ?? 0, item.w ?? 4, item.h ?? 2];
 
         const wrapper = document.createElement('div');
         wrapper.classList.add('grid-stack-item');
@@ -250,6 +250,7 @@ function ensureLayout(layout = {}, lane = 'public') {
         wrapper.setAttribute('gs-w', w);
         wrapper.setAttribute('gs-h', h);
         wrapper.dataset.widgetId = def.id;
+        wrapper.dataset.instanceId = item.id;
 
         const content = document.createElement('div');
         content.className = 'grid-stack-item-content';
@@ -258,7 +259,7 @@ function ensureLayout(layout = {}, lane = 'public') {
         gridEl.appendChild(wrapper);
         grid.makeWidget(wrapper);
 
-        renderWidget(content, def, meta.code || null);
+        renderWidget(content, def, item.code || null);
 
       });
       return;
@@ -295,6 +296,7 @@ function ensureLayout(layout = {}, lane = 'public') {
       wrapper.setAttribute('gs-w', w);
       wrapper.setAttribute('gs-h', h);
       wrapper.dataset.widgetId = def.id;
+      wrapper.dataset.instanceId = meta.id || `w${Math.random().toString(36).slice(2,8)}`;
 
       const content = document.createElement('div');
       content.className = 'grid-stack-item-content';
@@ -309,9 +311,10 @@ function ensureLayout(layout = {}, lane = 'public') {
 
     grid.on('change', async (_, items) => {
       const newLayout = items.map(i => ({
+        id: i.el.dataset.instanceId,
         widgetId: i.el.dataset.widgetId,
         x: i.x, y: i.y, w: i.w, h: i.h,
-        code: layout.find(l => l.widgetId === i.el.dataset.widgetId)?.code || null
+        code: layout.find(l => l.id === i.el.dataset.instanceId)?.code || null
       }));
 
       try {

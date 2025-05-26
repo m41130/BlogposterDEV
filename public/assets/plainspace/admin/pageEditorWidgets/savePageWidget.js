@@ -28,7 +28,9 @@ export async function render(el) {
   button.addEventListener('click', async () => {
     const title = document.getElementById('pe-title')?.value.trim() || '';
     const seoImage = document.getElementById('pe-image')?.value.trim() || '';
-    const seoDesc = document.getElementById('pe-desc')?.value || '';
+    const seoDesc = window.peDescEditor
+      ? window.peDescEditor.root.innerHTML
+      : document.getElementById('pe-desc')?.value || '';
     const status = document.getElementById('pe-status')?.value || page.status;
     const slug = document.getElementById('pe-slug')?.value.trim() || page.slug;
     const publishAt = document.getElementById('pe-publish-at')?.value || '';

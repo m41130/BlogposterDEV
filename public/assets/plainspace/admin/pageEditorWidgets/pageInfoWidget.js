@@ -1,3 +1,5 @@
+import { initQuill } from '../../../js/quillEditor.js';
+
 export async function render(el) {
   const pageData = await window.pageDataLoader.load('getPageById', {
     moduleName: 'pagesManager',
@@ -27,12 +29,11 @@ export async function render(el) {
 
   const descLabel = document.createElement('label');
   descLabel.textContent = 'SEO Description';
-  const descTextarea = document.createElement('textarea');
-  descTextarea.id = 'pe-desc';
-  descTextarea.placeholder = 'Description';
-  descTextarea.textContent = pageData.meta_desc || '';
+  const descDiv = document.createElement('div');
+  descDiv.id = 'pe-desc';
+  descDiv.innerHTML = pageData.meta_desc || '';
   descLabel.appendChild(document.createElement('br'));
-  descLabel.appendChild(descTextarea);
+  descLabel.appendChild(descDiv);
 
   container.appendChild(titleLabel);
   container.appendChild(document.createElement('br'));
@@ -40,4 +41,7 @@ export async function render(el) {
 
   el.innerHTML = '';
   el.appendChild(container);
+
+  // Initialize Quill editor for SEO description
+  window.peDescEditor = initQuill(descDiv);
 }
