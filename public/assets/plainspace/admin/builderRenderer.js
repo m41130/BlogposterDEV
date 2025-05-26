@@ -68,8 +68,8 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       `<img src="/assets/icons/${iconName}.svg" alt="${iconName}" />`;
   }
 
-  function renderWidget(wrapper, widgetDef) {
-    const data = codeMap[widgetDef.id] || null;
+  function renderWidget(wrapper, widgetDef, customData = null) {
+    const data = customData || codeMap[widgetDef.id] || null;
 
     const content = wrapper.querySelector('.grid-stack-item-content');
     content.innerHTML = '';
@@ -105,31 +105,28 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
             <textarea class="editor-js"></textarea>
             <div class="editor-actions">
               <button class="save-btn">Save</button>
+              <button class="reset-btn">Reset to Default</button>
               <button class="cancel-btn">Cancel</button>
             </div>
-            <div class="preview"></div>
           </div>`;
         document.body.appendChild(overlay);
 
         const htmlEl = overlay.querySelector('.editor-html');
         const cssEl = overlay.querySelector('.editor-css');
         const jsEl = overlay.querySelector('.editor-js');
-        const prevEl = overlay.querySelector('.preview');
-
-        const updatePreview = () => {
-          const root = prevEl.shadowRoot || prevEl.attachShadow({ mode: 'open' });
-          root.innerHTML = `<style>${cssEl.value}</style>${htmlEl.value}`;
-          const js = jsEl.value;
-          if (js) {
-            try { executeJs(js, el, root); } catch (err) { console.error('[Builder] preview js error', err); }
-          }
+        const updateRender = () => {
+          renderWidget(el, widgetDef, {
+            html: htmlEl.value,
+            css: cssEl.value,
+            js: jsEl.value
+          });
         };
 
-        htmlEl.addEventListener('input', updatePreview);
-        cssEl.addEventListener('input', updatePreview);
-        jsEl.addEventListener('input', updatePreview);
+        htmlEl.addEventListener('input', updateRender);
+        cssEl.addEventListener('input', updateRender);
+        jsEl.addEventListener('input', updateRender);
 
-        overlay.updatePreview = updatePreview;
+        overlay.updateRender = updateRender;
         el.__codeEditor = overlay;
       }
       const codeData = codeMap[widgetDef.id] ? { ...codeMap[widgetDef.id] } : {};
@@ -164,7 +161,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       }
       overlay.style.visibility = '';
 
-      overlay.updatePreview && overlay.updatePreview();
+      overlay.updateRender && overlay.updateRender();
       overlay.querySelector('.save-btn').onclick = () => {
         codeMap[widgetDef.id] = {
           html: overlay.querySelector('.editor-html').value,
@@ -175,6 +172,15 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
         renderWidget(el, widgetDef);
         if (pageId) saveCurrentLayout();
 
+      };
+      overlay.querySelector('.reset-btn').onclick = () => {
+        if (!confirm('Willst du wirklich alle Anpassungen zurücksetzen?')) return;
+        delete codeMap[widgetDef.id];
+        overlay.querySelector('.editor-html').value = '';
+        overlay.querySelector('.editor-css').value = '';
+        overlay.querySelector('.editor-js').value = codeData.sourceJs || '';
+        overlay.updateRender && overlay.updateRender();
+        if (pageId) saveCurrentLayout();
       };
       overlay.querySelector('.cancel-btn').onclick = () => {
         overlay.style.display = 'none';
