@@ -3,6 +3,20 @@
 import { fetchPartial } from '/assets/plainspace/admin/fetchPartial.js';
 import { initBuilder } from '/assets/plainspace/admin/builderRenderer.js';
 
+function renderWidget(wrapper, def, code = null) {
+  const root = wrapper.attachShadow({ mode: 'open' });
+  if (code) {
+    root.innerHTML = `<style>${code.css || ''}</style>${code.html || ''}`;
+    if (code.js) {
+      try { new Function('root', code.js).call(wrapper, root); } catch (e) { console.error('[Renderer] custom js error', e); }
+    }
+    return;
+  }
+  import(def.codeUrl)
+    .then(m => m.render?.(root))
+    .catch(err => console.error(`[Widget ${def.id}] import error:`, err));
+}
+
 function ensureLayout(layout = {}, lane = 'public') {
   let scope = document.querySelector('.app-scope');
   if (!scope) {
@@ -200,9 +214,7 @@ function ensureLayout(layout = {}, lane = 'public') {
         gridEl.appendChild(wrapper);
         grid.makeWidget(wrapper);
 
-        import(def.codeUrl)
-          .then(m => m.render?.(content))
-          .catch(err => console.error(`[Public] Widget ${def.id} import error:`, err));
+        renderWidget(content, def, meta.code || null);
       });
       return;
     }
@@ -246,15 +258,14 @@ function ensureLayout(layout = {}, lane = 'public') {
       gridEl.appendChild(wrapper);
       grid.makeWidget(wrapper);
 
-      import(def.codeUrl)
-        .then(m => m.render?.(content))
-        .catch(err => console.error(`[Admin] Widget ${def.id} import error:`, err));
+      renderWidget(content, def, meta.code || null);
     });
 
     grid.on('change', async (_, items) => {
       const newLayout = items.map(i => ({
         widgetId: i.el.dataset.widgetId,
-        x: i.x, y: i.y, w: i.w, h: i.h
+        x: i.x, y: i.y, w: i.w, h: i.h,
+        code: layout.find(l => l.widgetId === i.el.dataset.widgetId)?.code || null
       }));
 
       try {
@@ -265,6 +276,7 @@ function ensureLayout(layout = {}, lane = 'public') {
           lane, viewport: 'desktop',
           layout: newLayout
         });
+        layout = newLayout;
       } catch (e) {
         console.error('[Admin] Layout save error:', e);
       }
