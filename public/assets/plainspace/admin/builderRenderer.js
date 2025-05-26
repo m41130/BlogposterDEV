@@ -37,7 +37,8 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
 
     const content = wrapper.querySelector('.grid-stack-item-content');
     content.innerHTML = '';
-    const root = content.attachShadow({ mode: 'open' });
+    const root = content.shadowRoot || content.attachShadow({ mode: 'open' });
+    root.innerHTML = '';
     if (data) {
       root.innerHTML = `<style>${data.css || ''}</style>${data.html || ''}`;
       if (data.js) {
