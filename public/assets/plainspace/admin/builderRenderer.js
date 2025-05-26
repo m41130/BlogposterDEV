@@ -26,6 +26,24 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
 
   const codeMap = {};
 
+  function executeJs(code, wrapper, root) {
+    if (!code) return;
+    const nonce = window.NONCE;
+    if (!nonce) {
+      console.error('[Builder] missing nonce');
+      return;
+    }
+    window.__builderRoot = root;
+    window.__builderWrapper = wrapper;
+    const script = document.createElement('script');
+    script.setAttribute('nonce', nonce);
+    script.textContent = `(function(root){\n${code}\n}).call(window.__builderWrapper, window.__builderRoot);`;
+    document.body.appendChild(script);
+    script.remove();
+    delete window.__builderRoot;
+    delete window.__builderWrapper;
+  }
+
   function getWidgetIcon(w) {
     const iconName = w.metadata?.icon || ICON_MAP[w.id] || w.id;
     return window.featherIcon ? window.featherIcon(iconName) :
@@ -42,7 +60,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     if (data) {
       root.innerHTML = `<style>${data.css || ''}</style>${data.html || ''}`;
       if (data.js) {
-        try { new Function('root', data.js).call(wrapper, root); } catch (e) { console.error('[Builder] custom js error', e); }
+        try { executeJs(data.js, wrapper, root); } catch (e) { console.error('[Builder] custom js error', e); }
       }
       return;
     }
@@ -85,7 +103,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
           root.innerHTML = `<style>${cssEl.value}</style>${htmlEl.value}`;
           const js = jsEl.value;
           if (js) {
-            try { new Function('root', js).call(el, root); } catch (err) { console.error('[Builder] preview js error', err); }
+            try { executeJs(js, el, root); } catch (err) { console.error('[Builder] preview js error', err); }
           }
         };
 

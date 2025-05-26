@@ -3,12 +3,30 @@
 import { fetchPartial } from '/assets/plainspace/admin/fetchPartial.js';
 import { initBuilder } from '/assets/plainspace/admin/builderRenderer.js';
 
+function executeJs(code, wrapper, root) {
+  if (!code) return;
+  const nonce = window.NONCE;
+  if (!nonce) {
+    console.error('[Renderer] missing nonce');
+    return;
+  }
+  window.__rendererRoot = root;
+  window.__rendererWrapper = wrapper;
+  const script = document.createElement('script');
+  script.setAttribute('nonce', nonce);
+  script.textContent = `(function(root){\n${code}\n}).call(window.__rendererWrapper, window.__rendererRoot);`;
+  document.body.appendChild(script);
+  script.remove();
+  delete window.__rendererRoot;
+  delete window.__rendererWrapper;
+}
+
 function renderWidget(wrapper, def, code = null) {
   const root = wrapper.attachShadow({ mode: 'open' });
   if (code) {
     root.innerHTML = `<style>${code.css || ''}</style>${code.html || ''}`;
     if (code.js) {
-      try { new Function('root', code.js).call(wrapper, root); } catch (e) { console.error('[Renderer] custom js error', e); }
+      try { executeJs(code.js, wrapper, root); } catch (e) { console.error('[Renderer] custom js error', e); }
 
     }
     return;
