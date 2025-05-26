@@ -26,6 +26,44 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
 
   const codeMap = {};
 
+  function extractCssProps(el) {
+    if (!el) return '';
+    const style = getComputedStyle(el);
+    const props = [
+      'color', 'background', 'background-color', 'font-size', 'font-weight',
+      'padding', 'margin', 'border', 'border-radius', 'display'
+    ];
+    return props.map(p => `${p}: ${style.getPropertyValue(p)};`).join('\n');
+  }
+
+  function makeSelector(el) {
+    if (!el) return '';
+    if (el.id) return `#${el.id}`;
+    const cls = [...el.classList].join('.');
+    const tag = el.tagName.toLowerCase();
+    return cls ? `${tag}.${cls}` : tag;
+  }
+
+  function wrapCss(css, selector) {
+    const trimmed = css.trim();
+    if (!trimmed) return '';
+    if (!selector || /\{[^}]*\}/.test(trimmed)) return trimmed;
+    return `${selector} {\n${trimmed}\n}`;
+  }
+
+  function pickElement(root, overlay) {
+    if (!root) return;
+    const handler = ev => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      overlay.currentSelector = makeSelector(ev.target);
+      overlay.querySelector('.editor-css').value = extractCssProps(ev.target);
+      overlay.updateRender && overlay.updateRender();
+      root.removeEventListener('click', handler, true);
+    };
+    root.addEventListener('click', handler, true);
+  }
+
   function executeJs(code, wrapper, root) {
     if (!code) return;
     const nonce = window.NONCE;
@@ -104,6 +142,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
             <label>JS</label>
             <textarea class="editor-js"></textarea>
             <div class="editor-actions">
+              <button class="pick-btn">Pick Element</button>
               <button class="save-btn">Save</button>
               <button class="reset-btn">Reset to Default</button>
               <button class="cancel-btn">Cancel</button>
@@ -115,9 +154,10 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
         const cssEl = overlay.querySelector('.editor-css');
         const jsEl = overlay.querySelector('.editor-js');
         const updateRender = () => {
+          const finalCss = wrapCss(cssEl.value, overlay.currentSelector);
           renderWidget(el, widgetDef, {
             html: htmlEl.value,
-            css: cssEl.value,
+            css: finalCss,
             js: jsEl.value
           });
         };
@@ -143,6 +183,14 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       overlay.querySelector('.editor-html').value = codeData.html || '';
       overlay.querySelector('.editor-css').value = codeData.css || '';
       overlay.querySelector('.editor-js').value = codeData.js || codeData.sourceJs || '';
+      overlay.currentSelector = codeData.selector || '';
+
+      const pickBtn = overlay.querySelector('.pick-btn');
+      const root = el.querySelector('.grid-stack-item-content')?.shadowRoot;
+      const startPick = () => pickElement(root, overlay);
+      pickBtn.onclick = startPick;
+
+      if (!overlay.currentSelector) startPick();
 
       const rect = el.getBoundingClientRect();
       const spaceRight = window.innerWidth - rect.right;
@@ -165,8 +213,9 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       overlay.querySelector('.save-btn').onclick = () => {
         codeMap[widgetDef.id] = {
           html: overlay.querySelector('.editor-html').value,
-          css: overlay.querySelector('.editor-css').value,
-          js: overlay.querySelector('.editor-js').value
+          css: wrapCss(overlay.querySelector('.editor-css').value, overlay.currentSelector),
+          js: overlay.querySelector('.editor-js').value,
+          selector: overlay.currentSelector
         };
         overlay.style.display = 'none';
         renderWidget(el, widgetDef);
@@ -179,6 +228,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
         overlay.querySelector('.editor-html').value = '';
         overlay.querySelector('.editor-css').value = '';
         overlay.querySelector('.editor-js').value = codeData.sourceJs || '';
+        overlay.currentSelector = '';
         overlay.updateRender && overlay.updateRender();
         if (pageId) saveCurrentLayout();
       };
