@@ -91,7 +91,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     btn.innerHTML = window.featherIcon ? window.featherIcon('edit') : '<img src="/assets/icons/edit.svg" alt="edit" />';
     btn.addEventListener('click', async e => {
       e.stopPropagation();
-      let overlay = el.querySelector('.widget-code-editor');
+      let overlay = el.__codeEditor;
       if (!overlay) {
         overlay = document.createElement('div');
         overlay.className = 'widget-code-editor';
@@ -109,7 +109,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
             </div>
             <div class="preview"></div>
           </div>`;
-        el.appendChild(overlay);
+        document.body.appendChild(overlay);
 
         const htmlEl = overlay.querySelector('.editor-html');
         const cssEl = overlay.querySelector('.editor-css');
@@ -130,6 +130,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
         jsEl.addEventListener('input', updatePreview);
 
         overlay.updatePreview = updatePreview;
+        el.__codeEditor = overlay;
       }
       const codeData = codeMap[widgetDef.id] ? { ...codeMap[widgetDef.id] } : {};
 
@@ -150,13 +151,19 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       const spaceRight = window.innerWidth - rect.right;
       const spaceLeft = rect.left;
       overlay.classList.remove('left', 'right');
+      overlay.style.display = 'block';
+      overlay.style.visibility = 'hidden';
+      overlay.style.top = `${rect.top}px`;
       if (spaceRight >= 300 || spaceRight >= spaceLeft) {
         overlay.classList.add('right');
+        overlay.style.left = `${rect.right + 8}px`;
       } else {
         overlay.classList.add('left');
+        const left = rect.left - overlay.offsetWidth - 8;
+        overlay.style.left = `${Math.max(0, left)}px`;
       }
+      overlay.style.visibility = '';
 
-      overlay.style.display = 'block';
       overlay.updatePreview && overlay.updatePreview();
       overlay.querySelector('.save-btn').onclick = () => {
         codeMap[widgetDef.id] = {

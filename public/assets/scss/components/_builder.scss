@@ -167,23 +167,23 @@
   pointer-events: auto;
 }
 
-.grid-stack-item .widget-code-editor {
-  position: absolute;
+.widget-code-editor {
+  position: fixed;
   top: 0;
   width: 280px;
   background: white;
   border: 1px solid #ccc;
   padding: 8px;
-  z-index: 10;
+  z-index: 1000;
   display: none;
 }
 
-.grid-stack-item .widget-code-editor.right {
-  left: calc(100% + 8px);
+.widget-code-editor.right {
+  left: 0;
 }
 
-.grid-stack-item .widget-code-editor.left {
-  right: calc(100% + 8px);
+.widget-code-editor.left {
+  left: 0;
 }
 
 .widget-code-editor textarea {
