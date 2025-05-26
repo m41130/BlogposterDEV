@@ -25,6 +25,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   };
 
   const codeMap = {};
+  const genId = () => `w${Math.random().toString(36).slice(2,8)}`;
 
   function extractCssProps(el) {
     if (!el) return '';
@@ -94,7 +95,8 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   }
 
   function renderWidget(wrapper, widgetDef, customData = null) {
-    const data = customData || codeMap[widgetDef.id] || null;
+    const instanceId = wrapper.dataset.instanceId;
+    const data = customData || codeMap[instanceId] || null;
 
     const content = wrapper.querySelector('.grid-stack-item-content');
     content.innerHTML = '';
@@ -155,7 +157,8 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
         overlay.updateRender = updateRender;
         el.__codeEditor = overlay;
       }
-      const codeData = codeMap[widgetDef.id] ? { ...codeMap[widgetDef.id] } : {};
+      const instId = el.dataset.instanceId;
+      const codeData = codeMap[instId] ? { ...codeMap[instId] } : {};
 
       if (!codeData.sourceJs) {
         try {
@@ -206,7 +209,8 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
 
       overlay.updateRender && overlay.updateRender();
       overlay.querySelector('.save-btn').onclick = () => {
-        codeMap[widgetDef.id] = {
+        const instId = el.dataset.instanceId;
+        codeMap[instId] = {
           html: overlay.querySelector('.editor-html').value,
           css: wrapCss(overlay.querySelector('.editor-css').value, overlay.currentSelector),
           js: overlay.querySelector('.editor-js').value,
@@ -219,7 +223,8 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       };
       overlay.querySelector('.reset-btn').onclick = () => {
         if (!confirm('Willst du wirklich alle Anpassungen zurücksetzen?')) return;
-        delete codeMap[widgetDef.id];
+        const instId = el.dataset.instanceId;
+        delete codeMap[instId];
         overlay.querySelector('.editor-html').value = '';
         overlay.querySelector('.editor-css').value = '';
         overlay.querySelector('.editor-js').value = codeData.sourceJs || '';
@@ -267,12 +272,13 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   function getCurrentLayout() {
     const items = Array.from(gridEl.querySelectorAll('.grid-stack-item'));
     return items.map(el => ({
+      id: el.dataset.instanceId,
       widgetId: el.dataset.widgetId,
       x: +el.getAttribute('gs-x'),
       y: +el.getAttribute('gs-y'),
       w: +el.getAttribute('gs-w'),
       h: +el.getAttribute('gs-h'),
-      code: codeMap[el.dataset.widgetId] || null
+      code: codeMap[el.dataset.instanceId] || null
     }));
   }
 
@@ -328,6 +334,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     btn.addEventListener('click', e => {
       e.stopPropagation();
       grid.removeWidget(el);
+      if (pageId) saveCurrentLayout();
     });
     el.appendChild(btn);
   }
@@ -336,10 +343,13 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   initialLayout.forEach(item => {
     const widgetDef = allWidgets.find(w => w.id === item.widgetId);
     if (!widgetDef) return;
-    if (item.code) codeMap[widgetDef.id] = item.code;
+    const instId = item.id || genId();
+    item.id = instId;
+    if (item.code) codeMap[instId] = item.code;
     const wrapper = document.createElement('div');
     wrapper.classList.add('grid-stack-item');
     wrapper.dataset.widgetId = widgetDef.id;
+    wrapper.dataset.instanceId = instId;
     wrapper.setAttribute('gs-x', item.x ?? 0);
     wrapper.setAttribute('gs-y', item.y ?? 0);
     wrapper.setAttribute('gs-w', item.w ?? 4);
@@ -371,9 +381,12 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       4, DEFAULT_ROWS
     ];
 
+    const instId = genId();
+
     const wrapper = document.createElement('div');
     wrapper.classList.add('grid-stack-item');
     wrapper.dataset.widgetId = widgetDef.id;
+    wrapper.dataset.instanceId = instId;
     wrapper.setAttribute('gs-x', x);
     wrapper.setAttribute('gs-y', y);
     wrapper.setAttribute('gs-w', w);
@@ -389,6 +402,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     grid.makeWidget(wrapper);
 
     renderWidget(wrapper, widgetDef);
+    if (pageId) saveCurrentLayout();
   });
 
   const topBar = document.createElement('header');
