@@ -36,7 +36,7 @@ BlogposterCMS is a modern, modular Node.js content management system built with 
    The `getPublicSetting` event exposes only whitelisted keys (such as `FIRST_INSTALL_DONE`) so the front-end can check installation state without elevated permissions. Alongside the `publicRegister` event, users can self-register while the system keeps admin-only settings private.
 
 10. **Theme Manager & Importer System**
-   Themes live under `public/themes`. The `themeManager` module (now a core module) lists available themes via meltdown events, reading each theme's `theme.json` for metadata. The `importer` module is also loaded as a core component and exposes its importers through events. Both modules require a valid JWT and the usual `moduleName`/`moduleType` fields when invoked, ensuring only authorized code can list themes or run an import.
+   Themes live under `public/themes`. The `themeManager` core module (located in `mother/modules/themeManager`) lists available themes via meltdown events, reading each theme's `theme.json` for metadata. The `importer` component has likewise moved to `mother/modules/importer` and exposes its importers through events. Both modules require a valid JWT and the usual `moduleName`/`moduleType` fields when invoked, ensuring only authorized code can list themes or run an import.
 
 *(More core features like a widget system, media management, and internationalization are also in progress, thanks to the modular design. As development continues, these will be fleshed out as separate modules… if we don’t get bored first.)*
 

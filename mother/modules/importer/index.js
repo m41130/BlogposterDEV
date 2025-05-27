@@ -6,7 +6,8 @@
  */
 const fs = require('fs');
 const path = require('path');
-const { onceCallback } = require('../../mother/emitters/motherEmitter');
+// Import onceCallback utility from the central motherEmitter
+const { onceCallback } = require('../emitters/motherEmitter');
 
 function loadImporters(dir) {
   const map = {};
