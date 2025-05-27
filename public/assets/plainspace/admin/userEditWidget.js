@@ -41,7 +41,9 @@ export async function render(el) {
       const label = document.createElement('label');
       label.textContent = f.replace('_', ' ');
       const input = document.createElement(f === 'bio' ? 'textarea' : 'input');
-      input.type = 'text';
+      if (input.tagName === 'INPUT') {
+        input.type = 'text';
+      }
       input.value = user[f] || '';
       inputs[f] = input;
       label.appendChild(document.createElement('br'));
