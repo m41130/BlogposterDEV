@@ -6,7 +6,7 @@
 const fs = require('fs');
 const path = require('path');
 // Utility for ensuring callbacks only fire once
-const { onceCallback } = require('../emitters/motherEmitter');
+const { onceCallback } = require('../../emitters/motherEmitter');
 
 function readThemeMeta(dir) {
   // Themes are located at projectRoot/public/themes
