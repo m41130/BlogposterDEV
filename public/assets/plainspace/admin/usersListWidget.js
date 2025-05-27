@@ -21,7 +21,11 @@ export async function render(el) {
       users.forEach(u => {
         const li = document.createElement('li');
         const name = u.display_name || u.username || u.email || `ID ${u.id}`;
-        li.textContent = name;
+        const link = document.createElement('a');
+        const target = `/admin/settings/users/edit/${u.id}`;
+        link.href = target;
+        link.textContent = name;
+        li.appendChild(link);
         list.appendChild(li);
       });
     }

@@ -156,6 +156,20 @@ module.exports.ADMIN_PAGES = [
     }
   },
   {
+    title: 'User Editor',
+    slug: 'edit',
+    parentSlug: 'settings-users',
+    lane: 'admin',
+    config: {
+      layout: {
+        header: 'top-header',
+        sidebar: 'settings-sidebar',
+        inheritsLayout: true
+      },
+      widgets: ['userEdit']
+    }
+  },
+  {
     title: 'Modules',
     slug: 'modules',
     parentSlug: 'settings',
