@@ -41,12 +41,13 @@ function generateModuleUsername(moduleName, salt = '') {
   return hashed.substring(0, 63).toLowerCase();
 }
 
-function generateUserAndPass(moduleName) {
+function generateUserAndPass(moduleName, role = 'rw') {
   // For 'databaseManager' we just use admin credentials.
   if (moduleName.toLowerCase() === 'databasemanager') {
     return null; // indicates we'll use admin user
   }
-  const user = generateModuleUsername(moduleName, moduleDbSalt);
+  const base = generateModuleUsername(moduleName, moduleDbSalt);
+  const user = `${base}_${role}`.substring(0, 63).toLowerCase();
   const store = loadStore();
   if (!store[user]) {
     store[user] = crypto.randomBytes(32).toString('hex');
