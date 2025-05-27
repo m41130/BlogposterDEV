@@ -717,6 +717,57 @@ function setupPagesManagerEvents(motherEmitter) {
   });
 
   // ─────────────────────────────────────────────────────────────────
+  // SEARCH PAGES BY TITLE OR SLUG
+  // ─────────────────────────────────────────────────────────────────
+  motherEmitter.on('searchPages', (payload, originalCb) => {
+    const callback = onceCallback(originalCb);
+    try {
+      const {
+        jwt,
+        moduleName,
+        moduleType,
+        query = '',
+        lane = 'all',
+        limit = 20
+      } = payload || {};
+
+      if (!jwt || moduleName !== 'pagesManager' || moduleType !== 'core') {
+        return callback(new Error('[pagesManager] searchPages => invalid meltdown payload.'));
+      }
+
+      const { decodedJWT } = payload;
+      if (decodedJWT && !hasPermission(decodedJWT, 'pages.read')) {
+        return callback(new Error('Forbidden – missing permission: pages.read'));
+      }
+
+      const safeQuery = String(query).trim();
+      if (!safeQuery) {
+        return callback(null, []);
+      }
+
+      const laneVal = ['all', 'public', 'admin'].includes(lane) ? lane : 'all';
+      const limVal = Math.min(parseInt(limit, 10) || 20, 50);
+
+      motherEmitter.emit(
+        'dbSelect',
+        {
+          jwt,
+          moduleName: 'pagesManager',
+          moduleType: 'core',
+          table: '__rawSQL__',
+          data: {
+            rawSQL: 'SEARCH_PAGES',
+            params: { query: safeQuery, lane: laneVal, limit: limVal }
+          }
+        },
+        callback
+      );
+    } catch (ex) {
+      callback(ex);
+    }
+  });
+
+  // ─────────────────────────────────────────────────────────────────
   // DELETE PAGE
   // ─────────────────────────────────────────────────────────────────
   motherEmitter.on('deletePage', (payload, originalCb) => {
