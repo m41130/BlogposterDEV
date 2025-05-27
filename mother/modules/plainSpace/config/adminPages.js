@@ -111,7 +111,76 @@ module.exports.ADMIN_PAGES = [
         inheritsLayout: true
       },
       widgets: ['pageInfoWidget', 'pageSettingsWidget', 'seoImageWidget', 'savePageWidget']
-      
+
+    }
+  },
+  {
+    title: 'Settings',
+    slug: 'settings',
+    lane: 'admin',
+    config: {
+      layout: {
+        header: 'top-header',
+        sidebar: 'settings-sidebar',
+        inheritsLayout: true
+      },
+      widgets: []
+    }
+  },
+  {
+    title: 'System',
+    slug: 'system',
+    parentSlug: 'settings',
+    lane: 'admin',
+    config: {
+      layout: {
+        header: 'top-header',
+        sidebar: 'settings-sidebar',
+        inheritsLayout: true
+      },
+      widgets: ['systemInfo']
+    }
+  },
+  {
+    title: 'Users',
+    slug: 'users',
+    parentSlug: 'settings',
+    lane: 'admin',
+    config: {
+      layout: {
+        header: 'top-header',
+        sidebar: 'settings-sidebar',
+        inheritsLayout: true
+      },
+      widgets: ['usersList']
+    }
+  },
+  {
+    title: 'Modules',
+    slug: 'modules',
+    parentSlug: 'settings',
+    lane: 'admin',
+    config: {
+      layout: {
+        header: 'top-header',
+        sidebar: 'settings-sidebar',
+        inheritsLayout: true
+      },
+      widgets: ['modulesList']
+    }
+  },
+  {
+    title: 'Themes',
+    slug: 'themes',
+    parentSlug: 'settings',
+    lane: 'admin',
+    config: {
+      layout: {
+        header: 'top-header',
+        sidebar: 'settings-sidebar',
+        inheritsLayout: true
+      },
+      widgets: ['themesList']
     }
   }
 ];
