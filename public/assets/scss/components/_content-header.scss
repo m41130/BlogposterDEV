@@ -1,0 +1,30 @@
+.content-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 24px;
+  background: var(--color-white);
+  border-bottom: 1px solid #eee;
+  min-height: 48px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  z-index: 40;
+
+  .content-header-left,
+  .content-header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .icon {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    &:hover {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+  }
+}
