@@ -201,7 +201,12 @@ function ensureLayout(layout = {}, lane = 'public') {
     }
 
     // 7. FETCH WIDGET REGISTRY
-    const widgetLane = lane === 'admin' ? (config.widgetLane || 'admin') : 'public';
+    let widgetLane = lane === 'admin' ? (config.widgetLane || 'admin') : 'public';
+    // Prevent misconfigured pages from requesting admin widgets on the public lane
+    if (lane !== 'admin' && widgetLane === 'admin') {
+      console.warn('[Renderer] widgetLane="admin" on public page => forcing "public"');
+      widgetLane = 'public';
+    }
 
     const widgetRes = await meltdownEmit('widget.registry.request.v1', {
       lane: widgetLane,
