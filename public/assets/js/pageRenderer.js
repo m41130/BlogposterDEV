@@ -206,7 +206,11 @@ function ensureLayout(layout = {}, lane = 'public') {
     // 4. LOAD HEADER PARTIALS
     if (slug !== 'builder') {
       if (topHeaderEl) {
-        topHeaderEl.innerHTML = await fetchPartial(config.layout?.header || 'top-header', 'headers');
+        topHeaderEl.innerHTML = await fetchPartial(
+          config.layout?.header || 'top-header',
+          'headers'
+        );
+        document.dispatchEvent(new CustomEvent('top-header-loaded'));
       }
       if (mainHeaderEl) {
         if (config.layout?.inheritsLayout === false && !config.layout?.topHeader) {
