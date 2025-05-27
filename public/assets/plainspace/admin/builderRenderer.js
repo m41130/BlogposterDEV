@@ -124,7 +124,10 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     // with form controls inside widgets.
     const stop = ev => {
       const t = ev.target.closest('input, textarea, select, label, button');
-      if (t) ev.stopPropagation();
+      if (t) {
+        ev.stopPropagation();
+        ev.stopImmediatePropagation();
+      }
     };
     container.addEventListener('pointerdown', stop, true);
     container.addEventListener('mousedown', stop, true);
