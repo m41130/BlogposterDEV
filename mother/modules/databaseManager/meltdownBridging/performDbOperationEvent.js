@@ -11,7 +11,7 @@ const { getEngine } = require('../engines/engineFactory');
 const { moduleHasOwnDb, getDbType } = require('../helpers/dbTypeHelpers');
 const { onceCallback } = require('../../../emitters/motherEmitter');
 
-const TIMEOUT_DURATION = 5000; // 5 seconds timeout for DB operations
+const TIMEOUT_DURATION = Number(process.env.DB_OP_TIMEOUT_MS || 5000);
 
 /**
  * Registers the listener for the 'performDbOperation' meltdown event.

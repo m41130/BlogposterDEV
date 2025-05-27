@@ -25,6 +25,14 @@ const cookieParser = require('cookie-parser');
 const csurf        = require('csurf');
 const crypto = require('crypto');
 
+function sanitizeCookieName(name) {
+  const valid = /^[!#$%&'()*+\-\.0-9:<=>?@A-Z\[\]^_`a-z{|}~]+$/.test(name);
+  if (!valid) {
+    throw new Error('Invalid cookie name');
+  }
+  return name;
+}
+
 
 
 
@@ -138,8 +146,12 @@ function getModuleTokenForDbManager() {
   app.use('/favicon.ico', express.static(path.join(publicPath,'favicon.ico')));
   app.use('/fonts', express.static(path.join(publicPath,'fonts')));
 
-  // Trust reverse proxy headers
-  app.enable('trust proxy');
+  // Trust reverse proxy headers only if explicitly allowed
+  if (process.env.TRUST_PROXY) {
+    app.set('trust proxy', process.env.TRUST_PROXY.split(',').map(x => x.trim()));
+  } else {
+    app.set('trust proxy', false);
+  }
 
   // Security headers
   app.use(helmet());
@@ -301,7 +313,7 @@ app.post('/admin/api/login', csrfProtection, async (req, res) => {
     });
 
     // 3) Set the HttpOnly admin_jwt cookie and return success
-    res.cookie('admin_jwt', user.jwt, {
+    res.cookie(sanitizeCookieName('admin_jwt'), user.jwt, {
       path: '/',
       httpOnly: true,
       sameSite: 'strict',

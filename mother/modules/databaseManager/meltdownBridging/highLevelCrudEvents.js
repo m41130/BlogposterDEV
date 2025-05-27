@@ -217,26 +217,43 @@ function registerHighLevelCrudEvents(motherEmitter) {
    ------------------------------------------------------------------ */
 function getRemoteUrlForModule(moduleName) {
   const key = 'REMOTE_URL_' + moduleName;
-  return process.env[key] || null;
+  const url = process.env[key] || null;
+  if (!url) return null;
+  if (!isAllowedRemoteUrl(url)) {
+    console.warn(`[databaseManager] Remote URL for ${moduleName} not allowed.`);
+    return null;
+  }
+  return url;
+}
+
+function isAllowedRemoteUrl(urlString) {
+  try {
+    const allowed = (process.env.REMOTE_URL_ALLOWLIST || '').split(',').map(h => h.trim()).filter(Boolean);
+    if (!allowed.length) return false;
+    const { host } = new URL(urlString);
+    return allowed.includes(host);
+  } catch {
+    return false;
+  }
 }
 
 async function remoteDbInsert(baseUrl, moduleName, table, data) {
-  const resp = await axios.post(`${baseUrl}/dbInsert`, { moduleName, table, data });
+  const resp = await axios.post(`${baseUrl}/dbInsert`, { moduleName, table, data }, { maxRedirects: 0 });
   return resp.data;
 }
 
 async function remoteDbSelect(baseUrl, moduleName, table, where) {
-  const resp = await axios.post(`${baseUrl}/dbSelect`, { moduleName, table, where });
+  const resp = await axios.post(`${baseUrl}/dbSelect`, { moduleName, table, where }, { maxRedirects: 0 });
   return resp.data;
 }
 
 async function remoteDbUpdate(baseUrl, moduleName, table, where, data) {
-  const resp = await axios.post(`${baseUrl}/dbUpdate`, { moduleName, table, where, data });
+  const resp = await axios.post(`${baseUrl}/dbUpdate`, { moduleName, table, where, data }, { maxRedirects: 0 });
   return resp.data;
 }
 
 async function remoteDbDelete(baseUrl, moduleName, table, where) {
-  const resp = await axios.post(`${baseUrl}/dbDelete`, { moduleName, table, where });
+  const resp = await axios.post(`${baseUrl}/dbDelete`, { moduleName, table, where }, { maxRedirects: 0 });
   return resp.data;
 }
 
@@ -244,8 +261,11 @@ async function remoteDbDelete(baseUrl, moduleName, table, where) {
    Local meltdown bridging
    ------------------------------------------------------------------ */
 function localDbInsert(motherEmitter, payload, callback) {
-  const { jwt, moduleName, table, data, where } = payload;
+  const { jwt, moduleName, table, data, where, moduleType } = payload;
   if (table === '__rawSQL__') {
+    if (moduleType !== 'core') {
+      return callback(new Error('[localDbInsert] __rawSQL__ forbidden for non-core modules.'));
+    }
     if (!data.rawSQL) {
       return callback(new Error('[localDbInsert] Missing data.rawSQL for "__rawSQL__"'));
     }
@@ -287,8 +307,11 @@ function localDbInsert(motherEmitter, payload, callback) {
 }
 
 function localDbSelect(motherEmitter, payload, callback) {
-  const { jwt, moduleName, table, where, data } = payload;
+  const { jwt, moduleName, table, where, data, moduleType } = payload;
   if (table === '__rawSQL__') {
+    if (moduleType !== 'core') {
+      return callback(new Error('[localDbSelect] __rawSQL__ forbidden for non-core modules.'));
+    }
     const rawSQL = data?.rawSQL || where?.rawSQL;
     if (!rawSQL) {
       return callback(new Error('[localDbSelect] Missing rawSQL for "__rawSQL__" approach.'));
@@ -336,8 +359,11 @@ function localDbSelect(motherEmitter, payload, callback) {
 }
 
 function localDbUpdate(motherEmitter, payload, callback) {
-  const { jwt, moduleName, table, data, where } = payload;
+  const { jwt, moduleName, table, data, where, moduleType } = payload;
   if (table === '__rawSQL__') {
+    if (moduleType !== 'core') {
+      return callback(new Error('[localDbUpdate] __rawSQL__ forbidden for non-core modules.'));
+    }
     if (!data.rawSQL) {
       return callback(new Error('[localDbUpdate] Missing data.rawSQL for "__rawSQL__"'));
     }
@@ -406,9 +432,12 @@ function localDbUpdate(motherEmitter, payload, callback) {
 }
 
 function localDbDelete(motherEmitter, payload, callback) {
-  const { jwt, moduleName, table, where, data } = payload;
+  const { jwt, moduleName, table, where, data, moduleType } = payload;
   const rawSQL = where?.rawSQL || data?.rawSQL;
   if (table === '__rawSQL__' && rawSQL) {
+    if (moduleType !== 'core') {
+      return callback(new Error('[localDbDelete] __rawSQL__ forbidden for non-core modules.'));
+    }
     motherEmitter.emit(
       'performDbOperation',
       {
