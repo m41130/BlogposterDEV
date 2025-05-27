@@ -199,6 +199,7 @@ function ensureLayout(layout = {}, lane = 'public') {
     if (slug === 'builder') {
       topHeaderEl?.remove();
       mainHeaderEl?.remove();
+      document.getElementById('content-header')?.remove();
     }
 
     if (!contentEl) return;
@@ -221,7 +222,10 @@ function ensureLayout(layout = {}, lane = 'public') {
       }
       const contentHeaderEl = document.getElementById('content-header');
       if (contentHeaderEl) {
-        contentHeaderEl.innerHTML = await fetchPartial(config.layout?.contentHeader || 'content-header', 'headers');
+        contentHeaderEl.innerHTML = await fetchPartial(
+          config.layout?.contentHeader || 'content-header',
+          'headers'
+        );
       }
     }
 
