@@ -125,6 +125,17 @@ Contributions are *greatly* appreciated! (And totally needed, if we’re honest.
 
 Before contributing, please note that the project is still early-stage. There may be rapid changes (read: *we might break everything at any time*). We recommend checking open issues and the roadmap to see where you can have the most impact. Also, see the [LICENSE](#license) (MIT) to understand the terms — in short, the project is permissively licensed, and contributions are made under the same license.
 
+## Troubleshooting
+
+Occasionally a misconfigured page might request admin widgets when rendered on the public lane. This results in log entries such as:
+
+```
+[plainSpace] Error fetching widgets from widgetManager: Forbidden – missing permission: widgets.read
+```
+
+If you encounter this, ensure the page configuration does **not** force `widgetLane: 'admin'` for public pages. Public pages should always load widgets from the public lane. When in doubt, remove the `widgetLane` option or explicitly set it to `'public'`.
+
+
 ## License
 
 This project is licensed under the MIT License, meaning you’re free to use, modify, and distribute it as long as you include the license notice. We chose MIT to encourage broad usage and contribution. See the `LICENSE` file for the full text. (Yes, that means you can basically do whatever you want, but hey, don’t blame us if it all goes south.)
