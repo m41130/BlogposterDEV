@@ -35,6 +35,9 @@ BlogposterCMS is a modern, modular Node.js content management system built with 
 9. **Public Settings & Registration**
    The `getPublicSetting` event exposes only whitelisted keys (such as `FIRST_INSTALL_DONE`) so the front-end can check installation state without elevated permissions. Alongside the `publicRegister` event, users can self-register while the system keeps admin-only settings private.
 
+10. **Theme Manager & Importer System**
+   Themes live under `public/themes`. The `themeManager` module lists available themes via meltdown events, reading each theme's `theme.json` for metadata. The separate `importer` module loads importer scripts from its `importers` folder so you can bring in entire WordPress sites or plain HTML themes. Importers are triggered through the `runImport` event.
+
 *(More core features like a widget system, media management, and internationalization are also in progress, thanks to the modular design. As development continues, these will be fleshed out as separate modules… if we don’t get bored first.)*
 
 ## Roadmap
