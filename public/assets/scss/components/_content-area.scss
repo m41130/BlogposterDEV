@@ -26,5 +26,7 @@
   border-radius: 4px;
   box-shadow: var(--shadow-card);
   transition: all 0.2s ease;
+  min-width: 120px;
+  min-height: 80px;
 }
 

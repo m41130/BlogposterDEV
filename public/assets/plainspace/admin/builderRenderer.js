@@ -299,7 +299,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   contentEl.innerHTML = `<div id="builderGrid" class="grid-stack builder-grid"></div>`;
   const gridEl = document.getElementById('builderGrid');
   // Enable floating mode for easier widget placement in the builder
-  const grid = GridStack.init({ float: true, cellHeight: 5, column: 64 }, gridEl);
+  const grid = GridStack.init({ float: true, cellHeight: 5, columnWidth: 5, column: 64 }, gridEl);
 
   function getCurrentLayout() {
     const items = Array.from(gridEl.querySelectorAll('.grid-stack-item'));
@@ -386,6 +386,8 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     wrapper.setAttribute('gs-y', item.y ?? 0);
     wrapper.setAttribute('gs-w', item.w ?? 4);
     wrapper.setAttribute('gs-h', item.h ?? DEFAULT_ROWS);
+    wrapper.setAttribute('gs-min-w', 4);
+    wrapper.setAttribute('gs-min-h', DEFAULT_ROWS);
     const content = document.createElement('div');
     content.className = 'grid-stack-item-content';
     content.innerHTML = `${getWidgetIcon(widgetDef)}<span>${widgetDef.metadata?.label || widgetDef.id}</span>`;
@@ -423,6 +425,8 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     wrapper.setAttribute('gs-y', y);
     wrapper.setAttribute('gs-w', w);
     wrapper.setAttribute('gs-h', h);
+    wrapper.setAttribute('gs-min-w', 4);
+    wrapper.setAttribute('gs-min-h', DEFAULT_ROWS);
 
     const content = document.createElement('div');
     content.className = 'grid-stack-item-content';
