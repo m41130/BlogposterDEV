@@ -9,6 +9,7 @@
 require('dotenv').config();
 const axios = require('axios');
 const { onceCallback } = require('../../../emitters/motherEmitter');
+const { sanitize } = require('../../../utils/logSanitizer');
 
 // Notification emitter for typed notifications
 const notificationEmitter = require('../../../emitters/notificationEmitter');
@@ -104,7 +105,7 @@ function registerHighLevelCrudEvents(motherEmitter) {
         localDbSelect(motherEmitter, payload, callback);
 
       } catch (error) {
-        console.error(`[dbSelect] Error occurred: ${error.message}`);
+        console.error(`[dbSelect] Error occurred:`, sanitize(error.message));
         notificationEmitter.notify({
           moduleName: moduleName || 'databaseManager',
           notificationType: 'system',

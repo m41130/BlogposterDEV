@@ -24,14 +24,7 @@ const bodyParser   = require('body-parser');
 const cookieParser = require('cookie-parser');
 const csurf        = require('csurf');
 const crypto = require('crypto');
-
-function sanitizeCookieName(name) {
-  const valid = /^[!#$%&'()*+\-\.0-9:<=>?@A-Z\[\]^_`a-z{|}~]+$/.test(name);
-  if (!valid) {
-    throw new Error('Invalid cookie name');
-  }
-  return name;
-}
+const { sanitizeCookieName, sanitizeCookiePath, sanitizeCookieDomain } = require('./mother/utils/cookieUtils');
 
 
 
@@ -314,7 +307,7 @@ app.post('/admin/api/login', csrfProtection, async (req, res) => {
 
     // 3) Set the HttpOnly admin_jwt cookie and return success
     res.cookie(sanitizeCookieName('admin_jwt'), user.jwt, {
-      path: '/',
+      path: sanitizeCookiePath('/'),
       httpOnly: true,
       sameSite: 'strict',
       secure: process.env.NODE_ENV === 'production',
@@ -333,7 +326,7 @@ app.post('/admin/api/login', csrfProtection, async (req, res) => {
 // -----------------------------------------------------------------------------
 app.get('/admin/logout', (req, res) => {
   res.clearCookie('admin_jwt', {
-    path: '/',
+    path: sanitizeCookiePath('/'),
     httpOnly: true,
     sameSite: 'strict',
     secure: process.env.NODE_ENV === 'production'
