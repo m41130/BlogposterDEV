@@ -126,8 +126,9 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       const t = ev.target.closest('input, textarea, select, label, button');
       if (t) ev.stopPropagation();
     };
-    container.addEventListener('pointerdown', stop);
-    container.addEventListener('mousedown', stop);
+    container.addEventListener('pointerdown', stop, true);
+    container.addEventListener('mousedown', stop, true);
+    container.addEventListener('touchstart', stop, true);
     root.appendChild(container);
 
     if (data) {
