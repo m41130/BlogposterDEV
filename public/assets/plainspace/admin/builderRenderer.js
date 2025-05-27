@@ -106,17 +106,30 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     content.innerHTML = '';
     const root = content.shadowRoot || content.attachShadow({ mode: 'open' });
     const globalCss = getGlobalCssUrl();
-    // <link rel="stylesheet"> inside Shadow DOM is ignored in most browsers.
-    // Use @import so the admin UI styles are applied within the widget.
-    root.innerHTML = `<style>@import url('${globalCss}');</style>`;
+
+    const style = document.createElement('style');
+    style.textContent = `@import url('${globalCss}');`;
+    root.appendChild(style);
+
+    const container = document.createElement('div');
+    container.className = 'widget-container';
+    root.appendChild(container);
+
     if (data) {
-      root.innerHTML += `<style>${data.css || ''}</style>${data.html || ''}`;
+      if (data.css) {
+        const customStyle = document.createElement('style');
+        customStyle.textContent = data.css;
+        root.appendChild(customStyle);
+      }
+      if (data.html) {
+        container.innerHTML = data.html;
+      }
       if (data.js) {
         try { executeJs(data.js, wrapper, root); } catch (e) { console.error('[Builder] custom js error', e); }
       }
       return;
     }
-    import(widgetDef.codeUrl).then(m => m.render?.(root)).catch(err => console.error('[Builder] widget import error', err));
+    import(widgetDef.codeUrl).then(m => m.render?.(container)).catch(err => console.error('[Builder] widget import error', err));
   }
 
   function attachEditButton(el, widgetDef) {
