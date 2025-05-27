@@ -26,7 +26,15 @@ function loadImporters(dir) {
 }
 
 module.exports = {
-  async initialize({ motherEmitter }) {
+  async initialize({ motherEmitter, isCore, jwt }) {
+    if (!isCore) {
+      console.error('[IMPORTER] Must be loaded as a core module.');
+      return;
+    }
+    if (!jwt) {
+      console.error('[IMPORTER] No JWT provided.');
+      return;
+    }
     if (!motherEmitter) {
       console.error('[IMPORTER] motherEmitter missing');
       return;
@@ -38,7 +46,8 @@ module.exports = {
 
     motherEmitter.on('listImporters', (payload, cb) => {
       cb = onceCallback(cb);
-      if (!payload || payload.moduleName !== 'importer') {
+      const { jwt: callerJwt, moduleName, moduleType } = payload || {};
+      if (!callerJwt || moduleName !== 'importer' || moduleType !== 'core') {
         return cb(new Error('[importer] invalid payload'));
       }
       cb(null, Object.keys(importers));
@@ -46,7 +55,10 @@ module.exports = {
 
     motherEmitter.on('runImport', async (payload, cb) => {
       cb = onceCallback(cb);
-      const { importerName, options = {} } = payload || {};
+      const { jwt: callerJwt, moduleName, moduleType, importerName, options = {} } = payload || {};
+      if (!callerJwt || moduleName !== 'importer' || moduleType !== 'core') {
+        return cb(new Error('[importer] invalid payload'));
+      }
       const importer = importers[importerName];
       if (!importer) {
         return cb(new Error(`Unknown importer: ${importerName}`));

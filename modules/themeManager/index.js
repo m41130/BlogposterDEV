@@ -30,7 +30,15 @@ function listThemes() {
 }
 
 module.exports = {
-  async initialize({ motherEmitter }) {
+  async initialize({ motherEmitter, isCore, jwt }) {
+    if (!isCore) {
+      console.error('[THEME MANAGER] Must be loaded as a core module.');
+      return;
+    }
+    if (!jwt) {
+      console.error('[THEME MANAGER] No JWT provided.');
+      return;
+    }
     if (!motherEmitter) {
       console.error('[THEME MANAGER] motherEmitter missing');
       return;
@@ -39,7 +47,8 @@ module.exports = {
 
     motherEmitter.on('listThemes', (payload, cb) => {
       cb = onceCallback(cb);
-      if (!payload || payload.moduleName !== 'themeManager') {
+      const { jwt: callerJwt, moduleName, moduleType } = payload || {};
+      if (!callerJwt || moduleName !== 'themeManager' || moduleType !== 'core') {
         return cb(new Error('[themeManager] invalid payload'));
       }
       try {
