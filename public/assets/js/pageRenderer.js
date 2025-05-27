@@ -61,7 +61,9 @@ function executeJs(code, wrapper, root) {
 function renderWidget(wrapper, def, code = null, lane = 'public') {
   const root = wrapper.attachShadow({ mode: 'open' });
   const globalCss = getGlobalCssUrl(lane);
-  root.innerHTML = `<link rel="stylesheet" href="${globalCss}">`;
+  // <link rel="stylesheet"> inside Shadow DOM is ignored in most browsers.
+  // Use @import to ensure the global stylesheet applies to the widget.
+  root.innerHTML = `<style>@import url('${globalCss}');</style>`;
   if (code) {
     root.innerHTML += `<style>${code.css || ''}</style>${code.html || ''}`;
     if (code.js) {
