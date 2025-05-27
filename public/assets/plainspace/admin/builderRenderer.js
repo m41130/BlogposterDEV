@@ -117,6 +117,14 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
 
     const container = document.createElement('div');
     container.className = 'widget-container';
+    // Prevent GridStack from initiating a drag when interacting
+    // with form controls inside widgets.
+    const stop = ev => {
+      const t = ev.target.closest('input, textarea, select, label, button');
+      if (t) ev.stopPropagation();
+    };
+    container.addEventListener('pointerdown', stop);
+    container.addEventListener('mousedown', stop);
     root.appendChild(container);
 
     if (data) {
