@@ -1,8 +1,9 @@
 //public/assets/plainSpace/public/publicDashboard.js
-import emitter from './miniEmitter.js';
+// This script relies on the global `meltdownEmit` helper provided
+// by public/assets/js/meltdownEmitter.js. We intentionally avoid
+// reimplementing the API tunnel here to keep things DRY and secure.
 (async function() {
   const userJwt = localStorage.getItem('jwt') || '';
-  async function meltdownEmit(e, p){ return (await fetch('/api/meltdown',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({eventName:e,payload:p})})).json(); }
 
   let resp;
   try {
@@ -14,14 +15,16 @@ import emitter from './miniEmitter.js';
     return;
   }
 
-  const list = resp.data?.widgets || [];
+  const list = Array.isArray(resp?.widgets) ? resp.widgets : [];
   const grid = document.getElementById('publicGrid');
   list.forEach(w => {
     const div = document.createElement('div');
     div.dataset.widgetId = w.id;
     div.textContent = w.metadata.label;
     grid.appendChild(div);
-    import(w.codeUrl).then(mod => mod.render?.(div)).catch(e=>console.error(e));
+    import(w.codeUrl)
+      .then(mod => mod.render?.(div, { ...w, jwt: userJwt }))
+      .catch(e => console.error(e));
   });
 
   if (userJwt) new Sortable(grid, {
