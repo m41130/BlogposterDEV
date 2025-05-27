@@ -3,6 +3,9 @@
 import { fetchPartial } from '/assets/plainspace/admin/fetchPartial.js';
 import { initBuilder } from '/assets/plainspace/admin/builderRenderer.js';
 
+// Default rows for admin widgets (~50px with 5px grid cells)
+const DEFAULT_ADMIN_ROWS = 10;
+
 function executeJs(code, wrapper, root) {
   if (!code) return;
   const nonce = window.NONCE;
@@ -287,7 +290,7 @@ function ensureLayout(layout = {}, lane = 'public') {
     matchedWidgets.forEach(def => {
       if (DEBUG) console.debug('[Renderer] admin render widget', def.id);
       const meta = layout.find(l => l.widgetId === def.id) || {};
-      const [x, y, w, h] = [meta.x ?? 0, meta.y ?? 0, meta.w ?? 4, meta.h ?? 2];
+      const [x, y, w, h] = [meta.x ?? 0, meta.y ?? 0, meta.w ?? 4, meta.h ?? DEFAULT_ADMIN_ROWS];
 
       const wrapper = document.createElement('div');
       wrapper.classList.add('grid-stack-item');
