@@ -597,6 +597,33 @@ switch (operation) {
       return rows;
     }
 
+    /* ---------- SEARCH_PAGES ---------- */
+    case 'SEARCH_PAGES': {
+      const p = Array.isArray(params) ? (params[0] || {}) : (params || {});
+      const q = `%${p.query || ''}%`;
+      const lane = p.lane || 'all';
+      const limit = parseInt(p.limit, 10) || 20;
+
+      const { rows } = await client.query(`
+        SELECT DISTINCT p.id,
+                        COALESCE(p.title, t.title, '') AS title,
+                        p.slug,
+                        p.lane
+          FROM pagesManager.pages p
+          LEFT JOIN pagesManager.page_translations t ON p.id = t.page_id
+         WHERE ($2 = 'all' OR p.lane = $2)
+           AND (
+             p.title ILIKE $1 OR
+             p.slug  ILIKE $1 OR
+             t.title ILIKE $1
+           )
+         ORDER BY p.created_at DESC
+         LIMIT $3;
+      `, [q, lane, limit]);
+
+      return rows;
+    }
+
     /* ---------- DELETE_PAGE ---------- */
     case 'DELETE_PAGE': {
       const pageId = params[0];

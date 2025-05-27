@@ -30,9 +30,10 @@ module.exports = [
   'GET_PAGES_BY_LANE',
   'UPDATE_PAGE',
   'DELETE_PAGE',
-  'GET_START_PAGE',      
-  'SET_AS_START',     
+  'GET_START_PAGE',
+  'SET_AS_START',
   'GENERATE_XML_SITEMAP',
+  'SEARCH_PAGES',
 
 
   // ModuleLoader

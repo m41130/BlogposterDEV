@@ -46,4 +46,45 @@
       display: block;
     }
   }
+
+  .search-container {
+    position: relative;
+
+    input {
+      padding: 4px 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      min-width: 160px;
+    }
+
+    .search-results {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 110%;
+      background: var(--color-white);
+      border: 1px solid #ddd;
+      list-style: none;
+      margin: 4px 0 0;
+      padding: 0;
+      max-height: 200px;
+      overflow-y: auto;
+      display: none;
+      z-index: 20;
+
+      li {
+        padding: 4px 8px;
+        cursor: pointer;
+
+        &:hover {
+          background: #f0f0f0;
+        }
+      }
+    }
+
+    &.active .search-results {
+      display: block;
+    }
+  }
 }
