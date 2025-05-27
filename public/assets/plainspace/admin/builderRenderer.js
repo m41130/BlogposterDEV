@@ -1,4 +1,6 @@
 // public/assets/plainspace/admin/builderRenderer.js
+import { initQuill } from '../../js/quillEditor.js';
+
 export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   document.body.classList.add('builder-mode');
   const DEFAULT_ROWS = 10; // around 50px with 5px grid cells
@@ -151,13 +153,14 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     btn.addEventListener('click', async e => {
       e.stopPropagation();
       let overlay = el.__codeEditor;
+      let quill;
       if (!overlay) {
         overlay = document.createElement('div');
         overlay.className = 'widget-code-editor';
         overlay.innerHTML = `
           <div class="editor-inner">
             <label>HTML</label>
-            <textarea class="editor-html"></textarea>
+            <div class="editor-html quill-editor"></div>
             <label>CSS</label>
             <textarea class="editor-css"></textarea>
             <label>JS</label>
@@ -171,23 +174,27 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
         document.body.appendChild(overlay);
 
         const htmlEl = overlay.querySelector('.editor-html');
+        quill = initQuill(htmlEl);
+        overlay.__quill = quill;
         const cssEl = overlay.querySelector('.editor-css');
         const jsEl = overlay.querySelector('.editor-js');
         const updateRender = () => {
           const finalCss = wrapCss(cssEl.value, overlay.currentSelector);
           renderWidget(el, widgetDef, {
-            html: htmlEl.value,
+            html: quill.root.innerHTML,
             css: finalCss,
             js: jsEl.value
           });
         };
 
-        htmlEl.addEventListener('input', updateRender);
+        quill.on('text-change', updateRender);
         cssEl.addEventListener('input', updateRender);
         jsEl.addEventListener('input', updateRender);
 
         overlay.updateRender = updateRender;
         el.__codeEditor = overlay;
+      } else {
+        quill = overlay.__quill;
       }
       const instId = el.dataset.instanceId;
       const codeData = codeMap[instId] ? { ...codeMap[instId] } : {};
@@ -201,7 +208,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
           codeData.sourceJs = '';
         }
       }
-      overlay.querySelector('.editor-html').value = codeData.html || '';
+      quill.root.innerHTML = codeData.html || '';
       overlay.querySelector('.editor-css').value = codeData.css || '';
       overlay.querySelector('.editor-js').value = codeData.js || codeData.sourceJs || '';
       overlay.currentSelector = codeData.selector || '';
@@ -243,7 +250,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       overlay.querySelector('.save-btn').onclick = () => {
         const instId = el.dataset.instanceId;
         codeMap[instId] = {
-          html: overlay.querySelector('.editor-html').value,
+          html: quill.root.innerHTML,
           css: wrapCss(overlay.querySelector('.editor-css').value, overlay.currentSelector),
           js: overlay.querySelector('.editor-js').value,
           selector: overlay.currentSelector
@@ -257,7 +264,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
         if (!confirm('Willst du wirklich alle Anpassungen zurücksetzen?')) return;
         const instId = el.dataset.instanceId;
         delete codeMap[instId];
-        overlay.querySelector('.editor-html').value = '';
+        quill.root.innerHTML = '';
         overlay.querySelector('.editor-css').value = '';
         overlay.querySelector('.editor-js').value = codeData.sourceJs || '';
         overlay.currentSelector = '';
