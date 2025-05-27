@@ -349,7 +349,8 @@ function ensureLayout(layout = {}, lane = 'public') {
     contentEl.innerHTML = '<div id="adminGrid" class="grid-stack"></div>';
     const gridEl = document.getElementById('adminGrid');
     const grid = GridStack.init({ cellHeight: 5, columnWidth: 5, column: 64 }, gridEl);
-    grid.setStatic(true);
+    // Temporary patch: allow moving admin widgets again until drag bug is resolved
+    grid.setStatic(false);
     window.adminGrid = grid;
 
     const matchedWidgets = allWidgets.filter(w => (config.widgets || []).includes(w.id));
