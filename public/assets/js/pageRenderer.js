@@ -6,6 +6,22 @@ import { initBuilder } from '/assets/plainspace/admin/builderRenderer.js';
 // Default rows for admin widgets (~50px with 5px grid cells)
 const DEFAULT_ADMIN_ROWS = 10;
 
+function getGlobalCssUrl(lane) {
+  if (lane === 'admin') return '/assets/css/site.css';
+  const theme = window.ACTIVE_THEME || 'default';
+  return `/themes/${theme}/theme.css`;
+}
+
+function ensureGlobalStyle(lane) {
+  const url = getGlobalCssUrl(lane);
+  if (document.querySelector(`link[data-global-style="${lane}"]`)) return;
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = url;
+  link.dataset.globalStyle = lane;
+  document.head.appendChild(link);
+}
+
 function executeJs(code, wrapper, root) {
   if (!code) return;
   const nonce = window.NONCE;
@@ -42,10 +58,12 @@ function executeJs(code, wrapper, root) {
   delete window.__rendererWrapper;
 }
 
-function renderWidget(wrapper, def, code = null) {
+function renderWidget(wrapper, def, code = null, lane = 'public') {
   const root = wrapper.attachShadow({ mode: 'open' });
+  const globalCss = getGlobalCssUrl(lane);
+  root.innerHTML = `<link rel="stylesheet" href="${globalCss}">`;
   if (code) {
-    root.innerHTML = `<style>${code.css || ''}</style>${code.html || ''}`;
+    root.innerHTML += `<style>${code.css || ''}</style>${code.html || ''}`;
     if (code.js) {
       try { executeJs(code.js, wrapper, root); } catch (e) { console.error('[Renderer] custom js error', e); }
 
@@ -119,6 +137,7 @@ function ensureLayout(layout = {}, lane = 'public') {
     // 1. ROUTE BASICS
     const pathParts = window.location.pathname.split('/').filter(Boolean);
     const lane = window.location.pathname.startsWith('/admin') ? 'admin' : 'public';
+    ensureGlobalStyle(lane);
     let slug;
     if (window.PAGE_SLUG) {
       slug = window.PAGE_SLUG;
@@ -267,7 +286,7 @@ function ensureLayout(layout = {}, lane = 'public') {
         gridEl.appendChild(wrapper);
         grid.makeWidget(wrapper);
 
-        renderWidget(content, def, item.code || null);
+        renderWidget(content, def, item.code || null, lane);
 
       });
       return;
@@ -313,7 +332,7 @@ function ensureLayout(layout = {}, lane = 'public') {
       gridEl.appendChild(wrapper);
       grid.makeWidget(wrapper);
 
-      renderWidget(content, def, meta.code || null);
+      renderWidget(content, def, meta.code || null, lane);
 
     });
 

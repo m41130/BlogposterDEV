@@ -24,6 +24,10 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     contentSummary: 'activity'
   };
 
+  function getGlobalCssUrl() {
+    return '/assets/css/site.css';
+  }
+
   const codeMap = {};
   const genId = () => `w${Math.random().toString(36).slice(2,8)}`;
 
@@ -101,9 +105,10 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     const content = wrapper.querySelector('.grid-stack-item-content');
     content.innerHTML = '';
     const root = content.shadowRoot || content.attachShadow({ mode: 'open' });
-    root.innerHTML = '';
+    const globalCss = getGlobalCssUrl();
+    root.innerHTML = `<link rel="stylesheet" href="${globalCss}">`;
     if (data) {
-      root.innerHTML = `<style>${data.css || ''}</style>${data.html || ''}`;
+      root.innerHTML += `<style>${data.css || ''}</style>${data.html || ''}`;
       if (data.js) {
         try { executeJs(data.js, wrapper, root); } catch (e) { console.error('[Builder] custom js error', e); }
       }
