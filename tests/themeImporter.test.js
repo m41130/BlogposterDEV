@@ -17,7 +17,7 @@ function loadModule(relPath) {
   const base = path.resolve(__dirname, '..', relPath);
   const code = fs.readFileSync(path.join(base, 'index.js'), 'utf8');
   function customRequire(name) {
-    if (name === '../../mother/emitters/motherEmitter') {
+    if (name === '../../mother/emitters/motherEmitter' || name === '../emitters/motherEmitter') {
       return { onceCallback: onceWrap };
     }
     if (name.startsWith('./') || name.startsWith('../')) {
@@ -32,7 +32,7 @@ function loadModule(relPath) {
 }
 
 async function testThemeManager() {
-  const tm = loadModule('modules/themeManager');
+  const tm = loadModule('mother/modules/themeManager');
   const em = new EventEmitter();
   await tm.initialize({ motherEmitter: em, isCore: true, jwt: 't' });
 
@@ -52,7 +52,7 @@ async function testThemeManager() {
 }
 
 async function testImporter() {
-  const imp = loadModule('modules/importer');
+  const imp = loadModule('mother/modules/importer');
   const em = new EventEmitter();
   await imp.initialize({ motherEmitter: em, isCore: true, jwt: 't' });
 

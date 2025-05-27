@@ -200,8 +200,8 @@ function getModuleTokenForDbManager() {
     { name:'shareManager',        path:'mother/modules/shareManager',        extra:{ app } },
     { name:'translationManager',  path:'mother/modules/translationManager',  extra:{} },
     { name:'plainSpace',          path:'mother/modules/plainSpace',          extra:{ app } },
-    { name:'themeManager',        path:'modules/themeManager',               extra:{} },
-    { name:'importer',            path:'modules/importer',                   extra:{} }
+    { name:'themeManager',        path:'mother/modules/themeManager',        extra:{} },
+    { name:'importer',            path:'mother/modules/importer',            extra:{} }
   ];
 
   for (const mod of coreList) {

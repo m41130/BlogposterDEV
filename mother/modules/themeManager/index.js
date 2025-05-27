@@ -5,10 +5,12 @@
  */
 const fs = require('fs');
 const path = require('path');
-const { onceCallback } = require('../../mother/emitters/motherEmitter');
+// Utility for ensuring callbacks only fire once
+const { onceCallback } = require('../emitters/motherEmitter');
 
 function readThemeMeta(dir) {
-  const themeDir = path.join(__dirname, '../../public/themes', dir);
+  // Themes are located at projectRoot/public/themes
+  const themeDir = path.join(__dirname, '../../../public/themes', dir);
   const meta = { name: dir };
   const jsonPath = path.join(themeDir, 'theme.json');
   if (fs.existsSync(jsonPath)) {
@@ -22,7 +24,7 @@ function readThemeMeta(dir) {
 }
 
 function listThemes() {
-  const themesBase = path.join(__dirname, '../../public/themes');
+  const themesBase = path.join(__dirname, '../../../public/themes');
   if (!fs.existsSync(themesBase)) return [];
   return fs.readdirSync(themesBase, { withFileTypes: true })
     .filter(d => d.isDirectory())
