@@ -94,5 +94,26 @@ module.exports.DEFAULT_WIDGETS = [
     label: 'Media Explorer',
     content: '/assets/plainspace/admin/mediaExplorerWidget.js',
     category: 'core'
+  },
+  {
+    widgetId: 'modulesList',
+    widgetType: ADMIN_LANE,
+    label: 'Modules List',
+    content: '/assets/plainspace/admin/modulesListWidget.js',
+    category: 'core'
+  },
+  {
+    widgetId: 'usersList',
+    widgetType: ADMIN_LANE,
+    label: 'Users List',
+    content: '/assets/plainspace/admin/usersListWidget.js',
+    category: 'core'
+  },
+  {
+    widgetId: 'themesList',
+    widgetType: ADMIN_LANE,
+    label: 'Themes List',
+    content: '/assets/plainspace/admin/themesListWidget.js',
+    category: 'core'
   }
 ];
