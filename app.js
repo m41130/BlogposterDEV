@@ -315,6 +315,19 @@ app.post('/admin/api/login', csrfProtection, async (req, res) => {
   }
 });
 
+// -----------------------------------------------------------------------------
+// 6b) Logout endpoint - clears admin cookie and redirects to login
+// -----------------------------------------------------------------------------
+app.get('/admin/logout', (req, res) => {
+  res.clearCookie('admin_jwt', {
+    path: '/',
+    httpOnly: true,
+    sameSite: 'strict',
+    secure: process.env.NODE_ENV === 'production'
+  });
+  res.redirect('/login');
+});
+
 
 
 // ──────────────────────────────────────────────────────────────────────────

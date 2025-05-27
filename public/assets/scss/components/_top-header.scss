@@ -49,6 +49,8 @@
 
   .search-container {
     position: relative;
+    display: flex;
+    align-items: center;
 
     input {
       padding: 4px 8px;
@@ -56,12 +58,25 @@
       border-radius: 4px;
       font-size: 14px;
       min-width: 160px;
+      position: absolute;
+      left: 100%;
+      margin-left: 8px;
+      width: 0;
+      opacity: 0;
+      pointer-events: none;
+      transition: width 0.2s ease, opacity 0.2s ease;
+    }
+
+    &.open input {
+      width: 160px;
+      opacity: 1;
+      pointer-events: auto;
     }
 
     .search-results {
       position: absolute;
-      left: 0;
-      right: 0;
+      left: calc(100% + 8px);
+      width: 160px;
       top: 110%;
       background: var(--color-white);
       border: 1px solid #ddd;
