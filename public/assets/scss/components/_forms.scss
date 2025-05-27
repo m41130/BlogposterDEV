@@ -2,71 +2,37 @@
    Forms
    ============================================================================= */
 
-  .app-scope {
+   .app-scope {
     form {
       display: flex;
       flex-direction: column;
       gap: 12px;
     }
-
-    // General input styling shared across the app
-    input,
-    textarea,
-    select {
-      width: 100%;
-      padding: 1.5rem 0.75rem 0.5rem;
-      border: none;
-      border-bottom: 2px solid #e4e4e4;
-      border-radius: 0;
-      font-size: 1rem;
-      background: transparent;
+  
+    label {
       font-family: var(--font-body);
+      font-weight: 500;
       color: var(--color-text);
-      transition: border-color 0.2s;
-
+    }
+  
+    input,
+    textarea {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-bottom: 2px solid #D1D5DB;
+      border-radius: 0;
+      font-size: 14px;
+      background-color: transparent;
+      transition: border 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+  
       &:focus {
         outline: none;
-        border-bottom: 2px solid #008080; // Markenfarbe
-      }
-    }
-
-    // Floating label pattern used in login and registration forms
-    .field {
-      width: 100%;
-      margin-bottom: 1rem;
-      position: relative;
-
-      label {
-        position: absolute;
-        left: 0.75rem;
-        top: 1rem;
-        font-size: 1rem;
-        color: #888;
-        font-family: var(--font-body);
-        pointer-events: none;
-        transition: all 0.2s ease;
-        background: transparent;
-      }
-
-      input,
-      textarea,
-      select {
-        padding: 1.5rem 0.75rem 0.5rem;
-      }
-
-      input:focus + label,
-      input:not(:placeholder-shown) + label,
-      textarea:focus + label,
-      textarea:not(:placeholder-shown) + label,
-      select:focus + label,
-      select:not(:placeholder-shown) + label {
-        top: 0.25rem;
-        font-size: 0.75rem;
-        color: #008080;
-        background: none;
-        font-weight: 500;
-        letter-spacing: 0.02em;
-        opacity: 0.94;
+        border-bottom: 2px solid transparent;
+        border-radius: 9px;
+        border-image: var(--gradient-primary) 1;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        // Gradient-Text-Effekt beim Fokus
       }
     }
   }
