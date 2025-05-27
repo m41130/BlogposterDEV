@@ -145,6 +145,14 @@ function ensureLayout(layout = {}, lane = 'public') {
     content.id = 'content';
     mainContent.appendChild(content);
   }
+
+  // Ensure global content header inside the content section
+  const contentEl = document.getElementById('content');
+  if (contentEl && !document.getElementById('content-header')) {
+    const header = document.createElement('div');
+    header.id = 'content-header';
+    contentEl.prepend(header);
+  }
 }
 
 (async () => {
@@ -206,6 +214,10 @@ function ensureLayout(layout = {}, lane = 'public') {
         } else {
           mainHeaderEl.innerHTML = await fetchPartial(config.layout?.mainHeader || 'main-header', 'headers');
         }
+      }
+      const contentHeaderEl = document.getElementById('content-header');
+      if (contentHeaderEl) {
+        contentHeaderEl.innerHTML = await fetchPartial(config.layout?.contentHeader || 'content-header', 'headers');
       }
     }
 
