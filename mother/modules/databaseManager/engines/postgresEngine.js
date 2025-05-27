@@ -19,10 +19,16 @@ const notificationEmitter = require('../../../emitters/notificationEmitter');
 async function createOrFixPostgresDatabaseForOwnModule(moduleName) {
   const dbName = `${moduleName.toLowerCase()}_db`.substring(0, 63);
 
-  let rwCreds = generateUserAndPass(moduleName, 'rw');
-  let roCreds = generateUserAndPass(moduleName, 'ro');
-  let dbUser = rwCreds ? rwCreds.user : (process.env.PG_ADMIN_USER || '').toLowerCase();
-  let dbPassword = rwCreds ? rwCreds.pass : process.env.PG_ADMIN_PASSWORD || '';
+  let moduleCreds = generateUserAndPass(moduleName);
+  let dbUser, dbPassword;
+  if (!moduleCreds) {
+    // means it's 'databasemanager'
+    dbUser = (process.env.PG_ADMIN_USER || '').toLowerCase();
+    dbPassword = process.env.PG_ADMIN_PASSWORD || '';
+  } else {
+    dbUser = moduleCreds.user;
+    dbPassword = moduleCreds.pass;
+  }
 
   try {
     // Check existence
@@ -46,21 +52,21 @@ async function createOrFixPostgresDatabaseForOwnModule(moduleName) {
 
     // If not 'databasemanager', create user & fix ownership
     if (moduleName.toLowerCase() !== 'databasemanager') {
-      const rwExists = await checkIfUserExists(rwCreds.user);
-      if (!rwExists) {
-        await adminPool.query(`CREATE USER "${rwCreds.user}" WITH ENCRYPTED PASSWORD '${rwCreds.pass}';`);
-      }
-      const roExists = await checkIfUserExists(roCreds.user);
-      if (!roExists) {
-        await adminPool.query(`CREATE USER "${roCreds.user}" WITH ENCRYPTED PASSWORD '${roCreds.pass}';`);
+      const userExists = await checkIfUserExists(dbUser);
+      if (!userExists) {
+        await adminPool.query(`CREATE USER "${dbUser}" WITH ENCRYPTED PASSWORD '${dbPassword}';`);
+        notificationEmitter.notify({
+          moduleName: 'databaseManager',
+          notificationType: 'system',
+          priority: 'info',
+          message: `Created Postgres user "${dbUser}" for DB "${dbName}".`
+        });
       }
       await adminPool.query(`
-        GRANT CONNECT, TEMPORARY ON DATABASE "${dbName}" TO "${rwCreds.user}", "${roCreds.user}";
-        GRANT USAGE ON SCHEMA public TO "${rwCreds.user}", "${roCreds.user}";
-        GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO "${rwCreds.user}";
-        GRANT SELECT ON ALL TABLES IN SCHEMA public TO "${roCreds.user}";
-        ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO "${roCreds.user}";
-        ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO "${rwCreds.user}";
+        ALTER DATABASE "${dbName}" OWNER TO "${dbUser}";
+        GRANT CREATE ON DATABASE "${dbName}" TO "${dbUser}";
+        GRANT TEMPORARY ON DATABASE "${dbName}" TO "${dbUser}";
+        GRANT ALL PRIVILEGES ON DATABASE "${dbName}" TO "${dbUser}";
       `);
     }
   } catch (err) {
@@ -171,7 +177,7 @@ async function performPostgresOperation(moduleName, operation, params, isOwnDb) 
     // Not a recognized placeholder => normal SQL
     if (isOwnDb) {
       const dbName = `${moduleName.toLowerCase()}_db`;
-      let moduleCreds = generateUserAndPass(moduleName, 'rw');
+      let moduleCreds = generateUserAndPass(moduleName);
       let dbUser, dbPassword;
       if (!moduleCreds) {
         dbUser = (process.env.PG_ADMIN_USER || '').toLowerCase();

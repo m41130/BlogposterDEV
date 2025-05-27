@@ -17,7 +17,7 @@ const notificationEmitter = require('../../../emitters/notificationEmitter');
 
 async function createMongoDatabase(moduleName) {
   const dbName = `${moduleName.toLowerCase()}_db`.substring(0, 63);
-  let creds = generateUserAndPass(moduleName, 'rw');
+  let creds = generateUserAndPass(moduleName);
   const adminUser = mongoAdminUser;
   const adminPass = mongoAdminPassword;
 
@@ -103,7 +103,7 @@ async function performMongoOperation(moduleName, operation, params = []) {
 }
 
 async function connectToModuleDb(moduleName) {
-  let creds = generateUserAndPass(moduleName, 'rw');
+  let creds = generateUserAndPass(moduleName);
   let dbUser = mongoAdminUser;
   let dbPass = mongoAdminPassword;
   const dbName = `${moduleName.toLowerCase()}_db`.substring(0, 63);
