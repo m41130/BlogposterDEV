@@ -106,7 +106,9 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     content.innerHTML = '';
     const root = content.shadowRoot || content.attachShadow({ mode: 'open' });
     const globalCss = getGlobalCssUrl();
-    root.innerHTML = `<link rel="stylesheet" href="${globalCss}">`;
+    // <link rel="stylesheet"> inside Shadow DOM is ignored in most browsers.
+    // Use @import so the admin UI styles are applied within the widget.
+    root.innerHTML = `<style>@import url('${globalCss}');</style>`;
     if (data) {
       root.innerHTML += `<style>${data.css || ''}</style>${data.html || ''}`;
       if (data.js) {
