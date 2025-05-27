@@ -61,11 +61,24 @@ function executeJs(code, wrapper, root) {
 function renderWidget(wrapper, def, code = null, lane = 'public') {
   const root = wrapper.attachShadow({ mode: 'open' });
   const globalCss = getGlobalCssUrl(lane);
-  // <link rel="stylesheet"> inside Shadow DOM is ignored in most browsers.
-  // Use @import to ensure the global stylesheet applies to the widget.
-  root.innerHTML = `<style>@import url('${globalCss}');</style>`;
+
+  const style = document.createElement('style');
+  style.textContent = `@import url('${globalCss}');`;
+  root.appendChild(style);
+
+  const container = document.createElement('div');
+  container.className = 'widget-container';
+  root.appendChild(container);
+
   if (code) {
-    root.innerHTML += `<style>${code.css || ''}</style>${code.html || ''}`;
+    if (code.css) {
+      const customStyle = document.createElement('style');
+      customStyle.textContent = code.css;
+      root.appendChild(customStyle);
+    }
+    if (code.html) {
+      container.innerHTML = code.html;
+    }
     if (code.js) {
       try { executeJs(code.js, wrapper, root); } catch (e) { console.error('[Renderer] custom js error', e); }
 
@@ -73,7 +86,7 @@ function renderWidget(wrapper, def, code = null, lane = 'public') {
     return;
   }
   import(def.codeUrl)
-    .then(m => m.render?.(root))
+    .then(m => m.render?.(container))
     .catch(err => console.error(`[Widget ${def.id}] import error:`, err));
 }
 
