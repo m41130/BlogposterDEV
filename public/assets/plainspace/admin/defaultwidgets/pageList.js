@@ -26,11 +26,49 @@ export async function render(el) {
     const card = document.createElement('div');
     card.className = 'page-list-card';
 
-    // Title
+    // Title bar with add button
+    const titleBar = document.createElement('div');
+    titleBar.className = 'page-title-bar';
+
     const title = document.createElement('div');
     title.className = 'page-title';
     title.textContent = 'Pages';
-    card.appendChild(title);
+
+    const addBtn = document.createElement('img');
+    addBtn.src = '/assets/icons/plus.svg';
+    addBtn.alt = 'Add page';
+    addBtn.title = 'Add new page';
+    addBtn.className = 'icon add-page-btn';
+    addBtn.addEventListener('click', async () => {
+      const pageTitle = prompt('New page title:');
+      if (!pageTitle) return;
+      const slug = prompt('Slug (optional):') || '';
+      try {
+        await meltdownEmit('createPage', {
+          jwt,
+          moduleName: 'pagesManager',
+          moduleType: 'core',
+          title: pageTitle,
+          slug,
+          lane: 'public',
+          status: 'published'
+        });
+        const newRes = await meltdownEmit('getPagesByLane', {
+          jwt,
+          moduleName: 'pagesManager',
+          moduleType: 'core',
+          lane: 'public'
+        });
+        pages.splice(0, pages.length, ...(Array.isArray(newRes) ? newRes : (newRes?.data ?? [])));
+        renderFilteredPages();
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    });
+
+    titleBar.appendChild(title);
+    titleBar.appendChild(addBtn);
+    card.appendChild(titleBar);
 
     // Filters
     const filters = ['All', 'Active', 'Drafts', 'Deleted'];
