@@ -10,7 +10,6 @@ require('dotenv').config();
 const axios = require('axios');
 const { onceCallback } = require('../../../emitters/motherEmitter');
 const { sanitize } = require('../../../utils/logSanitizer');
-const crypto = require('crypto');
 
 // Notification emitter for typed notifications
 const notificationEmitter = require('../../../emitters/notificationEmitter');
@@ -240,45 +239,28 @@ function isAllowedRemoteUrl(urlString) {
 }
 
 async function remoteDbInsert(baseUrl, moduleName, table, data) {
-  const payload = { moduleName, table, data };
-  const headers = buildSignatureHeaders(payload);
-  const resp = await axios.post(`${baseUrl}/dbInsert`, payload, { maxRedirects: 0, headers });
+  const resp = await axios.post(`${baseUrl}/dbInsert`, { moduleName, table, data }, { maxRedirects: 0 });
   return resp.data;
 }
 
 async function remoteDbSelect(baseUrl, moduleName, table, where) {
-  const payload = { moduleName, table, where };
-  const headers = buildSignatureHeaders(payload);
-  const resp = await axios.post(`${baseUrl}/dbSelect`, payload, { maxRedirects: 0, headers });
+  const resp = await axios.post(`${baseUrl}/dbSelect`, { moduleName, table, where }, { maxRedirects: 0 });
   return resp.data;
 }
 
 async function remoteDbUpdate(baseUrl, moduleName, table, where, data) {
-  const payload = { moduleName, table, where, data };
-  const headers = buildSignatureHeaders(payload);
-  const resp = await axios.post(`${baseUrl}/dbUpdate`, payload, { maxRedirects: 0, headers });
+  const resp = await axios.post(`${baseUrl}/dbUpdate`, { moduleName, table, where, data }, { maxRedirects: 0 });
   return resp.data;
 }
 
 async function remoteDbDelete(baseUrl, moduleName, table, where) {
-  const payload = { moduleName, table, where };
-  const headers = buildSignatureHeaders(payload);
-  const resp = await axios.post(`${baseUrl}/dbDelete`, payload, { maxRedirects: 0, headers });
+  const resp = await axios.post(`${baseUrl}/dbDelete`, { moduleName, table, where }, { maxRedirects: 0 });
   return resp.data;
-}
-
-function buildSignatureHeaders(payload) {
-  const secret = process.env.REMOTE_DB_SIGN_SECRET;
-  if (!secret) return {};
-  const hmac = crypto.createHmac('sha256', secret).update(JSON.stringify(payload)).digest('hex');
-  return { 'x-signature': hmac };
 }
 
 /* ------------------------------------------------------------------
    Local meltdown bridging
    ------------------------------------------------------------------ */
-const { isTableAllowed, areColumnsAllowed } = require('../helpers/whitelistHelpers');
-
 function localDbInsert(motherEmitter, payload, callback) {
   const { jwt, moduleName, table, data, where, moduleType } = payload;
   if (table === '__rawSQL__') {
@@ -302,15 +284,9 @@ function localDbInsert(motherEmitter, payload, callback) {
   }
 
   // Normal insert approach
-  if (!isTableAllowed(moduleName, table)) {
-    return callback(new Error('[localDbInsert] Table not allowed.'));
-  }
   const columns = Object.keys(data);
   if (!columns.length) {
     return callback(new Error('[localDbInsert] No columns in data.'));
-  }
-  if (!areColumnsAllowed(moduleName, table, columns)) {
-    return callback(new Error('[localDbInsert] Column not allowed.'));
   }
   const placeholders = columns.map((_, i) => `$${i+1}`);
   const values = Object.values(data);
@@ -358,12 +334,6 @@ function localDbSelect(motherEmitter, payload, callback) {
   }
 
   // Normal SELECT approach
-  if (!isTableAllowed(moduleName, table)) {
-    return callback(new Error('[localDbSelect] Table not allowed.'));
-  }
-  if (where && !areColumnsAllowed(moduleName, table, Object.keys(where))) {
-    return callback(new Error('[localDbSelect] Column not allowed.'));
-  }
   let whereClause = '';
   let values = [];
   if (where && Object.keys(where).length > 0) {
@@ -412,12 +382,6 @@ function localDbUpdate(motherEmitter, payload, callback) {
   }
 
   // Normal UPDATE approach
-  if (!isTableAllowed(moduleName, table)) {
-    return callback(new Error('[localDbUpdate] Table not allowed.'));
-  }
-  if (!areColumnsAllowed(moduleName, table, Object.keys(data))) {
-    return callback(new Error('[localDbUpdate] Column not allowed.'));
-  }
   const setKeys = Object.keys(data || {});
   if (!setKeys.length) {
     return callback(new Error('[localDbUpdate] No update data provided.'));
@@ -440,9 +404,6 @@ function localDbUpdate(motherEmitter, payload, callback) {
   const whereKeys = Object.keys(where || {});
   if (!whereKeys.length) {
     return callback(new Error('[localDbUpdate] Missing WHERE condition => too dangerous.'));
-  }
-  if (!areColumnsAllowed(moduleName, table, whereKeys)) {
-    return callback(new Error('[localDbUpdate] WHERE column not allowed.'));
   }
   const whereClauses = [];
   const whereValues = [];
@@ -494,9 +455,6 @@ function localDbDelete(motherEmitter, payload, callback) {
   const whereKeys = Object.keys(where || {});
   if (!whereKeys.length) {
     return callback(new Error('[localDbDelete] Empty WHERE => refusing to delete everything.'));
-  }
-  if (!isTableAllowed(moduleName, table) || !areColumnsAllowed(moduleName, table, whereKeys)) {
-    return callback(new Error('[localDbDelete] Table or column not allowed.'));
   }
   const whereClauses = whereKeys.map((col, i) => `"${col}" = $${i+1}`);
   const whereValues = Object.values(where);

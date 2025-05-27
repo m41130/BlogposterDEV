@@ -1,5 +1,0 @@
-{
-  "dummyModule": {
-    "dummy_dummytable": ["id", "data", "created_at"]
-  }
-}
