@@ -110,6 +110,13 @@ module.exports.DEFAULT_WIDGETS = [
     category: 'core'
   },
   {
+    widgetId: 'userEdit',
+    widgetType: ADMIN_LANE,
+    label: 'User Editor',
+    content: '/assets/plainspace/admin/userEditWidget.js',
+    category: 'core'
+  },
+  {
     widgetId: 'themesList',
     widgetType: ADMIN_LANE,
     label: 'Themes List',
