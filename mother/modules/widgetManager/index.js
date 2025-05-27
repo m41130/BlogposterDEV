@@ -186,7 +186,13 @@ motherEmitter.on('createWidget', async (payload, callback) => {
         return callback(new Error('[WM] getWidgets => "widgetType" is required.'));
       }
 
-      if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'widgets.read')) {
+      // Public lane widgets should always be readable. Only enforce the
+      // widgets.read permission when an admin lane lookup is requested.
+      if (
+        widgetType === 'admin' &&
+        payload.decodedJWT &&
+        !hasPermission(payload.decodedJWT, 'widgets.read')
+      ) {
         return callback(new Error('Forbidden – missing permission: widgets.read'));
       }
 
