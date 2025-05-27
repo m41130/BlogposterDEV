@@ -13,6 +13,7 @@ yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
 server.log
+mother/modules/databaseManager/modulePasswords.json
 mother/modules/notificationManager/server.log*
 
 

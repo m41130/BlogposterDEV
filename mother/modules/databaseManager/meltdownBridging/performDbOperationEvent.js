@@ -10,8 +10,10 @@
 const { getEngine } = require('../engines/engineFactory');
 const { moduleHasOwnDb, getDbType } = require('../helpers/dbTypeHelpers');
 const { onceCallback } = require('../../../emitters/motherEmitter');
+const { sanitize } = require('../../../utils/logSanitizer');
 
-const TIMEOUT_DURATION = Number(process.env.DB_OP_TIMEOUT_MS || 5000);
+const RAW_TIMEOUT = Number(process.env.DB_OP_TIMEOUT_MS || 5000);
+const TIMEOUT_DURATION = RAW_TIMEOUT === 0 ? null : RAW_TIMEOUT;
 
 /**
  * Registers the listener for the 'performDbOperation' meltdown event.
@@ -23,17 +25,15 @@ function registerPerformDbOperationEvent(motherEmitter) {
     // Ensure the callback is only called once, even if errors/timeouts occur
     const callback = onceCallback(originalCb); 
 
-    // Set a timeout for the database operation
-    const timeout = setTimeout(() => {
+    // Set a timeout for the database operation if configured
+    const timeout = TIMEOUT_DURATION === null ? null : setTimeout(() => {
       const errorMsg = `Timeout while performing db operation for module "${payload?.moduleName || 'unknown'}".`;
       console.error(`[DB MANAGER] ${errorMsg}`);
-      // If timeout occurs, attempt to deactivate the module and report error
-      // Add empty callback here as well, just in case 'deactivateModule' expects it
       if (payload?.moduleName) {
         motherEmitter.emit(
-          'deactivateModule', 
+          'deactivateModule',
           { moduleName: payload.moduleName, reason: errorMsg },
-          () => {} // Add empty callback
+          () => {}
         );
       }
       callback(new Error(errorMsg));
@@ -72,13 +72,13 @@ function registerPerformDbOperationEvent(motherEmitter) {
       }
 
       // Operation successful, clear the timeout and send result via callback
-      clearTimeout(timeout); 
+      if (timeout) clearTimeout(timeout);
       callback(null, result);
 
     } catch (err) {
       // An error occurred either during parameter validation or DB execution
-      clearTimeout(timeout); // Ensure timeout is cleared on error too
-      console.error(`[DB MANAGER] Error performing db operation for module "${payload?.moduleName || 'unknown'}":`, err.message);
+      if (timeout) clearTimeout(timeout); // Ensure timeout is cleared on error too
+      console.error(`[DB MANAGER] Error performing db operation for module "${payload?.moduleName || 'unknown'}":`, sanitize(err.message));
       
       // Attempt to deactivate the module that caused the error
       // *** This is the line that was fixed ***
