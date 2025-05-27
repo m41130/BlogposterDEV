@@ -105,6 +105,10 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     const content = wrapper.querySelector('.grid-stack-item-content');
     content.innerHTML = '';
     const root = content.shadowRoot || content.attachShadow({ mode: 'open' });
+    // Clean existing children to avoid duplicates on re-render
+    while (root.firstChild) {
+      root.removeChild(root.firstChild);
+    }
     const globalCss = getGlobalCssUrl();
 
     const style = document.createElement('style');
