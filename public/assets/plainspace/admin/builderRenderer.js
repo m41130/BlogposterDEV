@@ -3,7 +3,8 @@ import { initQuill } from '../../js/quillEditor.js';
 
 export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   document.body.classList.add('builder-mode');
-  const DEFAULT_ROWS = 10; // around 50px with 5px grid cells
+  // Temporary patch: larger default widget height
+  const DEFAULT_ROWS = 20; // around 100px with 5px grid cells
   const ICON_MAP = {
     counter: 'activity',
     heroBanner: 'image',
@@ -391,7 +392,8 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     wrapper.dataset.instanceId = instId;
     wrapper.setAttribute('gs-x', item.x ?? 0);
     wrapper.setAttribute('gs-y', item.y ?? 0);
-    wrapper.setAttribute('gs-w', item.w ?? 4);
+    // Larger defaults for builder widgets
+    wrapper.setAttribute('gs-w', item.w ?? 8);
     wrapper.setAttribute('gs-h', item.h ?? DEFAULT_ROWS);
     wrapper.setAttribute('gs-min-w', 4);
     wrapper.setAttribute('gs-min-h', DEFAULT_ROWS);
@@ -419,7 +421,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     const [x, y, w, h] = [
       Math.floor((e.offsetX / gridEl.offsetWidth) * 64) || 0,
       Math.floor((e.offsetY / gridEl.offsetHeight) * 6) || 0,
-      4, DEFAULT_ROWS
+      8, DEFAULT_ROWS
     ];
 
     const instId = genId();

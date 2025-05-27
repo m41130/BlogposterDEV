@@ -4,7 +4,8 @@ import { fetchPartial } from '/assets/plainspace/admin/fetchPartial.js';
 import { initBuilder } from '/assets/plainspace/admin/builderRenderer.js';
 
 // Default rows for admin widgets (~50px with 5px grid cells)
-const DEFAULT_ADMIN_ROWS = 10;
+// Temporary patch: double the default height for larger widgets
+const DEFAULT_ADMIN_ROWS = 20;
 
 function getGlobalCssUrl(lane) {
   if (lane === 'admin') return '/assets/css/site.css';
@@ -287,7 +288,8 @@ function ensureLayout(layout = {}, lane = 'public') {
 
       const layout = Array.isArray(layoutRes?.layout) ? layoutRes.layout : [];
 
-      const items = layout.length ? layout : (config.widgets || []).map((id, idx) => ({ id: `w${idx}`, widgetId: id, x:0,y:idx*2,w:4,h:2, code:null }));
+      // Temporary patch: start widgets larger by default
+      const items = layout.length ? layout : (config.widgets || []).map((id, idx) => ({ id: `w${idx}`, widgetId: id, x:0,y:idx*2,w:8,h:4, code:null }));
 
       if (!items.length) {
         contentEl.innerHTML = '<p class="empty-state">No widgets configured.</p>';
@@ -296,14 +298,16 @@ function ensureLayout(layout = {}, lane = 'public') {
 
       contentEl.innerHTML = '<div id="publicGrid" class="grid-stack"></div>';
       const gridEl = document.getElementById('publicGrid');
-      const grid = GridStack.init({ staticGrid: true, float: true, cellHeight: 5, columnWidth: 5, column: 64 }, gridEl);
+      // Temporary patch: allow interaction on public lane
+      const grid = GridStack.init({ staticGrid: false, float: true, cellHeight: 5, columnWidth: 5, column: 64 }, gridEl);
 
       items.forEach(item => {
         const def = allWidgets.find(w => w.id === item.widgetId);
         if (!def) return;
         if (DEBUG) console.debug('[Renderer] render widget', def.id, item.id);
 
-        const [x, y, w, h] = [item.x ?? 0, item.y ?? 0, item.w ?? 4, item.h ?? 2];
+        // Expanded default size for public widgets
+        const [x, y, w, h] = [item.x ?? 0, item.y ?? 0, item.w ?? 8, item.h ?? 4];
 
         const wrapper = document.createElement('div');
         wrapper.classList.add('grid-stack-item');
@@ -353,7 +357,8 @@ function ensureLayout(layout = {}, lane = 'public') {
     matchedWidgets.forEach(def => {
       if (DEBUG) console.debug('[Renderer] admin render widget', def.id);
       const meta = layout.find(l => l.widgetId === def.id) || {};
-      const [x, y, w, h] = [meta.x ?? 0, meta.y ?? 0, meta.w ?? 4, meta.h ?? DEFAULT_ADMIN_ROWS];
+      // Larger defaults for admin widgets
+      const [x, y, w, h] = [meta.x ?? 0, meta.y ?? 0, meta.w ?? 8, meta.h ?? DEFAULT_ADMIN_ROWS];
 
       const wrapper = document.createElement('div');
       wrapper.classList.add('grid-stack-item');
