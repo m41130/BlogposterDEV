@@ -307,6 +307,8 @@ function ensureLayout(layout = {}, lane = 'public') {
         wrapper.setAttribute('gs-y', y);
         wrapper.setAttribute('gs-w', w);
         wrapper.setAttribute('gs-h', h);
+        wrapper.setAttribute('gs-min-w', 4);
+        wrapper.setAttribute('gs-min-h', 4);
         wrapper.dataset.widgetId = def.id;
         wrapper.dataset.instanceId = item.id;
 
@@ -355,6 +357,8 @@ function ensureLayout(layout = {}, lane = 'public') {
       wrapper.setAttribute('gs-y', y);
       wrapper.setAttribute('gs-w', w);
       wrapper.setAttribute('gs-h', h);
+      wrapper.setAttribute('gs-min-w', 4);
+      wrapper.setAttribute('gs-min-h', DEFAULT_ADMIN_ROWS);
       wrapper.dataset.widgetId = def.id;
       wrapper.dataset.instanceId = meta.id || `w${Math.random().toString(36).slice(2,8)}`;
 

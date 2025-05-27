@@ -31,6 +31,8 @@
       item.setAttribute('gs-y', idx);
       item.setAttribute('gs-w', 4);
       item.setAttribute('gs-h', 1);
+      item.setAttribute('gs-min-w', 4);
+      item.setAttribute('gs-min-h', 1);
       item.dataset.pageId = p.pageId;
 
       const content = document.createElement('div');

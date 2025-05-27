@@ -6,3 +6,9 @@
 body {
   font-family: var(--font-family);
 }
+
+/* Ensure widgets start at a readable size */
+.grid-stack-item {
+  min-width: 120px;
+  min-height: 80px;
+}
