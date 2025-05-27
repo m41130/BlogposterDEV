@@ -121,7 +121,9 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     const container = document.createElement('div');
     container.className = 'widget-container';
     // Prevent GridStack from initiating a drag when interacting
-    // with form controls inside widgets.
+    // with form controls inside widgets. Attach the handler on both the
+    // container and the grid item content to catch events before GridStack
+    // can start a drag operation.
     const stop = ev => {
       const t = ev.target.closest('input, textarea, select, label, button');
       if (t) {
@@ -132,6 +134,9 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     container.addEventListener('pointerdown', stop, true);
     container.addEventListener('mousedown', stop, true);
     container.addEventListener('touchstart', stop, true);
+    content.addEventListener('pointerdown', stop, true);
+    content.addEventListener('mousedown', stop, true);
+    content.addEventListener('touchstart', stop, true);
     root.appendChild(container);
 
     if (data) {
