@@ -13,7 +13,10 @@
       font-family: var(--font-body);
       font-weight: 500;
       color: var(--color-text);
-      pointer-events: none;
+      // Allow pointer events on labels so nested form controls remain clickable
+      // Individual pages like the login screen apply their own pointer-events
+      // rules when implementing floating labels.
+      pointer-events: auto;
     }
   
     input,
