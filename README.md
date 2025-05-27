@@ -139,6 +139,14 @@ Occasionally a misconfigured page might request admin widgets when rendered on t
 If you encounter this, ensure the page configuration does **not** force `widgetLane: 'admin'` for public pages. Public pages should always load widgets from the public lane. When in doubt, remove the `widgetLane` option or explicitly set it to `'public'`.
 
 
+## Documentation
+
+Additional documentation files live in the [docs](docs/) directory:
+
+- [Installation](docs/installation.md)
+- [Module Architecture](docs/modules.md)
+- [Security Notes](docs/security.md)
+
 ## License
 
 This project is licensed under the MIT License, meaning you’re free to use, modify, and distribute it as long as you include the license notice. We chose MIT to encourage broad usage and contribution. See the `LICENSE` file for the full text. (Yes, that means you can basically do whatever you want, but hey, don’t blame us if it all goes south.)
