@@ -1,4 +1,6 @@
-import { initQuill } from '../../../js/quillEditor.js';
+// Use an absolute path for compatibility when this widget's code is executed
+// from a blob URL inside the builder's inline editor.
+import { initQuill } from '/assets/js/quillEditor.js';
 
 export async function render(el) {
   const pageData = await window.pageDataLoader.load('getPageById', {
