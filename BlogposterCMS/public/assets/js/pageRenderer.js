@@ -69,6 +69,23 @@ function renderWidget(wrapper, def, code = null, lane = 'public') {
 
   const container = document.createElement('div');
   container.className = 'widget-container';
+  // Prevent GridStack from starting a drag when interacting with
+  // form controls inside widgets on admin pages. Attach the handler
+  // on both the container and the grid item content element so events
+  // are intercepted before GridStack can act on them.
+  const stop = ev => {
+    const t = ev.target.closest('input, textarea, select, label, button');
+    if (t) {
+      ev.stopPropagation();
+      ev.stopImmediatePropagation();
+    }
+  };
+  container.addEventListener('pointerdown', stop, true);
+  container.addEventListener('mousedown', stop, true);
+  container.addEventListener('touchstart', stop, true);
+  wrapper.addEventListener('pointerdown', stop, true);
+  wrapper.addEventListener('mousedown', stop, true);
+  wrapper.addEventListener('touchstart', stop, true);
   root.appendChild(container);
 
   if (code) {
