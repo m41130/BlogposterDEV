@@ -848,6 +848,21 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
     return { done: true };
     }
 
+    // New widget manager placeholders aligned with Postgres version
+    case 'INIT_WIDGETS_TABLE_PUBLIC': {
+    const collectionName = 'widgets_public';
+    await db.createCollection(collectionName).catch(() => {});
+    await db.collection(collectionName).createIndex({ widget_id: 1 }, { unique: true }).catch(() => {});
+    return { done: true };
+    }
+
+    case 'INIT_WIDGETS_TABLE_ADMIN': {
+    const collectionName = 'widgets_admin';
+    await db.createCollection(collectionName).catch(() => {});
+    await db.collection(collectionName).createIndex({ widget_id: 1 }, { unique: true }).catch(() => {});
+    return { done: true };
+    }
+
     case 'CREATE_WIDGET': {
     // params[0] = { widgetId, widgetType, label, content, category }
     const data = params[0] || {};
@@ -923,6 +938,142 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
         widget_type: widgetType
     });
     return { done: true };
+    }
+
+    // New widget placeholders matching Postgres implementation
+    case 'UPDATE_WIDGET_PUBLIC': {
+    const data = params[0] || {};
+    const { widgetId, newLabel, newContent, newCategory, newOrder } = data;
+    await db.collection('widgets_public').updateOne(
+        { widget_id: widgetId },
+        {
+          $set: {
+            label: newLabel ?? undefined,
+            content: newContent ?? undefined,
+            category: newCategory ?? undefined,
+            order: newOrder ?? undefined,
+            updated_at: new Date()
+          }
+        }
+    );
+    return { done: true };
+    }
+
+    case 'UPDATE_WIDGET_ADMIN': {
+    const data = params[0] || {};
+    const { widgetId, newLabel, newContent, newCategory, newOrder } = data;
+    await db.collection('widgets_admin').updateOne(
+        { widget_id: widgetId },
+        {
+          $set: {
+            label: newLabel ?? undefined,
+            content: newContent ?? undefined,
+            category: newCategory ?? undefined,
+            order: newOrder ?? undefined,
+            updated_at: new Date()
+          }
+        }
+    );
+    return { done: true };
+    }
+
+    case 'DELETE_WIDGET_PUBLIC': {
+    const { widgetId } = params[0] || {};
+    await db.collection('widgets_public').deleteOne({ widget_id: widgetId });
+    return { done: true };
+    }
+
+    case 'DELETE_WIDGET_ADMIN': {
+    const { widgetId } = params[0] || {};
+    await db.collection('widgets_admin').deleteOne({ widget_id: widgetId });
+    return { done: true };
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // PlainSpace
+    // ─────────────────────────────────────────────────────────────────────────
+    case 'INIT_PLAINSPACE_LAYOUTS': {
+    const collectionName = 'plainspace_layouts';
+    await db.createCollection(collectionName).catch(() => {});
+    await db.collection(collectionName).createIndex(
+        { page_id: 1, lane: 1, viewport: 1 },
+        { unique: true }
+    ).catch(() => {});
+    return { done: true };
+    }
+
+    case 'INIT_PLAINSPACE_LAYOUT_TEMPLATES': {
+    const collectionName = 'plainspace_layout_templates';
+    await db.createCollection(collectionName).catch(() => {});
+    await db.collection(collectionName).createIndex({ name: 1 }, { unique: true }).catch(() => {});
+    return { done: true };
+    }
+
+    case 'UPSERT_PLAINSPACE_LAYOUT': {
+    const d = params[0] || {};
+    await db.collection('plainspace_layouts').updateOne(
+        { page_id: d.pageId, lane: d.lane, viewport: d.viewport },
+        {
+          $set: {
+            layout_json: d.layoutArr || [],
+            updated_at: new Date()
+          }
+        },
+        { upsert: true }
+    );
+    return { success: true };
+    }
+
+    case 'UPSERT_PLAINSPACE_LAYOUT_TEMPLATE': {
+    const d = params[0] || {};
+    await db.collection('plainspace_layout_templates').updateOne(
+        { name: d.name },
+        {
+          $set: {
+            lane: d.lane,
+            viewport: d.viewport,
+            layout_json: d.layoutArr || [],
+            updated_at: new Date()
+          }
+        },
+        { upsert: true }
+    );
+    return { success: true };
+    }
+
+    case 'GET_PLAINSPACE_LAYOUT_TEMPLATE': {
+    const d = params[0] || {};
+    const doc = await db.collection('plainspace_layout_templates').findOne({ name: d.name });
+    return doc ? [doc] : [];
+    }
+
+    case 'GET_PLAINSPACE_LAYOUT_TEMPLATE_NAMES': {
+    const d = params[0] || {};
+    const docs = await db.collection('plainspace_layout_templates')
+        .find({ lane: d.lane })
+        .project({ name: 1, _id: 0 })
+        .sort({ name: 1 })
+        .toArray();
+    return docs;
+    }
+
+    case 'GET_PLAINSPACE_LAYOUT': {
+    const d = params[0] || {};
+    const doc = await db.collection('plainspace_layouts').findOne({
+        page_id: d.pageId,
+        lane: d.lane,
+        viewport: d.viewport
+    });
+    return doc ? [doc] : [];
+    }
+
+    case 'GET_ALL_PLAINSPACE_LAYOUTS': {
+    const d = params[0] || {};
+    const docs = await db.collection('plainspace_layouts')
+        .find({ page_id: d.pageId, lane: d.lane })
+        .sort({ viewport: 1 })
+        .toArray();
+    return docs;
     }
 
   }
