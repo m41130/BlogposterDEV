@@ -12,17 +12,20 @@ export async function render(el) {
   const container = document.createElement('div');
   container.className = 'seo-image-widget';
 
-  const imageLabel = document.createElement('label');
-  imageLabel.textContent = 'SEO Image URL';
+  const imageField = document.createElement('div');
+  imageField.className = 'field';
   const imageInput = document.createElement('input');
   imageInput.id = 'pe-image';
   imageInput.type = 'text';
-  imageInput.placeholder = 'https://example.com/image.jpg';
+  imageInput.placeholder = ' ';
   imageInput.value = page.seo_image || '';
-  imageLabel.appendChild(document.createElement('br'));
-  imageLabel.appendChild(imageInput);
+  const imageLabel = document.createElement('label');
+  imageLabel.setAttribute('for', 'pe-image');
+  imageLabel.textContent = 'SEO Image URL';
+  imageField.appendChild(imageInput);
+  imageField.appendChild(imageLabel);
 
-  container.appendChild(imageLabel);
+  container.appendChild(imageField);
   el.innerHTML = '';
   el.appendChild(container);
 }

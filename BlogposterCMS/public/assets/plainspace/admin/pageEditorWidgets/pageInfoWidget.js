@@ -17,15 +17,18 @@ export async function render(el) {
   const container = document.createElement('div');
   container.className = 'page-info-widget';
 
-  const titleLabel = document.createElement('label');
-  titleLabel.textContent = 'Title';
+  const titleField = document.createElement('div');
+  titleField.className = 'field';
   const titleInput = document.createElement('input');
   titleInput.id = 'pe-title';
   titleInput.type = 'text';
-  titleInput.placeholder = 'Title';
+  titleInput.placeholder = ' ';
   titleInput.value = pageData.trans_title || pageData.title || '';
-  titleLabel.appendChild(document.createElement('br'));
-  titleLabel.appendChild(titleInput);
+  const titleLabel = document.createElement('label');
+  titleLabel.setAttribute('for', 'pe-title');
+  titleLabel.textContent = 'Title';
+  titleField.appendChild(titleInput);
+  titleField.appendChild(titleLabel);
 
   const descLabel = document.createElement('label');
   descLabel.textContent = 'SEO Description';
@@ -35,8 +38,7 @@ export async function render(el) {
   descLabel.appendChild(document.createElement('br'));
   descLabel.appendChild(descDiv);
 
-  container.appendChild(titleLabel);
-  container.appendChild(document.createElement('br'));
+  container.appendChild(titleField);
   container.appendChild(descLabel);
 
   el.innerHTML = '';
