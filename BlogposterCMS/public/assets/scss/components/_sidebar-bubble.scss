@@ -62,10 +62,20 @@
           opacity: 1;
           transform: translateY(-50%) translateX(8px) scale(1);
         }
-      
+
         border: 1px solid var(--gradient-primary);
         border-radius: 999px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      }
+
+      &.active {
+        background: var(--gradient-primary);
+        border-radius: 999px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+
+        .icon {
+          fill: var(--color-white);
+        }
       }
     }
   }
