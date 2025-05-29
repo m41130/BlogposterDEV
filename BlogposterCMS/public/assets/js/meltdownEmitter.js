@@ -1,6 +1,9 @@
 // public/assets/js/meltdownEmitter.js
 ;(function(window) {
   window.meltdownEmit = async function(eventName, payload = {}) {
+    if (eventName === 'openExplorer' && window._openMediaExplorer) {
+      return window._openMediaExplorer(payload);
+    }
     const headers = {
       'Content-Type': 'application/json'
     };
