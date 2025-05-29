@@ -315,8 +315,8 @@ function ensureLayout(layout = {}, lane = 'public') {
 
       contentEl.innerHTML = '<div id="publicGrid" class="grid-stack"></div>';
       const gridEl = document.getElementById('publicGrid');
-      // Temporary patch: allow interaction on public lane
-      const grid = GridStack.init({ staticGrid: false, float: true, cellHeight: 5, columnWidth: 5, column: 64 }, gridEl);
+      // Static mode: public pages should not be directly editable
+      const grid = GridStack.init({ staticGrid: true, float: true, cellHeight: 5, columnWidth: 5, column: 64 }, gridEl);
 
       items.forEach(item => {
         const def = allWidgets.find(w => w.id === item.widgetId);
