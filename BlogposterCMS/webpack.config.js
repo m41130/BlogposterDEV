@@ -18,7 +18,8 @@ module.exports = {
     register: './public/assets/js/register.js',
     sortable: './public/assets/js/sortable.min.js',
     tokenLoader: './public/assets/js/tokenLoader.js',
-    topHeaderActions: './public/assets/js/topHeaderActions.js'
+    topHeaderActions: './public/assets/js/topHeaderActions.js',
+    openExplorer: './public/assets/js/openExplorer.js'
   },
   output: {
     filename: '[name].js',
