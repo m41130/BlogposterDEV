@@ -1,10 +1,15 @@
 // public/assets/plainspace/admin/builderRenderer.js
-// Use an absolute path so the module works even when executed from a blob
-// context (e.g. during inline code execution inside the builder). Relative
-// imports fail in that scenario because the base URL is not hierarchical.
-import { initQuill } from '/assets/js/quillEditor.js';
+// Dynamically load the Quill helper. Using a fully qualified URL ensures
+// the module can be resolved even when this file runs from a `blob:` URL
+// (for example when evaluating user-provided code in the builder).
+const quillModuleUrl = new URL('/assets/js/quillEditor.js', document.baseURI).href;
+
+let initQuill;
 
 export async function initBuilder(sidebarEl, contentEl, pageId = null) {
+  if (!initQuill) {
+    ({ initQuill } = await import(quillModuleUrl));
+  }
   document.body.classList.add('builder-mode');
   // Temporary patch: larger default widget height
   const DEFAULT_ROWS = 20; // around 100px with 5px grid cells

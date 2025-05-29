@@ -1,8 +1,9 @@
-// Absolute path ensures Quill loads correctly even when this widget code is
-// evaluated from a blob during live editing.
-import { initQuill } from '/assets/js/quillEditor.js';
+// The editor may run from a `blob:` URL when edited live. Load Quill
+// dynamically using an absolute URL so the import succeeds in that case.
+const quillUrl = new URL('/assets/js/quillEditor.js', document.baseURI).href;
 
-export function render(el, ctx = {}) {
+export async function render(el, ctx = {}) {
+  const { initQuill } = await import(quillUrl);
   const container = document.createElement('div');
   container.className = 'text-block-widget';
   container.innerHTML = ctx?.metadata?.label || '<p>Sample text block</p>';
