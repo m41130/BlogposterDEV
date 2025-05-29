@@ -1,8 +1,8 @@
 #not ready yet
-/library
+/BlogposterCMS/library
 /mother/modeMiddleware.js
-public/assets/css/site.css
-public/assets/css/site.css.map
+#public/assets/css/site.css
+#public/assets/css/site.css.map
 
 # Logs
 logs
@@ -34,7 +34,8 @@ pids
 lib-cov
 
 # development dependency directories
-/devcontainer
+/.devcontainer
+.vscode
 
 # Coverage directory used by tools like istanbul
 coverage
@@ -144,6 +145,7 @@ dist
 
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test
+*/vscode
 
 # yarn v2
 .yarn/cache
