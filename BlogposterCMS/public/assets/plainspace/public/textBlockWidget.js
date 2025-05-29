@@ -1,4 +1,6 @@
-import { initQuill } from '../../js/quillEditor.js';
+// Absolute path ensures Quill loads correctly even when this widget code is
+// evaluated from a blob during live editing.
+import { initQuill } from '/assets/js/quillEditor.js';
 
 export function render(el, ctx = {}) {
   const container = document.createElement('div');

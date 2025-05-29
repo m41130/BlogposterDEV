@@ -1,5 +1,8 @@
 // public/assets/plainspace/admin/builderRenderer.js
-import { initQuill } from '../../js/quillEditor.js';
+// Use an absolute path so the module works even when executed from a blob
+// context (e.g. during inline code execution inside the builder). Relative
+// imports fail in that scenario because the base URL is not hierarchical.
+import { initQuill } from '/assets/js/quillEditor.js';
 
 export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   document.body.classList.add('builder-mode');
