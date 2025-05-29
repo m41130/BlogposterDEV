@@ -38,29 +38,40 @@ export async function render(el) {
     container.className = 'user-edit-widget';
 
     fields.forEach(f => {
-      const label = document.createElement('label');
-      label.textContent = f.replace('_', ' ');
+      const field = document.createElement('div');
+      field.className = 'field';
+
       const input = document.createElement(f === 'bio' ? 'textarea' : 'input');
+      const id = `ue-${f}`;
       if (input.tagName === 'INPUT') {
         input.type = 'text';
       }
+      input.id = id;
+      input.placeholder = ' ';
       input.value = user[f] || '';
       inputs[f] = input;
-      label.appendChild(document.createElement('br'));
-      label.appendChild(input);
-      container.appendChild(label);
-      container.appendChild(document.createElement('br'));
+
+      const label = document.createElement('label');
+      label.setAttribute('for', id);
+      label.textContent = f.replace('_', ' ');
+
+      field.appendChild(input);
+      field.appendChild(label);
+      container.appendChild(field);
     });
 
-    const passLabel = document.createElement('label');
-    passLabel.textContent = 'New Password';
+    const passField = document.createElement('div');
+    passField.className = 'field';
     const passInput = document.createElement('input');
+    passInput.id = 'ue-new-pass';
     passInput.type = 'password';
-    passInput.placeholder = 'Leave blank to keep current';
-    passLabel.appendChild(document.createElement('br'));
-    passLabel.appendChild(passInput);
-    container.appendChild(passLabel);
-    container.appendChild(document.createElement('br'));
+    passInput.placeholder = ' ';
+    const passLabel = document.createElement('label');
+    passLabel.setAttribute('for', 'ue-new-pass');
+    passLabel.textContent = 'New Password';
+    passField.appendChild(passInput);
+    passField.appendChild(passLabel);
+    container.appendChild(passField);
 
     const saveBtn = document.createElement('button');
     saveBtn.textContent = 'Save';

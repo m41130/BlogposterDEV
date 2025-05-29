@@ -16,8 +16,8 @@ export async function render(el) {
   container.className = 'page-settings-widget';
 
   // Status dropdown
-  const statusLabel = document.createElement('label');
-  statusLabel.textContent = 'Status';
+  const statusField = document.createElement('div');
+  statusField.className = 'field';
   const statusSelect = document.createElement('select');
   statusSelect.id = 'pe-status';
   ['published','draft','deleted'].forEach(opt => {
@@ -27,33 +27,43 @@ export async function render(el) {
     if (page.status === opt) o.selected = true;
     statusSelect.appendChild(o);
   });
-  statusLabel.appendChild(document.createElement('br'));
-  statusLabel.appendChild(statusSelect);
+  const statusLabel = document.createElement('label');
+  statusLabel.setAttribute('for', 'pe-status');
+  statusLabel.textContent = 'Status';
+  statusField.appendChild(statusSelect);
+  statusField.appendChild(statusLabel);
 
   // Publish at
-  const publishLabel = document.createElement('label');
-  publishLabel.textContent = 'Publish at';
+  const publishField = document.createElement('div');
+  publishField.className = 'field';
   const publishInput = document.createElement('input');
   publishInput.id = 'pe-publish-at';
   publishInput.type = 'datetime-local';
+  publishInput.placeholder = ' ';
   publishInput.value = page.meta?.publish_at || '';
-  publishLabel.appendChild(document.createElement('br'));
-  publishLabel.appendChild(publishInput);
+  const publishLabel = document.createElement('label');
+  publishLabel.setAttribute('for', 'pe-publish-at');
+  publishLabel.textContent = 'Publish at';
+  publishField.appendChild(publishInput);
+  publishField.appendChild(publishLabel);
 
   // Slug
-  const slugLabel = document.createElement('label');
-  slugLabel.textContent = 'Slug';
+  const slugField = document.createElement('div');
+  slugField.className = 'field';
   const slugInput = document.createElement('input');
   slugInput.id = 'pe-slug';
   slugInput.type = 'text';
-  slugInput.placeholder = 'slug';
+  slugInput.placeholder = ' ';
   slugInput.value = page.slug || '';
-  slugLabel.appendChild(document.createElement('br'));
-  slugLabel.appendChild(slugInput);
+  const slugLabel = document.createElement('label');
+  slugLabel.setAttribute('for', 'pe-slug');
+  slugLabel.textContent = 'Slug';
+  slugField.appendChild(slugInput);
+  slugField.appendChild(slugLabel);
 
   // Layout dropdown
-  const layoutLabel = document.createElement('label');
-  layoutLabel.textContent = 'Layout';
+  const layoutField = document.createElement('div');
+  layoutField.className = 'field';
   const layoutSelect = document.createElement('select');
   layoutSelect.id = 'pe-layout';
   let templates = [];
@@ -76,16 +86,16 @@ export async function render(el) {
     if ((page.meta?.layoutTemplate || '') === name) o.selected = true;
     layoutSelect.appendChild(o);
   });
-  layoutLabel.appendChild(document.createElement('br'));
-  layoutLabel.appendChild(layoutSelect);
+  const layoutLabel = document.createElement('label');
+  layoutLabel.setAttribute('for', 'pe-layout');
+  layoutLabel.textContent = 'Layout';
+  layoutField.appendChild(layoutSelect);
+  layoutField.appendChild(layoutLabel);
 
-  container.appendChild(statusLabel);
-  container.appendChild(document.createElement('br'));
-  container.appendChild(publishLabel);
-  container.appendChild(document.createElement('br'));
-  container.appendChild(slugLabel);
-  container.appendChild(document.createElement('br'));
-  container.appendChild(layoutLabel);
+  container.appendChild(statusField);
+  container.appendChild(publishField);
+  container.appendChild(slugField);
+  container.appendChild(layoutField);
 
   el.innerHTML = '';
   el.appendChild(container);
