@@ -1,6 +1,6 @@
 {
     "liveSassCompile.settings.includeItems": [
-      "public/assets/scss/**/*.scss"
+      "BlogposterCMS/public/assets/scss/**/*.scss"
     ],
     "liveSassCompile.settings.excludeList": [
       "**/node_modules/**",
@@ -10,7 +10,7 @@
       {
         "format": "expanded",
         "extensionName": ".css",
-        "savePath": "/public/assets/css"
+        "savePath": "/BlogposterCMS/public/assets/css"
       }
     ]
   }
