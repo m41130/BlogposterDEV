@@ -1,24 +1,31 @@
+import { initQuill } from '../../js/quillEditor.js';
+
 export function render(el, ctx = {}) {
-  const p = document.createElement('p');
-  p.textContent = ctx?.metadata?.label || 'Sample text block';
+  const container = document.createElement('div');
+  container.className = 'text-block-widget';
+  container.innerHTML = ctx?.metadata?.label || '<p>Sample text block</p>';
+
   if (ctx.jwt) {
-    p.contentEditable = 'true';
-    p.addEventListener('blur', async () => {
-      const newText = p.textContent.trim();
-      try {
-        await window.meltdownEmit('updateWidget', {
-          jwt: ctx.jwt,
-          moduleName: 'widgetManager',
-          moduleType: 'core',
-          widgetId: ctx.id,
-          widgetType: 'public',
-          newLabel: newText
-        });
-      } catch (err) {
-        console.error('[textBlockWidget] save error', err);
-      }
-    });
+    const quill = initQuill(container);
+    if (quill) {
+      quill.on('text-change', async () => {
+        const html = quill.root.innerHTML.trim();
+        try {
+          await window.meltdownEmit('updateWidget', {
+            jwt: ctx.jwt,
+            moduleName: 'widgetManager',
+            moduleType: 'core',
+            widgetId: ctx.id,
+            widgetType: 'public',
+            newLabel: html
+          });
+        } catch (err) {
+          console.error('[textBlockWidget] save error', err);
+        }
+      });
+    }
   }
+
   el.innerHTML = '';
-  el.appendChild(p);
+  el.appendChild(container);
 }
