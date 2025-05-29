@@ -73,7 +73,7 @@
   gap: 6px;
 }
 
-.page-list .empty-state {
+%page-list-empty-state {
   color: #bbb;
   padding: 20px 0 8px 0;
   text-align: center;
@@ -81,7 +81,11 @@
   font-family: var(--font-body);
 }
 
-.page-list li {
+.page-list .empty-state {
+  @extend %page-list-empty-state;
+}
+
+%page-list-item {
   border-radius: 8px;
   background: #fafbfc;
   box-shadow: 0 1px 6px rgba(0,0,0,0.04);
@@ -95,6 +99,10 @@
     border: 1px solid #f0cfff;
     box-shadow: 0 2px 16px rgba(208,0,175,0.08);
   }
+}
+
+.page-list li {
+  @extend %page-list-item;
 }
 
 // Zeile: Name und Aktionen

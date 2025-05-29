@@ -20,10 +20,12 @@
   @extend .page-list;
 }
 
+
 .users-list .empty-state {
-  @extend .page-list .empty-state;
+  @extend %page-list-empty-state;
 }
 
+
 .users-list li {
-  @extend .page-list li;
+  @extend %page-list-item;
 }
