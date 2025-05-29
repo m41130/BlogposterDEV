@@ -1,8 +1,10 @@
-// Use an absolute path for compatibility when this widget's code is executed
-// from a blob URL inside the builder's inline editor.
-import { initQuill } from '/assets/js/quillEditor.js';
+// The builder may execute this code from a `blob:` URL. Loading Quill
+// dynamically with a full URL ensures the import succeeds in that case.
+// Dynamically import Quill so this widget works when executed from a blob URL.
+const quillUrl = new URL('/assets/js/quillEditor.js', document.baseURI).href;
 
 export async function render(el) {
+  const { initQuill } = await import(quillUrl);
   const pageData = await window.pageDataLoader.load('getPageById', {
     moduleName: 'pagesManager',
     moduleType: 'core',
