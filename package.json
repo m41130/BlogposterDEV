@@ -5,7 +5,8 @@
     "scripts": {
         "start": "node app.js",
         "dev": "nodemon app.js",
-        "test": "node tests/setAsStart.test.js && node tests/updatePage.test.js && node tests/notificationManager.test.js && node tests/publicEvents.test.js && node tests/themeImporter.test.js && node tests/cookieSanitization.test.js"
+        "test": "node tests/setAsStart.test.js && node tests/updatePage.test.js && node tests/notificationManager.test.js && node tests/publicEvents.test.js && node tests/themeImporter.test.js && node tests/cookieSanitization.test.js",
+        "build": "webpack --mode production"
     },
     "dependencies": {
         "@rc-component/color-picker": "^2.0.1",
@@ -24,5 +25,9 @@
         "pg": "^8.13.1",
         "uuid": "^11.0.3",
         "vm2": "^3.9.19"
+    },
+    "devDependencies": {
+        "webpack": "^5.91.0",
+        "webpack-cli": "^5.1.4"
     }
 }
