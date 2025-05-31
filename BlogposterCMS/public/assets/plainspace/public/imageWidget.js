@@ -12,7 +12,7 @@ export function render(el, ctx = {}) {
     btn.textContent = 'Choose Image';
     btn.addEventListener('click', async () => {
       try {
-        const { shareURL } = await window.meltdownEmit('openExplorer', { jwt: ctx.jwt });
+        const { shareURL } = await window.meltdownEmit('openMediaExplorer', { jwt: ctx.jwt });
         if (shareURL) {
           img.src = shareURL;
           await window.meltdownEmit('updateWidget', {
@@ -25,7 +25,7 @@ export function render(el, ctx = {}) {
           });
         }
       } catch (err) {
-        console.error('[imageWidget] openExplorer error', err);
+        console.error('[imageWidget] openMediaExplorer error', err);
       }
     });
     el.appendChild(btn);
