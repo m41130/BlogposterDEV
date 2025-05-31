@@ -1,7 +1,10 @@
 // public/assets/js/meltdownEmitter.js
 ;(function(window) {
   window.meltdownEmit = async function(eventName, payload = {}) {
-    if (eventName === 'openExplorer' && window._openMediaExplorer) {
+    if (
+      (eventName === 'openExplorer' || eventName === 'openMediaExplorer') &&
+      window._openMediaExplorer
+    ) {
       return window._openMediaExplorer(payload);
     }
     const headers = {
