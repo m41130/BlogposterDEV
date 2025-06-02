@@ -7,5 +7,6 @@ BlogposterCMS was designed with multiple layers of security in mind. While no sy
 - **Rate limiting** – The configuration in `config/security.js` defines limits for login attempts to slow down brute-force attacks. Adjust these values according to your needs.
 - **CSRF protection** – Admin routes use CSRF tokens to prevent cross-site request forgery. Clients must include the token when authenticating or performing sensitive actions.
 - **Module sandboxing** – Optional modules are loaded inside a sandbox. Faulty or malicious modules are deactivated automatically when health checks fail.
+- **JWT event bus** – All internal actions pass through the meltdown event bus. Each event carries a signed token and is validated before execution to prevent unauthorized operations.
 
 Always review your access logs and keep dependencies up to date. Security patches will continue to harden the platform over time.

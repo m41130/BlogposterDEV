@@ -146,6 +146,7 @@ Additional documentation files live in the [docs](docs/) directory:
 - [Installation](docs/installation.md)
 - [Module Architecture](docs/modules.md)
 - [Security Notes](docs/security.md)
+- [CMS Usage Guide](docs/guide.md)
 
 ## License
 
