@@ -4,6 +4,8 @@ Welcome to the documentation folder for **BlogposterCMS**. This section provides
 
 - [Installation](installation.md)
 - [Module Architecture](modules.md)
+- [Per-module Reference](modules)
+- [Architecture Overview](architecture.md)
 - [Security Notes](security.md)
 - [CMS Usage Guide](guide.md)
 
