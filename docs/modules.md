@@ -23,3 +23,29 @@ This mechanism ensures that even community modules cannot bypass security bounda
 5. Restart the CMS. The Module Loader will sandbox your module and activate it if no errors occur.
 
 Modules should avoid direct imports from other modules. Instead, emit events to request data or actions. This keeps modules loosely coupled and easier to maintain.
+
+## Individual Module Docs
+
+See the [`modules`](modules) directory for a breakdown of each built-in module.
+Every file lists how the module is started, which events it listens to and any
+important security notes.
+
+### Available Modules
+
+- [auth](modules/auth.md)
+- [databaseManager](modules/databaseManager.md)
+- [dependencyLoader](modules/dependencyLoader.md)
+- [importer](modules/importer.md)
+- [mediaManager](modules/mediaManager.md)
+- [moduleLoader](modules/moduleLoader.md)
+- [notificationManager](modules/notificationManager.md)
+- [pagesManager](modules/pagesManager.md)
+- [plainSpace](modules/plainSpace.md)
+- [serverManager](modules/serverManager.md)
+- [settingsManager](modules/settingsManager.md)
+- [shareManager](modules/shareManager.md)
+- [themeManager](modules/themeManager.md)
+- [translationManager](modules/translationManager.md)
+- [unifiedSettings](modules/unifiedSettings.md)
+- [userManagement](modules/userManagement.md)
+- [widgetManager](modules/widgetManager.md)
