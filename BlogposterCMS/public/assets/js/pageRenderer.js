@@ -103,8 +103,13 @@ function renderWidget(wrapper, def, code = null, lane = 'public') {
     }
     return;
   }
+  const host = wrapper.closest('.grid-stack-item') || wrapper;
+  const ctx = { id: host.dataset.instanceId, metadata: def.metadata };
+  if (lane === 'admin' && window.ADMIN_TOKEN) {
+    ctx.jwt = window.ADMIN_TOKEN;
+  }
   import(def.codeUrl)
-    .then(m => m.render?.(container))
+    .then(m => m.render?.(container, ctx))
     .catch(err => console.error(`[Widget ${def.id}] import error:`, err));
 }
 

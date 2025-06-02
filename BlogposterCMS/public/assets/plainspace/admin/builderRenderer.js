@@ -161,7 +161,13 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       }
       return;
     }
-    import(widgetDef.codeUrl).then(m => m.render?.(container)).catch(err => console.error('[Builder] widget import error', err));
+    const ctx = { id: instanceId, metadata: widgetDef.metadata };
+    if (window.ADMIN_TOKEN) {
+      ctx.jwt = window.ADMIN_TOKEN;
+    }
+    import(widgetDef.codeUrl)
+      .then(m => m.render?.(container, ctx))
+      .catch(err => console.error('[Builder] widget import error', err));
   }
 
   function attachEditButton(el, widgetDef) {
