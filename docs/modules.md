@@ -7,3 +7,19 @@ BlogposterCMS follows a modular design. Core features and optional extensions ar
 - **Events** are used instead of direct function calls. Modules emit events to perform actions such as database operations, authentication or theme management. Tokens in the payload ensure that only authorised modules can request sensitive operations.
 
 When creating your own modules, start by exporting an `initialize` function that receives `{ motherEmitter, jwt, isCore }`. See the existing modules for reference.
+
+## The JWT Event Bus
+
+Modules communicate exclusively through the meltdown event bus. Every event payload contains a signed JWT that declares the module name, type and requested permissions. The `motherEmitter` validates these tokens before dispatching the event. If a token lacks the required permission, the call is rejected.
+
+This mechanism ensures that even community modules cannot bypass security boundaries. Always keep your JWT secrets private and avoid exposing them in logs or client-side code.
+
+## Creating a New Module
+
+1. Add a new folder under `modules/`.
+2. Place an `index.js` file inside it with an exported `initialize` function.
+3. Optionally include a `moduleInfo.json` file with metadata (name, version, permissions, description).
+4. Register any meltdown listeners within the `initialize` function. Use `motherEmitter.on('eventName', handler)` to react to events.
+5. Restart the CMS. The Module Loader will sandbox your module and activate it if no errors occur.
+
+Modules should avoid direct imports from other modules. Instead, emit events to request data or actions. This keeps modules loosely coupled and easier to maintain.
