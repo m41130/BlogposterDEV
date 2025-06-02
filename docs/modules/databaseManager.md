@@ -1,14 +1,16 @@
 # Database Manager
 
-Handles creation of databases or schemas and exposes generic CRUD events for modules. It can also forward operations to remote services if configured.
+The Database Manager acts as the gateway between modules and the persistence layer. It hides direct access behind meltdown events so modules never touch the database driver themselves.
 
 ## Startup
-- Core module loaded at boot.
-- Requires a valid JWT token for initialization.
+- Loaded as a core module during boot.
+- Requires a high‑trust JWT token for initialization.
+- Registers the CRUD event listeners on `motherEmitter`.
 
 ## Purpose
-- Provides `createDatabase`, `dbInsert`, `dbSelect`, `dbUpdate` and `dbDelete` events.
-- Abstracts database engines so modules do not access the DB directly.
+- Creates dedicated databases or schemas for modules.
+- Provides generic events used by other modules.
+- Can forward requests to remote services when `REMOTE_URL_<module>` is defined.
 
 ## Listened Events
 - `createDatabase`
@@ -18,4 +20,29 @@ Handles creation of databases or schemas and exposes generic CRUD events for mod
 - `dbUpdate`
 - `dbDelete`
 
-Every call checks the provided JWT before executing the operation.
+The manager also emits `deactivateModule` if a module triggers a fatal error. Every call is validated against the provided JWT before any database operation is executed.
+
+## Database Engines
+The manager works with either **PostgreSQL** or **MongoDB** as selected by the `CONTENT_DB_TYPE` variable. PostgreSQL is fully tested and recommended for production use. MongoDB support is experimental. See [Choosing a Database Engine](../choosing_database_engine.md) for configuration details.
+
+## Placeholder Switch Cases
+Operations may reference built‑in placeholders such as `createUserTable` or custom ones registered by modules. The manager checks these placeholders before running raw SQL:
+
+```
+switch (operation) {
+  case 'createUserTable':
+    // handled inside postgresPlaceholders.js or mongoPlaceholders.js
+    break;
+  default:
+    // falls back to user provided SQL or driver methods
+}
+```
+
+Modules can register custom placeholders using the `registerCustomPlaceholder` helper.
+
+## Module Databases
+Modules listed in the `HAS_OWN_DB` environment variable receive a dedicated database. Others share the main database through isolated schemas. Credentials are generated from `MODULE_DB_SALT` and never exposed.
+
+Modules normally access **only their own** database or schema. Accessing another module's data requires a JWT that explicitly names that module and grants permission, which should be avoided for security reasons.
+
+Always keep database credentials private and grant only the minimal privileges needed.
