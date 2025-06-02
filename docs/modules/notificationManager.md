@@ -13,3 +13,5 @@ Dispatches system notifications to configured integrations such as email or web 
 - This module does not expose meltdown events directly. Instead it listens on `notificationEmitter` for `notify` events.
 
 Each integration can perform its own security checks before sending data externally.
+
+See the high level [Notification System](../notification_system.md) guide for configuration examples.
