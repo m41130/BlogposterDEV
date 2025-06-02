@@ -9,4 +9,21 @@ BlogposterCMS was designed with multiple layers of security in mind. While no sy
 - **Module sandboxing** – Optional modules are loaded inside a sandbox. Faulty or malicious modules are deactivated automatically when health checks fail.
 - **JWT event bus** – All internal actions pass through the meltdown event bus. Each event carries a signed token and is validated before execution to prevent unauthorized operations.
 
+- **HTTP security headers** – Configure a Content-Security-Policy and other headers (using middleware such as `helmet`) to protect against common attacks like XSS and clickjacking.
+- **Session management** – Keep JWT secrets private and rotate them periodically. Tokens should expire after a reasonable time, especially for admin accounts.
+- **Dependency audits** – Run `npm audit` regularly and update packages when security fixes are published. Review third‑party modules before enabling them.
+- **Database privileges** – Create database users with only the permissions they need and restrict remote access where possible.
+- **Monitoring and logs** – Record login attempts and important actions. Reviewing logs helps detect suspicious behavior early.
+
 Always review your access logs and keep dependencies up to date. Security patches will continue to harden the platform over time.
+
+## Developing Secure Modules
+
+When writing your own modules keep these best practices in mind:
+
+1. Validate and sanitize all user-supplied data before emitting events.
+2. Never trust payloads from other modules unless they include a valid JWT and the expected permissions.
+3. Avoid dynamic code execution (such as `eval`) and keep your dependency list small.
+4. Document the permissions your module requires in `moduleInfo.json` so administrators understand the impact.
+
+Following these rules helps protect the entire system as it grows.
