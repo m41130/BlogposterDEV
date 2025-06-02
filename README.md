@@ -1,3 +1,5 @@
+![Tests](https://github.com/m41130/BlogposterCMS/actions/workflows/test.yml/badge.svg)
+
 # BlogposterCMS
 
 ![BlogposterCMS logo](BlogposterCMS/public/assets/logo/logo_blogposter_min_transparent.png)
