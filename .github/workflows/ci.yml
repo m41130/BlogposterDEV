@@ -34,13 +34,25 @@ jobs:
   codeql_analysis:
     needs: lint_and_test
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: BlogposterCMS
     steps:
       - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+          cache: 'npm'
+          cache-dependency-path: BlogposterCMS/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Build
+        run: npm run build
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
           languages: javascript
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
+          working-directory: BlogposterCMS
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
