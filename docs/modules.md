@@ -24,6 +24,13 @@ This mechanism ensures that even community modules cannot bypass security bounda
 
 Modules should avoid direct imports from other modules. Instead, emit events to request data or actions. This keeps modules loosely coupled and easier to maintain.
 
+## Tips for Developing Modules
+
+- Keep event names unique to avoid collisions with other modules.
+- Validate incoming data and reject requests that lack a proper JWT or required permissions.
+- Document your module's events and configuration in its own README or `moduleInfo.json`.
+- Limit dependencies and run `npm audit` frequently to catch vulnerabilities early.
+
 ## Individual Module Docs
 
 See the [`modules`](modules) directory for a breakdown of each built-in module.
