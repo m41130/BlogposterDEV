@@ -1,6 +1,6 @@
 # Module Loader
 
-Loads optional community modules from the top-level `modules/` directory. Each module is sandboxed during a health check to prevent crashes or unsafe behaviour.
+Loads optional community modules from the top-level `modules/` directory. Each module is sandboxed during a health check to prevent crashes or unsafe behaviour. The sandbox uses Node's `vm` module and only exposes `path` and `fs` as allowed dependencies.
 
 ## Startup
 - Core module executed after the initial core modules are ready.

@@ -5,7 +5,7 @@
  * 
  * Folgende Highlights erwarten Sie:
  * 1) Prüfung, ob die Module sauber initialisiert werden können (Health Check).
- * 2) Nutzung einer vm2-Sandbox, um Module in Quarantäne zu testen.
+ * 2) Nutzung einer einfachen Node-vm-Sandbox, um Module in Quarantäne zu testen.
  * 3) Deaktivierung fehlerhafter Module (wenn sie nicht kuschen wollen).
  * 4) Nach erfolgreichem Health Check erneutes "richtiges" Laden im Produktivmodus.
  * 5) Auto-Retry für zuvor gecrashte Module (zweite Chance für Chaos).
@@ -15,7 +15,7 @@
 require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
-const { NodeVM } = require('vm2');
+const vm = require('vm');
 
 // Falls Sie einen eigenen NotificationEmitter haben, könnten Sie den hier integrieren:
 const  notificationEmitter  = require('../../emitters/notificationEmitter');
@@ -180,6 +180,40 @@ async function loadAllModules({ emitter, app, jwt }) {
   console.log('[MODULE LOADER] All optional modules loaded / retried successfully. The meltdown continues.');
 }
 
+// Lädt ein Modul in einer einfachen vm-Sandbox
+function loadModuleSandboxed(indexJsPath) {
+  const allowedBuiltins = new Set(['path', 'fs']);
+
+  function sandboxRequire(reqPath) {
+    if (allowedBuiltins.has(reqPath)) {
+      return require(reqPath);
+    }
+    if (reqPath.startsWith('./') || reqPath.startsWith('../')) {
+      const resolved = path.resolve(path.dirname(indexJsPath), reqPath);
+      if (!resolved.startsWith(path.dirname(indexJsPath))) {
+        throw new Error('Invalid require path');
+      }
+      return require(resolved);
+    }
+    throw new Error(`Access to '${reqPath}' is denied`);
+  }
+
+  const context = {
+    module: { exports: {} },
+    exports: {},
+    require: sandboxRequire,
+    console,
+    setTimeout,
+    setInterval,
+    clearTimeout,
+    clearInterval,
+  };
+  vm.createContext(context);
+  const code = fs.readFileSync(indexJsPath, 'utf8');
+  vm.runInContext(code, context, { filename: indexJsPath });
+  return context.module.exports;
+}
+
 /**
  * attemptModuleLoad: versucht das Laden eines einzelnen Moduls mit vorgeschaltetem Health-Check.
  * - Lädt Module aus dem entsprechenden Ordner
@@ -222,17 +256,7 @@ async function attemptModuleLoad(
   try {
     let modEntry;
     if (ALLOW_INDIVIDUAL_SANDBOX) {
-      const vm = new NodeVM({
-        console: 'inherit',
-        sandbox: {},
-        require: {
-          external: true,
-          builtin: ['path', 'fs'],
-          root: path.dirname(indexJsPath)
-        }
-      });
-      const code = fs.readFileSync(indexJsPath, 'utf8');
-      modEntry = vm.run(code, indexJsPath);
+      modEntry = loadModuleSandboxed(indexJsPath);
     } else {
       // Tja, wenn schon isoliert sein soll, aber ALLOW_INDIVIDUAL_SANDBOX = false...
       // Laden wir's eben direkt. Möge der Chaosgott uns gnädig sein.

@@ -6,7 +6,7 @@ BlogposterCMS was designed with multiple layers of security in mind. While no sy
 - **HTTPS** – When running in production, place the app behind HTTPS and set `NODE_ENV=production` to enable secure cookies and redirects.
 - **Rate limiting** – The configuration in `config/security.js` defines limits for login attempts to slow down brute-force attacks. Adjust these values according to your needs.
 - **CSRF protection** – Admin routes use CSRF tokens to prevent cross-site request forgery. Clients must include the token when authenticating or performing sensitive actions.
-- **Module sandboxing** – Optional modules are loaded inside a sandbox. Faulty or malicious modules are deactivated automatically when health checks fail.
+- **Module sandboxing** – Optional modules run inside a minimal sandbox built with Node's `vm` module. Only `path` and `fs` can be required and network access is blocked. Faulty or malicious modules are deactivated automatically when health checks fail.
 - **JWT event bus** – All internal actions pass through the meltdown event bus. Each event carries a signed token and is validated before execution to prevent unauthorized operations.
 
 - **HTTP security headers** – Configure a Content-Security-Policy and other headers (using middleware such as `helmet`) to protect against common attacks like XSS and clickjacking.
