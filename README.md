@@ -84,7 +84,7 @@ If you’re *still* ready to try out BlogposterCMS:
 1. **Clone the repository**  
    ```bash
    git clone https://github.com/BlogposterCMS/BlogposterCMS.git
-````
+   ```
 
 (Until the project is more “mature,” we recommend using the main branch for the latest features and fixes. Because stable releases are for cowards.)
 
