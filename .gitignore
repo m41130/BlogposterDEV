@@ -2,8 +2,8 @@
 /BlogposterCMS/library
 /BlogposterCMS/.env
 /mother/modeMiddleware.js
-#public/assets/css/site.css
-#public/assets/css/site.css.map
+public/assets/css/site.css
+public/assets/css/site.css.map
 
 # Logs
 logs

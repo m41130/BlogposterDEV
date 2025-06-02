@@ -1099,6 +1099,14 @@ body.builder-mode #main-header {
   display: none;
 }
 
+.heading-widget {
+  display: flex;
+  align-items: center;
+}
+.heading-widget .heading-level-select {
+  margin-left: 8px;
+}
+
 .page-info-widget,
 .page-settings-widget,
 .seo-image-widget,
