@@ -1,12 +1,14 @@
 # BlogposterCMS
 
+![BlogposterCMS logo](BlogposterCMS/public/assets/logo/logo_blogposter_min_transparent.png)
+
 📚 Full documentation lives in [`docs/index.md`](./docs/index.md) – your entry point for installation, architecture, security and developer guides.
 
-> "The last CMS you'll ever fork."  
+> "The last CMS you'll ever fork."
 > BlogposterCMS is what happens when a dev snaps after one too many WordPress updates.
 
-**BlogposterCMS** is a modular, secure-by-design *Node.js CMS* that doesn’t care about trends — only about control.
-Every feature is a module. Every module is sandboxed. Every action is validated.
+**BlogposterCMS** is an **open-source, self-hosted Node.js content management system** built for security and speed.
+It lets you run modern blogs and websites without sacrificing control. Every feature is a module. Every module is sandboxed. Every action is validated.
 You get the power of plugins — without the plugin drama.
 
 - 🧩 100% modular (every feature is optional)
@@ -19,6 +21,7 @@ You get the power of plugins — without the plugin drama.
 - ☢️ Meltdown event bus keeps rogue modules isolated
 - 🔑 Dynamic login strategies and secure share links
 - 📦 Dependency whitelisting for safe requires
+- 🌐 Lightweight design for fast, SEO-friendly pages
 
 It’s currently in Alpha. No guarantees. No mercy. Full transparency.
 
