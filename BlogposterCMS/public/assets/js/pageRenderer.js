@@ -1,7 +1,7 @@
 // public/assets/js/pageRenderer.js
 
-import { fetchPartial } from '/assets/plainspace/admin/fetchPartial.js';
-import { initBuilder } from '/assets/plainspace/admin/builderRenderer.js';
+import { fetchPartial } from '../plainspace/admin/fetchPartial.js';
+import { initBuilder } from '../plainspace/admin/builderRenderer.js';
 
 // Default rows for admin widgets (~50px with 5px grid cells)
 // Temporary patch: double the default height for larger widgets
