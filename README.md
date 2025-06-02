@@ -1,6 +1,6 @@
 # BlogposterCMS
 
-📚 Full documentation moved to [`/docs`](./docs) – for setup, architecture, security and developer guides.
+📚 Full documentation lives in [`docs/index.md`](./docs/index.md) – your entry point for installation, architecture, security and developer guides.
 
 > "The last CMS you'll ever fork."  
 > BlogposterCMS is what happens when a dev snaps after one too many WordPress updates.
@@ -24,7 +24,7 @@ It’s currently in Alpha. No guarantees. No mercy. Full transparency.
 
 ---
 
-Looking for actual instructions? Check the [docs/](docs/) folder. You'll find guides on installation, configuration, module architecture, developer quickstart and, of course, pages of security notes. Replace those placeholder secrets in `.env` or the event bus will mock you.
+Looking for actual instructions? Start with the [documentation index](docs/index.md). You'll find guides on installation, configuration, module architecture, developer quickstart and, of course, pages of security notes. Replace those placeholder secrets in `.env` or the event bus will mock you.
 
 Fancy tricks like dynamic login strategies, the meltdown event bus, or safe dependency loading are explained there too. Basically, if you’re looking for details, consult the docs.
 
