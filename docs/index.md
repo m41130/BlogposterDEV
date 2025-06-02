@@ -1,6 +1,7 @@
 # BlogposterCMS Documentation
 
-Welcome to the documentation folder for **BlogposterCMS**. This section provides additional information on installing, configuring and extending the system. The files are grouped by topic for easier navigation.
+BlogposterCMS is an **open-source Node.js content management system** built with security in mind.
+This folder provides additional information on installing, configuring and extending the system. The files are grouped by topic for easier navigation.
 
 - [Installation](installation.md)
 - [Module Architecture](modules.md)
