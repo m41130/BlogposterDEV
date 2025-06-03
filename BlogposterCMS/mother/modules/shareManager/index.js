@@ -263,12 +263,20 @@ function setupShareEventListeners(motherEmitter) {
  *   Creates a random base62 string of given length for short tokens.
  */
 function generateRandomToken(length = 8) {
+  const crypto = require('crypto');
   const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-  const bytes = require('crypto').randomBytes(length);
+  const charLen = chars.length;
+  const maxValidByte = 256 - (256 % charLen);
   let result = '';
-  for (let i = 0; i < length; i++) {
-    result += chars[bytes[i] % chars.length];
+
+  while (result.length < length) {
+    const byte = crypto.randomBytes(1)[0];
+    if (byte >= maxValidByte) {
+      continue; // Avoid modulo bias
+    }
+    result += chars[byte % charLen];
   }
+
   return result;
 }
 
