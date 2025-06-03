@@ -64,7 +64,7 @@ function onceCallback(originalCb) {
   };
 }
 
-/** maskJwtInArgs => replaces sensitive fields in meltdown payload with "<REDACTED>" */
+/** maskJwtInArgs => removes sensitive fields entirely from meltdown payload */
 function maskJwtInArgs(args) {
   const sensitiveKeys = [
     'jwt',
@@ -76,23 +76,24 @@ function maskJwtInArgs(args) {
     'TOKEN_SALT_HIGH',
     'TOKEN_SALT_MEDIUM',
     'TOKEN_SALT_LOW'
-  ];
+  ].map(k => k.toLowerCase());
 
   try {
     return args.map(arg => {
       if (arg && typeof arg === 'object' && !Array.isArray(arg)) {
-        const clone = { ...arg };
-        Object.keys(clone).forEach(key => {
-          if (sensitiveKeys.some(sk => sk.toLowerCase() === key.toLowerCase())) {
-            clone[key] = key.toLowerCase() === 'jwt' ? '<JWT-REDACTED>' : '<REDACTED>';
+        const sanitized = {};
+        Object.keys(arg).forEach(key => {
+          if (!sensitiveKeys.includes(key.toLowerCase())) {
+            sanitized[key] = arg[key];
           }
         });
-        return clone;
+        return sanitized;
       }
       return arg;
     });
   } catch {
-    return args;
+    // Fallback => return array of empty objects so nothing sensitive is logged
+    return args.map(() => ({}));
   }
 }
 
@@ -164,7 +165,8 @@ class MotherEmitter extends EventEmitter {
     // (4) Public event => skip meltdown checks
     if (PUBLIC_EVENTS.includes(eventName)) {
         console.log('[MotherEmitter] Public event => skipping meltdown => event="%s".', eventName);
-      console.log(`[MotherEmitter] Emitting =>`, maskJwtInArgs(args));
+      const safeArgs = maskJwtInArgs(args);
+      console.log('[MotherEmitter] Emitting =>', safeArgs);
       return super.emit(eventName, ...args);
     }
 
@@ -209,7 +211,8 @@ class MotherEmitter extends EventEmitter {
     }
 
     // (9) meltdown checks pass => do normal event
-    console.log('[MotherEmitter] Emitting event="%s" => sanitized args=%o', eventName, maskJwtInArgs(args));
+    const safeArgs = maskJwtInArgs(args);
+    console.log('[MotherEmitter] Emitting event="%s" => sanitized args=%o', eventName, safeArgs);
     return super.emit(eventName, ...args);
   }
 }
