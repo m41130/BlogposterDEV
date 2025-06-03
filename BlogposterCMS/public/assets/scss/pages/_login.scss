@@ -131,25 +131,7 @@
   }
 }
 
-.login-form .button {
-  width: 100%;
-  padding: 0.9rem;
-  border: none;
-  border-radius: 8px;
-  font-size: 1.08rem;
-  color: #fff;
-  background-image: var(--gradient-primary);
-  box-shadow: 0 3px 10px rgba(0,0,0,0.06);
-  font-family: var(--font-body);
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 6px;
-  transition: opacity 0.18s;
 
-  &:hover {
-    opacity: 0.92;
-  }
-}
 
 /* =============================================================================
    Login Page Layout
