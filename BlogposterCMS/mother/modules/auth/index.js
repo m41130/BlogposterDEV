@@ -67,6 +67,10 @@ module.exports = {
       if (!strategyName) {
         return callback(new Error('No strategyName specified.'));
       }
+      const disallowed = ['__proto__', 'prototype', 'constructor'];
+      if (disallowed.includes(strategyName)) {
+        return callback(new Error('Invalid strategy name.'));
+      }
       if (!Object.prototype.hasOwnProperty.call(global.loginStrategies, strategyName)) {
         return callback(new Error(`Strategy "${strategyName}" not found.`));
       }
