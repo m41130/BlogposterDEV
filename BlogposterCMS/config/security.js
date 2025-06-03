@@ -25,12 +25,24 @@ const rate = {
     /* Header style (see express‑rate‑limit docs) */
     standardHeaders : true,
     legacyHeaders   : false
+  },
+  /* General API / meltdown limiter */
+  api : {
+    windowMs        : 15 * 60 * 1000,      // 15 min
+    max             : 100,                 // sensible default
+    message         : { error: 'Too many requests – try again later.' },
+    standardHeaders : true,
+    legacyHeaders   : false
   }
 };
 
 /* .env overrides – operators can tune without touching code */
 rate.login.windowMs = Number(env.LOGIN_LIMIT_WINDOW_MS ?? rate.login.windowMs);
 rate.login.max      = Number(env.LOGIN_LIMIT_MAX       ?? rate.login.max);
+rate.api.windowMs   = Number(env.API_RATE_LIMIT_WINDOW
+  ? Number(env.API_RATE_LIMIT_WINDOW) * 60 * 1000
+  : rate.api.windowMs);
+rate.api.max        = Number(env.API_RATE_LIMIT_MAX ?? rate.api.max);
 
 /*─────────────────────────────────────────────────────────────────────*
  *  #2  CSRF CONFIG
