@@ -23,7 +23,7 @@ const helmet       = require('helmet');
 const bodyParser   = require('body-parser');
 const cookieParser = require('cookie-parser');
 const csurf        = require('csurf');
-const { apiLimiter, loginLimiter } = require('./mother/utils/rateLimiters');
+const { apiLimiter, loginLimiter, pageLimiter } = require('./mother/utils/rateLimiters');
 const crypto = require('crypto');
 const { sanitizeCookieName, sanitizeCookiePath, sanitizeCookieDomain } = require('./mother/utils/cookieUtils');
 
@@ -349,7 +349,7 @@ app.get('/admin', (_req, res) => {
 });
 
 // Admin Home Route
-app.get('/admin/home', csrfProtection, async (req, res) => {
+app.get('/admin/home', pageLimiter, csrfProtection, async (req, res) => {
   try {
     const publicJwt = await new Promise((resolve, reject) => {
       motherEmitter.emit(
@@ -405,7 +405,7 @@ app.get('/admin/home', csrfProtection, async (req, res) => {
 // ──────────────────────────────────────────────────────────────────────────
 
 // Capture any admin page slug via wildcard and parse req.params[0]
-app.get('/admin/*', async (req, res, next) => {
+app.get('/admin/*', pageLimiter, async (req, res, next) => {
 
   const adminJwt = req.cookies?.admin_jwt;
 
@@ -483,14 +483,14 @@ app.get('/admin/*', async (req, res, next) => {
 // ─────────────────────────────────────────────────────────────────
 // 8) Explicit /login route
 // ─────────────────────────────────────────────────────────────────
-app.get('/login', csrfProtection, (req, res) => {
+app.get('/login', pageLimiter, csrfProtection, (req, res) => {
   let html = fs.readFileSync(path.join(publicPath, 'login.html'), 'utf8');
   html = html.replace('{{CSRF_TOKEN}}', req.csrfToken());
   res.send(html);
 });
 
 // Convenience redirect for first-time registration
-app.get('/register', (_req, res) => {
+app.get('/register', pageLimiter, (_req, res) => {
   res.redirect('/admin/home');
 });
 
@@ -543,7 +543,7 @@ app.use(async (req, res, next) => {
 const pageHtmlPath = path.join(__dirname, 'public', 'index.html');
 
 // Handle public pages ("/" or "/:slug")
-app.get('/:slug?', async (req, res, next) => {
+app.get('/:slug?', pageLimiter, async (req, res, next) => {
   try {
     const requestedSlug = req.params.slug;
 
