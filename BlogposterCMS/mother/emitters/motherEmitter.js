@@ -78,19 +78,24 @@ function maskJwtInArgs(args) {
     'TOKEN_SALT_LOW'
   ].map(k => k.toLowerCase());
 
+  const sanitize = (value) => {
+    if (Array.isArray(value)) {
+      return value.map(sanitize);
+    }
+    if (value && typeof value === 'object') {
+      const clone = {};
+      Object.keys(value).forEach(key => {
+        if (!sensitiveKeys.includes(key.toLowerCase())) {
+          clone[key] = sanitize(value[key]);
+        }
+      });
+      return clone;
+    }
+    return value;
+  };
+
   try {
-    return args.map(arg => {
-      if (arg && typeof arg === 'object' && !Array.isArray(arg)) {
-        const sanitized = {};
-        Object.keys(arg).forEach(key => {
-          if (!sensitiveKeys.includes(key.toLowerCase())) {
-            sanitized[key] = arg[key];
-          }
-        });
-        return sanitized;
-      }
-      return arg;
-    });
+    return args.map(arg => sanitize(arg));
   } catch {
     // Fallback => return array of empty objects so nothing sensitive is logged
     return args.map(() => ({}));
@@ -166,7 +171,7 @@ class MotherEmitter extends EventEmitter {
     if (PUBLIC_EVENTS.includes(eventName)) {
         console.log('[MotherEmitter] Public event => skipping meltdown => event="%s".', eventName);
       const safeArgs = maskJwtInArgs(args);
-      console.log('[MotherEmitter] Emitting =>', safeArgs);
+      console.log('[MotherEmitter] Emitting public event="%s" with %d arg(s)', eventName, safeArgs.length);
       return super.emit(eventName, ...args);
     }
 
@@ -212,7 +217,7 @@ class MotherEmitter extends EventEmitter {
 
     // (9) meltdown checks pass => do normal event
     const safeArgs = maskJwtInArgs(args);
-    console.log('[MotherEmitter] Emitting event="%s" => sanitized args=%o', eventName, safeArgs);
+    console.log('[MotherEmitter] Emitting event="%s" with %d arg(s)', eventName, safeArgs.length);
     return super.emit(eventName, ...args);
   }
 }
