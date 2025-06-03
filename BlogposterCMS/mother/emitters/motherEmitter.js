@@ -64,19 +64,41 @@ function onceCallback(originalCb) {
   };
 }
 
-/** maskJwtInArgs => replaces any .jwt in meltdown payload with "<JWT-REDACTED>" */
+/** maskJwtInArgs => removes sensitive fields entirely from meltdown payload */
 function maskJwtInArgs(args) {
+  const sensitiveKeys = [
+    'jwt',
+    'authModuleSecret',
+    'tokenSalts',
+    'JWT_SECRET',
+    'AUTH_MODULE_SECRET',
+    'AUTH_MODULE_INTERNAL_SECRET',
+    'TOKEN_SALT_HIGH',
+    'TOKEN_SALT_MEDIUM',
+    'TOKEN_SALT_LOW'
+  ].map(k => k.toLowerCase());
+
+  const sanitize = (value) => {
+    if (Array.isArray(value)) {
+      return value.map(sanitize);
+    }
+    if (value && typeof value === 'object') {
+      const clone = {};
+      Object.keys(value).forEach(key => {
+        if (!sensitiveKeys.includes(key.toLowerCase())) {
+          clone[key] = sanitize(value[key]);
+        }
+      });
+      return clone;
+    }
+    return value;
+  };
+
   try {
-    return args.map(arg => {
-      if (arg && typeof arg === 'object') {
-        const clone = { ...arg };
-        if (clone.jwt) clone.jwt = '<JWT-REDACTED>';
-        return clone;
-      }
-      return arg;
-    });
+    return args.map(arg => sanitize(arg));
   } catch {
-    return args;
+    // Fallback => return array of empty objects so nothing sensitive is logged
+    return args.map(() => ({}));
   }
 }
 
@@ -96,7 +118,7 @@ function meltdownForModule(reason, moduleName, motherEmitter) {
     message: `Local meltdown for module='${moduleName}' => reason='${reason}'`
   });
 
-  console.warn(`[MotherEmitter] meltdown => deactivating module="${moduleName}" => reason="${reason}"`);
+  console.warn('[MotherEmitter] meltdown => deactivating module="%s" => reason="%s"', moduleName, reason);
 
   // Deactivate means removing all listeners from that module
   motherEmitter.emit('deactivateModule', { moduleName, reason });
@@ -111,7 +133,7 @@ class MotherEmitter extends EventEmitter {
 
   registerModuleType(moduleName, type) {
     this._moduleTypes[moduleName] = type;
-    console.log(`[MotherEmitter] Registered module="${moduleName}" => type="${type}"`);
+    console.log('[MotherEmitter] Registered module="%s" => type="%s"', moduleName, type);
   }
 
   /** merges JWT_SECRET with salt depending on trustLevel */
@@ -126,14 +148,14 @@ class MotherEmitter extends EventEmitter {
   emit(eventName, ...args) {
     // (1) If no listeners => just warn. 
     if (!this.listenerCount(eventName)) {
-      console.warn(`[MotherEmitter] WARNING: No listeners for event="${eventName}".`);
+      console.warn('[MotherEmitter] WARNING: No listeners for event="%s".', eventName);
       return false;
     }
 
     // (2) minimal payload check
     const firstArg = args[0];
     if (!firstArg || typeof firstArg !== 'object' || !firstArg.moduleName) {
-      console.warn(`[MotherEmitter] WARNING: Event="${eventName}" missing 'moduleName' in firstArg => ignoring.`);
+      console.warn('[MotherEmitter] WARNING: Event="%s" missing \'moduleName\' in firstArg => ignoring.', eventName);
       return false;
     }
 
@@ -141,14 +163,15 @@ class MotherEmitter extends EventEmitter {
 
     // (3) If meltdown already triggered for that module => ignore
     if (meltdownStates.get(moduleName)) {
-      console.warn(`[MotherEmitter] meltdown already triggered for module="${moduleName}". Ignoring event="${eventName}".`);
+        console.warn('[MotherEmitter] meltdown already triggered for module="%s". Ignoring event="%s".', moduleName, eventName);
       return false;
     }
 
     // (4) Public event => skip meltdown checks
     if (PUBLIC_EVENTS.includes(eventName)) {
-      console.log(`[MotherEmitter] Public event => skipping meltdown => event="${eventName}".`);
-      console.log(`[MotherEmitter] Emitting =>`, maskJwtInArgs(args));
+        console.log('[MotherEmitter] Public event => skipping meltdown => event="%s".', eventName);
+      const safeArgs = maskJwtInArgs(args);
+      console.log('[MotherEmitter] Emitting public event="%s" with %d arg(s)', eventName, safeArgs.length);
       return super.emit(eventName, ...args);
     }
 
@@ -159,7 +182,7 @@ class MotherEmitter extends EventEmitter {
           meltdownForModule(`Invalid authModuleSecret for skipJWT event="${eventName}"`, moduleName, this);
           return false;
         }
-        console.log(`[MotherEmitter] skipJWT => authorized => event="${eventName}" => normal emit.`);
+          console.log('[MotherEmitter] skipJWT => authorized => event="%s" => normal emit.', eventName);
         return super.emit(eventName, ...args);
       } else {
         meltdownForModule(`Unauthorized skipJWT usage => event="${eventName}"`, moduleName, this);
@@ -193,7 +216,8 @@ class MotherEmitter extends EventEmitter {
     }
 
     // (9) meltdown checks pass => do normal event
-    console.log(`[MotherEmitter] Emitting event="${eventName}" =>`, maskJwtInArgs(args));
+    const safeArgs = maskJwtInArgs(args);
+    console.log('[MotherEmitter] Emitting event="%s" with %d arg(s)', eventName, safeArgs.length);
     return super.emit(eventName, ...args);
   }
 }
@@ -221,13 +245,13 @@ motherEmitter.on('removeListenersByModule', (payload) => {
     console.warn('[MotherEmitter] removeListenersByModule => missing moduleName => ignoring.');
     return;
   }
-  console.warn(`[MotherEmitter] Removing all listeners for module="${modName}"`);
+  console.warn('[MotherEmitter] Removing all listeners for module="%s"', modName);
 
   motherEmitter.eventNames().forEach(evtName => {
     motherEmitter.listeners(evtName).forEach(listener => {
       if (listener.moduleName === modName) {
         motherEmitter.removeListener(evtName, listener);
-        console.warn(`[MotherEmitter] Removed listener from event="${evtName}" for module="${modName}"`);
+        console.warn('[MotherEmitter] Removed listener from event="%s" for module="%s"', evtName, modName);
       }
     });
   });
@@ -238,7 +262,7 @@ motherEmitter.on('removeListenersByModule', (payload) => {
  */
 motherEmitter.on('deactivateModule', (payload) => {
   const { moduleName, reason } = payload || {};
-  console.warn(`[MotherEmitter] Deactivating module="${moduleName}" => reason="${reason}"`);
+  console.warn('[MotherEmitter] Deactivating module="%s" => reason="%s"', moduleName, reason);
   motherEmitter.emit('removeListenersByModule', { moduleName });
 });
 
