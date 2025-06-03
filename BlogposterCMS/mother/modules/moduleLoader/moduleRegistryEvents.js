@@ -16,6 +16,7 @@ const {
   updateModuleLastError,
   deactivateModule
 } = require('./moduleRegistryService');
+const { sanitizeModuleName } = require('../../utils/moduleUtils');
 
 function initModuleRegistryAdminEvents(motherEmitter, app) {
   // meltdown => 'activateModuleInRegistry'
@@ -106,8 +107,13 @@ function initModuleRegistryAdminEvents(motherEmitter, app) {
 async function attemptSingleLoad(moduleName, motherEmitter, app, jwt) {
   // attempt to require & initialize the module
   try {
+    moduleName = sanitizeModuleName(moduleName);
     const modulesDir = path.resolve(__dirname, '../../../modules');
-    const indexJs = path.join(modulesDir, moduleName, 'index.js');
+    const modulePath = path.resolve(modulesDir, moduleName);
+    if (!modulePath.startsWith(modulesDir + path.sep)) {
+      throw new Error('Invalid module name path');
+    }
+    const indexJs = path.join(modulePath, 'index.js');
 
     if (!fs.existsSync(indexJs)) {
       console.warn(`[REGISTRY EVENTS] No index.js => ${moduleName}`);
