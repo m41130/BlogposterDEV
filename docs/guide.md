@@ -12,6 +12,8 @@ This guide describes how to operate BlogposterCMS once the server is running. It
 
 The dashboard allows you to manage pages, users and settings. Only authenticated users with the appropriate role can access it. Always use HTTPS in production so credentials are transmitted securely.
 
+![Login screen](screenshots/Clean%20Login%20Interface.png)
+
 ## Admin Lane vs Public Lane
 
 BlogposterCMS separates widgets and pages into **admin** and **public** lanes:
@@ -29,6 +31,12 @@ Widgets are small blocks of functionality (text blocks, images, counters, etc.) 
 - Widgets registered for the **admin** lane appear in the dashboard for building pages or showing statistics.
 
 Layouts and widgets are edited via drag and drop in the admin dashboard. The widget manager ensures only users with the appropriate permissions can create or modify widgets.
+
+The sequence below demonstrates how GridStack can be used to arrange widgets from an empty grid to a customized dashboard.
+
+![Initial grid view](screenshots/Arrange%20Your%20Dashboard%20Freely.png)
+![Adding widgets](screenshots/Perfectly%20Adaptive%20Widgets.png)
+![Final layout](screenshots/Your%20Dashboard,%20Your%20Way.png)
 
 ## Module System and JWT Event Bus
 
