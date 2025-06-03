@@ -265,13 +265,17 @@ function deactivateModule(motherEmitter, jwt, moduleName, errMsg) {
           updated_at : new Date()
         }
       },
-      (err) => {
-        if (err) {
-          console.error(`[MODULE LOADER] Error deactivating module ${moduleName}:`, err.message);
-          return reject(err);
+        (err) => {
+          if (err) {
+            console.error(
+              `[MODULE LOADER] Error deactivating module %s: %s`,
+              moduleName,
+              err.message
+            );
+            return reject(err);
+          }
+          resolve();
         }
-        resolve();
-      }
     );
   });
 }
