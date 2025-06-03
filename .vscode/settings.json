@@ -1,17 +1,17 @@
 {
-    "liveSassCompile.settings.includeItems": [
-      "BlogposterCMS/public/assets/scss/**/*.scss"
-    ],
-    "liveSassCompile.settings.excludeList": [
-      "**/node_modules/**",
-      ".vscode/**"
-    ],
-    "liveSassCompile.settings.formats": [
-      {
-        "format": "expanded",
-        "extensionName": ".css",
-        "savePath": "/BlogposterCMS/public/assets/css"
-      }
-    ]
-  }
-  
+  "liveSassCompile.settings.includeItems": [
+    "/BlogposterCMS/public/assets/scss/**/*.scss"
+  ],
+  "liveSassCompile.settings.excludeList": [
+    "/**/node_modules/**",
+    "/.vscode/**"
+  ],
+  "liveSassCompile.settings.formats": [
+    {
+      "format": "expanded",
+      "extensionName": ".css",
+      "savePath": "/BlogposterCMS/public/assets/css"
+    }
+  ],
+  "terminal.integrated.cwd": "BlogposterCMS"
+}
