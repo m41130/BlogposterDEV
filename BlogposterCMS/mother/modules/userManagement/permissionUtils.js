@@ -9,16 +9,22 @@
  */
 
 function deepMerge(target, source) {
-  for (const key in source) {
-    if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
-      if (!target[key]) {
+  if (!source || typeof source !== 'object') return target;
+  for (const key of Object.keys(source)) {
+    if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+      continue; // prevent prototype pollution
+    }
+    const value = source[key];
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+      if (!Object.prototype.hasOwnProperty.call(target, key) || typeof target[key] !== 'object') {
         target[key] = {};
       }
-      deepMerge(target[key], source[key]);
+      deepMerge(target[key], value);
     } else {
-      target[key] = source[key];
+      target[key] = value;
     }
   }
+  return target;
 }
 
 /**
