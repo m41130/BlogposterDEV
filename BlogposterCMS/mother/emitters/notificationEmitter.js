@@ -12,8 +12,8 @@ const EventEmitter = require('events');
 const jwt = require('jsonwebtoken');
 
 // Optional: Falls du JWT für Notifications absichern willst
-const NOTIFICATION_JWT_SECRET = process.env.NOTIFICATION_JWT_SECRET || 'some_secret';
-const NOTIFICATION_SALT = process.env.NOTIFICATION_SALT || '_notify_salt';
+const NOTIFICATION_JWT_SECRET = process.env.NOTIFICATION_JWT_SECRET;
+const NOTIFICATION_SALT = process.env.NOTIFICATION_SALT;
 
 // Mögliche Notification-Typen/Gruppen.
 // Erweitert um "info" und "debug" damit Module diese Typen verwenden können,
