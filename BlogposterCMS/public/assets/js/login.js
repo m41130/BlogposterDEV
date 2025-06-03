@@ -4,7 +4,14 @@ document.getElementById('loginForm').addEventListener('submit', async e => {
 
   const params = new URLSearchParams(window.location.search);
   let redirectTo = params.get('redirectTo') || '/admin';
-  if (!redirectTo.startsWith('/admin') || redirectTo.startsWith('//')) {
+  try {
+    const url = new URL(redirectTo, window.location.origin);
+    if (url.origin !== window.location.origin || !url.pathname.startsWith('/admin')) {
+      redirectTo = '/admin';
+    } else {
+      redirectTo = url.pathname + url.search + url.hash;
+    }
+  } catch (err) {
     redirectTo = '/admin';
   }
 
@@ -28,5 +35,5 @@ document.getElementById('loginForm').addEventListener('submit', async e => {
     throw new Error(errText || 'Login failed');
   }
 
-  window.location.href = redirectTo;
+  window.location.assign(redirectTo);
 });
