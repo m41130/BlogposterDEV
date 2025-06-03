@@ -64,13 +64,29 @@ function onceCallback(originalCb) {
   };
 }
 
-/** maskJwtInArgs => replaces any .jwt in meltdown payload with "<JWT-REDACTED>" */
+/** maskJwtInArgs => replaces sensitive fields in meltdown payload with "<REDACTED>" */
 function maskJwtInArgs(args) {
+  const sensitiveKeys = [
+    'jwt',
+    'authModuleSecret',
+    'tokenSalts',
+    'JWT_SECRET',
+    'AUTH_MODULE_SECRET',
+    'AUTH_MODULE_INTERNAL_SECRET',
+    'TOKEN_SALT_HIGH',
+    'TOKEN_SALT_MEDIUM',
+    'TOKEN_SALT_LOW'
+  ];
+
   try {
     return args.map(arg => {
-      if (arg && typeof arg === 'object') {
+      if (arg && typeof arg === 'object' && !Array.isArray(arg)) {
         const clone = { ...arg };
-        if (clone.jwt) clone.jwt = '<JWT-REDACTED>';
+        Object.keys(clone).forEach(key => {
+          if (sensitiveKeys.some(sk => sk.toLowerCase() === key.toLowerCase())) {
+            clone[key] = key.toLowerCase() === 'jwt' ? '<JWT-REDACTED>' : '<REDACTED>';
+          }
+        });
         return clone;
       }
       return arg;
@@ -193,7 +209,7 @@ class MotherEmitter extends EventEmitter {
     }
 
     // (9) meltdown checks pass => do normal event
-    console.log('[MotherEmitter] Emitting event="%s" =>', eventName, maskJwtInArgs(args));
+    console.log('[MotherEmitter] Emitting event="%s" => sanitized args=%o', eventName, maskJwtInArgs(args));
     return super.emit(eventName, ...args);
   }
 }
