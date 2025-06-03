@@ -9078,7 +9078,7 @@
                                 n = i.querySelector("option[selected]");
                             else if (!Array.isArray(e[r])) {
                                 let t = e[r];
-                                "string" == typeof t && (t = t.replace(/"/g, '\\"')),
+                                "string" == typeof t && (t = t.replace(/\\/g, "\\\\").replace(/"/g, '\\"')),
                                 n = i.querySelector(`option[value="${t}"]`)
                             }
                             null == n ? (i.value = "",
