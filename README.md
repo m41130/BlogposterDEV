@@ -25,6 +25,18 @@ You get the power of plugins — without the plugin drama.
 - 📦 Dependency whitelisting for safe requires
 - 🌐 Lightweight design for fast, SEO-friendly pages
 
+## UI Screenshots
+
+Below are a few snapshots of the BlogposterCMS interface.
+
+![Clean login screen](docs/screenshots/Clean%20Login%20Interface.png)
+
+These next images illustrate how GridStack lets you arrange widgets within the admin dashboard from a blank grid to a personalized layout.
+
+![Initial grid view](docs/screenshots/Arrange%20Your%20Dashboard%20Freely.png)
+![Adding widgets](docs/screenshots/Perfectly%20Adaptive%20Widgets.png)
+![Final layout](docs/screenshots/Your%20Dashboard,%20Your%20Way.png)
+
 It’s currently in Alpha. No guarantees. No mercy. Full transparency.
 
 ---

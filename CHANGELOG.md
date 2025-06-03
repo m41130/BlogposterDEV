@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Added
+- Added UI screenshots to the README and usage guide for easier onboarding.
+- Expanded dashboard screenshot series to illustrate widget arrangement.
+
 ## [0.3.1] – 2025-06-03
 
 ### 🛡️ Security
