@@ -240,7 +240,11 @@ function updateModuleLastError(motherEmitter, jwt, moduleName, lastError) {
       },
       (err) => {
         if (err) {
-          console.error(`[MODULE LOADER] Error updating last_error for ${moduleName}:`, err.message);
+          console.error(
+            `[MODULE LOADER] Error updating last_error for %s: %s`,
+            moduleName,
+            err.message
+          );
           return reject(err);
         }
         resolve();
@@ -265,13 +269,17 @@ function deactivateModule(motherEmitter, jwt, moduleName, errMsg) {
           updated_at : new Date()
         }
       },
-      (err) => {
-        if (err) {
-          console.error(`[MODULE LOADER] Error deactivating module ${moduleName}:`, err.message);
-          return reject(err);
+        (err) => {
+          if (err) {
+            console.error(
+              `[MODULE LOADER] Error deactivating module %s: %s`,
+              moduleName,
+              err.message
+            );
+            return reject(err);
+          }
+          resolve();
         }
-        resolve();
-      }
     );
   });
 }
