@@ -416,10 +416,13 @@ app.get('/admin/*', pageLimiter, async (req, res, next) => {
 
   let rawSlug = req.params[0] || '';
   let pageId = null;
-  const idMatch = rawSlug.match(/(.+?)\/(\d+)$/);
-  if (idMatch) {
-    rawSlug = idMatch[1];
-    pageId = parseInt(idMatch[2], 10) || null;
+  const lastSlash = rawSlug.lastIndexOf('/');
+  if (lastSlash !== -1) {
+    const maybeId = rawSlug.slice(lastSlash + 1);
+    if (/^\d+$/.test(maybeId)) {
+      pageId = parseInt(maybeId, 10) || null;
+      rawSlug = rawSlug.slice(0, lastSlash);
+    }
   }
 
   const sanitize = (str) => String(str)
@@ -460,10 +463,10 @@ app.get('/admin/*', pageLimiter, async (req, res, next) => {
 
     const inject = `
       <script nonce="${nonce}">
-        window.PAGE_ID     = ${pageId ?? page.id};
-        window.PAGE_SLUG   = '${slug}';
-        window.ADMIN_TOKEN = '${adminJwt}';
-        window.NONCE       = '${nonce}';
+        window.PAGE_ID     = ${JSON.stringify(pageId ?? page.id)};
+        window.PAGE_SLUG   = ${JSON.stringify(slug)};
+        window.ADMIN_TOKEN = ${JSON.stringify(adminJwt)};
+        window.NONCE       = ${JSON.stringify(nonce)};
       </script>
     </head>`;
     html = html.replace('</head>', inject);
@@ -598,11 +601,11 @@ app.get('/:slug?', pageLimiter, async (req, res, next) => {
 
     let html = fs.readFileSync(pageHtmlPath, 'utf8');
     const inject = `<script nonce="${nonce}">
-      window.PAGE_ID = ${pageId};
-      window.PAGE_SLUG = '${slugToUse}';
-      window.LANE    = '${lane}';
-      window.PUBLIC_TOKEN = '${token}';
-      window.NONCE  = '${nonce}';
+      window.PAGE_ID = ${JSON.stringify(pageId)};
+      window.PAGE_SLUG = ${JSON.stringify(slugToUse)};
+      window.LANE    = ${JSON.stringify(lane)};
+      window.PUBLIC_TOKEN = ${JSON.stringify(token)};
+      window.NONCE  = ${JSON.stringify(nonce)};
     </script>`;
     html = html.replace('</head>', inject + '</head>');
 
