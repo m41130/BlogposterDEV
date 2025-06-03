@@ -130,6 +130,17 @@ function getModuleTokenForDbManager() {
   const app  = express();
   const port = process.env.PORT || 3000;
 
+  // Helper to sanitize slugs for safe use in HTML/JS contexts
+  function sanitizeSlug(str) {
+    return String(str)
+      .toLowerCase()
+      .normalize('NFKD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .substring(0, 96);
+  }
+
   // Set up paths
   const publicPath = path.join(__dirname, 'public');
   const assetsPath = path.join(publicPath, 'assets');
@@ -425,15 +436,7 @@ app.get('/admin/*', pageLimiter, async (req, res, next) => {
     }
   }
 
-  const sanitize = (str) => String(str)
-    .toLowerCase()
-    .normalize('NFKD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .substring(0, 96);
-
-  const slug = sanitize(rawSlug);
+  const slug = sanitizeSlug(rawSlug);
 
   try {
     const page = await new Promise((resolve, reject) => {
@@ -550,7 +553,9 @@ app.get('/:slug?', pageLimiter, async (req, res, next) => {
   try {
     const requestedSlug = req.params.slug;
 
-    const slug = typeof requestedSlug === 'string' ? requestedSlug : '';
+    const slug = sanitizeSlug(
+      typeof requestedSlug === 'string' ? requestedSlug : ''
+    );
 
     // Ensure a valid public token is available (refresh when expired)
     try {
@@ -595,7 +600,7 @@ app.get('/:slug?', pageLimiter, async (req, res, next) => {
     const pageId = page.id;
     const lane   = 'public';
     const token  = global.pagesPublicToken;
-    const slugToUse = slug || page.slug;
+    const slugToUse = slug || sanitizeSlug(page.slug);
 
     const nonce = crypto.randomBytes(16).toString('base64');
 
