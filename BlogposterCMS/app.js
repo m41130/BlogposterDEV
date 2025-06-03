@@ -23,6 +23,7 @@ const helmet       = require('helmet');
 const bodyParser   = require('body-parser');
 const cookieParser = require('cookie-parser');
 const csurf        = require('csurf');
+const { apiLimiter, loginLimiter } = require('./mother/utils/rateLimiters');
 const crypto = require('crypto');
 const { sanitizeCookieName, sanitizeCookiePath, sanitizeCookieDomain } = require('./mother/utils/cookieUtils');
 
@@ -161,6 +162,8 @@ function getModuleTokenForDbManager() {
   app.use(bodyParser.urlencoded({ extended: true, limit: bodyLimit }));
   app.use(cookieParser());
 
+  // Rate limiting provided by utils/rateLimiters.js
+
   // CSRF protection
   const csrfProtection = csurf({
     cookie: { httpOnly: true, sameSite: 'strict' }
@@ -237,7 +240,7 @@ function getModuleTokenForDbManager() {
 // 5) Meltdown API – proxy front-end requests into motherEmitter events
 // ──────────────────────────────────────────────────────────────────────────
 
-app.post('/api/meltdown', (req, res) => {
+app.post('/api/meltdown', apiLimiter, (req, res) => {
   // 1) Read event name first so we know if it is public
   const { eventName, payload = {} } = req.body || {};
   const PUBLIC_EVENTS = [
@@ -276,7 +279,7 @@ app.post('/api/meltdown', (req, res) => {
 // 6) CSRF-protected login endpoint
 // ─────────────────────────────────────────────────────────────────
 
-app.post('/admin/api/login', csrfProtection, async (req, res) => {
+app.post('/admin/api/login', loginLimiter, csrfProtection, async (req, res) => {
 
   const { username, password } = req.body;
   try {
