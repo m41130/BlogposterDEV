@@ -163,7 +163,7 @@ motherEmitter.on('loginWithStrategy', (raw, cb) => {
   try {
     strat.loginFunction(payload, callback);
   } catch (ex) {
-    console.error(`[AUTH] Strategy "${strategy}" threw:`, ex);
+    console.error('[AUTH] Strategy "%s" threw:', strategy, ex);
     callback(ex);
   }
 });

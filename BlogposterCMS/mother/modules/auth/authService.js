@@ -397,7 +397,7 @@ function setupEventListeners({ motherEmitter, JWT_SECRET }) {
     const jtiList = userToJtiMapping[userId] || [];
     jtiList.forEach(jti => revokedTokens.add(jti));
     userToJtiMapping[userId] = [];
-    console.log(`[AUTH MODULE] All tokens for userId=${userId} are now revoked =>`, jtiList);
+    console.log('[AUTH MODULE] All tokens for userId=%s are now revoked =>', userId, jtiList);
     callback(null, { success: true, count: jtiList.length });
   });
 
