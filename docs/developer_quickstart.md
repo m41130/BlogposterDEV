@@ -15,8 +15,9 @@ First follow the [Installation](installation.md) guide if you have not yet set u
    cp env.sample .env
    # edit .env and replace the placeholder secrets
    ```
-   Use strong random values for `JWT_SECRET` and the various *_SALT variables.
-   Leaving the defaults (e.g. `default_secret`) is insecure in production.
+  Use strong random values for `JWT_SECRET` and the various *_SALT variables.
+  The application no longer provides fallback secrets, so missing values will
+  cause startup errors.
 
 3. **Build assets and start the server**
    ```bash

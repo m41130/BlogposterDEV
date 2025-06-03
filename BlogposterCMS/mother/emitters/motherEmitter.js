@@ -15,8 +15,8 @@ const jwt = require('jsonwebtoken');
 
 const notificationEmitter = require('./notificationEmitter');
 
-// For demonstration
-const JWT_SECRET         = process.env.JWT_SECRET || 'default_secret';
+// Secrets must be provided via environment variables
+const JWT_SECRET         = process.env.JWT_SECRET;
 const TOKEN_SALT_HIGH    = process.env.TOKEN_SALT_HIGH   || '';
 const TOKEN_SALT_MEDIUM  = process.env.TOKEN_SALT_MEDIUM || '';
 const TOKEN_SALT_LOW     = process.env.TOKEN_SALT_LOW    || '';
