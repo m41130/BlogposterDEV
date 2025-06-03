@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Added
+- Documentation on why custom post types aren't necessary (see `docs/custom_post_types.md`).
+
 ## [0.3.1] – 2025-06-03
 
 ### 🛡️ Security

@@ -14,6 +14,7 @@ This folder provides additional information on installing, configuring and exten
 - [Meltdown Event Bus](meltdown_event_bus.md)
 - [Notification System](notification_system.md)
 - [How Login Strategies Work](how_login_strategies_work.md)
+- [Custom Post Types](custom_post_types.md)
 
 For the full project overview and sarcasm-filled introduction, see the main [README](../README.md).
 
