@@ -67,7 +67,7 @@ module.exports = {
       if (!strategyName) {
         return callback(new Error('No strategyName specified.'));
       }
-      if (!global.loginStrategies[strategyName]) {
+      if (!Object.prototype.hasOwnProperty.call(global.loginStrategies, strategyName)) {
         return callback(new Error(`Strategy "${strategyName}" not found.`));
       }
       global.loginStrategies[strategyName].isEnabled = !!enabled;
@@ -95,6 +95,10 @@ module.exports = {
       }
       if (!strategyName || typeof loginFunction !== 'function') {
         return callback(new Error('Invalid login strategy registration payload.'));
+      }
+      const disallowed = ['__proto__', 'prototype', 'constructor'];
+      if (disallowed.includes(strategyName)) {
+        return callback(new Error('Invalid strategy name.'));
       }
 
       global.loginStrategies[strategyName] = {
