@@ -1,5 +1,12 @@
+const ALLOWED_LEVELS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+
+function sanitizeLevel(lvl) {
+  const val = (lvl || '').toLowerCase();
+  return ALLOWED_LEVELS.includes(val) ? val : 'h3';
+}
+
 export function render(el, ctx = {}) {
-  const defaultLevel = (ctx?.metadata?.category || 'h3').toLowerCase();
+  const defaultLevel = sanitizeLevel(ctx?.metadata?.category || 'h3');
   const defaultText = ctx?.metadata?.label || 'Section Heading';
 
   let level = defaultLevel;
@@ -25,7 +32,7 @@ export function render(el, ctx = {}) {
     }
 
     select.addEventListener('change', async () => {
-      const newLevel = select.value;
+      const newLevel = sanitizeLevel(select.value);
       if (newLevel !== level) {
         const newHeading = document.createElement(newLevel);
         newHeading.textContent = heading.textContent;
