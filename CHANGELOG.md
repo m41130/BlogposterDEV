@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Added token validation on all admin routes and the meltdown API to prevent
+  unauthorized access after a database reset.
 - Removed the `cms.sqlite` database from version control and now ignore
   `BlogposterCMS/data` to prevent accidental leaks of local data.
 - Prevent logging of full public tokens during pagesManager initialization.
