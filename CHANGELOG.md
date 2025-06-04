@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Verified all SQLite placeholders across modules to ensure inserted IDs use the new return value.
+- SQLite engine now returns `{ lastID, changes }` for write operations,
+  preventing `Cannot destructure property 'lastID'` errors during page creation.
 - Resolved SQLite errors on startup by avoiding `ALTER TABLE ... IF NOT EXISTS`
   and by removing Postgres schema notation when using SQLite.
 - Fixed database engine selection. The `.env` variable `CONTENT_DB_TYPE`
