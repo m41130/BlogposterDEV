@@ -20,7 +20,12 @@ const { promisify } = require('util');
 
 function promisifyDbMethods(db) {
   return {
-    run: (...args) => new Promise((resolve, reject) => db.run(...args, err => err ? reject(err) : resolve())),
+    run: (...args) => new Promise((resolve, reject) => {
+      db.run(...args, function (err) {
+        if (err) return reject(err);
+        resolve({ lastID: this.lastID, changes: this.changes });
+      });
+    }),
     exec: (sql) => new Promise((resolve, reject) => db.exec(sql, err => err ? reject(err) : resolve())),
     get: (...args) => new Promise((resolve, reject) => db.get(...args, (err, row) => err ? reject(err) : resolve(row))),
     all: (...args) => new Promise((resolve, reject) => db.all(...args, (err, rows) => err ? reject(err) : resolve(rows))),
