@@ -11,7 +11,7 @@ const {
   sqliteStorage,
   sqliteMainFile
 } = require('../config/databaseConfig');
-const { sanitizeModuleName } = require('../../utils/moduleUtils');
+const { sanitizeModuleName } = require('../../../utils/moduleUtils');
 const notificationEmitter = require('../../../emitters/notificationEmitter');
 const builtinPlaceholders = require('../placeholders/builtinPlaceholders');
 const { getCustomPlaceholder } = require('../placeholders/placeholderRegistry');
