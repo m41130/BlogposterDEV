@@ -25,10 +25,12 @@ jobs:
           cache-dependency-path: BlogposterCMS/package-lock.json
       - name: Install dependencies
         run: npm ci
-      - name: Build
-        run: npm run build
       - name: Run vulnerability audit
         run: npm audit --audit-level=high
+      - name: Build
+        run: npm run build
+      - name: Verify placeholder parity
+        run: npm run placeholder-parity
       - name: Run test suite
         run: npm test
 

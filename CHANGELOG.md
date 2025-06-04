@@ -2,10 +2,13 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+
+## [0.4.0] – 2025-06-04
+- CI now verifies placeholder parity for Postgres, MongoDB and SQLite on every
+  push.
 - Replaced SQLite placeholder handler with full Postgres parity and added
   automated parity test.
 - Added Mongo placeholder parity test and CLI command to validate database placeholders.
-
 - Documentation on why custom post types aren't necessary (see `docs/custom_post_types.md`).
 - Added UI screenshots to the README and usage guide for easier onboarding.
 - Expanded dashboard screenshot series to illustrate widget arrangement.
