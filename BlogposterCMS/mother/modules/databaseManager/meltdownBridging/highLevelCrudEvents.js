@@ -11,13 +11,11 @@ const axios = require('axios');
 const { onceCallback } = require('../../../emitters/motherEmitter');
 const { sanitize } = require('../../../utils/logSanitizer');
 const { getDbType } = require('../helpers/dbTypeHelpers');
+const { ph } = require('../helpers/placeholderHelpers');
 
 // Notification emitter for typed notifications
 const notificationEmitter = require('../../../emitters/notificationEmitter');
 
-function ph(i) {
-  return getDbType() === 'postgres' ? `$${i}` : '?';
-}
 
 /**
  * registerHighLevelCrudEvents:
