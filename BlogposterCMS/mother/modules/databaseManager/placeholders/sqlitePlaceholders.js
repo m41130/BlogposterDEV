@@ -247,12 +247,14 @@ async function handleBuiltInPlaceholderSqlite(db, operation, params) {
         meta = null
       } = p;
 
+      const metaVal = (meta && typeof meta === 'object') ? JSON.stringify(meta) : meta;
+
       const { lastID: pageId } = await db.run(`
         INSERT INTO pagesManager_pages
           (title, meta, slug, status, seo_image, is_start, parent_id, is_content, language, lane,
            created_at, updated_at)
         VALUES (?,?,?,?,?,0,?,?,?,?,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
-      `, [title, meta, slug, status, seo_image, parent_id, is_content, language, lane]);
+      `, [title, metaVal, slug, status, seo_image, parent_id, is_content, language, lane]);
 
       for (const t of translations) {
         await db.run(`
@@ -281,7 +283,7 @@ async function handleBuiltInPlaceholderSqlite(db, operation, params) {
         : (params?.lane ?? params);
 
       const rows = await db.all(`
-        SELECT p.*,
+        SELECT p.*, 
                t.language   AS trans_lang,
                t.title      AS trans_title,
                t.html       AS trans_html,
@@ -295,6 +297,12 @@ async function handleBuiltInPlaceholderSqlite(db, operation, params) {
          WHERE p.lane = ?
          ORDER BY p.created_at DESC;
       `, [laneVal]);
+
+      for (const r of rows) {
+        if (typeof r.meta === 'string') {
+          try { r.meta = JSON.parse(r.meta); } catch { r.meta = null; }
+        }
+      }
 
       return rows;
     }
@@ -314,11 +322,25 @@ async function handleBuiltInPlaceholderSqlite(db, operation, params) {
          WHERE parent_id = ?
          ORDER BY created_at DESC;
       `, [parentId]);
+
+      for (const r of rows) {
+        if (typeof r.meta === 'string') {
+          try { r.meta = JSON.parse(r.meta); } catch { r.meta = null; }
+        }
+      }
+
       return rows;
     }
 
     case 'GET_ALL_PAGES': {
       const rows = await db.all(`SELECT * FROM pagesManager_pages ORDER BY id DESC;`);
+
+      for (const r of rows) {
+        if (typeof r.meta === 'string') {
+          try { r.meta = JSON.parse(r.meta); } catch { r.meta = null; }
+        }
+      }
+
       return rows;
     }
 
@@ -341,6 +363,10 @@ async function handleBuiltInPlaceholderSqlite(db, operation, params) {
          WHERE p.id = ?;
       `, [lang, pageId]);
 
+      if (row && typeof row.meta === 'string') {
+        try { row.meta = JSON.parse(row.meta); } catch { row.meta = null; }
+      }
+
       return row || null;
     }
 
@@ -361,6 +387,13 @@ async function handleBuiltInPlaceholderSqlite(db, operation, params) {
          WHERE p.slug = ?
            AND p.lane = ?;
       `, [lang, slug, lane]);
+
+      for (const r of rows) {
+        if (typeof r.meta === 'string') {
+          try { r.meta = JSON.parse(r.meta); } catch { r.meta = null; }
+        }
+      }
+
       return rows;
     }
 
@@ -380,6 +413,8 @@ async function handleBuiltInPlaceholderSqlite(db, operation, params) {
         meta = null
       } = p;
 
+      const metaVal = (meta && typeof meta === 'object') ? JSON.stringify(meta) : meta;
+
       await db.run(`
         UPDATE pagesManager_pages
            SET title      = ?,
@@ -393,7 +428,7 @@ async function handleBuiltInPlaceholderSqlite(db, operation, params) {
                language   = ?,
                updated_at = CURRENT_TIMESTAMP
          WHERE id = ?;
-      `, [title, meta, slug, status, seo_image, parent_id, is_content, lane, language, pageId]);
+      `, [title, metaVal, slug, status, seo_image, parent_id, is_content, lane, language, pageId]);
 
       for (const t of translations) {
         await db.run(`
@@ -460,6 +495,13 @@ async function handleBuiltInPlaceholderSqlite(db, operation, params) {
            AND p.language = ?
          LIMIT 1;
       `, [lang, lang]);
+
+      for (const r of rows) {
+        if (typeof r.meta === 'string') {
+          try { r.meta = JSON.parse(r.meta); } catch { r.meta = null; }
+        }
+      }
+
       return rows;
     }
 
