@@ -20,4 +20,8 @@ BlogposterCMS can use **PostgreSQL**, **MongoDB** or **SQLite** for storing cont
 2. Provide the matching connection credentials (`PG_*` variables for Postgres, `MONGODB_URI` for MongoDB, `SQLITE_*` for SQLite).
 3. Restart the CMS so the database manager picks up the new settings.
 
+When selecting `postgres` the manager will store its metadata in the main
+database under the `databasemanager` schema. This step is skipped when using
+MongoDB or SQLite.
+
 Keep your database credentials private and restrict access to the minimal privileges required.

@@ -17,6 +17,10 @@ Key variables to review:
 | `ENABLE_API` | Enables a lightweight REST API on `API_PORT` when set to `true`. |
 | `ALLOW_REGISTRATION` | If `true`, users may self-register via the public event. |
 
+> **Note:** When `CONTENT_DB_TYPE` is `postgres` the database manager will
+> create a `databasemanager` schema inside the main Postgres database. This step
+> is skipped for MongoDB or SQLite installs.
+
 For advanced deployments you can override defaults by creating
 `config/runtime.local.js` or `config/security.local.js`. These files are
 ignored by Git so your private values remain secret.

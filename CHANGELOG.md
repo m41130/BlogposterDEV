@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 - Fixed database engine selection. The `.env` variable `CONTENT_DB_TYPE`
   now overrides the legacy `DB_TYPE` to match the documentation.
+- The internal database manager no longer requires PostgreSQL when
+  `CONTENT_DB_TYPE` is set to `mongodb` or `sqlite`.
 
 ## [0.4.1] – 2025-06-04
 ### Fixed
