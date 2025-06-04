@@ -299,6 +299,25 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
                               .toArray();
       return allPages;
     }
+
+    case 'GET_PAGES_BY_LANE': {
+      let laneVal;
+      if (Array.isArray(params)) {
+        const first = params[0];
+        laneVal = typeof first === 'object' && first !== null ? first.lane : first;
+      } else if (params && typeof params === 'object') {
+        laneVal = params.lane;
+      } else {
+        laneVal = params;
+      }
+
+      const pages = await db.collection('pages')
+                            .find({ lane: laneVal })
+                            .sort({ created_at: -1 })
+                            .toArray();
+
+      return pages;
+    }
   
   
     /**
@@ -528,6 +547,26 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
                             .find({ status: 'published' })
                             .project({ slug: 1, updated_at: 1, is_start: 1 })
                             .sort({ _id: 1 })
+                            .toArray();
+
+      return pages;
+    }
+
+    case 'SEARCH_PAGES': {
+      const p = Array.isArray(params) ? (params[0] || {}) : (params || {});
+      const q = p.query || '';
+      const lane = p.lane || 'all';
+      const limit = parseInt(p.limit, 10) || 20;
+
+      const regex = new RegExp(q, 'i');
+      const filter = lane === 'all' ?
+            { $or: [{ title: regex }, { slug: regex }] } :
+            { lane, $or: [{ title: regex }, { slug: regex }] };
+
+      const pages = await db.collection('pages')
+                            .find(filter)
+                            .sort({ created_at: -1 })
+                            .limit(limit)
                             .toArray();
 
       return pages;
