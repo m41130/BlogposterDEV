@@ -10,6 +10,7 @@ require('dotenv').config();
 const axios = require('axios');
 const { onceCallback } = require('../../../emitters/motherEmitter');
 const { sanitize } = require('../../../utils/logSanitizer');
+const { getDbType } = require('../helpers/dbTypeHelpers');
 
 // Notification emitter for typed notifications
 const notificationEmitter = require('../../../emitters/notificationEmitter');
@@ -291,8 +292,11 @@ function localDbInsert(motherEmitter, payload, callback) {
   const placeholders = columns.map((_, i) => `$${i+1}`);
   const values = Object.values(data);
 
+  const tableName = getDbType() === 'postgres'
+    ? `"${moduleName.toLowerCase()}"."${table}"`
+    : `"${moduleName.toLowerCase()}_${table}"`;
   const sql = `
-    INSERT INTO "${moduleName.toLowerCase()}"."${table}"
+    INSERT INTO ${tableName}
     (${columns.join(', ')})
     VALUES (${placeholders.join(', ')})
     RETURNING *;
@@ -343,9 +347,12 @@ function localDbSelect(motherEmitter, payload, callback) {
     values = Object.values(where);
   }
 
+  const tableName = getDbType() === 'postgres'
+    ? `"${moduleName.toLowerCase()}"."${table}"`
+    : `"${moduleName.toLowerCase()}_${table}"`;
   const sql = `
     SELECT *
-    FROM "${moduleName.toLowerCase()}"."${table}"
+    FROM ${tableName}
     ${whereClause}
     ORDER BY id DESC
   `;
@@ -415,8 +422,11 @@ function localDbUpdate(motherEmitter, payload, callback) {
 
   const allValues = [...setValues, ...whereValues];
 
+  const tableName = getDbType() === 'postgres'
+    ? `"${moduleName.toLowerCase()}"."${table}"`
+    : `"${moduleName.toLowerCase()}_${table}"`;
   const sql = `
-    UPDATE "${moduleName.toLowerCase()}"."${table}"
+    UPDATE ${tableName}
     SET ${setClauses.join(', ')}
     WHERE ${whereClauses.join(' AND ')}
     RETURNING *;
@@ -459,8 +469,11 @@ function localDbDelete(motherEmitter, payload, callback) {
   const whereClauses = whereKeys.map((col, i) => `"${col}" = $${i+1}`);
   const whereValues = Object.values(where);
 
+  const tableName = getDbType() === 'postgres'
+    ? `"${moduleName.toLowerCase()}"."${table}"`
+    : `"${moduleName.toLowerCase()}_${table}"`;
   const sql = `
-    DELETE FROM "${moduleName.toLowerCase()}"."${table}"
+    DELETE FROM ${tableName}
     WHERE ${whereClauses.join(' AND ')}
     RETURNING *;
   `;
