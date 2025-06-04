@@ -3,6 +3,7 @@
  */
 const { Pool } = require('pg');
 const { pgAdminUser, pgAdminPass, pgHost, pgPort, pgMainDb } = require('./config/databaseConfig');
+const { getDbType } = require('./helpers/dbTypeHelpers');
 
 // NEW: typed notifications
 const notificationEmitter = require('../../emitters/notificationEmitter');
@@ -33,7 +34,16 @@ async function initializeDatabaseManagerDatabase(motherEmitter, coreToken) {
     );
   });
 
-  await initializeDatabaseManagerSchemaInMainDb();
+  if (getDbType() === 'postgres') {
+    await initializeDatabaseManagerSchemaInMainDb();
+  } else {
+    notificationEmitter.notify({
+      moduleName: 'databaseManager',
+      notificationType: 'debug',
+      priority: 'debug',
+      message: '[DB MANAGER] Skipping Postgres-specific schema setup.'
+    });
+  }
 }
 
 async function initializeDatabaseManagerSchemaInMainDb() {
