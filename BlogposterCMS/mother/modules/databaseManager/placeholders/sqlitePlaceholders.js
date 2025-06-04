@@ -118,7 +118,16 @@ async function handleBuiltInPlaceholderSqlite(db, operation, params) {
     }
 
     case 'CHECK_AND_ALTER_SETTINGS_TABLES': {
-      await db.run(`ALTER TABLE settingsManager_cms_settings ADD COLUMN IF NOT EXISTS something_else TEXT;`);
+      const cols = await db.all(`PRAGMA table_info(settingsManager_cms_settings);`);
+      const hasCol = Array.isArray(cols) && cols.some(c => c.name === 'something_else');
+      if (!hasCol) {
+        try {
+          await db.run(`ALTER TABLE settingsManager_cms_settings ADD COLUMN something_else TEXT;`);
+        } catch (e) {
+          /* older SQLite versions may not support IF NOT EXISTS; ignore duplicate column errors */
+          if (!/duplicate column/i.test(String(e.message))) throw e;
+        }
+      }
       return { done: true };
     }
 

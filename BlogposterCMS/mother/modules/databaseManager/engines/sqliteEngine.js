@@ -16,6 +16,17 @@ const notificationEmitter = require('../../../emitters/notificationEmitter');
 const builtinPlaceholders = require('../placeholders/builtinPlaceholders');
 const { getCustomPlaceholder } = require('../placeholders/placeholderRegistry');
 const { handleBuiltInPlaceholderSqlite } = require('../placeholders/sqlitePlaceholders');
+const { promisify } = require('util');
+
+function promisifyDbMethods(db) {
+  return {
+    run: (...args) => new Promise((resolve, reject) => db.run(...args, err => err ? reject(err) : resolve())),
+    exec: (sql) => new Promise((resolve, reject) => db.exec(sql, err => err ? reject(err) : resolve())),
+    get: (...args) => new Promise((resolve, reject) => db.get(...args, (err, row) => err ? reject(err) : resolve(row))),
+    all: (...args) => new Promise((resolve, reject) => db.all(...args, (err, rows) => err ? reject(err) : resolve(rows))),
+    close: () => new Promise((resolve, reject) => db.close(err => err ? reject(err) : resolve()))
+  };
+}
 
 function getDbPath(moduleName, isOwnDb) {
   const safeName = sanitizeModuleName(moduleName).toLowerCase();
@@ -45,26 +56,26 @@ async function createOrFixSqliteDatabaseForModule(moduleName, isOwnDb) {
 function performSqliteOperation(moduleName, operation, params = [], isOwnDb) {
   return new Promise((resolve, reject) => {
     const dbPath = getDbPath(moduleName, isOwnDb);
-    const db = new sqlite3.Database(
+    const rawDb = new sqlite3.Database(
       dbPath,
       sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE,
       async err => {
         if (err) return reject(err);
 
+        const db = promisifyDbMethods(rawDb);
+
         try {
           if (typeof operation === 'string' && await isPlaceholderOperation(operation)) {
             const result = await handleBuiltInPlaceholderSqlite(db, operation, params);
-            db.close();
+            await db.close();
             return resolve(result);
           }
 
-          db.all(operation, params, (err2, rows) => {
-            db.close();
-            if (err2) return reject(err2);
-            resolve({ rows });
-          });
+          const rows = await db.all(operation, params);
+          await db.close();
+          resolve({ rows });
         } catch (e) {
-          db.close();
+          await db.close().catch(() => {});
           reject(e);
         }
       }
