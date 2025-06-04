@@ -186,7 +186,9 @@ module.exports = {
           (err, publicToken) => (err ? reject(err) : resolve(publicToken))
         );
       });
-      console.log('[DEBUG] pagesManager init => global.pagesPublicToken =', global.pagesPublicToken);
+      // Avoid leaking the actual token in logs. Show only a short prefix
+      const truncated = (global.pagesPublicToken || '').slice(0, 8);
+      console.log('[DEBUG] pagesManager init => public token issued (%s...)', truncated);
 
       console.log('[PAGE MANAGER] Public token ready.');
       console.log('[PAGE MANAGER] Initialized successfully.');
