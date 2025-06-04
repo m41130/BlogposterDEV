@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Resolved SQLite errors on startup by avoiding `ALTER TABLE ... IF NOT EXISTS`
+  and by removing Postgres schema notation when using SQLite.
 - Fixed database engine selection. The `.env` variable `CONTENT_DB_TYPE`
   now overrides the legacy `DB_TYPE` to match the documentation.
 - The internal database manager no longer requires PostgreSQL when

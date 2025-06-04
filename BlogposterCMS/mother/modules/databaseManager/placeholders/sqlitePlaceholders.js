@@ -210,14 +210,24 @@ async function handleBuiltInPlaceholderSqlite(db, operation, params) {
     }
 
     case 'CHECK_AND_ALTER_PAGES_TABLE': {
-      /* SQLite: IF NOT EXISTS works since 3.35 (2021). */
-      await db.run(`ALTER TABLE pagesManager_pages ADD COLUMN IF NOT EXISTS slug TEXT NOT NULL;`);
-      await db.run(`ALTER TABLE pagesManager_pages ADD COLUMN IF NOT EXISTS parent_id INTEGER;`);
-      await db.run(`ALTER TABLE pagesManager_pages ADD COLUMN IF NOT EXISTS language TEXT DEFAULT 'en';`);
-      await db.run(`ALTER TABLE pagesManager_pages ADD COLUMN IF NOT EXISTS is_content INTEGER DEFAULT 0;`);
-      await db.run(`ALTER TABLE pagesManager_pages ADD COLUMN IF NOT EXISTS lane TEXT NOT NULL DEFAULT 'public';`);
-      await db.run(`ALTER TABLE pagesManager_pages ADD COLUMN IF NOT EXISTS title TEXT;`);
-      await db.run(`ALTER TABLE pagesManager_pages ADD COLUMN IF NOT EXISTS meta TEXT;`);
+      const cols = await db.all(`PRAGMA table_info(pagesManager_pages);`);
+      const names = Array.isArray(cols) ? cols.map(c => c.name) : [];
+      const addCol = async (name, def) => {
+        if (!names.includes(name)) {
+          try {
+            await db.run(`ALTER TABLE pagesManager_pages ADD COLUMN ${def};`);
+          } catch (e) {
+            if (!/duplicate column/i.test(String(e.message))) throw e;
+          }
+        }
+      };
+      await addCol('slug', 'slug TEXT NOT NULL');
+      await addCol('parent_id', 'parent_id INTEGER');
+      await addCol('language', "language TEXT DEFAULT 'en'");
+      await addCol('is_content', 'is_content INTEGER DEFAULT 0');
+      await addCol('lane', "lane TEXT NOT NULL DEFAULT 'public'");
+      await addCol('title', 'title TEXT');
+      await addCol('meta', 'meta TEXT');
       await db.run(`CREATE UNIQUE INDEX IF NOT EXISTS pages_slug_lane_unique ON pagesManager_pages (slug, lane);`);
       return { done: true };
     }
