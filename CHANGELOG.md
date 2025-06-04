@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.4.1] – 2025-06-04
+### Fixed
+- Resolved SyntaxError in SQLite placeholder handler causing server startup failure.
+
 ## [0.4.0] – 2025-06-04
 - CI now verifies placeholder parity for Postgres, MongoDB and SQLite on every
   push.
