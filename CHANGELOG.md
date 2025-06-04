@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Fixed widget loading on SQLite by using `?` placeholders for generic CRUD helpers.
 - Removed the `cms.sqlite` database from version control and now ignore
   `BlogposterCMS/data` to prevent accidental leaks of local data.
 - Prevent logging of full public tokens during pagesManager initialization.
