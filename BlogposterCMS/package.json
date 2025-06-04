@@ -5,7 +5,8 @@
     "scripts": {
         "start": "node app.js",
         "dev": "nodemon app.js",
-        "test": "node tests/setAsStart.test.js && node tests/updatePage.test.js && node tests/notificationManager.test.js && node tests/publicEvents.test.js && node tests/themeImporter.test.js && node tests/cookieSanitization.test.js && node tests/rateLimiter.test.js && node tests/moduleNameSanitization.test.js && node tests/permissionUtils.test.js && node tests/sqlitePlaceholderParity.test.js",
+        "test": "node tests/setAsStart.test.js && node tests/updatePage.test.js && node tests/notificationManager.test.js && node tests/publicEvents.test.js && node tests/themeImporter.test.js && node tests/cookieSanitization.test.js && node tests/rateLimiter.test.js && node tests/moduleNameSanitization.test.js && node tests/permissionUtils.test.js && node tests/placeholderParityCheck.js",
+        "placeholder-parity": "node tests/placeholderParityCheck.js",
         "build": "webpack --mode production"
     },
     "dependencies": {

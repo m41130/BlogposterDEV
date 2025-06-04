@@ -40,6 +40,14 @@ switch (operation) {
 
 Modules can register custom placeholders using the `registerCustomPlaceholder` helper.
 
+For development safety, a parity check script ensures every placeholder case in
+MongoDB and SQLite matches the Postgres implementation. Run it with
+
+```bash
+npm run placeholder-parity
+```
+before committing database changes.
+
 ## Module Databases
 Modules listed in the `HAS_OWN_DB` environment variable receive a dedicated database. Others share the main database through isolated schemas. Credentials are generated from `MODULE_DB_SALT` and never exposed.
 

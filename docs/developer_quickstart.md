@@ -34,6 +34,12 @@ First follow the [Installation](installation.md) guide if you have not yet set u
    The test script executes a series of Node-based integration tests located in
    the `tests/` directory. Ensure the server is **not** already running when you
    run them.
+   A dedicated command is provided to verify database placeholder parity across
+   Postgres, MongoDB and SQLite:
+
+   ```bash
+   npm run placeholder-parity
+   ```
 
 5. **Coding conventions**
    - Keep modules self-contained and communicate only via meltdown events.
