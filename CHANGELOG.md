@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Replaced SQLite placeholder handler with full Postgres parity and added
+  automated parity test.
 
 - Documentation on why custom post types aren't necessary (see `docs/custom_post_types.md`).
 - Added UI screenshots to the README and usage guide for easier onboarding.
