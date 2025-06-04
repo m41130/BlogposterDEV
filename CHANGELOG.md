@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Prevent logging of full public tokens during pagesManager initialization.
 - Verified all SQLite placeholders across modules to ensure inserted IDs use the new return value.
 - SQLite engine now returns `{ lastID, changes }` for write operations,
   preventing `Cannot destructure property 'lastID'` errors during page creation.
