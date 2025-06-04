@@ -7,7 +7,10 @@
 
 require('dotenv').config();
 
-const dbType = process.env.DB_TYPE || 'postgres';
+// Support legacy "DB_TYPE" while documenting "CONTENT_DB_TYPE"
+const dbType = process.env.CONTENT_DB_TYPE
+  || process.env.DB_TYPE
+  || 'postgres';
 const moduleDbSalt = process.env.MODULE_DB_SALT || '';
 const hasOwnDbList = (process.env.HAS_OWN_DB || '')
   .split(',')
