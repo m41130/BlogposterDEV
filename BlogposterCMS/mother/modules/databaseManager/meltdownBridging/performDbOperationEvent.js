@@ -64,8 +64,9 @@ function registerPerformDbOperationEvent(motherEmitter) {
       if (dbType === 'postgres') {
         result = await engine.performPostgresOperation(moduleName, operation, params, isOwnDb);
       } else if (dbType === 'mongodb') {
-        // Assuming performMongoOperation doesn't need isOwnDb logic for this example
-        result = await engine.performMongoOperation(moduleName, operation, params); 
+        result = await engine.performMongoOperation(moduleName, operation, params);
+      } else if (dbType === 'sqlite') {
+        result = await engine.performSqliteOperation(moduleName, operation, params, isOwnDb);
       } else {
         // Handle unsupported database types
         throw new Error(`Unsupported DB type configured: ${dbType}`);

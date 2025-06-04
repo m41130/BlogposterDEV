@@ -10,8 +10,8 @@ Key variables to review:
 |----------|---------|
 | `PORT` | HTTP port used by the server. |
 | `JWT_SECRET` | Base secret for token signing. **Change this** before going live. |
-| `CONTENT_DB_TYPE` | Choose `postgres` or `mongodb`. |
-| `PG_*` / `MONGODB_URI` | Database connection settings. |
+| `CONTENT_DB_TYPE` | Choose `postgres`, `mongodb` or `sqlite`. |
+| `PG_*` / `MONGODB_URI` / `SQLITE_*` | Database connection settings. |
 | `AUTH_MODULE_INTERNAL_SECRET` | Shared secret used by the auth module when issuing tokens. |
 | `TOKEN_SALT_HIGH` etc. | Additional salts used to derive secrets per trust level. |
 | `ENABLE_API` | Enables a lightweight REST API on `API_PORT` when set to `true`. |
