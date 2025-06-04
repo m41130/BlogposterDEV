@@ -141,6 +141,23 @@ function getModuleTokenForDbManager() {
       .substring(0, 96);
   }
 
+  // Helper to verify an admin JWT against the current user database
+  function validateAdminToken(token) {
+    return new Promise((resolve, reject) => {
+      if (!token) return reject(new Error('Missing token'));
+      motherEmitter.emit(
+        'validateToken',
+        {
+          jwt: token,
+          moduleName: 'auth',
+          moduleType: 'core',
+          tokenToValidate: token
+        },
+        (err, decoded) => (err ? reject(err) : resolve(decoded))
+      );
+    });
+  }
+
   // Set up paths
   const publicPath = path.join(__dirname, 'public');
   const assetsPath = path.join(publicPath, 'assets');
@@ -251,7 +268,7 @@ function getModuleTokenForDbManager() {
 // 5) Meltdown API – proxy front-end requests into motherEmitter events
 // ──────────────────────────────────────────────────────────────────────────
 
-app.post('/api/meltdown', apiLimiter, (req, res) => {
+app.post('/api/meltdown', apiLimiter, async (req, res) => {
   // 1) Read event name first so we know if it is public
   const { eventName, payload = {} } = req.body || {};
   const PUBLIC_EVENTS = [
@@ -272,7 +289,20 @@ app.post('/api/meltdown', apiLimiter, (req, res) => {
     return res.status(401).json({ error: 'Authentication required: missing JWT.' });
   }
 
-  if (jwt) {
+  if (!PUBLIC_EVENTS.includes(eventName) && jwt) {
+    try {
+      payload.decodedJWT = await validateAdminToken(jwt);
+      payload.jwt = jwt;
+    } catch (err) {
+      res.clearCookie('admin_jwt', {
+        path: '/',
+        httpOnly: true,
+        sameSite: 'strict',
+        secure: process.env.NODE_ENV === 'production'
+      });
+      return res.status(401).json({ error: 'Invalid token' });
+    }
+  } else if (jwt) {
     payload.jwt = jwt;
   }
 
@@ -385,12 +415,22 @@ app.get('/admin/home', pageLimiter, csrfProtection, async (req, res) => {
 
     // Wenn Nutzer bereits authentifiziert ist, zeige admin.html
     if (req.cookies?.admin_jwt) {
-      let html = fs.readFileSync(path.join(publicPath, 'admin.html'), 'utf8');
-      html = html.replace(
-        '</head>',
-        `<meta name="csrf-token" content="${req.csrfToken()}"></head>`
-      );
-      return res.send(html);
+      try {
+        await validateAdminToken(req.cookies.admin_jwt);
+        let html = fs.readFileSync(path.join(publicPath, 'admin.html'), 'utf8');
+        html = html.replace(
+          '</head>',
+          `<meta name="csrf-token" content="${req.csrfToken()}"></head>`
+        );
+        return res.send(html);
+      } catch {
+        res.clearCookie('admin_jwt', {
+          path: '/',
+          httpOnly: true,
+          sameSite: 'strict',
+          secure: process.env.NODE_ENV === 'production'
+        });
+      }
     }
 
     // User nicht eingeloggt, sende login.html mit CSRF-Token
@@ -421,6 +461,19 @@ app.get('/admin/*', pageLimiter, async (req, res, next) => {
   const adminJwt = req.cookies?.admin_jwt;
 
   if (!adminJwt) {
+    const jump = `/login?redirectTo=${encodeURIComponent(req.originalUrl)}`;
+    return res.redirect(jump);
+  }
+
+  try {
+    await validateAdminToken(adminJwt);
+  } catch {
+    res.clearCookie('admin_jwt', {
+      path: '/',
+      httpOnly: true,
+      sameSite: 'strict',
+      secure: process.env.NODE_ENV === 'production'
+    });
     const jump = `/login?redirectTo=${encodeURIComponent(req.originalUrl)}`;
     return res.redirect(jump);
   }
