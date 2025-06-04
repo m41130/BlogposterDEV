@@ -13,6 +13,9 @@ const {
 } = require('../config/databaseConfig');
 const { sanitizeModuleName } = require('../../utils/moduleUtils');
 const notificationEmitter = require('../../../emitters/notificationEmitter');
+const builtinPlaceholders = require('../placeholders/builtinPlaceholders');
+const { getCustomPlaceholder } = require('../placeholders/placeholderRegistry');
+const { handleBuiltInPlaceholderSqlite } = require('../placeholders/sqlitePlaceholders');
 
 function getDbPath(moduleName, isOwnDb) {
   const safeName = sanitizeModuleName(moduleName).toLowerCase();
@@ -42,19 +45,37 @@ async function createOrFixSqliteDatabaseForModule(moduleName, isOwnDb) {
 function performSqliteOperation(moduleName, operation, params = [], isOwnDb) {
   return new Promise((resolve, reject) => {
     const dbPath = getDbPath(moduleName, isOwnDb);
-    const db = new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, err => {
-      if (err) {
-        return reject(err);
+    const db = new sqlite3.Database(
+      dbPath,
+      sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE,
+      async err => {
+        if (err) return reject(err);
+
+        try {
+          if (typeof operation === 'string' && await isPlaceholderOperation(operation)) {
+            const result = await handleBuiltInPlaceholderSqlite(db, operation, params);
+            db.close();
+            return resolve(result);
+          }
+
+          db.all(operation, params, (err2, rows) => {
+            db.close();
+            if (err2) return reject(err2);
+            resolve({ rows });
+          });
+        } catch (e) {
+          db.close();
+          reject(e);
+        }
       }
-    });
-    db.all(operation, params, (err, rows) => {
-      db.close();
-      if (err) {
-        return reject(err);
-      }
-      resolve({ rows });
-    });
+    );
   });
+}
+
+function isPlaceholderOperation(op) {
+  if (builtinPlaceholders.includes(op)) return true;
+  if (getCustomPlaceholder(op)) return true;
+  return false;
 }
 
 module.exports = {

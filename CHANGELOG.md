@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 - Added UI screenshots to the README and usage guide for easier onboarding.
 - Expanded dashboard screenshot series to illustrate widget arrangement.
 - Experimental SQLite support added alongside Postgres and MongoDB.
+- Added SQLite placeholder handler to support built-in operations.
 
 
 ## [0.3.1] – 2025-06-03

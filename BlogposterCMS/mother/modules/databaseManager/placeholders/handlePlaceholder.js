@@ -5,6 +5,7 @@ const builtinPlaceholders = require('./builtinPlaceholders');
 const { getCustomPlaceholder } = require('./placeholderRegistry');
 const { handleBuiltInPlaceholderPostgres } = require('./postgresPlaceholders');
 const { handleBuiltInPlaceholderMongo } = require('./mongoPlaceholders');
+const { handleBuiltInPlaceholderSqlite } = require('./sqlitePlaceholders');
 
 // NEW: typed notification emitter
 const notificationEmitter = require('../../../emitters/notificationEmitter');
@@ -28,6 +29,8 @@ async function handlePlaceholder(dbClient, dbType, operation, params = []) {
       return handleBuiltInPlaceholderPostgres(dbClient, operation, params);
     } else if (dbType === 'mongodb') {
       return handleBuiltInPlaceholderMongo(dbClient, operation, params);
+    } else if (dbType === 'sqlite') {
+      return handleBuiltInPlaceholderSqlite(dbClient, operation, params);
     } else {
       notificationEmitter.notify({
         moduleName: 'databaseManager',
