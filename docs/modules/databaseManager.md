@@ -23,7 +23,7 @@ The Database Manager acts as the gateway between modules and the persistence lay
 The manager also emits `deactivateModule` if a module triggers a fatal error. Every call is validated against the provided JWT before any database operation is executed.
 
 ## Database Engines
-The manager works with either **PostgreSQL** or **MongoDB** as selected by the `CONTENT_DB_TYPE` variable. PostgreSQL is fully tested and recommended for production use. MongoDB support is experimental. See [Choosing a Database Engine](../choosing_database_engine.md) for configuration details.
+The manager works with **PostgreSQL**, **MongoDB** or **SQLite** as selected by the `CONTENT_DB_TYPE` variable. PostgreSQL is fully tested and recommended for production use. MongoDB support is experimental. SQLite is intended for lightweight deployments. See [Choosing a Database Engine](../choosing_database_engine.md) for configuration details.
 
 ## Placeholder Switch Cases
 Operations may reference built‑in placeholders such as `createUserTable` or custom ones registered by modules. The manager checks these placeholders before running raw SQL:

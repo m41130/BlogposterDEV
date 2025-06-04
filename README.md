@@ -17,7 +17,7 @@ You get the power of plugins — without the plugin drama.
 - 🔐 JWT-secured event system (no rogue code allowed)
 - ⚙️ Built-in sandbox for third-party modules (crash protection included)
 - 🛡️ Hardened security layer with granular permissions
-- 📦 PostgreSQL *or* MongoDB – you choose
+- 📦 PostgreSQL, MongoDB or SQLite – you choose
 - 💠 Drag-and-drop pages thanks to GridStack
 - 🧠 AI & Microservices support (because why not?)
 - ☢️ Meltdown event bus keeps rogue modules isolated

@@ -33,5 +33,9 @@ module.exports = {
   mongoAdminPassword: process.env.MONGO_ADMIN_PASSWORD || 'adminpass',
   mongoHost:          process.env.MONGO_HOST || 'localhost',
   mongoPort:          process.env.MONGO_PORT || '27017',
-  mongoUri:           process.env.MONGODB_URI || null
+  mongoUri:           process.env.MONGODB_URI || null,
+
+  // SQLite
+  sqliteStorage:      process.env.SQLITE_STORAGE || './data',
+  sqliteMainFile:     process.env.SQLITE_MAIN_FILE || 'cms.sqlite'
 };

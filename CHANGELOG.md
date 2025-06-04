@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 - Documentation on why custom post types aren't necessary (see `docs/custom_post_types.md`).
 - Added UI screenshots to the README and usage guide for easier onboarding.
 - Expanded dashboard screenshot series to illustrate widget arrangement.
+- Experimental SQLite support added alongside Postgres and MongoDB.
 
 
 ## [0.3.1] – 2025-06-03

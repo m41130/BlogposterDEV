@@ -7,6 +7,7 @@ const { getEngine } = require('../engines/engineFactory');
 const { moduleHasOwnDb } = require('../helpers/dbTypeHelpers');
 const { createOrFixSchemaInMainDb } = require('../engines/postgresEngine');
 const { createMongoDatabase } = require('../engines/mongoEngine');
+const { createOrFixSqliteDatabaseForModule } = require('../engines/sqliteEngine');
 const { getDbType } = require('../helpers/dbTypeHelpers');
 const { onceCallback } = require('../../../emitters/motherEmitter');
 
@@ -67,6 +68,15 @@ function registerCreateDatabaseEvent(motherEmitter) {
           message: `Successfully created/fixed MongoDB for "${moduleName}".`
         });
         callback(null, { success: true, type: 'mongodb' });
+      } else if (dbType === 'sqlite') {
+        await createOrFixSqliteDatabaseForModule(moduleName, isOwnDb);
+        notificationEmitter.notify({
+          moduleName: 'databaseManager',
+          notificationType: 'info',
+          priority: 'info',
+          message: `Successfully prepared SQLite DB for "${moduleName}".`
+        });
+        callback(null, { success: true, type: 'sqlite' });
       } else {
         throw new Error(`Unsupported DB type: ${dbType}`);
       }
