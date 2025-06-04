@@ -11,9 +11,11 @@ const axios = require('axios');
 const { onceCallback } = require('../../../emitters/motherEmitter');
 const { sanitize } = require('../../../utils/logSanitizer');
 const { getDbType } = require('../helpers/dbTypeHelpers');
+const { ph } = require('../helpers/placeholderHelpers');
 
 // Notification emitter for typed notifications
 const notificationEmitter = require('../../../emitters/notificationEmitter');
+
 
 /**
  * registerHighLevelCrudEvents:
@@ -289,7 +291,7 @@ function localDbInsert(motherEmitter, payload, callback) {
   if (!columns.length) {
     return callback(new Error('[localDbInsert] No columns in data.'));
   }
-  const placeholders = columns.map((_, i) => `$${i+1}`);
+  const placeholders = columns.map((_, i) => ph(i+1));
   const values = Object.values(data);
 
   const tableName = getDbType() === 'postgres'
@@ -342,7 +344,7 @@ function localDbSelect(motherEmitter, payload, callback) {
   let values = [];
   if (where && Object.keys(where).length > 0) {
     const keys = Object.keys(where);
-    const conditions = keys.map((col, i) => `"${col}" = $${i+1}`);
+    const conditions = keys.map((col, i) => `"${col}" = ${ph(i+1)}`);
     whereClause = 'WHERE ' + conditions.join(' AND ');
     values = Object.values(where);
   }
@@ -402,7 +404,7 @@ function localDbUpdate(motherEmitter, payload, callback) {
     if (val && typeof val === 'object' && Object.prototype.hasOwnProperty.call(val, '__raw_expr')) {
       setClauses.push(`"${col}" = ${val.__raw_expr}`);
     } else {
-      setClauses.push(`"${col}" = $${paramIndex}`);
+      setClauses.push(`"${col}" = ${ph(paramIndex)}`);
       setValues.push(val);
       paramIndex += 1;
     }
@@ -415,7 +417,7 @@ function localDbUpdate(motherEmitter, payload, callback) {
   const whereClauses = [];
   const whereValues = [];
   for (const col of whereKeys) {
-    whereClauses.push(`"${col}" = $${paramIndex}`);
+    whereClauses.push(`"${col}" = ${ph(paramIndex)}`);
     whereValues.push(where[col]);
     paramIndex += 1;
   }
@@ -466,7 +468,7 @@ function localDbDelete(motherEmitter, payload, callback) {
   if (!whereKeys.length) {
     return callback(new Error('[localDbDelete] Empty WHERE => refusing to delete everything.'));
   }
-  const whereClauses = whereKeys.map((col, i) => `"${col}" = $${i+1}`);
+  const whereClauses = whereKeys.map((col, i) => `"${col}" = ${ph(i+1)}`);
   const whereValues = Object.values(where);
 
   const tableName = getDbType() === 'postgres'

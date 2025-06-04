@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 - Added token validation on all admin routes and the meltdown API to prevent
   unauthorized access after a database reset.
+- Centralized DB placeholder logic for better maintainability.
+- Fixed widget loading on SQLite by using `?` placeholders for generic CRUD helpers.
+- Added release workflow that publishes zipped build assets and release notes after running security audits, tests and CodeQL analysis.
 - Removed the `cms.sqlite` database from version control and now ignore
   `BlogposterCMS/data` to prevent accidental leaks of local data.
 - Prevent logging of full public tokens during pagesManager initialization.
