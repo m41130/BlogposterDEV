@@ -3,6 +3,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 - Added release workflow that publishes zipped build assets and release notes after running security audits, tests and CodeQL analysis.
+- Removed the `cms.sqlite` database from version control and now ignore
+  `BlogposterCMS/data` to prevent accidental leaks of local data.
 - Prevent logging of full public tokens during pagesManager initialization.
 - Verified all SQLite placeholders across modules to ensure inserted IDs use the new return value.
 - SQLite engine now returns `{ lastID, changes }` for write operations,

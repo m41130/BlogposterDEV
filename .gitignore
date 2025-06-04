@@ -1,5 +1,6 @@
 #not ready yet
 /BlogposterCMS/library
+/BlogposterCMS/data/
 /BlogposterCMS/.env
 /mother/modeMiddleware.js
 public/assets/css/site.css
