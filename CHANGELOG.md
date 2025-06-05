@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 - Adjusted release workflow to read the changelog from the repository root.
+- Fixed default share link domain; now uses `APP_BASE_URL` or `https://example.com`.
+- Ensured `library/public` directory is created during startup so media uploads don't fail.
+- Fixed image widget state persistence by passing `widgetId` to widgets.
+
+## [0.4.1] – 2025-06-05
+
 - Fixed missing CSRF token on admin subpages causing 403 errors when uploading media.
 - Added token validation on all admin routes and the meltdown API to prevent
   unauthorized access after a database reset.
@@ -28,7 +34,6 @@ All notable changes to this project will be documented in this file.
 - Fixed SQLite initialization race for settingsManager tables and added
   compatibility with older SQLite versions.
 
-## [0.4.1] – 2025-06-04
 ### Fixed
 - Resolved SyntaxError in SQLite placeholder handler causing server startup failure.
 

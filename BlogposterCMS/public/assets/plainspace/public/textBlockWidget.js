@@ -18,7 +18,7 @@ export async function render(el, ctx = {}) {
             jwt: ctx.jwt,
             moduleName: 'widgetManager',
             moduleType: 'core',
-            widgetId: ctx.id,
+            widgetId: ctx.widgetId,
             widgetType: 'public',
             newLabel: html
           });

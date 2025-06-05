@@ -69,11 +69,12 @@ module.exports = {
  *  Creates the library folder if it doesn't exist yet.
  */
 function ensureLibraryFolder() {
-  if (!fs.existsSync(libraryRoot)) {
-    fs.mkdirSync(libraryRoot, { recursive: true });
-    console.log(`[MEDIA MANAGER] Library folder created => ${libraryRoot}`);
-  } else {
-    console.log('[MEDIA MANAGER] Library folder already exists =>', libraryRoot);
+  const publicDir = path.join(libraryRoot, 'public');
+  try {
+    fs.mkdirSync(publicDir, { recursive: true });
+    console.log('[MEDIA MANAGER] Library folders ensured =>', libraryRoot);
+  } catch (err) {
+    console.error('[MEDIA MANAGER] Failed to create library folders:', err.message);
   }
 }
 
