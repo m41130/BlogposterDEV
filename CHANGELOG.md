@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Documented HTTPS requirement for login cookies in `docs/security.md`.
 - Added warning when secure login cookies are set over HTTP.
 - Fixed pagesManager start page setup on MongoDB. `SET_AS_START` no longer uses
   an undefined `client` object, preventing module meltdown and login failures.

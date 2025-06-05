@@ -17,6 +17,14 @@ BlogposterCMS was designed with multiple layers of security in mind. While no sy
 
 Always review your access logs and keep dependencies up to date. Security patches will continue to harden the platform over time.
 
+## Troubleshooting Secure Login
+
+When `NODE_ENV=production` is set, the `admin_jwt` cookie is marked as `secure`.
+Browsers will only store this cookie over HTTPS connections. If you access the
+admin interface using plain HTTP, the login page may simply reload without an
+error because the cookie is ignored. Either use HTTPS (for example via a local
+reverse proxy) or unset `NODE_ENV` while testing locally.
+
 ## Developing Secure Modules
 
 When writing your own modules keep these best practices in mind:
