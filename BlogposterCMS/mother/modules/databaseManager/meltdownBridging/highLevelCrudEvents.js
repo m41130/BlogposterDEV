@@ -368,7 +368,14 @@ function localDbSelect(motherEmitter, payload, callback) {
       },
       (err, result) => {
         if (err) return callback(err);
-        callback(null, result || []);
+        const docs = (result || []).map(doc => {
+          if (doc && doc._id && !doc.id) {
+            const { _id, ...rest } = doc;
+            return { id: _id, ...rest };
+          }
+          return doc;
+        });
+        callback(null, docs);
       }
     );
     return;
