@@ -104,7 +104,11 @@ function renderWidget(wrapper, def, code = null, lane = 'public') {
     return;
   }
   const host = wrapper.closest('.grid-stack-item') || wrapper;
-  const ctx = { id: host.dataset.instanceId, metadata: def.metadata };
+  const ctx = {
+    id: host.dataset.instanceId,
+    widgetId: def.id,
+    metadata: def.metadata
+  };
   if (lane === 'admin' && window.ADMIN_TOKEN) {
     ctx.jwt = window.ADMIN_TOKEN;
   }

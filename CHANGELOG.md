@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Ensured `library/public` directory is created during startup so media uploads don't fail.
+- Fixed image widget state persistence by passing `widgetId` to widgets.
 - Fixed missing CSRF token on admin subpages causing 403 errors when uploading media.
 - Added token validation on all admin routes and the meltdown API to prevent
   unauthorized access after a database reset.
