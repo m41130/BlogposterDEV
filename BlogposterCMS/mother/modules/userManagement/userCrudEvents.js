@@ -26,7 +26,9 @@ function setupUserCrudEvents(motherEmitter) {
   motherEmitter.on('createUser', async (payload, originalCb) => {
     const callback = onceCallback(originalCb);
 
-    console.log('[USER MGMT] "createUser" event triggered. Payload:', payload);
+    const sanitized = { ...payload };
+    if (sanitized && sanitized.password) sanitized.password = '***';
+    console.log('[USER MGMT] "createUser" event triggered. Payload:', sanitized);
 
     const {
       jwt,
@@ -115,7 +117,9 @@ function setupUserCrudEvents(motherEmitter) {
           return callback(new Error('No valid inserted user row'));
         }
       
-        console.log('[USER MGMT] createUser => User inserted:', newUser);
+        const userLog = { ...newUser };
+        if (userLog && userLog.password) userLog.password = '***';
+        console.log('[USER MGMT] createUser => User inserted:', userLog);
       
         if (!role) {
           clearTimeout(timeout);
@@ -347,7 +351,9 @@ function setupUserCrudEvents(motherEmitter) {
   motherEmitter.on('updateUserProfile', async (payload, originalCb) => {
     const callback = onceCallback(originalCb);
 
-    console.log('[USER MGMT] "updateUserProfile" event triggered. Payload:', payload);
+    const sanitizedPayload = { ...payload };
+    if (sanitizedPayload && sanitizedPayload.newPassword) sanitizedPayload.newPassword = '***';
+    console.log('[USER MGMT] "updateUserProfile" event triggered. Payload:', sanitizedPayload);
 
     const {
       jwt,
