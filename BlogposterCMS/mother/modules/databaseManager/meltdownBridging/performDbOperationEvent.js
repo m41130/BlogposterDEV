@@ -46,8 +46,11 @@ function registerPerformDbOperationEvent(motherEmitter) {
       }
       const { moduleName, operation, params } = payload;
 
-      // Basic validation of required parameters
-      if (!moduleName || !operation || !Array.isArray(params)) {
+      // Basic validation of required parameters. Historically this
+      // listener only allowed an array for `params`, but newer MongoDB
+      // helpers pass an object.  Support both to avoid needless errors.
+      const paramsValid = Array.isArray(params) || (params && typeof params === 'object');
+      if (!moduleName || !operation || !paramsValid) {
         // This error will be caught by the catch block below
         throw new Error(`Invalid parameters received from module "${moduleName}". Operation or params missing/invalid.`);
       }

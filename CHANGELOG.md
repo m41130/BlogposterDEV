@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Fixed false "Invalid parameters" errors when MongoDB operations passed an
+  object instead of an array to `performDbOperation`. The listener now accepts
+  both formats and no longer deactivates modules like `widgetManager` during
+  startup.
 - Fixed MongoDB database initialization failing when a module user already exists.
   Settings manager now loads correctly and registers event listeners.
 - Fixed MongoDB integration. Local CRUD events now translate to Mongo operations
