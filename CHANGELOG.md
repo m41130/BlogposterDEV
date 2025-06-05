@@ -22,6 +22,10 @@ All notable changes to this project will be documented in this file.
 - Fixed default share link domain; now uses `APP_BASE_URL` or `https://example.com`.
 - Ensured `library/public` directory is created during startup so media uploads don't fail.
 - Fixed image widget state persistence by passing `widgetId` to widgets.
+- Fixed role assignment on MongoDB. `dbSelect` now normalizes `_id` to `id`,
+  ensuring roles attach correctly during user creation.
+- Added test verifying Mongo user collections match PostgreSQL tables.
+- Extended parity test to cover all Mongo collections across modules.
 
 ## [0.4.1] – 2025-06-05
 - Fixed missing CSRF token on admin subpages causing 403 errors when uploading media.
