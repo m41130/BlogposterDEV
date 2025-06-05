@@ -18,6 +18,7 @@ const TIMEOUT_DURATION = 5000;
 // meltdown meltdown...
 const { onceCallback } = require('../../emitters/motherEmitter');
 const { hasPermission } = require('./permissionUtils');
+const { getDbType } = require('../databaseManager/helpers/dbTypeHelpers');
 
 /**
  * setupRoleCrudEvents:
@@ -240,11 +241,12 @@ function setupRoleCrudEvents(motherEmitter) {
       }
 
       // On success => increment the user's token_version
+      const idField = getDbType() === 'mongodb' ? '_id' : 'id';
       motherEmitter.emit('dbUpdate', {
         jwt,
         moduleName: 'userManagement',
         table: 'users',
-        where: { id: userId },
+        where: { [idField]: userId },
         data: {
           token_version: { '__raw_expr': 'token_version + 1' }
         }
@@ -340,11 +342,12 @@ function setupRoleCrudEvents(motherEmitter) {
       if (err) return callback(err);
 
       // Then increment token_version
+      const idField = getDbType() === 'mongodb' ? '_id' : 'id';
       motherEmitter.emit('dbUpdate', {
         jwt,
         moduleName: 'userManagement',
         table: 'users',
-        where: { id: userId },
+        where: { [idField]: userId },
         data: {
           token_version: { '__raw_expr': 'token_version + 1' }
         }
@@ -372,11 +375,12 @@ function setupRoleCrudEvents(motherEmitter) {
     }
 
     console.log('[USER MGMT] incrementUserTokenVersion => Fetching current token_version for userId:', userId);
+    const idField = getDbType() === 'mongodb' ? '_id' : 'id';
     motherEmitter.emit('dbSelect', {
       jwt,
       moduleName: 'userManagement',
       table: 'users',
-      where: { id: userId }
+      where: { [idField]: userId }
     }, (selectErr, users) => {
       if (selectErr || !users.length) {
         console.error('[USER MGMT] incrementUserTokenVersion => Error or no user found:', selectErr?.message || 'No user');
@@ -390,7 +394,7 @@ function setupRoleCrudEvents(motherEmitter) {
         jwt,
         moduleName: 'userManagement',
         table: 'users',
-        where: { id: userId },
+        where: { [idField]: userId },
         data: { token_version: currentTokenVersion + 1 }
       }, (updateErr) => {
         if (updateErr) {
