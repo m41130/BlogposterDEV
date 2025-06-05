@@ -39,7 +39,7 @@ jobs:
         uses: github/codeql-action/init@v3
         with:
           languages: javascript
-          working-directory: BlogposterCMS
+          source-root: BlogposterCMS
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
       - name: Zip Build Artifacts
@@ -65,7 +65,7 @@ jobs:
       - name: Read CHANGELOG.md
         id: changelog
         run: |
-          RELEASE_NOTES=$(awk '/^## /{flag=1;next}/^$/{if(flag) exit}flag' BlogposterCMS/CHANGELOG.md)
+          RELEASE_NOTES=$(awk '/^## /{flag=1;next}/^$/{if(flag) exit}flag' CHANGELOG.md)
           echo "notes<<EOF" >> $GITHUB_ENV
           echo "$RELEASE_NOTES" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
