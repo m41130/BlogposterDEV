@@ -8,6 +8,8 @@ All notable changes to this project will be documented in this file.
 - Fixed widget loading on SQLite by using `?` placeholders for generic CRUD helpers.
 - Fixed pagesManager meta data on SQLite. Objects are now stored as JSON
   and parsed when reading back.
+- Fixed plainSpace layout loading on SQLite. Layout JSON is now parsed when
+  fetching to match Postgres behavior.
 - Added release workflow that publishes zipped build assets and release notes after running security audits, tests and CodeQL analysis.
 - Removed the `cms.sqlite` database from version control and now ignore
   `BlogposterCMS/data` to prevent accidental leaks of local data.
