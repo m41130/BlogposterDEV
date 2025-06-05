@@ -287,6 +287,23 @@ function localDbInsert(motherEmitter, payload, callback) {
   }
 
   // Normal insert approach
+  if (getDbType() === 'mongodb') {
+    motherEmitter.emit(
+      'performDbOperation',
+      {
+        jwt,
+        moduleName,
+        operation: 'insertOne',
+        params: { collectionName: table, doc: data }
+      },
+      (err, result) => {
+        if (err) return callback(err);
+        callback(null, result);
+      }
+    );
+    return;
+  }
+
   const columns = Object.keys(data);
   if (!columns.length) {
     return callback(new Error('[localDbInsert] No columns in data.'));
@@ -340,6 +357,23 @@ function localDbSelect(motherEmitter, payload, callback) {
   }
 
   // Normal SELECT approach
+  if (getDbType() === 'mongodb') {
+    motherEmitter.emit(
+      'performDbOperation',
+      {
+        jwt,
+        moduleName,
+        operation: 'find',
+        params: { collectionName: table, query: where || {} }
+      },
+      (err, result) => {
+        if (err) return callback(err);
+        callback(null, result || []);
+      }
+    );
+    return;
+  }
+
   let whereClause = '';
   let values = [];
   if (where && Object.keys(where).length > 0) {
@@ -391,6 +425,23 @@ function localDbUpdate(motherEmitter, payload, callback) {
   }
 
   // Normal UPDATE approach
+  if (getDbType() === 'mongodb') {
+    motherEmitter.emit(
+      'performDbOperation',
+      {
+        jwt,
+        moduleName,
+        operation: 'updateOne',
+        params: { collectionName: table, query: where, update: { $set: data } }
+      },
+      (err, result) => {
+        if (err) return callback(err);
+        callback(null, result);
+      }
+    );
+    return;
+  }
+
   const setKeys = Object.keys(data || {});
   if (!setKeys.length) {
     return callback(new Error('[localDbUpdate] No update data provided.'));
@@ -468,6 +519,23 @@ function localDbDelete(motherEmitter, payload, callback) {
   if (!whereKeys.length) {
     return callback(new Error('[localDbDelete] Empty WHERE => refusing to delete everything.'));
   }
+  if (getDbType() === 'mongodb') {
+    motherEmitter.emit(
+      'performDbOperation',
+      {
+        jwt,
+        moduleName,
+        operation: 'deleteOne',
+        params: { collectionName: table, query: where }
+      },
+      (err, result) => {
+        if (err) return callback(err);
+        callback(null, result);
+      }
+    );
+    return;
+  }
+
   const whereClauses = whereKeys.map((col, i) => `"${col}" = ${ph(i+1)}`);
   const whereValues = Object.values(where);
 
