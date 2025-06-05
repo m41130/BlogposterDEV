@@ -6,6 +6,9 @@ All notable changes to this project will be documented in this file.
 - Added warning when secure login cookies are set over HTTP.
 - Masked password fields in updateUserProfile and user creation logs to prevent
   leaking credentials during debugging.
+- Fixed MongoDB logins failing after role assignments. `localDbUpdate` now
+  interprets `{__raw_expr}` increment expressions and new users start with
+  `token_version` set to `0`.
 - Fixed token_version updates on MongoDB. Role assignments now use `_id` when
   incrementing the version so user tokens invalidate correctly.
 - Masked passwords in userManagement logs to avoid credential leaks.
