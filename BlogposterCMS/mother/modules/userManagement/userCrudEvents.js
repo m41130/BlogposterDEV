@@ -19,6 +19,7 @@ const TIMEOUT_DURATION = 5000;
 // meltdown meltdown...
 const { onceCallback } = require('../../emitters/motherEmitter');
 const { hasPermission } = require('./permissionUtils');
+const { getDbType } = require('../databaseManager/helpers/dbTypeHelpers');
 
 function setupUserCrudEvents(motherEmitter) {
   // ==================== CREATE USER ====================
@@ -450,11 +451,12 @@ function setupUserCrudEvents(motherEmitter) {
       callback(new Error('Timeout while fetching user by ID.'));
     }, TIMEOUT_DURATION);
 
+    const idField = getDbType() === 'mongodb' ? '_id' : 'id';
     motherEmitter.emit('dbSelect', {
       jwt,
       moduleName: 'userManagement',
       table: 'users',
-      where: { id: userId }
+      where: { [idField]: userId }
     }, (err, rows) => {
       clearTimeout(timeout);
       if (err) return callback(err);
