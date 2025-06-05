@@ -96,9 +96,19 @@ function setupUserCrudEvents(motherEmitter) {
           clearTimeout(timeout);
           return callback(dbErr);
         }
-      
-        // insertedRows ist ein Array – wir wollen das erste Element
-        const newUser = Array.isArray(insertedRows) ? insertedRows[0] : insertedRows;
+
+        // InsertOne on MongoDB returns an object with `insertedId`.
+        // PostgreSQL/SQLite return an array of rows. Normalize both.
+        let newUser;
+        if (Array.isArray(insertedRows)) {
+          newUser = insertedRows[0];
+        } else if (insertedRows && insertedRows.insertedId) {
+          // Reconstruct the created user object for MongoDB
+          newUser = { id: insertedRows.insertedId, ...dataToInsert };
+        } else {
+          newUser = insertedRows;
+        }
+
         if (!newUser || !newUser.id) {
           clearTimeout(timeout);
           return callback(new Error('No valid inserted user row'));
