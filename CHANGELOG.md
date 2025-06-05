@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Updated placeholder parity check to invoke Jest so the script works again.
 - Switched test runner to Jest and converted all integration tests.
 - Fixed missing CSRF token on admin subpages causing 403 errors when uploading media.
 - Added token validation on all admin routes and the meltdown API to prevent
