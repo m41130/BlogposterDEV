@@ -247,7 +247,10 @@ function registerPlainSpaceEvents(motherEmitter) {
           if (!rows.length) {
             return cb(null, { layout: [] });
           }
-          const layoutArr = rows[0].layout_json || [];
+          let layoutArr = rows[0].layout_json || [];
+          if (typeof layoutArr === 'string') {
+            try { layoutArr = JSON.parse(layoutArr); } catch { layoutArr = []; }
+          }
           cb(null, { layout: layoutArr });
         }
       );
@@ -277,10 +280,13 @@ function registerPlainSpaceEvents(motherEmitter) {
         },
         (err, rows = []) => {
           if (err) return cb(err);
-          const layouts = rows.map((r) => ({
-            viewport: r.viewport,
-            layout: r.layout_json || []
-          }));
+          const layouts = rows.map((r) => {
+            let layoutArr = r.layout_json || [];
+            if (typeof layoutArr === 'string') {
+              try { layoutArr = JSON.parse(layoutArr); } catch { layoutArr = []; }
+            }
+            return { viewport: r.viewport, layout: layoutArr };
+          });
           cb(null, { layouts });
         }
       );
@@ -342,7 +348,11 @@ function registerPlainSpaceEvents(motherEmitter) {
           if (!rows.length) {
             return cb(null, { layout: [] });
           }
-          cb(null, { layout: rows[0].layout_json || [] });
+          let layoutArr = rows[0].layout_json || [];
+          if (typeof layoutArr === 'string') {
+            try { layoutArr = JSON.parse(layoutArr); } catch { layoutArr = []; }
+          }
+          cb(null, { layout: layoutArr });
         }
       );
     } catch (err) {
