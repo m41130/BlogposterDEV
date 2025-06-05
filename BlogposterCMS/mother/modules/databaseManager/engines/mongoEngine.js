@@ -49,11 +49,24 @@ async function createMongoDatabase(moduleName) {
         priority: 'debug',
         message: `Creating dbOwner user "${creds.user}" for DB "${dbName}"...`
       });
-      await db.command({
-        createUser: creds.user,
-        pwd: creds.pass,
-        roles: [{ role: 'dbOwner', db: dbName }]
-      });
+      try {
+        await db.command({
+          createUser: creds.user,
+          pwd: creds.pass,
+          roles: [{ role: 'dbOwner', db: dbName }]
+        });
+      } catch (userErr) {
+        if (userErr.code === 51003 || /already exists/i.test(userErr.message)) {
+          notificationEmitter.notify({
+            moduleName: 'databaseManager',
+            notificationType: 'debug',
+            priority: 'debug',
+            message: `User "${creds.user}" already exists for DB "${dbName}". Skipping creation.`
+          });
+        } else {
+          throw userErr;
+        }
+      }
     }
     notificationEmitter.notify({
       moduleName: 'databaseManager',

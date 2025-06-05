@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Fixed MongoDB database initialization failing when a module user already exists.
+  Settings manager now loads correctly and registers event listeners.
 - Fixed MongoDB integration. Local CRUD events now translate to Mongo operations
   instead of raw SQL, enabling proper widget management and other features when
   `CONTENT_DB_TYPE` is set to `mongodb`.
