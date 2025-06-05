@@ -135,7 +135,7 @@ async function connectToModuleDb(moduleName) {
     ? mongoUri
     : `mongodb://${dbUser}:${dbPass}@${mongoHost}:${mongoPort}/${dbName}?authSource=${dbName}`;
 
-  const client = new MongoClient(connectUri, { useUnifiedTopology: true });
+  const client = new MongoClient(connectUri);
   await client.connect();
   return client.db(dbName);
 }

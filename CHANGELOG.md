@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Removed deprecated `useUnifiedTopology` option from MongoDB connections to avoid warnings.
 - Fixed false "Invalid parameters" errors when MongoDB operations passed an
   object instead of an array to `performDbOperation`. The listener now accepts
   both formats and no longer deactivates modules like `widgetManager` during
