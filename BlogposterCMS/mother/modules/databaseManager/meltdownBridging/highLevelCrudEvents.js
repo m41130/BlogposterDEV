@@ -433,13 +433,43 @@ function localDbUpdate(motherEmitter, payload, callback) {
 
   // Normal UPDATE approach
   if (getDbType() === 'mongodb') {
+    const setOps = {};
+    const incOps = {};
+    for (const [key, val] of Object.entries(data || {})) {
+      if (
+        val &&
+        typeof val === 'object' &&
+        Object.prototype.hasOwnProperty.call(val, '__raw_expr')
+      ) {
+        const expr = String(val.__raw_expr).trim();
+        let match = expr.match(/^([A-Za-z0-9_]+)\s*\+\s*(\d+)$/);
+        if (match && match[1] === key) {
+          incOps[key] = Number(match[2]);
+          continue;
+        }
+        match = expr.match(/^([A-Za-z0-9_]+)\s*-\s*(\d+)$/);
+        if (match && match[1] === key) {
+          incOps[key] = -Number(match[2]);
+          continue;
+        }
+        // Fallback: treat as normal value
+        setOps[key] = val;
+      } else {
+        setOps[key] = val;
+      }
+    }
+
+    const updateObj = {};
+    if (Object.keys(setOps).length) updateObj.$set = setOps;
+    if (Object.keys(incOps).length) updateObj.$inc = incOps;
+
     motherEmitter.emit(
       'performDbOperation',
       {
         jwt,
         moduleName,
         operation: 'updateOne',
-        params: { collectionName: table, query: where, update: { $set: data } }
+        params: { collectionName: table, query: where, update: updateObj }
       },
       (err, result) => {
         if (err) return callback(err);

@@ -84,6 +84,7 @@ function setupUserCrudEvents(motherEmitter) {
         website     : website     || null,
         avatar_url  : avatarUrl   || null,
         bio         : bio         || null,
+        token_version: 0,
         created_at  : new Date(),
         updated_at  : new Date()
       };
