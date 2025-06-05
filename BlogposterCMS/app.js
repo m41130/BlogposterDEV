@@ -456,7 +456,7 @@ app.get('/admin/home', pageLimiter, csrfProtection, async (req, res) => {
 // ──────────────────────────────────────────────────────────────────────────
 
 // Capture any admin page slug via wildcard and parse req.params[0]
-app.get('/admin/*', pageLimiter, async (req, res, next) => {
+app.get('/admin/*', pageLimiter, csrfProtection, async (req, res, next) => {
 
   const adminJwt = req.cookies?.admin_jwt;
 
@@ -511,6 +511,7 @@ app.get('/admin/*', pageLimiter, async (req, res, next) => {
     }
 
     const nonce = crypto.randomBytes(16).toString('base64');
+    const csrfTok = req.csrfToken();
 
     let html = fs.readFileSync(
       path.join(__dirname, 'public', 'admin.html'),
@@ -518,7 +519,9 @@ app.get('/admin/*', pageLimiter, async (req, res, next) => {
     );
 
     const inject = `
+      <meta name="csrf-token" content="${csrfTok}">
       <script nonce="${nonce}">
+        window.CSRF_TOKEN = ${JSON.stringify(csrfTok)};
         window.PAGE_ID     = ${JSON.stringify(pageId ?? page.id)};
         window.PAGE_SLUG   = ${JSON.stringify(slug)};
         window.ADMIN_TOKEN = ${JSON.stringify(adminJwt)};
