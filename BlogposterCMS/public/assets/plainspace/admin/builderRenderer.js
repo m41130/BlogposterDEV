@@ -161,7 +161,11 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       }
       return;
     }
-    const ctx = { id: instanceId, metadata: widgetDef.metadata };
+    const ctx = {
+      id: instanceId,
+      widgetId: widgetDef.id,
+      metadata: widgetDef.metadata
+    };
     if (window.ADMIN_TOKEN) {
       ctx.jwt = window.ADMIN_TOKEN;
     }
