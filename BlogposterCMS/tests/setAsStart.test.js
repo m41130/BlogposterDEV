@@ -49,8 +49,12 @@ async function testSetAsStartLanguage() {
   };
   let lastUpdate = null;
 
-  emitter.on('getPageById', (payload, cb) => {
-    cb(null, pages[payload.pageId] || null);
+  emitter.on('dbSelect', (payload, cb) => {
+    if (payload.data?.rawSQL === 'GET_PAGE_BY_ID') {
+      const pageId = payload.data[0];
+      return cb(null, pages[pageId] || null);
+    }
+    cb(null, null);
   });
 
   emitter.on('dbUpdate', (payload, cb) => {
