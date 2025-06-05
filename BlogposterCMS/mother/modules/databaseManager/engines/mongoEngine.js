@@ -88,6 +88,12 @@ async function performMongoOperation(moduleName, operation, params = []) {
       } else if (operation === 'find') {
         const { collectionName, query } = params;
         return await db.collection(collectionName).find(query || {}).toArray();
+      } else if (operation === 'updateOne') {
+        const { collectionName, query, update, options } = params;
+        return await db.collection(collectionName).updateOne(query, update, options || {});
+      } else if (operation === 'deleteOne') {
+        const { collectionName, query } = params;
+        return await db.collection(collectionName).deleteOne(query);
       }
       throw new Error(`[MongoEngine] Unsupported operation="${operation}".`);
     }

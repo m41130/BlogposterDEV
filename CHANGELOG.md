@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Fixed MongoDB integration. Local CRUD events now translate to Mongo operations
+  instead of raw SQL, enabling proper widget management and other features when
+  `CONTENT_DB_TYPE` is set to `mongodb`.
 - Resolved open handle warning in Jest by stubbing `dbSelect` in the
   `setAsStart` test.
 - Updated placeholder parity check to invoke Jest so the script works again.
