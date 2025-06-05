@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Masked password fields in updateUserProfile and user creation logs to prevent
+  leaking credentials during debugging.
+- Fixed token_version updates on MongoDB. Role assignments now use `_id` when
+  incrementing the version so user tokens invalidate correctly.
+- Masked passwords in userManagement logs to avoid credential leaks.
 - Fixed pagesManager start page setup on MongoDB. `SET_AS_START` no longer uses
   an undefined `client` object, preventing module meltdown and login failures.
 - Fixed role lookup when logging in on MongoDB setups. Role IDs are now compared as strings to avoid ObjectId mismatches.

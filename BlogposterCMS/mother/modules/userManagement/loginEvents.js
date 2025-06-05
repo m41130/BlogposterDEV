@@ -15,7 +15,9 @@ function setupLoginEvents(motherEmitter) {
   motherEmitter.on('userLogin', async (payload, originalCb) => {
     const callback = onceCallback(originalCb);
 
-    console.log('[USER MGMT] "userLogin" event triggered. Payload:', payload);
+    const sanitized = { ...payload };
+    if (sanitized && sanitized.password) sanitized.password = '***';
+    console.log('[USER MGMT] "userLogin" event triggered. Payload:', sanitized);
     const { jwt, moduleName, moduleType, username, password } = payload || {};
 
     if (!jwt || moduleName !== 'userManagement' || moduleType !== 'core') {
