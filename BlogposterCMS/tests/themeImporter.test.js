@@ -69,13 +69,8 @@ async function testImporter() {
   });
 }
 
-(async () => {
-  try {
-    await testThemeManager();
-    await testImporter();
-    console.log('theme/importer tests passed');
-  } catch (err) {
-    console.error(err);
-    process.exit(1);
-  }
-})();
+test('themeManager and importer modules work', async () => {
+  await testThemeManager();
+  await testImporter();
+});
+

@@ -40,12 +40,7 @@ async function testFileLogIntegration() {
   assert(afterSize > beforeSize, 'server.log should grow after notification');
 }
 
-(async () => {
-  try {
-    await testFileLogIntegration();
-    console.log('notificationManager tests passed');
-  } catch (err) {
-    console.error(err);
-    process.exit(1);
-  }
-})();
+test('notification manager writes to log file', async () => {
+  await testFileLogIntegration();
+});
+

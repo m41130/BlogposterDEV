@@ -18,8 +18,9 @@ const sqlitePath = path.join(__dirname, '../mother/modules/databaseManager/place
 const pgCases = extractCases(fs.readFileSync(pgPath, 'utf8'));
 const sqliteCases = extractCases(fs.readFileSync(sqlitePath, 'utf8'));
 
-for (const c of pgCases) {
-  assert(sqliteCases.includes(c), `SQLite placeholder missing: ${c}`);
-}
+test('all Postgres placeholders exist in SQLite', () => {
+  for (const c of pgCases) {
+    assert(sqliteCases.includes(c), `SQLite placeholder missing: ${c}`);
+  }
+});
 
-console.log('All Postgres placeholders exist in SQLite');

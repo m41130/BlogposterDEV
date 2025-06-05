@@ -18,13 +18,8 @@ function testRegularMerge() {
   assert.strictEqual(target.e, 5);
 }
 
-(async () => {
-  try {
-    testPrototypePollution();
-    testRegularMerge();
-    console.log('permission utils tests passed');
-  } catch (err) {
-    console.error(err);
-    process.exit(1);
-  }
-})();
+test('deepMerge prevents prototype pollution', () => {
+  testPrototypePollution();
+  testRegularMerge();
+});
+

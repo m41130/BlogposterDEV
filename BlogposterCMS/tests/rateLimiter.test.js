@@ -14,12 +14,7 @@ function testMiddlewareUsage() {
   );
 }
 
-(async () => {
-  try {
-    testMiddlewareUsage();
-    console.log('rate limiter tests passed');
-  } catch (err) {
-    console.error(err);
-    process.exit(1);
-  }
-})();
+test('rate limiter middleware is applied to critical routes', () => {
+  testMiddlewareUsage();
+});
+

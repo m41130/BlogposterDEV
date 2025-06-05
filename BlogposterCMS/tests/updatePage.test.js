@@ -90,12 +90,7 @@ async function testUpdatePage() {
   assert.strictEqual(captured.data.params.language, 'en');
 }
 
-(async () => {
-  try {
-    await testUpdatePage();
-    console.log('updatePage tests passed');
-  } catch (err) {
-    console.error(err);
-    process.exit(1);
-  }
-})();
+test('updatePage event sanitizes input', async () => {
+  await testUpdatePage();
+});
+
