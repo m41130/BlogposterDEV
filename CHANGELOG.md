@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Added warning when secure login cookies are set over HTTP.
 - Fixed pagesManager start page setup on MongoDB. `SET_AS_START` no longer uses
   an undefined `client` object, preventing module meltdown and login failures.
 - Fixed role lookup when logging in on MongoDB setups. Role IDs are now compared as strings to avoid ObjectId mismatches.

@@ -344,22 +344,34 @@ app.post('/admin/api/login', loginLimiter, csrfProtection, async (req, res) => {
           strategy: 'adminLocal',
           payload: { username, password }
         },
-        (err, user) => err || !user ? reject(err || new Error('Invalid credentials')) : resolve(user)
+        (err, user) => {
+          if (err) return reject(err);
+          if (!user) return reject(new Error('Invalid credentials'));
+          resolve(user);
+        }
       );
     });
 
     // 3) Set the HttpOnly admin_jwt cookie and return success
+    const secureFlag = process.env.NODE_ENV === 'production';
+    if (secureFlag && req.protocol !== 'https') {
+      console.warn('[LOGIN ROUTE] Secure cookie requested over non-HTTPS connection. Cookie may be ignored by the browser.');
+    }
+
     res.cookie(sanitizeCookieName('admin_jwt'), user.jwt, {
       path: sanitizeCookiePath('/'),
       httpOnly: true,
       sameSite: 'strict',
-      secure: process.env.NODE_ENV === 'production',
+      secure: secureFlag,
       maxAge: 2 * 60 * 60 * 1000  // 2 hours
     });
+
+    console.log(`[LOGIN ROUTE] User "${username}" authenticated successfully.`);
 
     return res.json({ success: true });
 
   } catch (err) {
+    console.warn('[LOGIN ROUTE] Login failed =>', err.message);
     return res.status(401).json({ success: false, error: err.message });
   }
 });
