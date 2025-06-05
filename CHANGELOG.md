@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Fixed pagesManager start page setup on MongoDB. `SET_AS_START` no longer uses
+  an undefined `client` object, preventing module meltdown and login failures.
 - Fixed role lookup when logging in on MongoDB setups. Role IDs are now compared as strings to avoid ObjectId mismatches.
 - Fixed user login failing on MongoDB setups. `getUserDetailsById` now queries `_id` instead of `id`, so finalize login works properly.
 - Removed deprecated `useUnifiedTopology` option from MongoDB connections to avoid warnings.

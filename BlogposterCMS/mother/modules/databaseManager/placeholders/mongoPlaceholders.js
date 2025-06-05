@@ -470,38 +470,22 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
         throw new Error('Only published pages can be set as the start page');
       }
   
-      // 2) Possibly use a transaction
-      const session = client.startSession();
-      try {
-        session.startTransaction();
-  
-        // Clear existing start page for this language
-        await db.collection('pages').updateMany(
-          { is_start: true, language },
-          { $set: { is_start: false } },
-          { session }
-        );
-  
-        // Set the new start page
-        await db.collection('pages').updateOne(
-          { _id: new ObjectId(pageId) },
-          {
-            $set: {
-              is_start  : true,
-              language,
-              updated_at: new Date()
-            }
-          },
-          { session }
-        );
-  
-        await session.commitTransaction();
-      } catch (e) {
-        await session.abortTransaction();
-        throw e;
-      } finally {
-        session.endSession();
-      }
+      // 2) Update the start page without transaction (session requires client object)
+      await db.collection('pages').updateMany(
+        { is_start: true, language },
+        { $set: { is_start: false } }
+      );
+
+      await db.collection('pages').updateOne(
+        { _id: new ObjectId(pageId) },
+        {
+          $set: {
+            is_start  : true,
+            language,
+            updated_at: new Date()
+          }
+        }
+      );
   
       // 3) Re-create the partial unique index if needed
       await db.collection('pages').createIndex(
