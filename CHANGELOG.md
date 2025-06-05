@@ -7,7 +7,8 @@ All notable changes to this project will be documented in this file.
   both formats and no longer deactivates modules like `widgetManager` during
   startup.
 - Fixed registration on MongoDB setups. `createUser` now recognizes
-  `insertOne` results and reconstructs the created user object.
+  `insertOne` results and reconstructs the created user object while
+  preserving compatibility with PostgreSQL and SQLite responses.
 - Fixed MongoDB database initialization failing when a module user already exists.
   Settings manager now loads correctly and registers event listeners.
 - Fixed MongoDB integration. Local CRUD events now translate to Mongo operations
