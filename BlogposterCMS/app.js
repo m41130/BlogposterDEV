@@ -26,6 +26,7 @@ const csurf        = require('csurf');
 const { apiLimiter, loginLimiter, pageLimiter } = require('./mother/utils/rateLimiters');
 const crypto = require('crypto');
 const { sanitizeCookieName, sanitizeCookiePath, sanitizeCookieDomain } = require('./mother/utils/cookieUtils');
+const { isProduction } = require('./config/runtime');
 
 
 
@@ -179,7 +180,7 @@ function getModuleTokenForDbManager() {
   app.use(helmet());
 
   // HTTPS redirect in production
-  if (process.env.NODE_ENV === 'production') {
+  if (isProduction) {
     const httpsRedirect = require('./mother/utils/httpsRedirect');
     app.use(httpsRedirect);
   }
@@ -298,7 +299,7 @@ app.post('/api/meltdown', apiLimiter, async (req, res) => {
         path: '/',
         httpOnly: true,
         sameSite: 'strict',
-        secure: process.env.NODE_ENV === 'production'
+        secure: isProduction
       });
       return res.status(401).json({ error: 'Invalid token' });
     }
@@ -353,7 +354,7 @@ app.post('/admin/api/login', loginLimiter, csrfProtection, async (req, res) => {
     });
 
     // 3) Set the HttpOnly admin_jwt cookie and return success
-    const secureFlag = process.env.NODE_ENV === 'production';
+    const secureFlag = isProduction;
     if (secureFlag && req.protocol !== 'https') {
       console.warn('[LOGIN ROUTE] Secure cookie requested over non-HTTPS connection. Cookie may be ignored by the browser.');
     }
@@ -384,7 +385,7 @@ app.get('/admin/logout', (req, res) => {
     path: sanitizeCookiePath('/'),
     httpOnly: true,
     sameSite: 'strict',
-    secure: process.env.NODE_ENV === 'production'
+    secure: isProduction
   });
   res.redirect('/login');
 });
@@ -440,7 +441,7 @@ app.get('/admin/home', pageLimiter, csrfProtection, async (req, res) => {
           path: '/',
           httpOnly: true,
           sameSite: 'strict',
-          secure: process.env.NODE_ENV === 'production'
+          secure: isProduction
         });
       }
     }
@@ -484,7 +485,7 @@ app.get('/admin/*', pageLimiter, csrfProtection, async (req, res, next) => {
       path: '/',
       httpOnly: true,
       sameSite: 'strict',
-      secure: process.env.NODE_ENV === 'production'
+      secure: isProduction
     });
     const jump = `/login?redirectTo=${encodeURIComponent(req.originalUrl)}`;
     return res.redirect(jump);
