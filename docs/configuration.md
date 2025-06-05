@@ -10,6 +10,7 @@ Key variables to review:
 |----------|---------|
 | `PORT` | HTTP port used by the server. |
 | `JWT_SECRET` | Base secret for token signing. **Change this** before going live. |
+| `APP_BASE_URL` | Public URL used for share links and sitemaps. |
 | `CONTENT_DB_TYPE` | Choose `postgres`, `mongodb` or `sqlite`. |
 | `PG_*` / `MONGODB_URI` / `SQLITE_*` | Database connection settings. |
 | `AUTH_MODULE_INTERNAL_SECRET` | Shared secret used by the auth module when issuing tokens. |
