@@ -131,7 +131,7 @@ function setupShareEventListeners(motherEmitter) {
           if (err) return callback(err);
 
           // Suppose bridging returns something, or we just build a final URL
-          const baseDomain = process.env.APP_BASE_URL || 'https://myapp.com';
+          const baseDomain = process.env.APP_BASE_URL || 'https://example.com';
           const fileName = extractFileName(filePath);
           const shareURL = `${baseDomain}/s/${shortToken}/${fileName}`;
 

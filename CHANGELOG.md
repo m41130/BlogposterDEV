@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Fixed default share link domain; now uses `APP_BASE_URL` or `https://example.com`.
 - Fixed missing CSRF token on admin subpages causing 403 errors when uploading media.
 - Added token validation on all admin routes and the meltdown API to prevent
   unauthorized access after a database reset.

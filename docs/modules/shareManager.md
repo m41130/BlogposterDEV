@@ -16,3 +16,6 @@ Creates secure share links for files managed by the Media Manager.
 - `getShareDetails`
 
 Token permissions are checked to prevent unauthorised downloads.
+
+The URL for generated share links is determined by the `APP_BASE_URL`
+environment variable. If unset, it defaults to `https://example.com`.
