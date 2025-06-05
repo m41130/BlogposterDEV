@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Resolved open handle warning in Jest by stubbing `dbSelect` in the
+  `setAsStart` test.
 - Updated placeholder parity check to invoke Jest so the script works again.
 - Switched test runner to Jest and converted all integration tests.
 - Adjusted release workflow to read the changelog from the repository root.
