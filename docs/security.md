@@ -3,7 +3,7 @@
 BlogposterCMS was designed with multiple layers of security in mind. While no system is entirely foolproof, following these guidelines will help keep your installation safe.
 
 - **Environment secrets** – Never commit real secret values to version control. Copy `env.sample` to `.env` and provide strong random strings for all salts and tokens.
-- **HTTPS** – When running in production, place the app behind HTTPS and set `NODE_ENV=production` to enable secure cookies and redirects.
+ - **HTTPS** – When running in production, place the app behind HTTPS and set `APP_ENV=production` (or `NODE_ENV=production`) to enable secure cookies and redirects.
 - **Rate limiting** – The configuration in `config/security.js` defines limits for login attempts to slow down brute-force attacks. Adjust these values according to your needs.
 - **CSRF protection** – Admin routes use CSRF tokens to prevent cross-site request forgery. Clients must include the token when authenticating or performing sensitive actions.
 - **Module sandboxing** – Optional modules run inside a minimal sandbox built with Node's `vm` module. Only `path` and `fs` can be required and network access is blocked. Faulty or malicious modules are deactivated automatically when health checks fail.
@@ -19,11 +19,11 @@ Always review your access logs and keep dependencies up to date. Security patche
 
 ## Troubleshooting Secure Login
 
-When `NODE_ENV=production` is set, the `admin_jwt` cookie is marked as `secure`.
+When `APP_ENV=production` (or `NODE_ENV=production`) is set, the `admin_jwt` cookie is marked as `secure`.
 Browsers will only store this cookie over HTTPS connections. If you access the
 admin interface using plain HTTP, the login page may simply reload without an
 error because the cookie is ignored. Either use HTTPS (for example via a local
-reverse proxy) or unset `NODE_ENV` while testing locally.
+reverse proxy) or unset `APP_ENV`/`NODE_ENV` while testing locally.
 
 ## Developing Secure Modules
 

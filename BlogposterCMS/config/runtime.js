@@ -7,8 +7,14 @@
  *  ------------------------------------------------------------------ */
 
 const env = process.env;
+const appEnv = env.APP_ENV || 'development';
+
+// Central production flag used across the app
+const isProduction = appEnv === 'production';
 
 module.exports = {
+  appEnv,
+  isProduction,
   /* HTTP & networking */
   port        : Number(env.PORT        ?? 3000),
   publicUrl   : env.PUBLIC_URL        ?? 'http://localhost:3000',

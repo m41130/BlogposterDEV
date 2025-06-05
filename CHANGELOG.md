@@ -2,8 +2,11 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Removed `config/environment.js`; `isProduction` now comes from `config/runtime.js`.
 - Documented HTTPS requirement for login cookies in `docs/security.md`.
 - Added warning when secure login cookies are set over HTTP.
+- Added `APP_ENV` variable to toggle production mode via `.env` and updated
+  `config/runtime.js` plus documentation to use it.
 - Masked password fields in updateUserProfile and user creation logs to prevent
   leaking credentials during debugging.
 - Fixed MongoDB logins failing after role assignments. `localDbUpdate` now
