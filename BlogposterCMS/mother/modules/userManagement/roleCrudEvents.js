@@ -291,7 +291,8 @@ function setupRoleCrudEvents(motherEmitter) {
         return callback(null, []);
       }
 
-      const roleIds = userRoles.map(ur => ur.role_id);
+      // Normalize to string to avoid ObjectId strict equality issues
+      const roleIds = userRoles.map(ur => String(ur.role_id));
       console.log('[USER MGMT] getRolesForUser => user_roles found. Role IDs:', roleIds);
 
       // Now select from 'roles' to return role objects
@@ -304,7 +305,7 @@ function setupRoleCrudEvents(motherEmitter) {
           console.error('[USER MGMT] getRolesForUser => Error selecting roles:', err2.message);
           return callback(err2);
         }
-        const matched = (allRoles || []).filter(r => roleIds.includes(r.id));
+        const matched = (allRoles || []).filter(r => roleIds.includes(String(r.id)));
         console.log('[USER MGMT] getRolesForUser => Matched roles count:', matched?.length || 0);
         callback(null, matched);
       });
