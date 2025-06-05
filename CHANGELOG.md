@@ -2,13 +2,14 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Updated placeholder parity check to invoke Jest so the script works again.
+- Switched test runner to Jest and converted all integration tests.
 - Adjusted release workflow to read the changelog from the repository root.
 - Fixed default share link domain; now uses `APP_BASE_URL` or `https://example.com`.
 - Ensured `library/public` directory is created during startup so media uploads don't fail.
 - Fixed image widget state persistence by passing `widgetId` to widgets.
 
 ## [0.4.1] – 2025-06-05
-
 - Fixed missing CSRF token on admin subpages causing 403 errors when uploading media.
 - Added token validation on all admin routes and the meltdown API to prevent
   unauthorized access after a database reset.

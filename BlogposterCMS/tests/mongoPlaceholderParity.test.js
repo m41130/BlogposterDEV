@@ -18,8 +18,9 @@ const mongoPath = path.join(__dirname, '../mother/modules/databaseManager/placeh
 const pgCases = extractCases(fs.readFileSync(pgPath, 'utf8'));
 const mongoCases = extractCases(fs.readFileSync(mongoPath, 'utf8'));
 
-for (const c of pgCases) {
-  assert(mongoCases.includes(c), `Mongo placeholder missing: ${c}`);
-}
+test('all Postgres placeholders exist in Mongo', () => {
+  for (const c of pgCases) {
+    assert(mongoCases.includes(c), `Mongo placeholder missing: ${c}`);
+  }
+});
 
-console.log('All Postgres placeholders exist in Mongo');

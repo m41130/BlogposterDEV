@@ -16,14 +16,9 @@ function testDomains() {
   assert.throws(() => sanitizeCookieDomain('bad_domain!'), /Invalid cookie domain/);
 }
 
-(async () => {
-  try {
-    testNames();
-    testPaths();
-    testDomains();
-    console.log('cookie sanitization tests passed');
-  } catch (err) {
-    console.error(err);
-    process.exit(1);
-  }
-})();
+test('cookie utils sanitize names, paths and domains', () => {
+  testNames();
+  testPaths();
+  testDomains();
+});
+

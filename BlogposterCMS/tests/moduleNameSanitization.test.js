@@ -10,13 +10,8 @@ function testInvalid() {
   assert.throws(() => sanitizeModuleName('bad/name'), /Invalid module name/);
 }
 
-(async () => {
-  try {
-    testValid();
-    testInvalid();
-    console.log('module name sanitization tests passed');
-  } catch (err) {
-    console.error(err);
-    process.exit(1);
-  }
-})();
+test('module name sanitization', () => {
+  testValid();
+  testInvalid();
+});
+

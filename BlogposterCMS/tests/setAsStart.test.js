@@ -85,12 +85,7 @@ async function testSetAsStartLanguage() {
   assert.strictEqual(pages[3].is_start, true);
 }
 
-(async () => {
-  try {
-    await testSetAsStartLanguage();
-    console.log('setAsStart tests passed');
-  } catch (err) {
-    console.error(err);
-    process.exit(1);
-  }
-})();
+test('setAsStart updates language specific start page', async () => {
+  await testSetAsStartLanguage();
+});
+

@@ -75,13 +75,8 @@ async function testPublicRegister() {
   assert(res);
 }
 
-(async () => {
-  try {
-    await testPublicSetting();
-    await testPublicRegister();
-    console.log('public event tests passed');
-  } catch (err) {
-    console.error(err);
-    process.exit(1);
-  }
-})();
+test('public events expose only safe APIs', async () => {
+  await testPublicSetting();
+  await testPublicRegister();
+});
+
