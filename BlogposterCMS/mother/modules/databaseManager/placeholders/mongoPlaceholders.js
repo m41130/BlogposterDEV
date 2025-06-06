@@ -163,11 +163,11 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
      *     Add your "unique slug" constraint, "unique page_id & language" for translations, etc.
      */
     case 'INIT_PAGES_TABLE': {
-      await db.collection('pages').createIndex({ slug: 1 }, { unique: true });
+      await db.collection('pages').createIndex({ slug: 1, lane: 1 }, { unique: true });
       // For "page_translations", we want (page_id, language) unique
       await db.collection('page_translations')
               .createIndex({ page_id: 1, language: 1 }, { unique: true });
-  
+
       // If you like, you might also want an index on `parent_id` for quick child lookups:
       await db.collection('pages').createIndex({ parent_id: 1 });
   
@@ -200,11 +200,35 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
         { parent_id: { $exists: false } },
         { $set: { parent_id: null } }
       );
-  
+
+      // Add lane if it doesn\'t exist
+      await db.collection('pages').updateMany(
+        { lane: { $exists: false } },
+        { $set: { lane: 'public' } }
+      );
+
+      // Add title if it doesn\'t exist
+      await db.collection('pages').updateMany(
+        { title: { $exists: false } },
+        { $set: { title: '' } }
+      );
+
+      // Add meta if it doesn\'t exist
+      await db.collection('pages').updateMany(
+        { meta: { $exists: false } },
+        { $set: { meta: null } }
+      );
+
       // Unique Index (is_start + language)
       await db.collection('pages').createIndex(
         { language: 1, is_start: 1 },
         { unique: true, partialFilterExpression: { is_start: true } }
+      );
+
+      // Ensure composite unique index on slug + lane
+      await db.collection('pages').createIndex(
+        { slug: 1, lane: 1 },
+        { unique: true }
       );
   
       return { done: true };
@@ -238,7 +262,11 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
         seo_image,
         translations = [],
         parent_id,
-        is_content
+        is_content,
+        lane,
+        language,
+        title,
+        meta
       } = p;
   
       // 1) Insert main doc
@@ -249,11 +277,12 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
         is_start   : false,
         parent_id  : parent_id ? new ObjectId(parent_id) : null,
         is_content : !!is_content,
+        lane       : lane || 'public',
+        language   : (language || 'en').toLowerCase(),
+        title      : title || '',
+        meta       : meta || null,
         created_at : new Date(),
-        updated_at : new Date(),
-        // “language” can remain at the default 'en' if you want,
-        // but you might override it here if you choose.
-        language: 'en', 
+        updated_at : new Date()
       });
   
       // 2) Insert translations
@@ -346,10 +375,11 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
      */
     case 'GET_PAGE_BY_SLUG': {
       const slug = params[0];
-      const lang = params[1] || 'en';
-  
+      const lane = params[1] || 'public';
+      const lang = params[2] || 'en';
+
       const page = await db.collection('pages')
-                           .findOne({ slug });
+                           .findOne({ slug, lane });
       if (!page) return null;
   
       const translation = await db.collection('page_translations')
@@ -375,7 +405,11 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
         seo_image,
         translations = [],
         parent_id,
-        is_content
+        is_content,
+        lane,
+        language,
+        title,
+        meta
       } = p;
   
       // 1) Update the main page
@@ -388,6 +422,10 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
             seo_image,
             parent_id : parent_id ? new ObjectId(parent_id) : null,
             is_content: !!is_content,
+            lane      : lane || 'public',
+            language  : (language || 'en').toLowerCase(),
+            title     : title || '',
+            meta      : meta || null,
             updated_at: new Date()
           }
         }
