@@ -5,6 +5,10 @@
 const { ObjectId } = require('mongodb');
 const notificationEmitter = require('../../../emitters/notificationEmitter');
 
+function parseObjectId(id) {
+  return ObjectId.isValid(id) ? new ObjectId(id) : null;
+}
+
 
 
 async function handleBuiltInPlaceholderMongo(db, operation, params) {
@@ -275,7 +279,7 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
         status     : status || 'draft',
         seo_image  : seo_image || '',
         is_start   : false,
-        parent_id  : parent_id ? new ObjectId(parent_id) : null,
+        parent_id  : parseObjectId(parent_id),
         is_content : !!is_content,
         lane       : lane || 'public',
         language   : (language || 'en').toLowerCase(),
@@ -309,9 +313,10 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
      *     We just query for pages with the given parent_id.
      */
     case 'GET_CHILD_PAGES': {
-      const parentId = params[0];
+      const parentId = parseObjectId(params[0]);
+      if (!parentId) return [];
       const childPages = await db.collection('pages')
-                                .find({ parent_id: new ObjectId(parentId) })
+                                .find({ parent_id: parentId })
                                 .sort({ created_at: -1 })
                                 .toArray();
       return childPages;
@@ -353,11 +358,12 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
      *  8) Get a page by ID + optional language. We also retrieve the matching translation.
      */
     case 'GET_PAGE_BY_ID': {
-      const pageId = params[0];
+      const idObj = parseObjectId(params[0]);
       const lang = params[1] || 'en';
-  
+
+      if (!idObj) return null;
       const page = await db.collection('pages')
-                           .findOne({ _id: new ObjectId(pageId) });
+                           .findOne({ _id: idObj });
       if (!page) return null;
   
       const translation = await db.collection('page_translations')
@@ -413,14 +419,16 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
       } = p;
   
       // 1) Update the main page
+      const idObj = parseObjectId(pageId);
+      if (!idObj) return { done: false };
       await db.collection('pages').updateOne(
-        { _id: new ObjectId(pageId) },
+        { _id: idObj },
         {
           $set: {
             slug,
             status,
             seo_image,
-            parent_id : parent_id ? new ObjectId(parent_id) : null,
+            parent_id : parseObjectId(parent_id),
             is_content: !!is_content,
             lane      : lane || 'public',
             language  : (language || 'en').toLowerCase(),
@@ -435,7 +443,7 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
       for (const t of translations) {
         await db.collection('page_translations').updateOne(
           {
-            page_id : new ObjectId(pageId),
+            page_id : idObj,
             language: t.language
           },
           {
@@ -463,9 +471,12 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
      */
     case 'SET_AS_SUBPAGE': {
       const { parentPageId, childPageId } = params;
+      const parentObj = parseObjectId(parentPageId);
+      const childObj = parseObjectId(childPageId);
+      if (!parentObj || !childObj) return { done: false };
       await db.collection('pages').updateOne(
-        { _id: new ObjectId(childPageId) },
-        { $set: { parent_id: new ObjectId(parentPageId) } }
+        { _id: childObj },
+        { $set: { parent_id: parentObj } }
       );
       return { done: true };
     }
@@ -477,10 +488,13 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
      */
     case 'ASSIGN_PAGE_TO_POSTTYPE': {
       const { pageId, postTypeId } = params;
+      const pageObj = parseObjectId(pageId);
+      const typeObj = parseObjectId(postTypeId);
+      if (!pageObj || !typeObj) return { done: false };
       await db.collection('page_posttype_rel').updateOne(
         {
-          page_id   : new ObjectId(pageId),
-          posttype_id: new ObjectId(postTypeId)
+          page_id   : pageObj,
+          posttype_id: typeObj
         },
         { $setOnInsert: { created_at: new Date() } },
         { upsert: true }
@@ -497,12 +511,14 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
     case 'SET_AS_START': {
       const data = params[0] || {};
       const pageId = data.pageId;
+      const idObj = parseObjectId(pageId);
       const language = (data.language || 'de').toLowerCase();
-  
+
       if (!pageId) throw new Error('pageId required for SET_AS_START');
-  
+
       // 1) Check page existence + status
-      const page = await db.collection('pages').findOne({ _id: new ObjectId(pageId) });
+      if (!idObj) throw new Error('Invalid pageId');
+      const page = await db.collection('pages').findOne({ _id: idObj });
       if (!page) throw new Error('Page not found');
       if (page.status !== 'published') {
         throw new Error('Only published pages can be set as the start page');
@@ -515,7 +531,7 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
       );
 
       await db.collection('pages').updateOne(
-        { _id: new ObjectId(pageId) },
+        { _id: idObj },
         {
           $set: {
             is_start  : true,
@@ -598,11 +614,12 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
     /**
      * 16) Delete page and its translations. 
      */
-    case 'DELETE_PAGE': {
-      const pageId = params[0];
-  
-      await db.collection('pages').deleteOne({ _id: new ObjectId(pageId) });
-      await db.collection('page_translations').deleteMany({ page_id: new ObjectId(pageId) });
+   case 'DELETE_PAGE': {
+      const idObj = parseObjectId(params[0]);
+      if (!idObj) return { done: false };
+
+      await db.collection('pages').deleteOne({ _id: idObj });
+      await db.collection('page_translations').deleteMany({ page_id: idObj });
       return { done: true };
     }
     // ─────────────────────────────────────────────────────────────────────────

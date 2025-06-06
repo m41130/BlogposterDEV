@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Added ObjectId validation in Mongo placeholders to prevent crashes from invalid IDs.
 - Fixed MongoDB page creation to store lane, language and title so seeded pages
   and widgets appear correctly.
 - Fixed MongoDB logins failing when userId strings were not converted to ObjectId.
