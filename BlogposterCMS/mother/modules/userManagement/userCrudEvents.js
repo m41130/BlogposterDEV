@@ -13,6 +13,7 @@
  * Also includes hashing passwords, etc.
  */
 const bcrypt = require('bcryptjs');
+const { ObjectId } = require('mongodb');
 
 const TIMEOUT_DURATION = 5000;
 
@@ -459,11 +460,19 @@ function setupUserCrudEvents(motherEmitter) {
     }, TIMEOUT_DURATION);
 
     const idField = getDbType() === 'mongodb' ? '_id' : 'id';
+    let queryId = userId;
+    if (
+      getDbType() === 'mongodb' &&
+      typeof userId === 'string' &&
+      /^[0-9a-fA-F]{24}$/.test(userId)
+    ) {
+      queryId = new ObjectId(userId);
+    }
     motherEmitter.emit('dbSelect', {
       jwt,
       moduleName: 'userManagement',
       table: 'users',
-      where: { [idField]: userId }
+      where: { [idField]: queryId }
     }, (err, rows) => {
       clearTimeout(timeout);
       if (err) return callback(err);
