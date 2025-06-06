@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Fixed "SELECT_MODULE_BY_NAME" placeholder reading undefined variable `data`.
+  Both Postgres and Mongo drivers now extract `moduleName` from `params`.
 - Added ObjectId validation in Mongo placeholders to prevent crashes from invalid IDs.
 - Fixed MongoDB page creation to store lane, language and title so seeded pages
   and widgets appear correctly.

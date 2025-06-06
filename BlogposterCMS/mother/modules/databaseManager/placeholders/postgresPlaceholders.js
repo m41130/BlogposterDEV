@@ -712,7 +712,7 @@ switch (operation) {
     }
 
     case 'SELECT_MODULE_BY_NAME': {
-      const { moduleName } = data;
+      const { moduleName } = (params[0] || {});
       const { rows } = await client.query(`
         SELECT module_name, module_info
         FROM "moduleloader"."module_registry"
