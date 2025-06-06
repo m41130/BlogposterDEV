@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Fixed MongoDB logins failing when userId strings were not converted to ObjectId.
 - Removed `config/environment.js`; `isProduction` now comes from `config/runtime.js`.
 - Documented HTTPS requirement for login cookies in `docs/security.md`.
 - Added warning when secure login cookies are set over HTTP.
