@@ -670,7 +670,7 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
     }
 
     case 'SELECT_MODULE_BY_NAME': {
-      const { moduleName } = data;
+      const { moduleName } = (params[0] || {});
       const doc = await db.collection('module_registry').findOne({
         module_name: moduleName
       });
