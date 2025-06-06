@@ -295,6 +295,7 @@ app.post('/api/meltdown', apiLimiter, async (req, res) => {
       payload.decodedJWT = await validateAdminToken(jwt);
       payload.jwt = jwt;
     } catch (err) {
+      console.warn('[POST /api/meltdown] Invalid admin token =>', err.message);
       res.clearCookie('admin_jwt', {
         path: '/',
         httpOnly: true,
@@ -436,7 +437,8 @@ app.get('/admin/home', pageLimiter, csrfProtection, async (req, res) => {
           `<meta name="csrf-token" content="${req.csrfToken()}"></head>`
         );
         return res.send(html);
-      } catch {
+      } catch (err) {
+        console.warn('[GET /admin/home] Invalid admin token =>', err.message);
         res.clearCookie('admin_jwt', {
           path: '/',
           httpOnly: true,
@@ -480,7 +482,8 @@ app.get('/admin/*', pageLimiter, csrfProtection, async (req, res, next) => {
 
   try {
     await validateAdminToken(adminJwt);
-  } catch {
+  } catch (err) {
+    console.warn('[GET /admin/*] Invalid admin token =>', err.message);
     res.clearCookie('admin_jwt', {
       path: '/',
       httpOnly: true,
