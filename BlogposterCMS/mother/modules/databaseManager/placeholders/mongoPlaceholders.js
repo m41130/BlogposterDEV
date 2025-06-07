@@ -241,6 +241,12 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
         { $set: { meta: null } }
       );
 
+      // Add id string if missing
+      await db.collection('pages').updateMany(
+        { id: { $exists: false } },
+        [ { $set: { id: { $toString: '$_id' } } } ]
+      );
+
       // Unique Index (is_start + language)
       await createIndexWithRetry(
         db.collection('pages'),
@@ -294,7 +300,10 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
       } = p;
   
       // 1) Insert main doc
+      const newId = new ObjectId();
       const page = await db.collection('pages').insertOne({
+        _id        : newId,
+        id         : newId.toHexString(),
         slug,
         status     : status || 'draft',
         seo_image  : seo_image || '',
@@ -324,7 +333,7 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
       }));
       await db.collection('page_translations').insertMany(translationDocs);
   
-      return { done: true, insertedId: page.insertedId };
+      return { done: true, insertedId: newId.toHexString() };
     }
   
   
@@ -423,7 +432,7 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
                                     language: lang
                                   });
   
-      return { ...page, translation };
+      return { ...page, id: page.id || page._id.toHexString(), translation };
     }
   
   
@@ -445,7 +454,7 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
                                     language: lang
                                   });
   
-      return { ...page, translation };
+      return { ...page, id: page.id || page._id.toHexString(), translation };
     }
   
   
@@ -786,14 +795,18 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
     case 'SERVERMANAGER_ADD_LOCATION': {
         const data = params[0] || {};
         const { serverName, ipAddress, notes } = data;
+        const newId = new ObjectId();
         await db.collection('server_locations').insertOne({
+        _id        : newId,
+        id         : newId.toHexString(),
         server_name: serverName,
         ip_address: ipAddress,
         notes: notes || '',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
+
         });
-        return { done: true };
+        return { insertedId: newId.toHexString() };
     }
 
     case 'SERVERMANAGER_GET_LOCATION': {
@@ -805,7 +818,7 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
     }
 
     case 'SERVERMANAGER_LIST_LOCATIONS': {
-        const docs = await db.collection('server_locations').find({}).sort({ _id: 1 }).toArray();
+        const docs = await db.collection('server_locations').find({}).sort({ id: 1 }).toArray();
         return docs;
     }
 
@@ -845,6 +858,7 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
     case 'MEDIA_ADD_FILE': {
         const data = params[0] || {};
         const { fileName, fileType, category, userId, location, folder, notes } = data;
+        const newId = new ObjectId();
         await db.collection('media_files').insertOne({
         file_name : fileName,
         file_type : fileType,
@@ -855,8 +869,9 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
         notes     : notes || '',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
+
         });
-        return { done: true };
+        return { insertedId: newId.toHexString() };
     }
     
     case 'MEDIA_LIST_FILES': {
@@ -867,7 +882,7 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
         if (filterFileType) query.file_type = filterFileType;
         const allFiles = await db.collection('media_files')
         .find(query)
-        .sort({ _id: -1 })
+        .sort({ id: -1 })
         .toArray();
         return allFiles;
     }
@@ -875,8 +890,7 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
     case 'MEDIA_DELETE_FILE': {
         const data = params[0] || {};
         const { fileId } = data;
-        // If you're storing `_id` as an ObjectId, do a `new ObjectId(fileId)`.
-        // But let's assume `id` is stored as a plain field:
+        // IDs are stored as plain strings matching the hex ObjectId
         await db.collection('media_files').deleteOne({ id: fileId });
         return { done: true };
     }
@@ -914,18 +928,19 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
     const dataObj = params[0] || {};
     const { shortToken, filePath, userId, isPublic } = dataObj;
     
+    const newId = new ObjectId();
     const doc = {
+        _id        : newId,
+        id         : newId.toHexString(),
         short_token: shortToken,
         file_path  : filePath,
         created_by : userId,
         is_public  : (isPublic !== false),
         created_at : new Date().toISOString()
     };
-    
-    const insertRes = await db.collection('shared_links').insertOne(doc);
-    // Mongo driver v4 no longer exposes insertRes.ops
-    const insertedDoc = await db.collection('shared_links').findOne({ _id: insertRes.insertedId });
-    return insertedDoc;
+
+    await db.collection('shared_links').insertOne(doc);
+    return doc;
     }
     
     case 'REVOKE_SHARE_LINK': {
