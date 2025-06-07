@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Fixed SQLite "SELECT_MODULE_BY_NAME" to accept array or object params like other drivers.
+- Fixed regression test by stubbing `db.run` in the SQLite placeholder test.
 - Added example `MONGODB_URI` with `replicaSet` parameter in env.sample and
   updated docs to clarify replica set usage.
 - Documented MongoDB replica set requirement for transaction-based modules to prevent startup failures.

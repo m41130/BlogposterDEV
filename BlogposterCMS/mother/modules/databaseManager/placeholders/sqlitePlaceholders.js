@@ -623,12 +623,14 @@ case 'LIST_ACTIVE_GRAPES_MODULES': {
 }
 
 case 'SELECT_MODULE_BY_NAME': {
-  const moduleName = params?.moduleName ?? params?.[0];
-  const rows = await db.all(`
-    SELECT module_name, module_info
+  const p = Array.isArray(params) ? (params[0] || {}) : (params || {});
+  const { moduleName } = p;
+  const rows = await db.all(
+    `SELECT module_name, module_info
       FROM moduleloader_module_registry
-     WHERE module_name = ?;
-  `, [moduleName]);
+     WHERE module_name = ?;`,
+    [moduleName]
+  );
   return rows;
 }
 
