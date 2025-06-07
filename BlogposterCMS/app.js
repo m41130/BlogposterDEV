@@ -504,6 +504,9 @@ app.get('/admin/*', pageLimiter, csrfProtection, async (req, res, next) => {
     if (/^\d+$/.test(maybeId)) {
       pageId = parseInt(maybeId, 10) || null;
       rawSlug = rawSlug.slice(0, lastSlash);
+    } else if (/^[a-f0-9]{24}$/i.test(maybeId)) {
+      pageId = maybeId.toLowerCase();
+      rawSlug = rawSlug.slice(0, lastSlash);
     }
   }
 
