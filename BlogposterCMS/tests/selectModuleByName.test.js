@@ -33,6 +33,7 @@ async function runMongo(params) {
 async function runSqlite(params) {
   let received;
   const db = {
+    run: async () => {},
     all: async (sql, values) => {
       received = values;
       return [];
