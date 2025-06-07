@@ -241,6 +241,12 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
         { $set: { meta: null } }
       );
 
+      // Add id string if missing
+      await db.collection('pages').updateMany(
+        { id: { $exists: false } },
+        [ { $set: { id: { $toString: '$_id' } } } ]
+      );
+
       // Unique Index (is_start + language)
       await createIndexWithRetry(
         db.collection('pages'),
@@ -294,7 +300,10 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
       } = p;
   
       // 1) Insert main doc
+      const newId = new ObjectId();
       const page = await db.collection('pages').insertOne({
+        _id        : newId,
+        id         : newId.toHexString(),
         slug,
         status     : status || 'draft',
         seo_image  : seo_image || '',
@@ -324,7 +333,7 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
       }));
       await db.collection('page_translations').insertMany(translationDocs);
   
-      return { done: true, insertedId: page.insertedId };
+      return { done: true, insertedId: newId.toHexString() };
     }
   
   
@@ -423,7 +432,7 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
                                     language: lang
                                   });
   
-      return { ...page, translation };
+      return { ...page, id: page.id || page._id.toHexString(), translation };
     }
   
   
@@ -445,7 +454,7 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
                                     language: lang
                                   });
   
-      return { ...page, translation };
+      return { ...page, id: page.id || page._id.toHexString(), translation };
     }
   
   
