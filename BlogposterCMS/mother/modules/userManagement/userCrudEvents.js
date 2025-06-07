@@ -414,11 +414,21 @@ function setupUserCrudEvents(motherEmitter) {
         dataToUpdate.password = hashed;
       }
 
+      const idField = getDbType() === 'mongodb' ? '_id' : 'id';
+      let queryId = userId;
+      if (
+        getDbType() === 'mongodb' &&
+        typeof userId === 'string' &&
+        /^[0-9a-fA-F]{24}$/.test(userId)
+      ) {
+        queryId = new ObjectId(userId);
+      }
+
       motherEmitter.emit('dbUpdate', {
         jwt,
         moduleName: 'userManagement',
         table: 'users',
-        where: { id: userId },
+        where: { [idField]: queryId },
         data: dataToUpdate
       }, (err) => {
         clearTimeout(timeout);

@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Fixed Mongo user profile updates to use "_id" field so saving edits works.
 - Fixed admin wildcard route to parse hex page IDs for MongoDB.
 - Sanitized meltdown event logs to prevent format string injection.
 - Mongo page queries now include an `id` field so admin edit links work.
