@@ -311,7 +311,8 @@ app.post('/api/meltdown', apiLimiter, async (req, res) => {
   // 4) Emit the event and return JSON
   motherEmitter.emit(eventName, payload, (err, data) => {
     if (err) {
-      console.error(`[MELTDOWN] Event "${eventName}" failed =>`, err.message);
+      const safeEvent = String(eventName).replace(/[\n\r]/g, '');
+      console.error('[MELTDOWN] Event "%s" failed => %s', safeEvent, err.message);
       return res.status(500).json({ error: err.message });
     }
     return res.json({ eventName, data });
