@@ -94,8 +94,8 @@ module.exports = {
                             facebook_id: userData.id,
                             email      : userData.email || null,
                             full_name  : userData.name  || null,
-                            created_at : new Date(),
-                            updated_at : new Date()
+                            created_at : new Date().toISOString(),
+                            updated_at : new Date().toISOString()
                           }
                         },
                         (insertErr, newUser) => {

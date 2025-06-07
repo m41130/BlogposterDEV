@@ -162,7 +162,7 @@ motherEmitter.on('createWidget', async (payload, callback) => {
         label:      label || '',
         content:    content || '',
         category:   category || '',
-        created_at: new Date()
+        created_at: new Date().toISOString()
       }
     }, (insertErr, result) => {
       if (insertErr) return callback(insertErr);

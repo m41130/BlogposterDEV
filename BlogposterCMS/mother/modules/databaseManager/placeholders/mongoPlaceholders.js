@@ -57,8 +57,8 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
             avatar_url: '',
             bio: '',
             token_version: 0,
-            created_at: new Date(),
-            updated_at: new Date()
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
           }
         });
       
@@ -69,16 +69,16 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
             is_system_role: false,
             description: '',
             permissions: {},
-            created_at: new Date(),
-            updated_at: new Date()
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
           }
         });
       
         // same for user_roles => just ensure created_at, updated_at
         await db.collection('user_roles').updateMany({}, {
           $set: {
-            created_at: new Date(),
-            updated_at: new Date()
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
           }
         });
       
@@ -150,10 +150,10 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
         {
         $set: {
             value: settingVal,
-            updated_at: new Date()
+            updated_at: new Date().toISOString()
         },
         $setOnInsert: {
-            created_at: new Date()
+            created_at: new Date().toISOString()
         }
         },
         { upsert: true }
@@ -305,8 +305,8 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
         language   : (language || 'en').toLowerCase(),
         title      : title || '',
         meta       : meta || null,
-        created_at : new Date(),
-        updated_at : new Date()
+        created_at : new Date().toISOString(),
+        updated_at : new Date().toISOString()
       });
   
       // 2) Insert translations
@@ -319,8 +319,8 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
         meta_desc   : t.metaDesc,
         seo_title   : t.seoTitle,
         seo_keywords: t.seoKeywords,
-        created_at  : new Date(),
-        updated_at  : new Date()
+        created_at  : new Date().toISOString(),
+        updated_at  : new Date().toISOString()
       }));
       await db.collection('page_translations').insertMany(translationDocs);
   
@@ -485,7 +485,7 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
             language  : (language || 'en').toLowerCase(),
             title     : title || '',
             meta      : meta || null,
-            updated_at: new Date()
+            updated_at: new Date().toISOString()
           }
         }
       );
@@ -505,7 +505,7 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
               meta_desc   : t.metaDesc,
               seo_title   : t.seoTitle,
               seo_keywords: t.seoKeywords,
-              updated_at  : new Date()
+              updated_at  : new Date().toISOString()
             }
           },
           { upsert: true }
@@ -561,7 +561,7 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
                 $set: {
                   is_start  : true,
                   language,
-                  updated_at: new Date()
+                  updated_at: new Date().toISOString()
                 }
               },
               { session }
@@ -583,7 +583,7 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
             $set: {
               is_start  : true,
               language,
-              updated_at: new Date()
+              updated_at: new Date().toISOString()
             }
           }
         );
@@ -790,8 +790,8 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
         server_name: serverName,
         ip_address: ipAddress,
         notes: notes || '',
-        created_at: new Date(),
-        updated_at: new Date()
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
         });
         return { done: true };
     }
@@ -826,7 +826,7 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
             server_name: newName,
             ip_address: newIp,
             notes: newNotes,
-            updated_at: new Date()
+            updated_at: new Date().toISOString()
             }
         }
         );
@@ -853,8 +853,8 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
         location  : location || '',
         folder    : folder || '',
         notes     : notes || '',
-        created_at: new Date(),
-        updated_at: new Date()
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
         });
         return { done: true };
     }
@@ -891,7 +891,7 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
             category  : newCategory,
             notes     : newNotes,
             folder    : newFolder,
-            updated_at: new Date()
+            updated_at: new Date().toISOString()
             }
         }
         );
@@ -919,7 +919,7 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
         file_path  : filePath,
         created_by : userId,
         is_public  : (isPublic !== false),
-        created_at : new Date()
+        created_at : new Date().toISOString()
     };
     
     const insertRes = await db.collection('shared_links').insertOne(doc);
@@ -1006,8 +1006,8 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
         label: label || '',
         content: content || '',
         category: category || '',
-        created_at: new Date(),
-        updated_at: new Date()
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
     });
     return { done: true };
     }
@@ -1047,7 +1047,7 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
             label: newLabel ?? undefined,
             content: newContent ?? undefined,
             category: newCategory ?? undefined,
-            updated_at: new Date()
+            updated_at: new Date().toISOString()
         }
         }
     );
@@ -1078,7 +1078,7 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
             content: newContent ?? undefined,
             category: newCategory ?? undefined,
             order: newOrder ?? undefined,
-            updated_at: new Date()
+            updated_at: new Date().toISOString()
           }
         }
     );
@@ -1096,7 +1096,7 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
             content: newContent ?? undefined,
             category: newCategory ?? undefined,
             order: newOrder ?? undefined,
-            updated_at: new Date()
+            updated_at: new Date().toISOString()
           }
         }
     );
@@ -1142,7 +1142,7 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
         {
           $set: {
             layout_json: d.layoutArr || [],
-            updated_at: new Date()
+            updated_at: new Date().toISOString()
           }
         },
         { upsert: true }
@@ -1159,7 +1159,7 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
             lane: d.lane,
             viewport: d.viewport,
             layout_json: d.layoutArr || [],
-            updated_at: new Date()
+            updated_at: new Date().toISOString()
           }
         },
         { upsert: true }

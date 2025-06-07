@@ -45,7 +45,7 @@ function initModuleRegistryAdminEvents(motherEmitter, app) {
           data: {
             is_active: true,
             last_error: null,
-            updated_at: new Date()
+            updated_at: new Date().toISOString()
           }
         },
         async (err) => {
@@ -89,7 +89,7 @@ function initModuleRegistryAdminEvents(motherEmitter, app) {
           where: { module_name: targetModuleName },
           data: {
             is_active: false,
-            updated_at: new Date()
+            updated_at: new Date().toISOString()
           }
         },
         (err) => {

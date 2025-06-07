@@ -74,7 +74,7 @@ function storeRefreshTokenInDB(userId, refreshToken, expiresAt, callback) {
       data: {
         user_id: userId,
         token_value: refreshToken,
-        created_at: new Date(),
+        created_at: new Date().toISOString(),
         expires_at: expiresAt
       }
     },

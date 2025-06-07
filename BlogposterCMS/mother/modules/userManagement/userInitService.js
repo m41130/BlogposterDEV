@@ -67,8 +67,8 @@ async function ensureDefaultRoles(motherEmitter, jwt) {
         is_system_role: true,
         description: 'System Admin Role',
         permissions: JSON.stringify({ canAccessEverything: true }),
-        created_at: new Date(),
-        updated_at: new Date()
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       }
     }));
   }
@@ -83,8 +83,8 @@ async function ensureDefaultRoles(motherEmitter, jwt) {
         is_system_role: false,
         description: 'Default basic user role',
         permissions: JSON.stringify({}),
-        created_at: new Date(),
-        updated_at: new Date()
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       }
     }));
   }

@@ -50,8 +50,8 @@ function setupTranslationCrudEvents(motherEmitter, jwt) {
             field_name: fieldName,
             language_code: languageCode,
             text_value: textValue || '',
-            created_at: new Date(),
-            updated_at: new Date()
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
           }
         },
         (err, insertedRow) => {
@@ -149,7 +149,7 @@ function setupTranslationCrudEvents(motherEmitter, jwt) {
           where: { id: textId },
           data: {
             text_value: newTextValue,
-            updated_at: new Date()
+            updated_at: new Date().toISOString()
           }
         },
         (err, result) => {
@@ -238,7 +238,7 @@ function setupTranslationCrudEvents(motherEmitter, jwt) {
           data: {
             language_code: languageCode,
             language_name: languageName,
-            created_at: new Date()
+            created_at: new Date().toISOString()
           }
         },
         (err, inserted) => {
