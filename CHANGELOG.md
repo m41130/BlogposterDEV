@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Sanitized meltdown event logs to prevent format string injection.
 - Mongo page queries now include an `id` field so admin edit links work.
 - Marked `touchstart` handlers as passive in builder and page renderers to avoid scroll-blocking warnings.
 - Fixed builder layout saves on MongoDB by preserving string page IDs.
