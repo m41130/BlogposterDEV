@@ -77,8 +77,8 @@ module.exports = {
                             google_id  : payload.sub,
                             email      : payload.email || null,
                             full_name  : payload.name  || null,
-                            created_at : new Date(),
-                            updated_at : new Date()
+                            created_at : new Date().toISOString(),
+                            updated_at : new Date().toISOString()
                           }
                         },
                         (insertErr, newUser) => {

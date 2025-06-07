@@ -86,8 +86,8 @@ function setupUserCrudEvents(motherEmitter) {
         avatar_url  : avatarUrl   || null,
         bio         : bio         || null,
         token_version: 0,
-        created_at  : new Date(),
-        updated_at  : new Date()
+        created_at  : new Date().toISOString(),
+        updated_at  : new Date().toISOString()
       };
 
       // 3) Insert user
@@ -394,7 +394,7 @@ function setupUserCrudEvents(motherEmitter) {
 
     try {
       const dataToUpdate = {
-        updated_at: new Date()
+        updated_at: new Date().toISOString()
       };
       if (newUsername)     dataToUpdate.username     = newUsername;
       if (newEmail)        dataToUpdate.email        = newEmail;

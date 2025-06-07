@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Timestamps now stored in UTC using `new Date().toISOString()` for all `created_at` and `updated_at` fields.
 - Ensured Mongo unique indexes are created foreground with retry logic for
   user, page and widget collections to avoid race-condition duplicates.
 - Fixed Mongo `SET_AS_START` to run within a transaction using

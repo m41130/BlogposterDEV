@@ -153,7 +153,7 @@ function updateModuleInfo(motherEmitter, jwt, moduleName, newInfo) {
         where: { module_name: moduleName },
         data: {
           module_info: JSON.stringify(newInfo),
-          updated_at : new Date()
+          updated_at : new Date().toISOString()
         }
       },
       (err) => {
@@ -200,8 +200,8 @@ function insertModuleRegistryEntry(motherEmitter, jwt, moduleName, isActive, las
           is_active   : isActive,
           last_error  : lastError,
           module_info : JSON.stringify(moduleInfo || {}),
-          created_at  : new Date(),
-          updated_at  : new Date()
+          created_at  : new Date().toISOString(),
+          updated_at  : new Date().toISOString()
         }
       },
       (err) => {
@@ -222,7 +222,7 @@ function updateModuleLastError(motherEmitter, jwt, moduleName, lastError) {
   return new Promise((resolve, reject) => {
     const dataObj = {
       last_error: lastError,
-      updated_at: new Date()
+      updated_at: new Date().toISOString()
     };
     if (lastError === null) {
       dataObj.is_active = true;
@@ -266,7 +266,7 @@ function deactivateModule(motherEmitter, jwt, moduleName, errMsg) {
         data       : {
           is_active  : false,
           last_error : errMsg,
-          updated_at : new Date()
+      updated_at : new Date().toISOString()
         }
       },
         (err) => {

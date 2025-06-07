@@ -51,7 +51,7 @@ async function translateText({
           chars: text.length,
           from_lang: fromLang,
           to_lang: toLang,
-          created_at: new Date()
+          created_at: new Date().toISOString()
         }
       },
       (err, insertedUsage) => {
@@ -76,7 +76,7 @@ async function translateText({
           source_text: text,
           translated_text: translated,
           user_id: userId,
-          created_at: new Date()
+          created_at: new Date().toISOString()
         }
       },
       (err, insertedCache) => {

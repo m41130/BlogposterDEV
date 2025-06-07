@@ -54,8 +54,8 @@ function setupRoleCrudEvents(motherEmitter) {
         is_system_role: false,
         description: description || '',
         permissions: JSON.stringify(permJson),
-        created_at: new Date(),
-        updated_at: new Date()
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       }
     }, (err, insertedRow) => {
       if (err) return callback(err);
@@ -131,7 +131,7 @@ function setupRoleCrudEvents(motherEmitter) {
       }
 
       // Build the update payload
-      const updatedData = { updated_at: new Date() };
+      const updatedData = { updated_at: new Date().toISOString() };
       if (newRoleName)    updatedData.role_name   = newRoleName;
       if (newDescription) updatedData.description = newDescription;
       if (newPermissions) updatedData.permissions = JSON.stringify(newPermissions);
