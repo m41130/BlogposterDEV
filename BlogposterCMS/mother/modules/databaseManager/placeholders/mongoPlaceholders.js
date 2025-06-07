@@ -348,7 +348,10 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
                                 .find({ parent_id: parentId })
                                 .sort({ created_at: -1 })
                                 .toArray();
-      return childPages;
+      return childPages.map(p => ({
+        ...p,
+        id: p.id || (p._id ? p._id.toHexString() : undefined)
+      }));
     }
   
   
@@ -360,7 +363,10 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
                               .find({})
                               .sort({ _id: -1 })
                               .toArray();
-      return allPages;
+      return allPages.map(p => ({
+        ...p,
+        id: p.id || (p._id ? p._id.toHexString() : undefined)
+      }));
     }
 
     case 'GET_PAGES_BY_LANE': {
@@ -388,6 +394,7 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
         { $sort: { created_at: -1 } },
         {
           $project: {
+            _id: 1,
             slug: 1,
             status: 1,
             seo_image: 1,
@@ -409,8 +416,10 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
           }
         }
       ]).toArray();
-
-      return pages;
+      return pages.map(p => ({
+        ...p,
+        id: p.id || (p._id ? p._id.toHexString() : undefined)
+      }));
     }
   
   
