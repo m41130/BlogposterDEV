@@ -82,10 +82,18 @@ function renderWidget(wrapper, def, code = null, lane = 'public') {
   };
   container.addEventListener('pointerdown', stop, true);
   container.addEventListener('mousedown', stop, true);
-  container.addEventListener('touchstart', stop, true);
+  container.addEventListener(
+    'touchstart',
+    stop,
+    { capture: true, passive: true }
+  );
   wrapper.addEventListener('pointerdown', stop, true);
   wrapper.addEventListener('mousedown', stop, true);
-  wrapper.addEventListener('touchstart', stop, true);
+  wrapper.addEventListener(
+    'touchstart',
+    stop,
+    { capture: true, passive: true }
+  );
   root.appendChild(container);
 
   if (code) {

@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Marked `touchstart` handlers as passive in builder and page renderers to avoid scroll-blocking warnings.
 - Fixed SQLite "SELECT_MODULE_BY_NAME" to accept array or object params like other drivers.
 - Fixed regression test by stubbing `db.run` in the SQLite placeholder test.
 - Added example `MONGODB_URI` with `replicaSet` parameter in env.sample and
