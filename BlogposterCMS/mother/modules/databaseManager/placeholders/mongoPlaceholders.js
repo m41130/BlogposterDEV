@@ -736,14 +736,17 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
     case 'SERVERMANAGER_ADD_LOCATION': {
         const data = params[0] || {};
         const { serverName, ipAddress, notes } = data;
+        const newId = new ObjectId();
         await db.collection('server_locations').insertOne({
+        _id        : newId,
+        id         : newId.toHexString(),
         server_name: serverName,
-        ip_address: ipAddress,
-        notes: notes || '',
-        created_at: new Date(),
-        updated_at: new Date()
+        ip_address : ipAddress,
+        notes      : notes || '',
+        created_at : new Date(),
+        updated_at : new Date()
         });
-        return { done: true };
+        return { insertedId: newId.toHexString() };
     }
 
     case 'SERVERMANAGER_GET_LOCATION': {
@@ -755,7 +758,7 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
     }
 
     case 'SERVERMANAGER_LIST_LOCATIONS': {
-        const docs = await db.collection('server_locations').find({}).sort({ _id: 1 }).toArray();
+        const docs = await db.collection('server_locations').find({}).sort({ id: 1 }).toArray();
         return docs;
     }
 
@@ -795,18 +798,21 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
     case 'MEDIA_ADD_FILE': {
         const data = params[0] || {};
         const { fileName, fileType, category, userId, location, folder, notes } = data;
+        const newId = new ObjectId();
         await db.collection('media_files').insertOne({
-        file_name : fileName,
-        file_type : fileType,
-        category  : category || '',
-        user_id   : userId || null,
-        location  : location || '',
-        folder    : folder || '',
-        notes     : notes || '',
-        created_at: new Date(),
-        updated_at: new Date()
+        _id        : newId,
+        id         : newId.toHexString(),
+        file_name  : fileName,
+        file_type  : fileType,
+        category   : category || '',
+        user_id    : userId || null,
+        location   : location || '',
+        folder     : folder || '',
+        notes      : notes || '',
+        created_at : new Date(),
+        updated_at : new Date()
         });
-        return { done: true };
+        return { insertedId: newId.toHexString() };
     }
     
     case 'MEDIA_LIST_FILES': {
@@ -817,7 +823,7 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
         if (filterFileType) query.file_type = filterFileType;
         const allFiles = await db.collection('media_files')
         .find(query)
-        .sort({ _id: -1 })
+        .sort({ id: -1 })
         .toArray();
         return allFiles;
     }
@@ -825,8 +831,7 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
     case 'MEDIA_DELETE_FILE': {
         const data = params[0] || {};
         const { fileId } = data;
-        // If you're storing `_id` as an ObjectId, do a `new ObjectId(fileId)`.
-        // But let's assume `id` is stored as a plain field:
+        // IDs are stored as plain strings matching the hex ObjectId
         await db.collection('media_files').deleteOne({ id: fileId });
         return { done: true };
     }
@@ -864,18 +869,19 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
     const dataObj = params[0] || {};
     const { shortToken, filePath, userId, isPublic } = dataObj;
     
+    const newId = new ObjectId();
     const doc = {
+        _id        : newId,
+        id         : newId.toHexString(),
         short_token: shortToken,
         file_path  : filePath,
         created_by : userId,
         is_public  : (isPublic !== false),
         created_at : new Date()
     };
-    
-    const insertRes = await db.collection('shared_links').insertOne(doc);
-    // Mongo driver v4 no longer exposes insertRes.ops
-    const insertedDoc = await db.collection('shared_links').findOne({ _id: insertRes.insertedId });
-    return insertedDoc;
+
+    await db.collection('shared_links').insertOne(doc);
+    return doc;
     }
     
     case 'REVOKE_SHARE_LINK': {
