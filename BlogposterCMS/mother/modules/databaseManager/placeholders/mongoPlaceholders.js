@@ -465,43 +465,11 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
     }
   
   
-    /**
-     * 11) Sets a page as a sub-page (the older snippet had 'SET_AS_SUBPAGE'),
-     *     but we can keep it around. This might be overshadowed by the new parent_id usage.
-     */
-    case 'SET_AS_SUBPAGE': {
-      const { parentPageId, childPageId } = params;
-      const parentObj = parseObjectId(parentPageId);
-      const childObj = parseObjectId(childPageId);
-      if (!parentObj || !childObj) return { done: false };
-      await db.collection('pages').updateOne(
-        { _id: childObj },
-        { $set: { parent_id: parentObj } }
-      );
-      return { done: true };
-    }
-  
-  
-    /**
-     * 12) Assign page to "postType" (left in from your old snippet).
-     *     We’ll keep it for completeness.
-     */
-    case 'ASSIGN_PAGE_TO_POSTTYPE': {
-      const { pageId, postTypeId } = params;
-      const pageObj = parseObjectId(pageId);
-      const typeObj = parseObjectId(postTypeId);
-      if (!pageObj || !typeObj) return { done: false };
-      await db.collection('page_posttype_rel').updateOne(
-        {
-          page_id   : pageObj,
-          posttype_id: typeObj
-        },
-        { $setOnInsert: { created_at: new Date() } },
-        { upsert: true }
-      );
-      return { done: true };
-    }
-  
+    //
+    // Removed legacy placeholders 'SET_AS_SUBPAGE' and
+    // 'ASSIGN_PAGE_TO_POSTTYPE' which were unused and not present in the
+    // Postgres implementation.
+
   
     /**
      * 13) Check if the page is published before setting as start page, 
@@ -911,20 +879,10 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
         // ─────────────────────────────────────────────────────────────────────────
     // WIDGET MANAGER
     // ─────────────────────────────────────────────────────────────────────────
-    case 'INIT_WIDGETS_TABLE': {
-    // Erstelle Collection 'widgetmanager.widgets'
-    // Du kannst wahlweise "widgetmanager_widgets" nennen.
-    const collectionName = 'widgetmanager_widgets';
-    await db.createCollection(collectionName).catch(() => {});
 
-    // Optional: Index auf (widget_id, widget_type) unique
-    await db.collection(collectionName).createIndex(
-        { widget_id: 1, widget_type: 1 },
-        { unique: true }
-    ).catch(() => {});
-
-    return { done: true };
-    }
+    // Removed legacy placeholder 'INIT_WIDGETS_TABLE' which created an unused
+    // collection. Widget tables are now handled via INIT_WIDGETS_TABLE_PUBLIC
+    // and INIT_WIDGETS_TABLE_ADMIN for parity with Postgres.
 
     // New widget manager placeholders aligned with Postgres version
     case 'INIT_WIDGETS_TABLE_PUBLIC': {
