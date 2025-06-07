@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Fixed Mongo `CREATE_SHARE_LINK` to return the inserted document for driver v4 compatibility.
 - Mongo `GET_PAGES_BY_LANE` now returns the same structure as Postgres with `trans_*` fields for each translation.
 - Unified `GET_PAGE_BY_SLUG` across all databases to return a single page object instead of an array.
 - Normalized Mongo `CHECK_MODULE_REGISTRY_COLUMNS` to return `{ column_name }` rows like other drivers.
