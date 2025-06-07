@@ -9,6 +9,21 @@ function parseObjectId(id) {
   return ObjectId.isValid(id) ? new ObjectId(id) : null;
 }
 
+async function createIndexWithRetry(collection, spec, options = {}, retries = 1) {
+  const opts = Object.assign({}, options, { background: false });
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      return await collection.createIndex(spec, opts);
+    } catch (err) {
+      if (err.code === 11000 && attempt < retries) {
+        await new Promise(r => setTimeout(r, 250));
+      } else {
+        throw err;
+      }
+    }
+  }
+}
+
 
 
 async function handleBuiltInPlaceholderMongo(db, operation, params) {
@@ -24,10 +39,10 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
         await db.createCollection('user_roles').catch(() => {});
       
         // unique indexes for "users"
-        await db.collection('users').createIndex({ username: 1 }, { unique: true }).catch(() => {});
-        await db.collection('users').createIndex({ email: 1 }, { unique: true, sparse: true }).catch(() => {});
+        await createIndexWithRetry(db.collection('users'), { username: 1 }, { unique: true }).catch(() => {});
+        await createIndexWithRetry(db.collection('users'), { email: 1 }, { unique: true, sparse: true }).catch(() => {});
         // user_roles => unique index on (user_id, role_id)
-        await db.collection('user_roles').createIndex({ user_id: 1, role_id: 1 }, { unique: true }).catch(() => {});
+        await createIndexWithRetry(db.collection('user_roles'), { user_id: 1, role_id: 1 }, { unique: true }).catch(() => {});
       
         // Add some default fields if they're missing
         await db.collection('users').updateMany({}, {
@@ -48,7 +63,7 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
         });
       
         // Create index for "roles" and update to default fields
-        await db.collection('roles').createIndex({ role_name: 1 }, { unique: true }).catch(() => {});
+        await createIndexWithRetry(db.collection('roles'), { role_name: 1 }, { unique: true }).catch(() => {});
         await db.collection('roles').updateMany({}, {
           $set: {
             is_system_role: false,
@@ -167,13 +182,16 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
      *     Add your "unique slug" constraint, "unique page_id & language" for translations, etc.
      */
     case 'INIT_PAGES_TABLE': {
-      await db.collection('pages').createIndex({ slug: 1, lane: 1 }, { unique: true });
+      await createIndexWithRetry(db.collection('pages'), { slug: 1, lane: 1 }, { unique: true }).catch(() => {});
       // For "page_translations", we want (page_id, language) unique
-      await db.collection('page_translations')
-              .createIndex({ page_id: 1, language: 1 }, { unique: true });
+      await createIndexWithRetry(
+        db.collection('page_translations'),
+        { page_id: 1, language: 1 },
+        { unique: true }
+      ).catch(() => {});
 
       // If you like, you might also want an index on `parent_id` for quick child lookups:
-      await db.collection('pages').createIndex({ parent_id: 1 });
+      await createIndexWithRetry(db.collection('pages'), { parent_id: 1 }).catch(() => {});
   
       return { done: true };
     }
@@ -224,16 +242,18 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
       );
 
       // Unique Index (is_start + language)
-      await db.collection('pages').createIndex(
+      await createIndexWithRetry(
+        db.collection('pages'),
         { language: 1, is_start: 1 },
         { unique: true, partialFilterExpression: { is_start: true } }
-      );
+      ).catch(() => {});
 
       // Ensure composite unique index on slug + lane
-      await db.collection('pages').createIndex(
+      await createIndexWithRetry(
+        db.collection('pages'),
         { slug: 1, lane: 1 },
         { unique: true }
-      );
+      ).catch(() => {});
   
       return { done: true };
     }
@@ -570,7 +590,8 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
       }
   
       // 3) Re-create the partial unique index if needed
-      await db.collection('pages').createIndex(
+      await createIndexWithRetry(
+        db.collection('pages'),
         { language: 1, is_start: 1 },
         {
           unique: true,
@@ -957,14 +978,14 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
     case 'INIT_WIDGETS_TABLE_PUBLIC': {
     const collectionName = 'widgets_public';
     await db.createCollection(collectionName).catch(() => {});
-    await db.collection(collectionName).createIndex({ widget_id: 1 }, { unique: true }).catch(() => {});
+    await createIndexWithRetry(db.collection(collectionName), { widget_id: 1 }, { unique: true }).catch(() => {});
     return { done: true };
     }
 
     case 'INIT_WIDGETS_TABLE_ADMIN': {
     const collectionName = 'widgets_admin';
     await db.createCollection(collectionName).catch(() => {});
-    await db.collection(collectionName).createIndex({ widget_id: 1 }, { unique: true }).catch(() => {});
+    await createIndexWithRetry(db.collection(collectionName), { widget_id: 1 }, { unique: true }).catch(() => {});
     return { done: true };
     }
 
