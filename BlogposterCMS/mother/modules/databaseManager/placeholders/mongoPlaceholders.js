@@ -873,8 +873,9 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
     };
     
     const insertRes = await db.collection('shared_links').insertOne(doc);
-    // Return inserted doc
-    return insertRes.ops?.[0] || { insertedId: insertRes.insertedId };
+    // Mongo driver v4 no longer exposes insertRes.ops
+    const insertedDoc = await db.collection('shared_links').findOne({ _id: insertRes.insertedId });
+    return insertedDoc;
     }
     
     case 'REVOKE_SHARE_LINK': {
