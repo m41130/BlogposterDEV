@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Mongo page queries now include an `id` field so admin edit links work.
 - Marked `touchstart` handlers as passive in builder and page renderers to avoid scroll-blocking warnings.
 - Fixed builder layout saves on MongoDB by preserving string page IDs.
 - Kept builder pageId query params as strings so Mongo ObjectIds save correctly without affecting Postgres.
