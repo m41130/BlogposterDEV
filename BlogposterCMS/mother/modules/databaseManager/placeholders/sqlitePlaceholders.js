@@ -373,7 +373,7 @@ async function handleBuiltInPlaceholderSqlite(db, operation, params) {
     case 'GET_PAGE_BY_SLUG': {
       const [slug, lane = 'public', lang = 'en'] = params;
       const rows = await db.all(`
-        SELECT p.*,
+        SELECT p.*, 
                t.language AS trans_lang,
                t.title    AS trans_title,
                t.html,
@@ -388,13 +388,12 @@ async function handleBuiltInPlaceholderSqlite(db, operation, params) {
            AND p.lane = ?;
       `, [lang, slug, lane]);
 
-      for (const r of rows) {
-        if (typeof r.meta === 'string') {
-          try { r.meta = JSON.parse(r.meta); } catch { r.meta = null; }
-        }
+      const row = rows[0];
+      if (row && typeof row.meta === 'string') {
+        try { row.meta = JSON.parse(row.meta); } catch { row.meta = null; }
       }
 
-      return rows;
+      return row || null;
     }
 
     case 'UPDATE_PAGE': {
