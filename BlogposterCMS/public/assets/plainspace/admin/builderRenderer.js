@@ -141,10 +141,18 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     };
     container.addEventListener('pointerdown', stop, true);
     container.addEventListener('mousedown', stop, true);
-    container.addEventListener('touchstart', stop, true);
+    container.addEventListener(
+      'touchstart',
+      stop,
+      { capture: true, passive: true }
+    );
     content.addEventListener('pointerdown', stop, true);
     content.addEventListener('mousedown', stop, true);
-    content.addEventListener('touchstart', stop, true);
+    content.addEventListener(
+      'touchstart',
+      stop,
+      { capture: true, passive: true }
+    );
     root.appendChild(container);
 
     if (data) {
