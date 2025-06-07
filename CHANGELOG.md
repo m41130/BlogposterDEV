@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Removed legacy Mongo placeholders `SET_AS_SUBPAGE`, `ASSIGN_PAGE_TO_POSTTYPE` and `INIT_WIDGETS_TABLE` to match Postgres parity.
 - Fixed "SELECT_MODULE_BY_NAME" placeholder reading undefined variable `data`.
   Both Postgres and Mongo drivers now extract `moduleName` from `params`.
 - Added ObjectId validation in Mongo placeholders to prevent crashes from invalid IDs.
