@@ -523,22 +523,51 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
         throw new Error('Only published pages can be set as the start page');
       }
   
-      // 2) Update the start page without transaction (session requires client object)
-      await db.collection('pages').updateMany(
-        { is_start: true, language },
-        { $set: { is_start: false } }
-      );
+      // 2) Update the start page using a transaction when possible
+      const client = db.client;
+      if (client && typeof client.startSession === 'function') {
+        const session = client.startSession();
+        try {
+          await session.withTransaction(async () => {
+            await db.collection('pages').updateMany(
+              { is_start: true, language },
+              { $set: { is_start: false } },
+              { session }
+            );
 
-      await db.collection('pages').updateOne(
-        { _id: idObj },
-        {
-          $set: {
-            is_start  : true,
-            language,
-            updated_at: new Date()
-          }
+            await db.collection('pages').updateOne(
+              { _id: idObj },
+              {
+                $set: {
+                  is_start  : true,
+                  language,
+                  updated_at: new Date()
+                }
+              },
+              { session }
+            );
+          });
+        } finally {
+          await session.endSession();
         }
-      );
+      } else {
+        // Fallback if client doesn't support transactions
+        await db.collection('pages').updateMany(
+          { is_start: true, language },
+          { $set: { is_start: false } }
+        );
+
+        await db.collection('pages').updateOne(
+          { _id: idObj },
+          {
+            $set: {
+              is_start  : true,
+              language,
+              updated_at: new Date()
+            }
+          }
+        );
+      }
   
       // 3) Re-create the partial unique index if needed
       await db.collection('pages').createIndex(
