@@ -578,7 +578,9 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
 
       const targetIds = pageId
         ? [pageId]
-        : Array.from(pageSelect?.selectedOptions || []).map(o => parseInt(o.value, 10));
+        // Keep IDs as strings so MongoDB ObjectIds are preserved. Postgres
+        // automatically casts numeric strings to integers.
+        : Array.from(pageSelect?.selectedOptions || []).map(o => o.value);
       for (const id of targetIds) {
         await meltdownEmit('saveLayoutForViewport', {
           jwt: window.ADMIN_TOKEN,

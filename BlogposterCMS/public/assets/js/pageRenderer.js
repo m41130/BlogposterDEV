@@ -272,7 +272,9 @@ function ensureLayout(layout = {}, lane = 'public') {
       }
 
       const urlParams = new URLSearchParams(window.location.search);
-      const pageIdParam = parseInt(urlParams.get('pageId'), 10) || null;
+      // Pass page IDs as strings so MongoDB ObjectIds remain intact. Postgres
+      // will cast numeric strings automatically.
+      const pageIdParam = urlParams.get('pageId') || null;
 
       await initBuilder(sidebarEl, contentEl, pageIdParam);
 

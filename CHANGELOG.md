@@ -3,6 +3,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 - Marked `touchstart` handlers as passive in builder and page renderers to avoid scroll-blocking warnings.
+- Fixed builder layout saves on MongoDB by preserving string page IDs.
+- Kept builder pageId query params as strings so Mongo ObjectIds save correctly without affecting Postgres.
 - Logged failed meltdown events to server console for easier debugging when layout saves fail.
 - Fixed SQLite "SELECT_MODULE_BY_NAME" to accept array or object params like other drivers.
 - Fixed regression test by stubbing `db.run` in the SQLite placeholder test.
