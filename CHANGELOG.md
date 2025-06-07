@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Fixed Mongo `SET_AS_START` to run within a transaction using
+  `session.withTransaction()` so the previous start page flag can't remain
+  active when the update partially fails.
 - Fixed Mongo `CREATE_SHARE_LINK` to return the inserted document for driver v4 compatibility.
 - Mongo `GET_PAGES_BY_LANE` now returns the same structure as Postgres with `trans_*` fields for each translation.
 - Unified `GET_PAGE_BY_SLUG` across all databases to return a single page object instead of an array.

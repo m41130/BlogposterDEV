@@ -21,6 +21,8 @@ Responsible for CRUD operations on pages and for generating default pages when t
 - `setAsDeleted`
 - `searchPages`
 - `setAsStart`
+- Uses a MongoDB transaction when available so the old start flag is cleared
+  atomically before assigning a new one.
 - `generateXmlSitemap`
 
 Permissions are checked for each sensitive operation to avoid unauthorized modifications.
