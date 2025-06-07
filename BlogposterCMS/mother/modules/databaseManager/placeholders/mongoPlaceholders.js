@@ -345,10 +345,41 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
         laneVal = params;
       }
 
-      const pages = await db.collection('pages')
-                            .find({ lane: laneVal })
-                            .sort({ created_at: -1 })
-                            .toArray();
+      const pages = await db.collection('pages').aggregate([
+        { $match: { lane: laneVal } },
+        {
+          $lookup: {
+            from: 'page_translations',
+            localField: '_id',
+            foreignField: 'page_id',
+            as: 'translation'
+          }
+        },
+        { $unwind: { path: '$translation', preserveNullAndEmptyArrays: true } },
+        { $sort: { created_at: -1 } },
+        {
+          $project: {
+            slug: 1,
+            status: 1,
+            seo_image: 1,
+            parent_id: 1,
+            is_content: 1,
+            lane: 1,
+            language: 1,
+            title: 1,
+            meta: 1,
+            created_at: 1,
+            updated_at: 1,
+            trans_lang: '$translation.language',
+            trans_title: '$translation.title',
+            trans_html: '$translation.html',
+            trans_css: '$translation.css',
+            meta_desc: '$translation.meta_desc',
+            seo_title: '$translation.seo_title',
+            seo_keywords: '$translation.seo_keywords'
+          }
+        }
+      ]).toArray();
 
       return pages;
     }
@@ -608,9 +639,17 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
     }
   
     case 'CHECK_MODULE_REGISTRY_COLUMNS': {
-      // In Mongo, there's no direct "columns" concept, so we might return indexes
+      const sample = await db.collection('module_registry').findOne({}) || {};
       const indexes = await db.collection('module_registry').indexes();
-      return indexes;
+
+      const colSet = new Set(Object.keys(sample));
+      for (const idx of indexes) {
+        for (const key of Object.keys(idx.key || {})) {
+          colSet.add(key);
+        }
+      }
+
+      return Array.from(colSet).map(name => ({ column_name: name }));
     }
   
     case 'ALTER_MODULE_REGISTRY_COLUMNS': {
