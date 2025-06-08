@@ -1,0 +1,25 @@
+// Styles for Modules List widget
+
+.modules-list-card {
+  @extend .page-list-card;
+}
+
+.modules-title-bar {
+  @extend .page-title-bar;
+}
+
+.modules-title {
+  @extend .page-title;
+}
+
+.modules-list {
+  @extend .page-list;
+}
+
+.modules-list .empty-state {
+  @extend %page-list-empty-state;
+}
+
+.modules-list li {
+  @extend %page-list-item;
+}

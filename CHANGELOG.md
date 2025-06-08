@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Styled modules settings widget to match page manager.
 - Hardened dummyModule logging and made callbacks optional.
 - Fixed dummyModule initialization by using payload-based `performDbOperation` calls.
 

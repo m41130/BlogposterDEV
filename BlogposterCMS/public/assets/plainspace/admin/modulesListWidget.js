@@ -10,11 +10,25 @@ export async function render(el) {
     });
     const modules = Array.isArray(res) ? res : (res?.data ?? []);
 
+    const card = document.createElement('div');
+    card.className = 'modules-list-card page-list-card';
+
+    const titleBar = document.createElement('div');
+    titleBar.className = 'modules-title-bar page-title-bar';
+
+    const title = document.createElement('div');
+    title.className = 'modules-title page-title';
+    title.textContent = 'Modules';
+
+    titleBar.appendChild(title);
+    card.appendChild(titleBar);
+
     const list = document.createElement('ul');
-    list.className = 'modules-list';
+    list.className = 'modules-list page-list';
 
     if (!modules.length) {
-      const empty = document.createElement('li');
+      const empty = document.createElement('div');
+      empty.className = 'empty-state';
       empty.textContent = 'No modules found.';
       list.appendChild(empty);
     } else {
@@ -28,8 +42,10 @@ export async function render(el) {
       });
     }
 
+    card.appendChild(list);
+
     el.innerHTML = '';
-    el.appendChild(list);
+    el.appendChild(card);
   } catch (err) {
     el.innerHTML = `<div class="error">Failed to load modules: ${err.message}</div>`;
   }
