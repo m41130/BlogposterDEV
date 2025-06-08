@@ -56,4 +56,5 @@ important security notes.
 - [unifiedSettings](modules/unifiedSettings.md)
 - [userManagement](modules/userManagement.md)
 - [widgetManager](modules/widgetManager.md)
+- [dummyModule](modules/dummyModule.md)
 - [Choosing a Database Engine](choosing_database_engine.md)

@@ -1,34 +1,40 @@
 /**
  * mother/modules/dummyModule/index.js
  *
- * Ein Minimal-Beispiel, wie ein NO-UI-Modul aufgebaut sein kann.
- * 
- * - Keine Express-Routen, da wir KEIN `app` übergeben.
- * - Nur motherEmitter => DB, Hooks, apiCoreRequest.
+ * Minimal example of how a NO-UI module can look.
+ *
+ * Use this file as a template for your own community modules. The
+ * comments walk you through every available hook and demonstrate how to
+ * trigger safe database operations via the meltdown event bus.
+ *
+ * - No Express routes because we do NOT receive an `app` instance.
+ * - Only `motherEmitter` is provided for DB, hooks and apiCoreRequest.
  */
 
 'use strict';
 
 module.exports = {
     /**
-     * Wird vom moduleLoader aufgerufen:
+     * Called by the moduleLoader:
      *    await dummyModule.initialize({ motherEmitter });
      *
-     * Hier darf man:
-     *   - Events registrieren
-     *   - "apiCoreRequest" aufrufen
-     *   - "performDbOperation" / "createDatabase" auslösen
+     * Inside this function you may:
+     *   - register events
+     *   - call "apiCoreRequest"
+     *   - trigger "performDbOperation" / "createDatabase"
      */
     async initialize({ motherEmitter }) {
       console.log('[DUMMY MODULE] Initializing dummyModule...');
   
-      // 1) Beispiel-Hook: pagePublished
+      // 1) Example hook: pagePublished
       motherEmitter.on('pagePublished', (pageObj) => {
         const safeId = String(pageObj.id).replace(/[\n\r]/g, '');
         const safeTitle = String(pageObj.title || '').replace(/[\n\r]/g, '');
         console.log('[DUMMY MODULE] Detected pagePublished => id=%s title=%s', safeId, safeTitle);
-        // => Z.B. wir rufen eine (erfundene) externe API
-        // => motherEmitter.emit('apiCoreRequest', { service, action, payload }, cb)
+        // Example: call a fictional external API.
+        // Tokens or other secrets should NEVER live in the code.
+        // Use environment variables instead.
+        // motherEmitter.emit('apiCoreRequest', { service, action, payload }, cb)
         motherEmitter.emit(
           'apiCoreRequest',
           {
@@ -46,8 +52,8 @@ module.exports = {
         );
       });
   
-      // 2) Beispiel: DB-Operation
-      //    Angenommen wir wollen ein "dummy table" anlegen (hier sehr vereinfacht):
+      // 2) Example: database operation
+      //    Here we create a simple "dummy table" if it doesn't exist.
       const createTableSQL = `
         CREATE TABLE IF NOT EXISTS dummy_dummytable (
           id SERIAL PRIMARY KEY,
@@ -72,11 +78,11 @@ module.exports = {
         }
       );
   
-      // 3) Beispiel: Wir lauschen auf custom-event "dummyAction"
+      // 3) Example: listen for the custom event "dummyAction"
       motherEmitter.on('dummyAction', (payload, callback) => {
         console.log('[DUMMY MODULE] got dummyAction');
-        // => Mach irgendwas
-        // => z.B. Insert in unsere Dummy-Tabelle
+        // => Do something here
+        // => For example insert data into our dummy table
         const insertSQL = 'INSERT INTO dummy_dummytable(data) VALUES($1)';
         motherEmitter.emit(
           'performDbOperation',
@@ -94,8 +100,10 @@ module.exports = {
         );
       });
   
-      // => Fertig
+      // => Done
       console.log('[DUMMY MODULE] dummyModule initialized. (No UI)');
+      // Copy this module and adjust the events
+      // to integrate your own features into BlogposterCMS.
     }
   };
   

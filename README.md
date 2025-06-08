@@ -45,6 +45,8 @@ Looking for actual instructions? Start with the [documentation index](docs/index
 
 Fancy tricks like dynamic login strategies, the meltdown event bus, or safe dependency loading are explained there too. Basically, if you’re looking for details, consult the docs.
 
+For a minimal example of how to build your own module, check out [`modules/dummyModule`](BlogposterCMS/modules/dummyModule) and its [documentation](docs/modules/dummyModule.md).
+
 BlogposterCMS tries to be secure first, developer friendly second, and user friendly third. If you spot a hole or have a question, open an issue—or a pull request if you’re feeling brave. Have fun!
 
 ## License

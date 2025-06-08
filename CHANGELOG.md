@@ -7,6 +7,8 @@ El Psy Kongroo
 - Styled modules settings widget to match page manager.
 - Hardened dummyModule logging and made callbacks optional.
 - Fixed dummyModule initialization by using payload-based `performDbOperation` calls.
+- Documented dummyModule usage and added developer-friendly comments.
+- Translated dummyModule comments to English and expanded template guide.
 
 ## [0.4.2] – 2025-06-07
 - Fixed admin wildcard route to parse hex page IDs for MongoDB.
