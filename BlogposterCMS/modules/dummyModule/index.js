@@ -7,6 +7,8 @@
  * - Nur motherEmitter => DB, Hooks, apiCoreRequest.
  */
 
+'use strict';
+
 module.exports = {
     /**
      * Wird vom moduleLoader aufgerufen:
@@ -22,7 +24,9 @@ module.exports = {
   
       // 1) Beispiel-Hook: pagePublished
       motherEmitter.on('pagePublished', (pageObj) => {
-        console.log('[DUMMY MODULE] Detected pagePublished => pageObj:', pageObj);
+        const safeId = String(pageObj.id).replace(/[\n\r]/g, '');
+        const safeTitle = String(pageObj.title || '').replace(/[\n\r]/g, '');
+        console.log('[DUMMY MODULE] Detected pagePublished => id=%s title=%s', safeId, safeTitle);
         // => Z.B. wir rufen eine (erfundene) externe API
         // => motherEmitter.emit('apiCoreRequest', { service, action, payload }, cb)
         motherEmitter.emit(
@@ -34,9 +38,9 @@ module.exports = {
           },
           (err, result) => {
             if (err) {
-              console.error('[DUMMY MODULE] dummyService.logPagePublish error:', err);
+              console.error('[DUMMY MODULE] dummyService.logPagePublish error: %s', err.message);
             } else {
-              console.log('[DUMMY MODULE] dummyService.logPagePublish result:', result);
+              console.log('[DUMMY MODULE] dummyService.logPagePublish result: %o', result);
             }
           }
         );
@@ -59,7 +63,7 @@ module.exports = {
         [],
         (err) => {
           if (err) {
-            console.error('[DUMMY MODULE] Error creating dummy_dummytable:', err.message);
+            console.error('[DUMMY MODULE] Error creating dummy_dummytable: %s', err.message);
           } else {
             console.log('[DUMMY MODULE] dummy_dummytable ensured/created in dummymodule_db.');
           }
@@ -68,7 +72,7 @@ module.exports = {
   
       // 3) Beispiel: Wir lauschen auf custom-event "dummyAction"
       motherEmitter.on('dummyAction', (payload, callback) => {
-        console.log('[DUMMY MODULE] got dummyAction => payload:', payload);
+        console.log('[DUMMY MODULE] got dummyAction');
         // => Mach irgendwas
         // => z.B. Insert in unsere Dummy-Tabelle
         const insertSQL = 'INSERT INTO dummy_dummytable(data) VALUES($1)';
@@ -79,6 +83,7 @@ module.exports = {
           insertSQL,
           [ JSON.stringify(payload) ],
           (dbErr) => {
+            if (typeof callback !== 'function') return;
             if (dbErr) return callback(dbErr);
             callback(null, { success: true });
           }
