@@ -3,6 +3,9 @@ All notable changes to this project will be documented in this file.
 
 El Psy Kongroo
 
+## [Unreleased]
+- Hardened dummyModule logging and made callbacks optional.
+
 ## [0.4.2] – 2025-06-07
 - Fixed admin wildcard route to parse hex page IDs for MongoDB.
 - Sanitized meltdown event logs to prevent format string injection.
