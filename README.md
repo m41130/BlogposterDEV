@@ -1,6 +1,16 @@
-![Tests](https://github.com/m41130/BlogposterCMS/actions/workflows/ci.yml/badge.svg)
+![Tests](https://github.com/m41130/BlogposterCMS/actions/workflows/ci.yml/badge.svg
 
-# BlogposterCMS
+
+# 🚀 BlogposterCMS
+
+**Composable Modular Sandbox**
+
+- **Composable:** Build exactly what you need.
+- **Modular:** Every component isolated and interchangeable.
+- **Sandbox:** Secure and controlled from the first module.
+
+Forget CMS. Think Composable.
+
 
 ![BlogposterCMS logo](BlogposterCMS/public/assets/logo/logo_blogposter_min_transparent.png)
 
