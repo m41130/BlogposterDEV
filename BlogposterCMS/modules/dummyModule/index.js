@@ -57,10 +57,12 @@ module.exports = {
       `;
       motherEmitter.emit(
         'performDbOperation',
-        'dummyModule',  // => DB "dummymodule_db"
-        'postgres',
-        createTableSQL,
-        [],
+        {
+          moduleName: 'dummyModule',
+          moduleType: 'community',
+          operation: createTableSQL,
+          params: []
+        },
         (err) => {
           if (err) {
             console.error('[DUMMY MODULE] Error creating dummy_dummytable: %s', err.message);
@@ -78,10 +80,12 @@ module.exports = {
         const insertSQL = 'INSERT INTO dummy_dummytable(data) VALUES($1)';
         motherEmitter.emit(
           'performDbOperation',
-          'dummyModule',
-          'postgres',
-          insertSQL,
-          [ JSON.stringify(payload) ],
+          {
+            moduleName: 'dummyModule',
+            moduleType: 'community',
+            operation: insertSQL,
+            params: [ JSON.stringify(payload) ]
+          },
           (dbErr) => {
             if (typeof callback !== 'function') return;
             if (dbErr) return callback(dbErr);
