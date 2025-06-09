@@ -12,9 +12,15 @@
 Forget CMS. Think Composable.
 
 ```bash
-npx bp-cli init my-blog && cd my-blog && npm start
+git clone <repo-url>
+cd BlogposterCMS
+npm install
+npm run build
+cp env.sample .env
+npm start
 ```
-See [bp-cli on npm](https://www.npmjs.com/package/bp-cli) for install options.
+This manual setup is the safest way to get started until an official CLI is released.
+```
 
 ⚠️ This project is experimental alpha software. Expect breaking changes.
 
