@@ -19,8 +19,9 @@ npm run build
 cp env.sample .env
 npm start
 ```
+```
 This manual setup is the safest way to get started until an official CLI is released.
-
+```
 
 ⚠️ This project is experimental alpha software. Expect breaking changes.
 
