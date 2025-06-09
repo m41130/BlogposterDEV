@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Improved README structure with an alpha badge, quick install snippet and more descriptive screenshot alt text.
+- Added a CONTRIBUTING guide and linked it from the README.
 - Styled modules settings widget to match page manager.
 - Hardened dummyModule logging and made callbacks optional.
 - Fixed dummyModule initialization by using payload-based `performDbOperation` calls.
