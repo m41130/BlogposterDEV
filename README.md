@@ -1,4 +1,5 @@
-![Tests](https://github.com/m41130/BlogposterCMS/actions/workflows/ci.yml/
+[![Tests](https://github.com/m41130/BlogposterCMS/actions/workflows/ci.yml/badge.svg)](https://github.com/m41130/BlogposterCMS/actions/workflows/ci.yml)
+
 
 # 🚀 BlogposterCMS
 
