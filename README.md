@@ -1,5 +1,5 @@
-[![Tests](https://github.com/m41130/BlogposterCMS/actions/workflows/ci.yml/badge.svg)](https://github.com/m41130/BlogposterCMS/actions/workflows/ci.yml)
-
+[![Tests](https://github.com/m41130/BlogposterCMS/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/m41130/BlogposterCMS/actions/workflows/ci.yml)
+![ALPHA status](https://img.shields.io/badge/status-alpha-red)
 
 # 🚀 BlogposterCMS
 
@@ -11,6 +11,11 @@
 
 Forget CMS. Think Composable.
 
+```bash
+npx bp-cli init my-blog && cd my-blog && npm start
+```
+
+⚠️ This project is experimental alpha software. Expect breaking changes.
 
 ![BlogposterCMS logo](BlogposterCMS/public/assets/logo/logo_blogposter_min_transparent.png)
 
@@ -39,13 +44,13 @@ You get the power of plugins — without the plugin drama.
 
 Below are a few snapshots of the BlogposterCMS interface.
 
-![Clean login screen](docs/screenshots/Clean%20Login%20Interface.png)
+![Login screen with username and password fields](docs/screenshots/Clean%20Login%20Interface.png)
 
 These next images illustrate how GridStack lets you arrange widgets within the admin dashboard from a blank grid to a personalized layout.
 
-![Initial grid view](docs/screenshots/Arrange%20Your%20Dashboard%20Freely.png)
-![Adding widgets](docs/screenshots/Perfectly%20Adaptive%20Widgets.png)
-![Final layout](docs/screenshots/Your%20Dashboard,%20Your%20Way.png)
+![Empty dashboard grid before adding widgets](docs/screenshots/Arrange%20Your%20Dashboard%20Freely.png)
+![Dashboard grid while adding widgets](docs/screenshots/Perfectly%20Adaptive%20Widgets.png)
+![Dashboard grid with arranged widgets](docs/screenshots/Your%20Dashboard,%20Your%20Way.png)
 
 It’s currently in Alpha. No guarantees. No mercy. Full transparency.
 
@@ -55,9 +60,13 @@ Looking for actual instructions? Start with the [documentation index](docs/index
 
 Fancy tricks like dynamic login strategies, the meltdown event bus, or safe dependency loading are explained there too. Basically, if you’re looking for details, consult the docs.
 
-For a minimal example of how to build your own module, check out [`modules/dummyModule`](BlogposterCMS/modules/dummyModule) and its [documentation](docs/modules/dummyModule.md).
+For a minimal example of how to build your own module, check out [`modules/dummyModule`](./BlogposterCMS/modules/dummyModule) and its [documentation](docs/modules/dummyModule.md).
 
 BlogposterCMS tries to be secure first, developer friendly second, and user friendly third. If you spot a hole or have a question, open an issue—or a pull request if you’re feeling brave. Have fun!
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to propose changes.
 
 ## License
 
