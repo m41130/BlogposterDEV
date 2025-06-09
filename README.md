@@ -14,10 +14,11 @@ Forget CMS. Think Composable.
 ```bash
 npx bp-cli init my-blog && cd my-blog && npm start
 ```
+See [bp-cli on npm](https://www.npmjs.com/package/bp-cli) for install options.
 
 ⚠️ This project is experimental alpha software. Expect breaking changes.
 
-![BlogposterCMS logo](BlogposterCMS/public/assets/logo/logo_blogposter_min_transparent.png)
+![BlogposterCMS logo](./BlogposterCMS/public/assets/logo/logo_blogposter_min_transparent.png)
 
 📚 Full documentation lives in [`docs/index.md`](./docs/index.md) – your entry point for installation, architecture, security and developer guides.
 
@@ -33,7 +34,7 @@ You get the power of plugins — without the plugin drama.
 - ⚙️ Built-in sandbox for third-party modules (crash protection included)
 - 🛡️ Hardened security layer with granular permissions
 - 📦 PostgreSQL, MongoDB or SQLite – you choose
-- 💠 Drag-and-drop pages thanks to GridStack
+- 💠 Drag-and-drop pages thanks to [GridStack](https://gridstackjs.com/)
 - 🧠 AI & Microservices support (because why not?)
 - ☢️ Meltdown event bus keeps rogue modules isolated
 - 🔑 Dynamic login strategies and secure share links
@@ -41,6 +42,9 @@ You get the power of plugins — without the plugin drama.
 - 🌐 Lightweight design for fast, SEO-friendly pages
 
 ## UI Screenshots
+
+<details>
+<summary>Screenshots</summary>
 
 Below are a few snapshots of the BlogposterCMS interface.
 
@@ -52,7 +56,7 @@ These next images illustrate how GridStack lets you arrange widgets within the a
 ![Dashboard grid while adding widgets](docs/screenshots/Perfectly%20Adaptive%20Widgets.png)
 ![Dashboard grid with arranged widgets](docs/screenshots/Your%20Dashboard,%20Your%20Way.png)
 
-It’s currently in Alpha. No guarantees. No mercy. Full transparency.
+</details>
 
 ---
 
@@ -71,3 +75,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to propose changes.
 ## License
 
 MIT. Use at your own risk, see [`LICENSE`](LICENSE) for the thrilling legal text.
+All source files begin with an MIT license header.
