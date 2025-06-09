@@ -12,7 +12,7 @@
 Forget CMS. Think Composable.
 
 ```bash
-git clone <repo-url>
+git clone [<repo-url>](https://github.com/m41130/BlogposterCMS)
 cd BlogposterCMS
 npm install
 npm run build
