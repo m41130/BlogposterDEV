@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Text block widget now loads the Quill library and styles on demand so editing
+  works in sandboxed widgets.
 - Implemented "Hello World" default theme with Inter typography, electric-purple accent and micro-interactions.
 - Fixed text block widget not showing the Lorem Ipsum placeholder when first
   added and ensured the Quill editor initializes on click.
