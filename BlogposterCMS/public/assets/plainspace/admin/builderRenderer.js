@@ -174,7 +174,8 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     if (window.ADMIN_TOKEN) {
       ctx.jwt = window.ADMIN_TOKEN;
     }
-    import(widgetDef.codeUrl)
+    const codeUrl = new URL(widgetDef.codeUrl, document.baseURI).href;
+    import(codeUrl)
       .then(m => m.render?.(container, ctx))
       .catch(err => console.error('[Builder] widget import error', err));
 
@@ -247,7 +248,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
 
       if (!codeData.sourceJs) {
         try {
-          const resp = await fetch(widgetDef.codeUrl);
+          const resp = await fetch(new URL(widgetDef.codeUrl, document.baseURI).href);
           codeData.sourceJs = await resp.text();
         } catch (err) {
           console.error('[Builder] fetch widget source error', err);
