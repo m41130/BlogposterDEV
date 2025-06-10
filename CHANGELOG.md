@@ -8,6 +8,8 @@ El Psy Kongroo
   Quill editor on click. Edits are sanitized before being stored.
 - Improved text block widget sanitization and only load the Quill editor when
   editing to reduce attack surface.
+- Fixed widget code editor so unsaved JS doesn't overwrite HTML when closing the
+  builder edit overlay.
 - Removed placeholder text from all public widgets to preserve user edits.
 - Moved text block widget styles to SCSS for easier maintenance.
 - Text block widget now uses a Quill editor with dynamic sizing and HTML
