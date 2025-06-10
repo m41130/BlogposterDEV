@@ -1,15 +1,5 @@
 // public/assets/plainspace/admin/builderRenderer.js
-// Dynamically load the Quill helper. Using a fully qualified URL ensures
-// the module can be resolved even when this file runs from a `blob:` URL
-// (for example when evaluating user-provided code in the builder).
-const quillModuleUrl = new URL('/assets/js/quillEditor.js', document.baseURI).href;
-
-let initQuill;
-
 export async function initBuilder(sidebarEl, contentEl, pageId = null) {
-  if (!initQuill) {
-    ({ initQuill } = await import(quillModuleUrl));
-  }
   document.body.classList.add('builder-mode');
   // Temporary patch: larger default widget height
   const DEFAULT_ROWS = 20; // around 100px with 5px grid cells
@@ -189,14 +179,14 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     btn.addEventListener('click', async e => {
       e.stopPropagation();
       let overlay = el.__codeEditor;
-      let quill;
+      let htmlEl, cssEl, jsEl;
       if (!overlay) {
         overlay = document.createElement('div');
         overlay.className = 'widget-code-editor';
         overlay.innerHTML = `
           <div class="editor-inner">
             <label>HTML</label>
-            <div class="editor-html quill-editor"></div>
+            <textarea class="editor-html"></textarea>
             <label>CSS</label>
             <textarea class="editor-css"></textarea>
             <label>JS</label>
@@ -209,28 +199,36 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
           </div>`;
         document.body.appendChild(overlay);
 
-        const htmlEl = overlay.querySelector('.editor-html');
-        quill = initQuill(htmlEl);
-        overlay.__quill = quill;
-        const cssEl = overlay.querySelector('.editor-css');
-        const jsEl = overlay.querySelector('.editor-js');
+        htmlEl = overlay.querySelector('.editor-html');
+        cssEl = overlay.querySelector('.editor-css');
+        jsEl = overlay.querySelector('.editor-js');
         const updateRender = () => {
           const finalCss = wrapCss(cssEl.value, overlay.currentSelector);
           renderWidget(el, widgetDef, {
-            html: quill.root.innerHTML,
+            html: htmlEl.value,
             css: finalCss,
             js: jsEl.value
           });
         };
 
-        quill.on('text-change', updateRender);
+        htmlEl.addEventListener('input', updateRender);
         cssEl.addEventListener('input', updateRender);
         jsEl.addEventListener('input', updateRender);
 
         overlay.updateRender = updateRender;
         el.__codeEditor = overlay;
       } else {
-        quill = overlay.__quill;
+        htmlEl = overlay.querySelector('.editor-html');
+        cssEl = overlay.querySelector('.editor-css');
+        jsEl = overlay.querySelector('.editor-js');
+        overlay.updateRender = () => {
+          const finalCss = wrapCss(cssEl.value, overlay.currentSelector);
+          renderWidget(el, widgetDef, {
+            html: htmlEl.value,
+            css: finalCss,
+            js: jsEl.value
+          });
+        };
       }
       const instId = el.dataset.instanceId;
       const codeData = codeMap[instId] ? { ...codeMap[instId] } : {};
@@ -244,7 +242,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
           codeData.sourceJs = '';
         }
       }
-      quill.root.innerHTML = codeData.html || '';
+      htmlEl.value = codeData.html || '';
       overlay.querySelector('.editor-css').value = codeData.css || '';
       overlay.querySelector('.editor-js').value = codeData.js || codeData.sourceJs || '';
       overlay.currentSelector = codeData.selector || '';
@@ -286,7 +284,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       overlay.querySelector('.save-btn').onclick = () => {
         const instId = el.dataset.instanceId;
         codeMap[instId] = {
-          html: quill.root.innerHTML,
+          html: htmlEl.value,
           css: wrapCss(overlay.querySelector('.editor-css').value, overlay.currentSelector),
           js: overlay.querySelector('.editor-js').value,
           selector: overlay.currentSelector
@@ -300,7 +298,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
         if (!confirm('Willst du wirklich alle Anpassungen zurücksetzen?')) return;
         const instId = el.dataset.instanceId;
         delete codeMap[instId];
-        quill.root.innerHTML = '';
+        htmlEl.value = '';
         overlay.querySelector('.editor-css').value = '';
         overlay.querySelector('.editor-js').value = codeData.sourceJs || '';
         overlay.currentSelector = '';
