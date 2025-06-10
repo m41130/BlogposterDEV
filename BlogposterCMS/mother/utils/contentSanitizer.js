@@ -1,22 +1,17 @@
 'use strict';
 
+const DOMPurify = require('dompurify');
+const { JSDOM } = require('jsdom');
+
+let purifyInstance;
+
 function sanitizeHtml(html) {
   if (typeof html !== 'string') return '';
-  let sanitized = html;
-  let previous;
-  const scriptRegex = /<script\b[^>]*>.*?<\s*\/\s*script\s*>/gis;
-  do {
-    previous = sanitized;
-    sanitized = sanitized.replace(scriptRegex, '');
-  } while (sanitized !== previous);
-
-  const handlerRegex = /\son\w+=("[^"]*"|'[^']*'|[^\s>]+)/gi;
-  do {
-    previous = sanitized;
-    sanitized = sanitized.replace(handlerRegex, '');
-  } while (sanitized !== previous);
-
-  return sanitized;
+  if (!purifyInstance) {
+    const window = new JSDOM('').window;
+    purifyInstance = DOMPurify(window);
+  }
+  return purifyInstance.sanitize(html);
 }
 
 module.exports = { sanitizeHtml };

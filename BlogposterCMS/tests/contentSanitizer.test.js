@@ -6,4 +6,5 @@ test('content sanitizer removes scripts and event handlers', () => {
   const clean = sanitizeHtml(dirty);
   assert(!/<script/i.test(clean), 'script tag not removed');
   assert(!/onclick=/i.test(clean), 'event handler not removed');
+  assert(/Hello/.test(clean), 'content missing after sanitization');
 });

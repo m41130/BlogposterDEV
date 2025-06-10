@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
-- Improved HTML sanitizer to repeatedly remove script tags and event handlers.
+- Replaced custom HTML sanitizer with DOMPurify for more robust security.
 - Sanitized widget content in plainSpaceService.saveWidgetInstance before database writes.
 
 - Widget instance API now enforces `plainspace.widgetInstance` permission.
