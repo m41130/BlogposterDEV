@@ -433,10 +433,37 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       <button class="menu-global"><img src="/assets/icons/globe.svg" class="icon" alt="global" /> Set as Global Widget</button>
     `;
     menu.style.display = 'none';
+    document.body.appendChild(menu);
+
+    function hideMenu() {
+      menu.style.display = 'none';
+      document.removeEventListener('click', outsideHandler);
+    }
+
+    function outsideHandler(ev) {
+      if (!menu.contains(ev.target) && ev.target !== menuBtn) hideMenu();
+    }
 
     menuBtn.addEventListener('click', e => {
       e.stopPropagation();
-      menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+      if (menu.style.display === 'block') {
+        hideMenu();
+        return;
+      }
+      menu.style.display = 'block';
+      menu.style.visibility = 'hidden';
+      const rect = menuBtn.getBoundingClientRect();
+      menu.style.top = `${rect.top}px`;
+      const spaceRight = window.innerWidth - rect.right;
+      const spaceLeft = rect.left;
+      if (spaceRight >= menu.offsetWidth || spaceRight >= spaceLeft) {
+        menu.style.left = `${rect.right + 4}px`;
+      } else {
+        const left = rect.left - menu.offsetWidth - 4;
+        menu.style.left = `${Math.max(0, left)}px`;
+      }
+      menu.style.visibility = '';
+      document.addEventListener('click', outsideHandler);
     });
 
     menu.querySelector('.menu-edit').onclick = () => { editBtn.click(); menu.style.display = 'none'; };
@@ -471,7 +498,6 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     };
 
     el.appendChild(menuBtn);
-    el.appendChild(menu);
   }
 
 
