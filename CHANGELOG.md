@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Fixed builder widgets showing blank when CSS was injected before widget content.
 - Text block widget now loads the Quill library and styles on demand so editing
   works in sandboxed widgets.
 - Builder widget CSS now loads gridstack and admin styles before the active theme
