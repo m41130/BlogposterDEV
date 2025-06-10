@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Fixed widget code editor so unsaved JS doesn't overwrite HTML when closing the
+  builder edit overlay.
 - Removed placeholder text from all public widgets to preserve user edits.
 - Moved text block widget styles to SCSS for easier maintenance.
 - Text block widget now uses a Quill editor with dynamic sizing and HTML

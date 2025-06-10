@@ -244,7 +244,8 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       }
       htmlEl.value = codeData.html || '';
       overlay.querySelector('.editor-css').value = codeData.css || '';
-      overlay.querySelector('.editor-js').value = codeData.js || codeData.sourceJs || '';
+      jsEl.value = codeData.js || '';
+      overlay.defaultJs = codeData.sourceJs || '';
       overlay.currentSelector = codeData.selector || '';
 
       function pickElement() {
@@ -285,8 +286,8 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
         const instId = el.dataset.instanceId;
         codeMap[instId] = {
           html: htmlEl.value,
-          css: wrapCss(overlay.querySelector('.editor-css').value, overlay.currentSelector),
-          js: overlay.querySelector('.editor-js').value,
+          css: wrapCss(cssEl.value, overlay.currentSelector),
+          js: jsEl.value,
           selector: overlay.currentSelector
         };
         overlay.style.display = 'none';
@@ -300,7 +301,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
         delete codeMap[instId];
         htmlEl.value = '';
         overlay.querySelector('.editor-css').value = '';
-        overlay.querySelector('.editor-js').value = codeData.sourceJs || '';
+        overlay.querySelector('.editor-js').value = overlay.defaultJs || '';
         overlay.currentSelector = '';
         overlay.updateRender && overlay.updateRender();
         if (pageId) saveCurrentLayout();
