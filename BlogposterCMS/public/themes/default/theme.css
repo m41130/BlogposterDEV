@@ -27,7 +27,7 @@ body {
   border-radius: var(--radius);
   box-shadow: var(--widget-shadow);
   transition: transform 200ms ease-in-out, box-shadow 200ms ease-in-out, opacity 200ms ease-in-out;
-  opacity: 0;
+  opacity: 1;
 }
 
 .widget-container.loaded {

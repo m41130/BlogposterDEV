@@ -136,25 +136,6 @@
   opacity: 0.94;
 }
 
-.login-form .button {
-  width: 100%;
-  padding: 0.9rem;
-  border: none;
-  border-radius: 8px;
-  font-size: 1.08rem;
-  color: #fff;
-  background-image: var(--gradient-primary);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
-  font-family: var(--font-body);
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 6px;
-  transition: opacity 0.18s;
-}
-.login-form .button:hover {
-  opacity: 0.92;
-}
-
 /* =============================================================================
    Login Page Layout
    ============================================================================= */
@@ -198,7 +179,7 @@
   position: absolute;
   overflow: hidden;
   background: var(--color-white);
-  border-radius: 4px;
+  border-radius: 9px;
   box-shadow: var(--shadow-card);
   transition: all 0.2s ease;
   min-width: 120px;
@@ -253,7 +234,7 @@
   --color-text: #222222;
   --color-white: #FFFFFF;
   --gradient-primary: linear-gradient(90deg, #008080, #FF00FF, #FFA500);
-  --shadow-card: 0 12px 28px rgba(0,0,0,0.07);
+  --shadow-card: 0 1px 28px rgba(0,0,0,0.07);
   --font-body: "Manrope", sans-serif;
   --font-heading: "Oswald", sans-serif;
 }
@@ -662,7 +643,7 @@ p {
     transform: rotate(360deg);
   }
 }
-.page-list-card, .user-list-card {
+.page-list-card, .user-list-card, .modules-list-card {
   background: #fff;
   border-radius: 14px;
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.07);
@@ -676,13 +657,13 @@ p {
   gap: 16px;
 }
 
-.page-title-bar, .user-title-bar {
+.page-title-bar, .user-title-bar, .modules-title-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.page-title, .user-title {
+.page-title, .user-title, .modules-title {
   font-family: var(--font-heading);
   font-size: 22px;
   font-weight: 600;
@@ -723,7 +704,7 @@ p {
   color: #fff;
 }
 
-.page-list, .users-list {
+.page-list, .users-list, .modules-list {
   list-style: none;
   padding: 0;
   margin: 0;
@@ -732,7 +713,7 @@ p {
   gap: 6px;
 }
 
-.page-list .empty-state, .users-list .empty-state {
+.page-list .empty-state, .users-list .empty-state, .modules-list .empty-state {
   color: #bbb;
   padding: 20px 0 8px 0;
   text-align: center;
@@ -740,7 +721,7 @@ p {
   font-family: var(--font-body);
 }
 
-.page-list li, .users-list li {
+.page-list li, .users-list li, .modules-list li {
   border-radius: 8px;
   background: #fafbfc;
   box-shadow: 0 1px 6px rgba(0, 0, 0, 0.04);
@@ -751,7 +732,7 @@ p {
   transition: box-shadow 0.16s;
   border: 1px solid transparent;
 }
-.page-list li:hover, .users-list li:hover {
+.page-list li:hover, .users-list li:hover, .modules-list li:hover {
   border: 1px solid #f0cfff;
   box-shadow: 0 2px 16px rgba(208, 0, 175, 0.08);
 }
@@ -1015,7 +996,7 @@ p {
 .grid-stack-item .widget-remove {
   position: absolute;
   top: 2px;
-  right: 2px;
+  left: 2px;
   background: transparent;
   border: none;
   padding: 2px;
@@ -1026,9 +1007,13 @@ p {
 }
 
 .grid-stack-item .widget-edit {
+  display: none;
+}
+
+.grid-stack-item .widget-menu {
   position: absolute;
   top: 2px;
-  right: 28px;
+  right: 2px;
   background: transparent;
   border: none;
   padding: 2px;
@@ -1038,14 +1023,38 @@ p {
   transition: opacity 0.2s ease;
 }
 
+.grid-stack-item:hover .widget-menu,
 .grid-stack-item:hover .widget-remove {
   opacity: 1;
   pointer-events: auto;
 }
 
-.grid-stack-item:hover .widget-edit {
-  opacity: 1;
-  pointer-events: auto;
+.widget-options-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: var(--color-white);
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: var(--shadow-card);
+  display: none;
+  z-index: 1000;
+}
+
+.widget-options-menu button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+}
+
+.widget-options-menu button:hover {
+  background: var(--color-light-gray, #f0f0f0);
 }
 
 .widget-code-editor {
@@ -1249,4 +1258,15 @@ body.builder-mode #main-header {
 
 #pe-save:hover::before {
   left: 200%;
+}
+
+.text-block-widget,
+.text-block-widget .ql-container {
+  width: 100%;
+  height: 100%;
+}
+
+.widget-code-editor .editor-html {
+  width: 100%;
+  height: 120px;
 }/*# sourceMappingURL=site.css.map */
