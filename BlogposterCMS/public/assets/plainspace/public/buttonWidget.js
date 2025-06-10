@@ -1,6 +1,7 @@
-export function render(el){
-  const btn=document.createElement('button');
-  btn.textContent='Click me';
-  btn.addEventListener('click',()=>alert('Button clicked!'));
+export function render(el, ctx = {}) {
+  const btn = document.createElement('button');
+  // Start with no label to preserve user edits
+  btn.textContent = ctx?.metadata?.label || '';
+  btn.addEventListener('click', () => alert('Button clicked!'));
   el.appendChild(btn);
 }

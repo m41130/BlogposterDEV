@@ -1,11 +1,11 @@
 // mother/modules/plainSpace/assets/counterWidget.js
 // Example of a simple public widget
 
-export function render(containerEl) {
+export function render(containerEl, ctx = {}) {
     // minimal example with a counter
     containerEl.innerHTML = `
       <div>
-        <p>Counter Widget: <span x-text="count"></span></p>
+        <p>${ctx?.metadata?.label || ''}<span x-text="count"></span></p>
         <button @click="count++">Increment</button>
       </div>
     `;
