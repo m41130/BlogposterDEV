@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Theme stylesheet now loads globally when the builder is active so widgets use
+  site colors and fonts.
+- Quill editor styles are injected into widget shadow roots for consistent text
+  editing.
 - Locking now sets GridStack's `noMove` and `noResize` flags to completely disable widget movement while locked.
 - Lock icon overlay now uses SCSS with a higher z-index so it always appears above widgets.
 - Locked widgets now display a lock icon overlay in place of the resize arrow and cannot be dragged or resized.
