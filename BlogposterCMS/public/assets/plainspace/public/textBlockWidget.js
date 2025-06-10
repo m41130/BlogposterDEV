@@ -24,6 +24,7 @@ function sanitizeHtml(html) {
 export async function render(el, ctx = {}) {
   let initQuill = null;
   let quillInstance = null;
+  let saveTimer = null;
   const container = document.createElement('div');
   container.className = 'text-block-widget';
   container.style.width = '100%';
@@ -84,7 +85,10 @@ export async function render(el, ctx = {}) {
     if (!quillInstance) {
       return;
     }
-    quillInstance.on('text-change', async () => {
+
+    quillInstance.on('text-change', () => {
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(async () => {
       const html = sanitizeHtml(quillInstance.root.innerHTML.trim());
       try {
         await window.meltdownEmit('saveWidgetInstance', {
@@ -93,10 +97,11 @@ export async function render(el, ctx = {}) {
           moduleType: 'core',
           instanceId: ctx.id,
           content: html
-        });
-      } catch (err) {
-        console.error('[textBlockWidget] save error', err);
-      }
+          });
+        } catch (err) {
+          console.error('[textBlockWidget] save error', err);
+        }
+      }, 600);
     });
     quillInstance.focus();
   }
