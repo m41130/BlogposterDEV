@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Debounced text block widget updates to avoid rate limiting while typing.
+
 - Theme stylesheet now loads globally when the builder is active so widgets use
   site colors and fonts.
 - Quill editor styles are injected into widget shadow roots for consistent text
