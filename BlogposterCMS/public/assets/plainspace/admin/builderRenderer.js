@@ -512,6 +512,17 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     el.appendChild(menuBtn);
   }
 
+  function attachLockOnClick(el) {
+    el.addEventListener('click', e => {
+      if (e.target.closest('.widget-menu, .widget-edit, .widget-remove')) {
+        return;
+      }
+      if (el.getAttribute('gs-locked') === 'true') return;
+      el.setAttribute('gs-locked', 'true');
+      grid.update(el, { locked: true });
+    });
+  }
+
 
   initialLayout.forEach(item => {
     const widgetDef = allWidgets.find(w => w.id === item.widgetId);
@@ -537,6 +548,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     attachRemoveButton(wrapper);
     const editBtn = attachEditButton(wrapper, widgetDef);
     attachOptionsMenu(wrapper, widgetDef, editBtn);
+    attachLockOnClick(wrapper);
     gridEl.appendChild(wrapper);
     grid.makeWidget(wrapper);
     renderWidget(wrapper, widgetDef);
@@ -578,6 +590,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     attachRemoveButton(wrapper);
     const editBtn2 = attachEditButton(wrapper, widgetDef);
     attachOptionsMenu(wrapper, widgetDef, editBtn2);
+    attachLockOnClick(wrapper);
     gridEl.appendChild(wrapper);
     grid.makeWidget(wrapper);
 
