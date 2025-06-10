@@ -8,6 +8,7 @@ El Psy Kongroo
   to avoid layout conflicts.
 - Active theme CSS is now injected into public pages and builder grid only.
 - Builder widgets preview using theme styles without affecting the admin UI.
+- Implemented "Hello World" default theme with Inter typography, electric-purple accent and micro-interactions.
 - Fixed text block widget not showing the Lorem Ipsum placeholder when first
   added and ensured the Quill editor initializes on click.
 - Text block widget now displays a Lorem Ipsum placeholder and activates the
