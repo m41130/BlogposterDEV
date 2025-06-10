@@ -7,7 +7,8 @@ function sanitizeLevel(lvl) {
 
 export function render(el, ctx = {}) {
   const defaultLevel = sanitizeLevel(ctx?.metadata?.category || 'h3');
-  const defaultText = ctx?.metadata?.label || 'Section Heading';
+  // Remove placeholder text so widgets start empty
+  const defaultText = ctx?.metadata?.label || '';
 
   let level = defaultLevel;
   let heading = document.createElement(level);

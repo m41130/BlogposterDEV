@@ -15,7 +15,8 @@ export async function render(el, ctx = {}) {
   container.className = 'text-block-widget';
   container.style.width = '100%';
   container.style.height = '100%';
-  container.innerHTML = ctx?.metadata?.label || '<p>Sample text block</p>';
+  // Avoid overriding custom content by omitting placeholder text
+  container.innerHTML = ctx?.metadata?.label || '';
 
   if (ctx.jwt) {
     const quill = initQuill(container);

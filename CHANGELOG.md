@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Removed placeholder text from all public widgets to preserve user edits.
 - Moved text block widget styles to SCSS for easier maintenance.
 - Text block widget now uses a Quill editor with dynamic sizing and HTML
   sanitation.
