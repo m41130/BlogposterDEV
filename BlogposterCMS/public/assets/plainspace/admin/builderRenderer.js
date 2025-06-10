@@ -154,10 +154,9 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
         customStyle.textContent = data.css;
         root.appendChild(customStyle);
       }
-      const themeLink = document.createElement('link');
-      themeLink.rel = 'stylesheet';
-      themeLink.href = cssUrls[1];
-      root.appendChild(themeLink);
+      const themeStyle = document.createElement('style');
+      themeStyle.textContent = `@import url('${cssUrls[1]}');`;
+      root.appendChild(themeStyle);
       if (data.html) {
         container.innerHTML = data.html;
       }
@@ -179,10 +178,9 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       .then(m => m.render?.(container, ctx))
       .catch(err => console.error('[Builder] widget import error', err));
 
-    const themeLink = document.createElement('link');
-    themeLink.rel = 'stylesheet';
-    themeLink.href = cssUrls[1];
-    root.appendChild(themeLink);
+    const themeStyle = document.createElement('style');
+    themeStyle.textContent = `@import url('${cssUrls[1]}');`;
+    root.appendChild(themeStyle);
   }
 
   function attachEditButton(el, widgetDef) {
