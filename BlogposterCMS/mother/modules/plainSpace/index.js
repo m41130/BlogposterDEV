@@ -111,6 +111,25 @@ module.exports = {
         }
       );
 
+      // 4c) Ensure DB table for widget instance content
+      motherEmitter.emit(
+        'dbUpdate',
+        {
+          jwt,
+          moduleName: MODULE,
+          moduleType: 'core',
+          table: '__rawSQL__',
+          data: { rawSQL: 'INIT_PLAINSPACE_WIDGET_INSTANCES' }
+        },
+        (err) => {
+          if (err) {
+            console.error('[plainSpace] Could not create "plainspace.widget_instances" table:', err.message);
+          } else {
+            console.log('[plainSpace] "plainspace.widget_instances" table creation ensured.');
+          }
+        }
+      );
+
       // 5) Listen for widget registry requests
       // widget.registry.request.v1 handler (plainSpace)
       motherEmitter.on('widget.registry.request.v1', (payload, callback) => {

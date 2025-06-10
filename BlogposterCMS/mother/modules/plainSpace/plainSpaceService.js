@@ -389,6 +389,56 @@ function registerPlainSpaceEvents(motherEmitter) {
       cb(err);
     }
   });
+
+  // 7) saveWidgetInstance
+  motherEmitter.on('saveWidgetInstance', (payload, cb) => {
+    try {
+      const { jwt, instanceId, content } = payload || {};
+      if (!jwt || !instanceId) {
+        return cb(new Error('[plainSpace] Invalid payload in saveWidgetInstance.'));
+      }
+      motherEmitter.emit(
+        'dbUpdate',
+        {
+          jwt,
+          moduleName: MODULE,
+          moduleType: 'core',
+          table: '__rawSQL__',
+          data: { rawSQL: 'UPSERT_WIDGET_INSTANCE', params: { instanceId, content } }
+        },
+        cb
+      );
+    } catch (err) {
+      cb(err);
+    }
+  });
+
+  // 8) getWidgetInstance
+  motherEmitter.on('getWidgetInstance', (payload, cb) => {
+    try {
+      const { jwt, instanceId } = payload || {};
+      if (!jwt || !instanceId) {
+        return cb(new Error('[plainSpace] Invalid payload in getWidgetInstance.'));
+      }
+      motherEmitter.emit(
+        'dbSelect',
+        {
+          jwt,
+          moduleName: MODULE,
+          moduleType: 'core',
+          table: '__rawSQL__',
+          data: { rawSQL: 'GET_WIDGET_INSTANCE', params: { instanceId } }
+        },
+        (err, rows = []) => {
+          if (err) return cb(err);
+          const content = rows.length ? rows[0].content || '' : '';
+          cb(null, { content });
+        }
+      );
+    } catch (err) {
+      cb(err);
+    }
+  });
 }
 
 module.exports = {

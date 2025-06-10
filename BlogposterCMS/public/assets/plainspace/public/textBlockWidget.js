@@ -30,7 +30,20 @@ export async function render(el, ctx = {}) {
   container.style.width = '100%';
   container.style.height = '100%';
   const defaultText = '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>';
-  const initial = ctx?.metadata?.label;
+  let initial = ctx?.metadata?.label;
+  if (ctx.jwt && ctx.id) {
+    try {
+      const res = await window.meltdownEmit('getWidgetInstance', {
+        jwt: ctx.jwt,
+        moduleName: 'plainspace',
+        moduleType: 'core',
+        instanceId: ctx.id
+      });
+      if (res && res.content) initial = res.content;
+    } catch (err) {
+      console.error('[textBlockWidget] load instance error', err);
+    }
+  }
   const safeHtml = sanitizeHtml(!initial || initial === 'Text Block' ? defaultText : initial);
   container.innerHTML = safeHtml;
 
@@ -72,18 +85,18 @@ export async function render(el, ctx = {}) {
     if (!quillInstance) {
       return;
     }
+
     quillInstance.on('text-change', () => {
       clearTimeout(saveTimer);
       saveTimer = setTimeout(async () => {
-        const html = sanitizeHtml(quillInstance.root.innerHTML.trim());
-        try {
-          await window.meltdownEmit('updateWidget', {
-            jwt: ctx.jwt,
-            moduleName: 'widgetManager',
-            moduleType: 'core',
-            widgetId: ctx.widgetId,
-            widgetType: 'public',
-            newLabel: html
+      const html = sanitizeHtml(quillInstance.root.innerHTML.trim());
+      try {
+        await window.meltdownEmit('saveWidgetInstance', {
+          jwt: ctx.jwt,
+          moduleName: 'plainspace',
+          moduleType: 'core',
+          instanceId: ctx.id,
+          content: html
           });
         } catch (err) {
           console.error('[textBlockWidget] save error', err);
