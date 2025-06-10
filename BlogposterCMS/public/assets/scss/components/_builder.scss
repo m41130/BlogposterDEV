@@ -167,21 +167,6 @@
   pointer-events: auto;
 }
 
-.grid-stack-item .builder-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.05);
-  pointer-events: none;
-  opacity: 0;
-  z-index: 10;
-  transition: opacity 0.2s ease;
-}
-
-.grid-stack-item.overlay-visible .builder-overlay,
-.grid-stack-item:hover .builder-overlay {
-  opacity: 1;
-}
-
 .widget-options-menu {
   position: fixed;
   top: 0;
