@@ -1,101 +1,111 @@
 :root {
-  /* Bootstrap-inspired color palette */
-  --primary-color: #0d6efd;
-  --secondary-color: #6c757d;
-  --success-color: #198754;
-  --danger-color: #dc3545;
-  --warning-color: #ffc107;
-  --info-color: #0dcaf0;
-  --light-color: #f8f9fa;
-  --dark-color: #212529;
+  --font-family: 'Inter', system-ui, sans-serif;
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #FAFBFF;
+  --text-color: #212631;
+  --accent-color: #5B4DFF;
+  --accent-gradient: linear-gradient(90deg, #5B4DFF, #49C3FF);
+  --radius: 6px;
+  --widget-shadow: 0 6px 12px rgba(0,0,0,0.05);
+}
 
-  --font-family: 'Inter', sans-serif;
-  --background-color: #f9fafb;
+html {
+  font-size: 16px;
 }
 
 body {
   font-family: var(--font-family);
-  background-color: var(--background-color);
+  color: var(--text-color);
+  background: var(--bg-secondary);
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
 }
 
-/* Ensure widgets start at a readable size */
+.widget-container {
+  background: var(--bg-primary);
+  border-radius: var(--radius);
+  box-shadow: var(--widget-shadow);
+  transition: transform 200ms ease-in-out, box-shadow 200ms ease-in-out, opacity 200ms ease-in-out;
+  opacity: 0;
+}
+
+.widget-container.loaded {
+  opacity: 1;
+}
+
+.widget-container:hover {
+  transform: translateY(-2px);
+}
+
+button,
+.btn {
+  font: inherit;
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  border: none;
+  color: var(--bg-primary);
+  background: var(--accent-color);
+  transition: background 200ms ease-in-out;
+}
+
+button:hover,
+.btn:hover {
+  background: var(--accent-gradient);
+}
+
+input,
+textarea,
+select {
+  border-radius: var(--radius);
+  border: 1px solid #ccc;
+  padding: 8px;
+  font: inherit;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(91,77,255,0.2);
+}
+
 .grid-stack-item {
+  margin: 16px;
   min-width: 120px;
   min-height: 80px;
 }
 
-/* --------------------------------------------------
-   Basic Header Layout
-   -------------------------------------------------- */
 header.navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 1rem;
-  background-color: var(--primary-color);
-  color: #fff;
+  padding: 8px 16px;
+  background: var(--accent-color);
+  color: var(--bg-primary);
 }
 
 .navbar-brand {
-  font-size: 1.25rem;
   text-decoration: none;
-  color: #fff;
+  color: inherit;
+  font-weight: 700;
 }
 
 .navbar-nav {
   list-style: none;
   display: flex;
-  gap: 1rem;
+  gap: 16px;
   margin: 0;
   padding: 0;
 }
 
 .navbar-nav a {
-  color: #fff;
+  color: inherit;
   text-decoration: none;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
+  padding: 4px 8px;
+  border-radius: var(--radius);
 }
 
 .navbar-nav a:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-/* --------------------------------------------------
-   Button Styles
-   -------------------------------------------------- */
-.btn {
-  display: inline-block;
-  font-weight: 400;
-  text-align: center;
-  user-select: none;
-  border: 1px solid transparent;
-  padding: 0.375rem 0.75rem;
-  font-size: 1rem;
-  line-height: 1.5;
-  border-radius: 0.375rem;
-  transition: color 0.15s ease-in-out,
-              background-color 0.15s ease-in-out,
-              border-color 0.15s ease-in-out,
-              box-shadow 0.15s ease-in-out;
-}
-
-.btn-primary {
-  color: #fff;
-  background-color: var(--primary-color);
-  border-color: var(--primary-color);
-}
-.btn-primary:hover {
-  background-color: #0b5ed7;
-  border-color: #0a58ca;
-}
-
-.btn-secondary {
-  color: #fff;
-  background-color: var(--secondary-color);
-  border-color: var(--secondary-color);
-}
-.btn-secondary:hover {
-  background-color: #5c636a;
-  border-color: #565e64;
+  background: rgba(255, 255, 255, 0.1);
 }
