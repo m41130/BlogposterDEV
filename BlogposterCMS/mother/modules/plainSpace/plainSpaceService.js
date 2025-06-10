@@ -2,6 +2,7 @@
 // Because obviously we can’t keep these little helpers in index.js. That would be too straightforward.
 
 require('dotenv').config();
+const { sanitizeHtml } = require('../../utils/contentSanitizer');
 const { onceCallback } = require('../../emitters/motherEmitter');
 const { hasPermission } = require('../userManagement/permissionUtils');
 
@@ -397,6 +398,7 @@ function registerPlainSpaceEvents(motherEmitter) {
       if (!jwt || !instanceId) {
         return cb(new Error('[plainSpace] Invalid payload in saveWidgetInstance.'));
       }
+      const sanitizedContent = sanitizeHtml(content);
       motherEmitter.emit(
         'dbUpdate',
         {
@@ -404,7 +406,7 @@ function registerPlainSpaceEvents(motherEmitter) {
           moduleName: MODULE,
           moduleType: 'core',
           table: '__rawSQL__',
-          data: { rawSQL: 'UPSERT_WIDGET_INSTANCE', params: { instanceId, content } }
+          data: { rawSQL: 'UPSERT_WIDGET_INSTANCE', params: { instanceId, content: sanitizedContent } }
         },
         cb
       );
