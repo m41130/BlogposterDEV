@@ -1076,6 +1076,39 @@ case 'GET_ALL_PLAINSPACE_LAYOUTS': {
   return rows;
 }
 
+case 'INIT_PLAINSPACE_WIDGET_INSTANCES': {
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS plainspace_widget_instances (
+      instance_id TEXT PRIMARY KEY,
+      content     TEXT NOT NULL,
+      updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+  return { done: true };
+}
+
+case 'UPSERT_WIDGET_INSTANCE': {
+  const d = params?.[0] ?? {};
+  await db.run(`
+    INSERT INTO plainspace_widget_instances
+      (instance_id, content, updated_at)
+    VALUES (?,?,CURRENT_TIMESTAMP)
+    ON CONFLICT(instance_id) DO UPDATE SET
+      content = excluded.content,
+      updated_at = CURRENT_TIMESTAMP;
+  `, [d.instanceId, d.content]);
+  return { success: true };
+}
+
+case 'GET_WIDGET_INSTANCE': {
+  const { instanceId } = params?.[0] ?? {};
+  const rows = await db.all(`
+    SELECT content FROM plainspace_widget_instances
+     WHERE instance_id = ?;
+  `, [instanceId]);
+  return rows;
+}
+
 /* ────────────────────────────────────────────────────────────────
    FALL-THROUGH
    ───────────────────────────────────────────────────────────────  */

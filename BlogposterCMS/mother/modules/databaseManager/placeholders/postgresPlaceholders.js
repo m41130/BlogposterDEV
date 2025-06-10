@@ -1254,6 +1254,40 @@ switch (operation) {
       `, [d.pageId, d.lane]);
       return result.rows;
     }
+
+    case 'INIT_PLAINSPACE_WIDGET_INSTANCES': {
+      await client.query('CREATE SCHEMA IF NOT EXISTS plainspace;');
+      await client.query(`
+        CREATE TABLE IF NOT EXISTS plainspace.widget_instances (
+          instance_id VARCHAR(255) PRIMARY KEY,
+          content     TEXT NOT NULL,
+          updated_at  TIMESTAMP NOT NULL DEFAULT NOW()
+        );
+      `);
+      return { done: true };
+    }
+
+    case 'UPSERT_WIDGET_INSTANCE': {
+      const d = params[0] || {};
+      await client.query(`
+        INSERT INTO plainspace.widget_instances (instance_id, content, updated_at)
+        VALUES ($1, $2, NOW())
+        ON CONFLICT (instance_id)
+        DO UPDATE SET content = EXCLUDED.content,
+                      updated_at = NOW()
+      `, [d.instanceId, d.content]);
+      return { success: true };
+    }
+
+    case 'GET_WIDGET_INSTANCE': {
+      const d = params[0] || {};
+      const result = await client.query(`
+        SELECT content
+          FROM plainspace.widget_instances
+         WHERE instance_id = $1
+      `, [d.instanceId]);
+      return result.rows;
+    }
     
 }
     notificationEmitter.notify({

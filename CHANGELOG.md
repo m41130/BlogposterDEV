@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
-- Text block widget now saves HTML to the `content` field instead of the `label` field.
+- Text block widget content is stored per instance so seeded widgets remain unchanged.
 - Theme stylesheet now loads globally when the builder is active so widgets use
   site colors and fonts.
 - Quill editor styles are injected into widget shadow roots for consistent text

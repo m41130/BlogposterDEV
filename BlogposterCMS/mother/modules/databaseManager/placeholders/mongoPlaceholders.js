@@ -1227,6 +1227,29 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
     return docs;
     }
 
+    case 'INIT_PLAINSPACE_WIDGET_INSTANCES': {
+    const collectionName = 'plainspace_widget_instances';
+    await db.createCollection(collectionName).catch(() => {});
+    await db.collection(collectionName).createIndex({ instance_id: 1 }, { unique: true }).catch(() => {});
+    return { done: true };
+    }
+
+    case 'UPSERT_WIDGET_INSTANCE': {
+    const d = params[0] || {};
+    await db.collection('plainspace_widget_instances').updateOne(
+        { instance_id: d.instanceId },
+        { $set: { content: d.content, updated_at: new Date().toISOString() } },
+        { upsert: true }
+    );
+    return { success: true };
+    }
+
+    case 'GET_WIDGET_INSTANCE': {
+    const d = params[0] || {};
+    const doc = await db.collection('plainspace_widget_instances').findOne({ instance_id: d.instanceId });
+    return doc ? [doc] : [];
+    }
+
   }
 
   notificationEmitter.notify({
