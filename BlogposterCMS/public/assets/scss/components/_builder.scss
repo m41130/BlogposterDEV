@@ -247,14 +247,3 @@ body.builder-mode #top-header,
 body.builder-mode #main-header {
   display: none;
 }
-
-.grid-stack-item[gs-locked="true"]::after {
-  content: '';
-  position: absolute;
-  bottom: 2px;
-  right: 2px;
-  width: 16px;
-  height: 16px;
-  background: url('/assets/icons/lock.svg') no-repeat center/contain;
-  pointer-events: none;
-}

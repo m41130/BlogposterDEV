@@ -34,7 +34,6 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   }
 
   const codeMap = {};
-  let activeLockedEl = null;
   const genId = () => `w${Math.random().toString(36).slice(2,8)}`;
 
   function extractCssProps(el) {
@@ -356,17 +355,6 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   // Enable floating mode for easier widget placement in the builder
   const grid = GridStack.init({ float: true, cellHeight: 5, columnWidth: 5, column: 64 }, gridEl);
 
-  document.addEventListener('click', e => {
-    if (!activeLockedEl) return;
-    if (e.target.closest('.grid-stack-item') === activeLockedEl ||
-        e.target.closest('.widget-menu, .widget-edit, .widget-remove')) {
-      return;
-    }
-    activeLockedEl.setAttribute('gs-locked', 'false');
-    grid.update(activeLockedEl, { locked: false });
-    activeLockedEl = null;
-  });
-
   function getCurrentLayout() {
     const items = Array.from(gridEl.querySelectorAll('.grid-stack-item'));
     return items.map(el => ({
@@ -527,14 +515,9 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       if (e.target.closest('.widget-menu, .widget-edit, .widget-remove')) {
         return;
       }
-      if (activeLockedEl && activeLockedEl !== el) {
-        activeLockedEl.setAttribute('gs-locked', 'false');
-        grid.update(activeLockedEl, { locked: false });
-      }
-      activeLockedEl = el;
+      if (el.getAttribute('gs-locked') === 'true') return;
       el.setAttribute('gs-locked', 'true');
       grid.update(el, { locked: true });
-      e.stopPropagation();
     });
   }
 
