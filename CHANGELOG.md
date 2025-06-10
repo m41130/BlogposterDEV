@@ -5,6 +5,7 @@ El Psy Kongroo
 
 ## [Unreleased]
 - Widgets now lock on click in the builder so they can be edited globally.
+- Fixed theme styles not applying in the builder by importing the active theme stylesheet inside widget shadow roots.
 - Resolved blank widgets when opening the code editor by loading widget scripts using absolute URLs.
 - Fixed builder widgets showing blank when CSS was injected before widget content.
 - Text block widget now loads the Quill library and styles on demand so editing
