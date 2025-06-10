@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Builder widget CSS now loads gridstack and admin styles before the active theme
+  to avoid layout conflicts.
+- Active theme CSS is now injected into public pages and builder grid only.
+- Builder widgets preview using theme styles without affecting the admin UI.
 - Fixed text block widget not showing the Lorem Ipsum placeholder when first
   added and ensured the Quill editor initializes on click.
 - Text block widget now displays a Lorem Ipsum placeholder and activates the

@@ -25,8 +25,13 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     contentSummary: 'activity'
   };
 
-  function getGlobalCssUrl() {
-    return '/assets/css/site.css';
+  function getCssUrls() {
+    const theme = window.ACTIVE_THEME || 'default';
+    return [
+      '/assets/css/gridstack.min.css',
+      '/assets/css/site.css',
+      `/themes/${theme}/theme.css`
+    ];
   }
 
   const codeMap = {};
@@ -110,11 +115,13 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     while (root.firstChild) {
       root.removeChild(root.firstChild);
     }
-    const globalCss = getGlobalCssUrl();
-
-    const style = document.createElement('style');
-    style.textContent = `@import url('${globalCss}');`;
-    root.appendChild(style);
+    const cssUrls = getCssUrls();
+    cssUrls.slice(0, 2).forEach(u => {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = u;
+      root.appendChild(link);
+    });
 
     const container = document.createElement('div');
     container.className = 'widget-container';
@@ -151,6 +158,10 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
         customStyle.textContent = data.css;
         root.appendChild(customStyle);
       }
+      const themeLink = document.createElement('link');
+      themeLink.rel = 'stylesheet';
+      themeLink.href = cssUrls[2];
+      root.appendChild(themeLink);
       if (data.html) {
         container.innerHTML = data.html;
       }
@@ -170,6 +181,11 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     import(widgetDef.codeUrl)
       .then(m => m.render?.(container, ctx))
       .catch(err => console.error('[Builder] widget import error', err));
+
+    const themeLink = document.createElement('link');
+    themeLink.rel = 'stylesheet';
+    themeLink.href = cssUrls[2];
+    root.appendChild(themeLink);
   }
 
   function attachEditButton(el, widgetDef) {
