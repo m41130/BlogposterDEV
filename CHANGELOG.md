@@ -4,7 +4,6 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
-- Builder widgets unlock when clicking outside and show a lock icon while active.
 - Widgets now lock on click in the builder so they can be edited globally.
 - Fixed theme styles not applying in the builder by importing the active theme stylesheet inside widget shadow roots.
 - Resolved blank widgets when opening the code editor by loading widget scripts using absolute URLs.
