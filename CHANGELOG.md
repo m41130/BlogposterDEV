@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Improved text block widget sanitization and only load the Quill editor when
+  editing to reduce attack surface.
 - Removed placeholder text from all public widgets to preserve user edits.
 - Moved text block widget styles to SCSS for easier maintenance.
 - Text block widget now uses a Quill editor with dynamic sizing and HTML

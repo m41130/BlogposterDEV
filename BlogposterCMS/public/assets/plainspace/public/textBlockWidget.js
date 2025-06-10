@@ -5,12 +5,21 @@ const quillUrl = new URL('/assets/js/quillEditor.js', document.baseURI).href;
 function sanitizeHtml(html) {
   const div = document.createElement('div');
   div.innerHTML = html;
-  div.querySelectorAll('script').forEach(el => el.remove());
+  // Remove script and style tags entirely
+  div.querySelectorAll('script, style').forEach(el => el.remove());
+  // Strip inline event handlers like onclick
+  div.querySelectorAll('*').forEach(el => {
+    [...el.attributes].forEach(attr => {
+      if (/^on/i.test(attr.name)) {
+        el.removeAttribute(attr.name);
+      }
+    });
+  });
   return div.innerHTML;
 }
 
 export async function render(el, ctx = {}) {
-  const { initQuill } = await import(quillUrl);
+  let initQuill = null;
   const container = document.createElement('div');
   container.className = 'text-block-widget';
   container.style.width = '100%';
@@ -19,6 +28,7 @@ export async function render(el, ctx = {}) {
   container.innerHTML = ctx?.metadata?.label || '';
 
   if (ctx.jwt) {
+    ({ initQuill } = await import(quillUrl));
     const quill = initQuill(container);
     if (quill) {
       quill.on('text-change', async () => {
