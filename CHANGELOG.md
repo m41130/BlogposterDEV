@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Text block widget now loads the Quill library and styles on demand so editing
+  works in sandboxed widgets.
 - Builder widget CSS now loads gridstack and admin styles before the active theme
   to avoid layout conflicts.
 - Active theme CSS is now injected into public pages and builder grid only.

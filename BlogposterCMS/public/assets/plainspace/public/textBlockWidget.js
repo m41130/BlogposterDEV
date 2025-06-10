@@ -1,6 +1,9 @@
-// The editor may run from a `blob:` URL when edited live. Load Quill
-// dynamically using an absolute URL so the import succeeds in that case.
-const quillUrl = new URL('/assets/js/quillEditor.js', document.baseURI).href;
+// The editor may run from a `blob:` URL when edited live. To remain
+// sandboxed we load Quill and its styles dynamically using absolute URLs
+// so the import succeeds in that case.
+const quillEditorUrl = new URL('/assets/js/quillEditor.js', document.baseURI).href;
+const quillLibUrl = new URL('/assets/js/quill.js', document.baseURI).href;
+const quillCssUrl = new URL('/assets/css/quill.snow.css', document.baseURI).href;
 
 function sanitizeHtml(html) {
   const div = document.createElement('div');
@@ -36,7 +39,22 @@ export async function render(el, ctx = {}) {
     }
     if (!initQuill) {
       try {
-        ({ initQuill } = await import(quillUrl));
+        if (!window.Quill) {
+          await new Promise((resolve, reject) => {
+            const s = document.createElement('script');
+            s.src = quillLibUrl;
+            s.onload = resolve;
+            s.onerror = reject;
+            document.head.appendChild(s);
+          });
+        }
+        if (!document.querySelector(`link[href="${quillCssUrl}"]`)) {
+          const link = document.createElement('link');
+          link.rel = 'stylesheet';
+          link.href = quillCssUrl;
+          document.head.appendChild(link);
+        }
+        ({ initQuill } = await import(quillEditorUrl));
       } catch (err) {
         console.error('[textBlockWidget] editor load failed', err);
         return;
