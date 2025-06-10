@@ -121,6 +121,8 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
 
     const container = document.createElement('div');
     container.className = 'widget-container';
+    const overlay = document.createElement('div');
+    overlay.className = 'builder-overlay';
     // Prevent GridStack from initiating a drag when interacting
     // with form controls inside widgets. Attach the handler on both the
     // container and the grid item content to catch events before GridStack
@@ -147,17 +149,18 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       { capture: true, passive: true }
     );
     root.appendChild(container);
+    root.appendChild(overlay);
 
     if (data) {
+      const themeLink = document.createElement('link');
+      themeLink.rel = 'stylesheet';
+      themeLink.href = cssUrls[1];
+      root.appendChild(themeLink);
       if (data.css) {
         const customStyle = document.createElement('style');
         customStyle.textContent = data.css;
         root.appendChild(customStyle);
       }
-      const themeLink = document.createElement('link');
-      themeLink.rel = 'stylesheet';
-      themeLink.href = cssUrls[1];
-      root.appendChild(themeLink);
       if (data.html) {
         container.innerHTML = data.html;
       }
@@ -512,6 +515,21 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     el.appendChild(menuBtn);
   }
 
+  function attachOverlayHandlers(el) {
+    const show = () => el.classList.add('overlay-visible');
+    const hide = () => el.classList.remove('overlay-visible');
+
+    el.addEventListener('mouseenter', show);
+    el.addEventListener('mouseleave', hide);
+    el.addEventListener(
+      'touchstart',
+      () => {
+        el.classList.toggle('overlay-visible');
+      },
+      { passive: true }
+    );
+  }
+
 
   initialLayout.forEach(item => {
     const widgetDef = allWidgets.find(w => w.id === item.widgetId);
@@ -537,6 +555,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     attachRemoveButton(wrapper);
     const editBtn = attachEditButton(wrapper, widgetDef);
     attachOptionsMenu(wrapper, widgetDef, editBtn);
+    attachOverlayHandlers(wrapper);
     gridEl.appendChild(wrapper);
     grid.makeWidget(wrapper);
     renderWidget(wrapper, widgetDef);
@@ -578,6 +597,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     attachRemoveButton(wrapper);
     const editBtn2 = attachEditButton(wrapper, widgetDef);
     attachOptionsMenu(wrapper, widgetDef, editBtn2);
+    attachOverlayHandlers(wrapper);
     gridEl.appendChild(wrapper);
     grid.makeWidget(wrapper);
 
