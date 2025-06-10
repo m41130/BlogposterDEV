@@ -6,6 +6,10 @@ El Psy Kongroo
 ## [Unreleased]
 - Text block widget now loads the Quill library and styles on demand so editing
   works in sandboxed widgets.
+- Builder widget CSS now loads gridstack and admin styles before the active theme
+  to avoid layout conflicts.
+- Active theme CSS is now injected into public pages and builder grid only.
+- Builder widgets preview using theme styles without affecting the admin UI.
 - Implemented "Hello World" default theme with Inter typography, electric-purple accent and micro-interactions.
 - Fixed text block widget not showing the Lorem Ipsum placeholder when first
   added and ensured the Quill editor initializes on click.
