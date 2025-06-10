@@ -25,14 +25,22 @@ export async function render(el, ctx = {}) {
   container.className = 'text-block-widget';
   container.style.width = '100%';
   container.style.height = '100%';
-  container.innerHTML = ctx?.metadata?.label || '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>';
+  const defaultText = '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>';
+  const initial = ctx?.metadata?.label;
+  const safeHtml = sanitizeHtml(!initial || initial === 'Text Block' ? defaultText : initial);
+  container.innerHTML = safeHtml;
 
   async function enableEdit() {
     if (!ctx.jwt || quillInstance) {
       return;
     }
     if (!initQuill) {
-      ({ initQuill } = await import(quillUrl));
+      try {
+        ({ initQuill } = await import(quillUrl));
+      } catch (err) {
+        console.error('[textBlockWidget] editor load failed', err);
+        return;
+      }
     }
     quillInstance = initQuill(container);
     if (!quillInstance) {
