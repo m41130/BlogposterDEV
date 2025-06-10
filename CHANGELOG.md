@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Builder widgets now have a three-dot menu with edit and duplicate actions, and the remove button moved to the left.
 - Updated README: linked to bp-cli, collapsed screenshots in a details section, added GridStack reference and license header note.
 - Improved README structure with an alpha badge, quick install snippet and more descriptive screenshot alt text.
 - Added a CONTRIBUTING guide and linked it from the README.
