@@ -4,10 +4,6 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
-- Added two-layer widget rendering: overlay styles from site.css show on hover or
-  tap, while theme and in-editor styles apply above widget content.
-- Refactored builder public lane widgets with a hover overlay using site.css
-  while theme and custom widget styles load with proper priority.
 - Resolved blank widgets when opening the code editor by loading widget scripts using absolute URLs.
 - Fixed builder widgets showing blank when CSS was injected before widget content.
 - Text block widget now loads the Quill library and styles on demand so editing
