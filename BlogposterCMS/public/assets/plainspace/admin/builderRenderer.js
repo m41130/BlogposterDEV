@@ -312,6 +312,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       };
     });
     el.appendChild(btn);
+    return btn;
   }
 
   let allWidgets = [];
@@ -412,6 +413,65 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       if (pageId) saveCurrentLayout();
     });
     el.appendChild(btn);
+    return btn;
+  }
+
+  function attachOptionsMenu(el, widgetDef, editBtn) {
+    const menuBtn = document.createElement('button');
+    menuBtn.className = 'widget-menu';
+    menuBtn.innerHTML = window.featherIcon ? window.featherIcon('more-vertical') :
+      '<img src="/assets/icons/more-vertical.svg" alt="menu" />';
+
+    const menu = document.createElement('div');
+    menu.className = 'widget-options-menu';
+    menu.innerHTML = `
+      <button class="menu-edit"><img src="/assets/icons/edit.svg" class="icon" alt="edit" /> Edit Code</button>
+      <button class="menu-copy"><img src="/assets/icons/copy.svg" class="icon" alt="duplicate" /> Duplicate</button>
+      <button class="menu-template"><img src="/assets/icons/package.svg" class="icon" alt="template" /> Save as Template</button>
+      <button class="menu-lock"><img src="/assets/icons/lock.svg" class="icon" alt="lock" /> Lock Position</button>
+      <button class="menu-snap"><img src="/assets/icons/grid.svg" class="icon" alt="snap" /> Snap to Grid</button>
+      <button class="menu-global"><img src="/assets/icons/globe.svg" class="icon" alt="global" /> Set as Global Widget</button>
+    `;
+    menu.style.display = 'none';
+
+    menuBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    });
+
+    menu.querySelector('.menu-edit').onclick = () => { editBtn.click(); menu.style.display = 'none'; };
+    menu.querySelector('.menu-copy').onclick = () => {
+      const clone = el.cloneNode(true);
+      clone.dataset.instanceId = genId();
+      gridEl.appendChild(clone);
+      grid.makeWidget(clone);
+      attachRemoveButton(clone);
+      const cEditBtn = attachEditButton(clone, widgetDef);
+      attachOptionsMenu(clone, widgetDef, cEditBtn);
+      renderWidget(clone, widgetDef);
+      menu.style.display = 'none';
+    };
+    menu.querySelector('.menu-template').onclick = () => {
+      alert('Save as Template not implemented');
+      menu.style.display = 'none';
+    };
+    menu.querySelector('.menu-lock').onclick = () => {
+      const locked = el.getAttribute('gs-locked') === 'true';
+      el.setAttribute('gs-locked', (!locked).toString());
+      grid.update(el, { locked: !locked });
+      menu.style.display = 'none';
+    };
+    menu.querySelector('.menu-snap').onclick = () => {
+      grid.update(el, { x: Math.round(+el.getAttribute('gs-x')), y: Math.round(+el.getAttribute('gs-y')) });
+      menu.style.display = 'none';
+    };
+    menu.querySelector('.menu-global').onclick = () => {
+      alert('Global Widget feature not implemented');
+      menu.style.display = 'none';
+    };
+
+    el.appendChild(menuBtn);
+    el.appendChild(menu);
   }
 
 
@@ -437,7 +497,8 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     content.innerHTML = `${getWidgetIcon(widgetDef)}<span>${widgetDef.metadata?.label || widgetDef.id}</span>`;
     wrapper.appendChild(content);
     attachRemoveButton(wrapper);
-    attachEditButton(wrapper, widgetDef);
+    const editBtn = attachEditButton(wrapper, widgetDef);
+    attachOptionsMenu(wrapper, widgetDef, editBtn);
     gridEl.appendChild(wrapper);
     grid.makeWidget(wrapper);
     renderWidget(wrapper, widgetDef);
@@ -477,7 +538,8 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     content.innerHTML = `${getWidgetIcon(widgetDef)}<span>${widgetDef.metadata?.label || widgetDef.id}</span>`;
     wrapper.appendChild(content);
     attachRemoveButton(wrapper);
-    attachEditButton(wrapper, widgetDef);
+    const editBtn2 = attachEditButton(wrapper, widgetDef);
+    attachOptionsMenu(wrapper, widgetDef, editBtn2);
     gridEl.appendChild(wrapper);
     grid.makeWidget(wrapper);
 

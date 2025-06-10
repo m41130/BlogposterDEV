@@ -133,7 +133,7 @@
 .grid-stack-item .widget-remove {
   position: absolute;
   top: 2px;
-  right: 2px;
+  left: 2px;
   background: transparent;
   border: none;
   padding: 2px;
@@ -144,9 +144,13 @@
 }
 
 .grid-stack-item .widget-edit {
+  display: none;
+}
+
+.grid-stack-item .widget-menu {
   position: absolute;
   top: 2px;
-  right: 28px;
+  right: 2px;
   background: transparent;
   border: none;
   padding: 2px;
@@ -156,14 +160,39 @@
   transition: opacity 0.2s ease;
 }
 
+
+.grid-stack-item:hover .widget-menu,
 .grid-stack-item:hover .widget-remove {
   opacity: 1;
   pointer-events: auto;
 }
 
-.grid-stack-item:hover .widget-edit {
-  opacity: 1;
-  pointer-events: auto;
+.widget-options-menu {
+  position: absolute;
+  top: 24px;
+  right: 2px;
+  background: var(--color-white);
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: var(--shadow-card);
+  display: none;
+  z-index: 60;
+}
+
+.widget-options-menu button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+}
+
+.widget-options-menu button:hover {
+  background: var(--color-light-gray, #f0f0f0);
 }
 
 .widget-code-editor {
