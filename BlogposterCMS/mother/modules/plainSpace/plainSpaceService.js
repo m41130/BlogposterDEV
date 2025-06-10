@@ -394,11 +394,15 @@ function registerPlainSpaceEvents(motherEmitter) {
   // 7) saveWidgetInstance
   motherEmitter.on('saveWidgetInstance', (payload, cb) => {
     try {
-      const { jwt, instanceId, content } = payload || {};
+      const { jwt, instanceId, content, decodedJWT } = payload || {};
       if (!jwt || !instanceId) {
         return cb(new Error('[plainSpace] Invalid payload in saveWidgetInstance.'));
       }
       const sanitizedContent = sanitizeHtml(content);
+      if (decodedJWT && !hasPermission(decodedJWT, 'plainspace.widgetInstance')) {
+        return cb(new Error('Forbidden – missing permission: plainspace.widgetInstance'));
+      }
+
       motherEmitter.emit(
         'dbUpdate',
         {
@@ -418,9 +422,12 @@ function registerPlainSpaceEvents(motherEmitter) {
   // 8) getWidgetInstance
   motherEmitter.on('getWidgetInstance', (payload, cb) => {
     try {
-      const { jwt, instanceId } = payload || {};
+      const { jwt, instanceId, decodedJWT } = payload || {};
       if (!jwt || !instanceId) {
         return cb(new Error('[plainSpace] Invalid payload in getWidgetInstance.'));
+      }
+      if (decodedJWT && !hasPermission(decodedJWT, 'plainspace.widgetInstance')) {
+        return cb(new Error('Forbidden – missing permission: plainspace.widgetInstance'));
       }
       motherEmitter.emit(
         'dbSelect',
