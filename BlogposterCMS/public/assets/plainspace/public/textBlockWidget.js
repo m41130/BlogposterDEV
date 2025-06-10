@@ -80,7 +80,7 @@ export async function render(el, ctx = {}) {
           moduleType: 'core',
           widgetId: ctx.widgetId,
           widgetType: 'public',
-          newLabel: html
+          newContent: html
         });
       } catch (err) {
         console.error('[textBlockWidget] save error', err);
