@@ -28,7 +28,6 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   function getCssUrls() {
     const theme = window.ACTIVE_THEME || 'default';
     return [
-      '/assets/css/gridstack.min.css',
       '/assets/css/site.css',
       `/themes/${theme}/theme.css`
     ];
@@ -116,12 +115,9 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       root.removeChild(root.firstChild);
     }
     const cssUrls = getCssUrls();
-    cssUrls.slice(0, 2).forEach(u => {
-      const link = document.createElement('link');
-      link.rel = 'stylesheet';
-      link.href = u;
-      root.appendChild(link);
-    });
+    const style = document.createElement('style');
+    style.textContent = `@import url('${cssUrls[0]}');`;
+    root.appendChild(style);
 
     const container = document.createElement('div');
     container.className = 'widget-container';
@@ -160,7 +156,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       }
       const themeLink = document.createElement('link');
       themeLink.rel = 'stylesheet';
-      themeLink.href = cssUrls[2];
+      themeLink.href = cssUrls[1];
       root.appendChild(themeLink);
       if (data.html) {
         container.innerHTML = data.html;
@@ -184,7 +180,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
 
     const themeLink = document.createElement('link');
     themeLink.rel = 'stylesheet';
-    themeLink.href = cssUrls[2];
+    themeLink.href = cssUrls[1];
     root.appendChild(themeLink);
   }
 
