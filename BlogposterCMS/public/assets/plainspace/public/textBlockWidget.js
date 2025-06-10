@@ -2,17 +2,26 @@
 // dynamically using an absolute URL so the import succeeds in that case.
 const quillUrl = new URL('/assets/js/quillEditor.js', document.baseURI).href;
 
+function sanitizeHtml(html) {
+  const div = document.createElement('div');
+  div.innerHTML = html;
+  div.querySelectorAll('script').forEach(el => el.remove());
+  return div.innerHTML;
+}
+
 export async function render(el, ctx = {}) {
   const { initQuill } = await import(quillUrl);
   const container = document.createElement('div');
   container.className = 'text-block-widget';
+  container.style.width = '100%';
+  container.style.height = '100%';
   container.innerHTML = ctx?.metadata?.label || '<p>Sample text block</p>';
 
   if (ctx.jwt) {
     const quill = initQuill(container);
     if (quill) {
       quill.on('text-change', async () => {
-        const html = quill.root.innerHTML.trim();
+        const html = sanitizeHtml(quill.root.innerHTML.trim());
         try {
           await window.meltdownEmit('updateWidget', {
             jwt: ctx.jwt,
