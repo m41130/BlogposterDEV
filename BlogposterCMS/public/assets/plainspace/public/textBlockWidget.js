@@ -54,6 +54,13 @@ export async function render(el, ctx = {}) {
           link.href = quillCssUrl;
           document.head.appendChild(link);
         }
+        const root = el.getRootNode();
+        if (root instanceof ShadowRoot && !root.querySelector(`link[href="${quillCssUrl}"]`)) {
+          const link = document.createElement('link');
+          link.rel = 'stylesheet';
+          link.href = quillCssUrl;
+          root.appendChild(link);
+        }
         ({ initQuill } = await import(quillEditorUrl));
       } catch (err) {
         console.error('[textBlockWidget] editor load failed', err);
