@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Text block widget now displays a Lorem Ipsum placeholder and activates the
+  Quill editor on click. Edits are sanitized before being stored.
 - Improved text block widget sanitization and only load the Quill editor when
   editing to reduce attack surface.
 - Removed placeholder text from all public widgets to preserve user edits.

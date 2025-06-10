@@ -20,34 +20,43 @@ function sanitizeHtml(html) {
 
 export async function render(el, ctx = {}) {
   let initQuill = null;
+  let quillInstance = null;
   const container = document.createElement('div');
   container.className = 'text-block-widget';
   container.style.width = '100%';
   container.style.height = '100%';
-  // Avoid overriding custom content by omitting placeholder text
-  container.innerHTML = ctx?.metadata?.label || '';
+  container.innerHTML = ctx?.metadata?.label || '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>';
 
-  if (ctx.jwt) {
-    ({ initQuill } = await import(quillUrl));
-    const quill = initQuill(container);
-    if (quill) {
-      quill.on('text-change', async () => {
-        const html = sanitizeHtml(quill.root.innerHTML.trim());
-        try {
-          await window.meltdownEmit('updateWidget', {
-            jwt: ctx.jwt,
-            moduleName: 'widgetManager',
-            moduleType: 'core',
-            widgetId: ctx.widgetId,
-            widgetType: 'public',
-            newLabel: html
-          });
-        } catch (err) {
-          console.error('[textBlockWidget] save error', err);
-        }
-      });
+  async function enableEdit() {
+    if (!ctx.jwt || quillInstance) {
+      return;
     }
+    if (!initQuill) {
+      ({ initQuill } = await import(quillUrl));
+    }
+    quillInstance = initQuill(container);
+    if (!quillInstance) {
+      return;
+    }
+    quillInstance.on('text-change', async () => {
+      const html = sanitizeHtml(quillInstance.root.innerHTML.trim());
+      try {
+        await window.meltdownEmit('updateWidget', {
+          jwt: ctx.jwt,
+          moduleName: 'widgetManager',
+          moduleType: 'core',
+          widgetId: ctx.widgetId,
+          widgetType: 'public',
+          newLabel: html
+        });
+      } catch (err) {
+        console.error('[textBlockWidget] save error', err);
+      }
+    });
+    quillInstance.focus();
   }
+
+  container.addEventListener('click', enableEdit);
 
   el.innerHTML = '';
   el.appendChild(container);
