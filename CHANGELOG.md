@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Builder widgets no longer lock when using resize handles; only clicks on widget content toggle locking.
 - Fixed plainSpace widget instance database operations across all engines.
 - Widget instance API now enforces `plainspace.widgetInstance` permission.
 - Text block widget content is stored per instance so seeded widgets remain unchanged.
