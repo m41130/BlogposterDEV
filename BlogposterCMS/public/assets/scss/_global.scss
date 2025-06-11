@@ -7,6 +7,12 @@
     box-sizing: border-box;
   }
 
+/* Default font for all body text */
+body {
+  font-family: var(--font-body);
+  color: var(--color-text);
+}
+
     /* GridStack relies on content-box sizing. Reset inside its container */
 
 
