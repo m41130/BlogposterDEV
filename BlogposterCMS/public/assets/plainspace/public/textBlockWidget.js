@@ -5,6 +5,15 @@ const quillEditorUrl = new URL('/assets/js/quillEditor.js', document.baseURI).hr
 const quillLibUrl = new URL('/assets/js/quill.js', document.baseURI).href;
 const quillCssUrl = new URL('/assets/css/quill.snow.css', document.baseURI).href;
 
+let globalWrapper = null;
+let globalQuill = null;
+let globalInit = null;
+let activeContainer = null;
+let saveTimer = null;
+let textChangeHandler = null;
+let lastSavedContent = null;
+let activeCtx = null;
+
 function sanitizeHtml(html) {
   const div = document.createElement('div');
   div.innerHTML = html;
@@ -21,48 +30,70 @@ function sanitizeHtml(html) {
   return div.innerHTML;
 }
 
-export async function render(el, ctx = {}) {
-  if (el.__tbQuill) {
-    try {
-      const oldRoot = el.__tbQuill.root;
-      if (oldRoot && oldRoot.parentNode) {
-        oldRoot.parentNode.remove();
-      }
-    } catch (err) {
-      console.warn('[textBlockWidget] failed to remove previous editor', err);
-    }
-    el.__tbQuill = null;
+async function getGlobalQuill() {
+  if (globalInit) {
+    await globalInit;
+    return globalQuill;
   }
-  let initQuill = null;
-  let quillInstance = null;
-  let saveTimer = null;
-  let textChangeHandler = null;
-  let lastSavedContent = null;
-  function disableEdit() {
-    if (!quillInstance) return;
-    const html = sanitizeHtml(quillInstance.root.innerHTML.trim());
-    quillInstance.off('text-change', textChangeHandler);
-    // Remove tooltip elements Quill may have added to the document body
-    if (quillInstance.theme && quillInstance.theme.tooltip) {
-      const tip = quillInstance.theme.tooltip.root;
-      if (tip && tip.parentNode) tip.parentNode.removeChild(tip);
+  globalInit = (async () => {
+    if (!window.Quill) {
+      await new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = quillLibUrl;
+        s.onload = resolve;
+        s.onerror = reject;
+        document.head.appendChild(s);
+      });
     }
-    quillInstance = null;
-    el.__tbQuill = null;
-    container.innerHTML = html;
-    document.removeEventListener('mousedown', outsideHandler, true);
-    document.removeEventListener('pointerdown', outsideHandler, true);
-  }
+    if (!document.querySelector(`link[href="${quillCssUrl}"]`)) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = quillCssUrl;
+      document.head.appendChild(link);
+    }
+    const { initQuill } = await import(quillEditorUrl);
+    globalWrapper = document.createElement('div');
+    globalWrapper.className = 'text-block-editor-overlay';
+    globalWrapper.style.position = 'absolute';
+    globalWrapper.style.zIndex = '1000';
+    globalWrapper.style.display = 'none';
+    document.body.appendChild(globalWrapper);
+    globalQuill = initQuill(globalWrapper, { placeholder: '' });
+  })();
+  await globalInit;
+  return globalQuill;
+}
 
-  function outsideHandler(ev) {
-    if (!container.contains(ev.target)) {
-      disableEdit();
-    }
+function outsideHandler(ev) {
+  if (!globalWrapper.contains(ev.target)) {
+    disableEdit();
   }
+}
+
+function disableEdit() {
+  if (!activeContainer || !globalQuill) return;
+  const html = sanitizeHtml(globalQuill.root.innerHTML.trim());
+  globalQuill.off('text-change', textChangeHandler);
+  if (globalQuill.theme && globalQuill.theme.tooltip) {
+    const tip = globalQuill.theme.tooltip.root;
+    if (tip && tip.parentNode) tip.parentNode.removeChild(tip);
+  }
+  activeContainer.innerHTML = html;
+  activeContainer = null;
+  activeCtx = null;
+  globalWrapper.style.display = 'none';
+  document.removeEventListener('mousedown', outsideHandler, true);
+  document.removeEventListener('pointerdown', outsideHandler, true);
+  lastSavedContent = html;
+}
+
+export async function render(el, ctx = {}) {
   const container = document.createElement('div');
   container.className = 'text-block-widget';
+  container.dataset.tbw = ctx.id || '';
   container.style.width = '100%';
   container.style.height = '100%';
+
   const defaultText = '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>';
   let initial = ctx?.metadata?.label;
   if (ctx.jwt && ctx.id) {
@@ -83,49 +114,26 @@ export async function render(el, ctx = {}) {
   lastSavedContent = safeHtml;
 
   async function enableEdit() {
-    if (!ctx.jwt || quillInstance) {
-      return;
-    }
-    if (!initQuill) {
-      try {
-        if (!window.Quill) {
-          await new Promise((resolve, reject) => {
-            const s = document.createElement('script');
-            s.src = quillLibUrl;
-            s.onload = resolve;
-            s.onerror = reject;
-            document.head.appendChild(s);
-          });
-        }
-        if (!document.querySelector(`link[href="${quillCssUrl}"]`)) {
-          const link = document.createElement('link');
-          link.rel = 'stylesheet';
-          link.href = quillCssUrl;
-          document.head.appendChild(link);
-        }
-        const root = el.getRootNode();
-        if (root instanceof ShadowRoot && !root.querySelector(`link[href="${quillCssUrl}"]`)) {
-          const link = document.createElement('link');
-          link.rel = 'stylesheet';
-          link.href = quillCssUrl;
-          root.appendChild(link);
-        }
-        ({ initQuill } = await import(quillEditorUrl));
-      } catch (err) {
-        console.error('[textBlockWidget] editor load failed', err);
-        return;
-      }
-    }
-    quillInstance = initQuill(container, { placeholder: '' });
-    if (!quillInstance) {
-      return;
-    }
-    el.__tbQuill = quillInstance;
+    if (!ctx.jwt || activeContainer === container) return;
+    await getGlobalQuill();
+
+    activeContainer && disableEdit();
+    activeContainer = container;
+    activeCtx = ctx;
+
+    globalWrapper.style.display = 'block';
+    const rect = container.getBoundingClientRect();
+    globalWrapper.style.left = `${rect.left + window.scrollX}px`;
+    globalWrapper.style.top = `${rect.top + window.scrollY}px`;
+    globalWrapper.style.width = `${rect.width}px`;
+    globalWrapper.style.height = `${rect.height}px`;
+
+    globalQuill.root.innerHTML = container.innerHTML;
 
     textChangeHandler = () => {
       clearTimeout(saveTimer);
       saveTimer = setTimeout(async () => {
-        const html = sanitizeHtml(quillInstance.root.innerHTML.trim());
+        const html = sanitizeHtml(globalQuill.root.innerHTML.trim());
         if (html === lastSavedContent) return;
         try {
           await window.meltdownEmit('saveWidgetInstance', {
@@ -141,12 +149,11 @@ export async function render(el, ctx = {}) {
         }
       }, 1500);
     };
-    quillInstance.on('text-change', textChangeHandler);
-    // Use pointerdown so clicks on certain elements cannot prevent the
-    // outside handler from firing via stopPropagation on mousedown.
+    globalQuill.on('text-change', textChangeHandler);
+
     document.addEventListener('pointerdown', outsideHandler, true);
     document.addEventListener('mousedown', outsideHandler, true);
-    quillInstance.focus();
+    globalQuill.focus();
   }
 
   container.addEventListener('click', enableEdit);
