@@ -298,7 +298,7 @@ function registerPlainSpaceEvents(motherEmitter) {
   // 4) saveLayoutTemplate
   motherEmitter.on('saveLayoutTemplate', (payload, cb) => {
     try {
-      const { jwt, name, lane, viewport, layout, decodedJWT } = payload || {};
+      const { jwt, name, lane, viewport, layout, previewPath, decodedJWT } = payload || {};
       if (!jwt || !name || !lane || !viewport || !Array.isArray(layout)) {
         return cb(new Error('[plainSpace] Invalid payload in saveLayoutTemplate.'));
       }
@@ -314,7 +314,7 @@ function registerPlainSpaceEvents(motherEmitter) {
           table: '__rawSQL__',
           data: {
             rawSQL: 'UPSERT_PLAINSPACE_LAYOUT_TEMPLATE',
-            params: { name, lane, viewport, layoutArr: layout }
+            params: { name, lane, viewport, layoutArr: layout, previewPath }
           }
         },
         cb
@@ -381,7 +381,7 @@ function registerPlainSpaceEvents(motherEmitter) {
         },
         (err, rows = []) => {
           if (err) return cb(err);
-          const templates = rows.map(r => r.name);
+          const templates = rows.map(r => ({ name: r.name, previewPath: r.preview_path || '' }));
           cb(null, { templates });
         }
       );

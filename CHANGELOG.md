@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Layout template previews now stored via `preview_path`; widget shows preview images.
+- Layout templates widget now includes a create button and rearranged filters below it.
 - Added "Layouts" admin page with a layout templates widget.
 - Text block editor now closes when clicking outside and uses an empty placeholder.
 - Builder widgets no longer lock when using resize handles; only clicks on widget content toggle locking.
