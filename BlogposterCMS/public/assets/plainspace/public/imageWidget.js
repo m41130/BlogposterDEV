@@ -24,10 +24,10 @@ export function render(el, ctx = {}) {
             newCategory: shareURL
           });
         }
-      } catch (err) {
-        console.error('[imageWidget] openMediaExplorer error', err);
-      }
-    });
+        } catch (err) {
+          console.error('[imageWidget] openMediaExplorer error', err);
+        }
+      });
     el.appendChild(btn);
   }
 
