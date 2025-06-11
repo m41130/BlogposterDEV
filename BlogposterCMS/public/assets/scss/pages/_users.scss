@@ -16,7 +16,7 @@
   @extend .add-page-btn;
 }
 
-.add-permission-btn {
+.add-group-btn {
   @extend .add-page-btn;
 }
 
@@ -34,16 +34,24 @@
   @extend %page-list-item;
 }
 
-.permissions-list {
+.roles-list {
   @extend .page-list;
 }
 
-.permissions-list .empty-state {
+.roles-list .empty-state {
   @extend %page-list-empty-state;
 }
 
-.permissions-list li {
+.roles-list li {
   @extend %page-list-item;
+}
+
+.roles-list .page-name-row {
+  @extend .page-name-row;
+}
+
+.roles-list .page-actions {
+  @extend .page-actions;
 }
 
 .users-tabs {
