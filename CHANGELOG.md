@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Fixed new default widgets not seeding when `PLAINSPACE_SEEDED` was already set,
+  ensuring `widgetList` and future widgets appear after upgrades.
 - Added dedicated Permissions admin page with a new widget for listing and
   creating permissions. Default permissions are seeded at startup.
 - Fixed admin search not initializing when scripts load after DOMContentLoaded.

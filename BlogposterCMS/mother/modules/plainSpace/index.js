@@ -33,9 +33,12 @@ module.exports = {
       // 1) Check if PLAINSPACE_SEEDED is already 'true'
       const seededVal = await getSetting(motherEmitter, jwt, 'PLAINSPACE_SEEDED');
       if (seededVal === 'true') {
-        console.log('[plainSpace] Already seeded (PLAINSPACE_SEEDED=true). Checking for missing admin pages...');
+        console.log('[plainSpace] Already seeded (PLAINSPACE_SEEDED=true). Checking for missing admin pages and widgets...');
         if (isCore && jwt) {
           await seedAdminPages(motherEmitter, jwt, ADMIN_PAGES);
+          for (const widgetData of DEFAULT_WIDGETS) {
+            await checkOrCreateWidget(motherEmitter, jwt, widgetData);
+          }
         }
       } else {
         console.log('[plainSpace] Not seeded => running seed steps...');
