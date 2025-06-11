@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Widgets can now be marked as global in the builder. Editing a global widget updates all pages that use it.
 - Fixed notification hub not opening when clicking the logo by initializing after the header loads.
 - Fixed text block editor in builder to remove old Quill instances on re-render,
   preventing duplicate toolbars.
