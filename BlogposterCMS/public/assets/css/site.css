@@ -237,6 +237,7 @@
   --shadow-card: 0 1px 28px rgba(0,0,0,0.07);
   --font-body: "Manrope", sans-serif;
   --font-heading: "Oswald", sans-serif;
+  --font-mono: monospace;
 }
 
 /* =============================================================================
@@ -246,6 +247,12 @@
 *::before,
 *::after {
   box-sizing: border-box;
+}
+
+/* Default font for all body text */
+body {
+  font-family: var(--font-body);
+  color: var(--color-text);
 }
 
 /* GridStack relies on content-box sizing. Reset inside its container */
@@ -727,14 +734,14 @@ p {
   margin-bottom: 8px;
 }
 
-.add-page-btn, .add-group-btn, .add-permission-btn, .add-user-btn, .add-layout-btn {
+.add-page-btn, .add-permission-btn, .add-group-btn, .add-user-btn, .add-layout-btn {
   width: 22px;
   height: 22px;
   cursor: pointer;
   opacity: 0.8;
   transition: opacity 0.2s ease, transform 0.2s ease;
 }
-.add-page-btn:hover, .add-group-btn:hover, .add-permission-btn:hover, .add-user-btn:hover, .add-layout-btn:hover {
+.add-page-btn:hover, .add-permission-btn:hover, .add-group-btn:hover, .add-user-btn:hover, .add-layout-btn:hover {
   opacity: 1;
   transform: scale(1.1);
 }
@@ -759,7 +766,7 @@ p {
   color: #fff;
 }
 
-.page-list, .widget-list, .roles-list, .permissions-list, .users-list, .layout-list, .modules-list {
+.page-list, .widget-list, .permissions-list, .roles-list, .users-list, .layout-list, .modules-list {
   list-style: none;
   padding: 0;
   margin: 0;
@@ -768,7 +775,7 @@ p {
   gap: 6px;
 }
 
-.page-list .empty-state, .widget-list .empty-state, .roles-list .empty-state, .permissions-list .empty-state, .users-list .empty-state, .layout-list .empty-state, .modules-list .empty-state {
+.page-list .empty-state, .widget-list .empty-state, .permissions-list .empty-state, .roles-list .empty-state, .users-list .empty-state, .layout-list .empty-state, .modules-list .empty-state {
   color: #bbb;
   padding: 20px 0 8px 0;
   text-align: center;
@@ -776,7 +783,7 @@ p {
   font-family: var(--font-body);
 }
 
-.page-list li, .widget-list li, .roles-list li, .permissions-list li, .users-list li, .layout-list li, .modules-list li {
+.page-list li, .widget-list li, .permissions-list li, .roles-list li, .users-list li, .layout-list li, .modules-list li {
   border-radius: 8px;
   background: #fafbfc;
   box-shadow: 0 1px 6px rgba(0, 0, 0, 0.04);
@@ -787,7 +794,7 @@ p {
   transition: box-shadow 0.16s;
   border: 1px solid transparent;
 }
-.page-list li:hover, .widget-list li:hover, .roles-list li:hover, .permissions-list li:hover, .users-list li:hover, .layout-list li:hover, .modules-list li:hover {
+.page-list li:hover, .widget-list li:hover, .permissions-list li:hover, .roles-list li:hover, .users-list li:hover, .layout-list li:hover, .modules-list li:hover {
   border: 1px solid #f0cfff;
   box-shadow: 0 2px 16px rgba(208, 0, 175, 0.08);
 }
@@ -798,7 +805,7 @@ p {
   gap: 4px;
 }
 
-.page-name-row {
+.page-name-row, .roles-list .page-name-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -818,7 +825,7 @@ p {
   white-space: nowrap;
 }
 
-.page-actions {
+.page-actions, .roles-list .page-actions {
   display: flex;
   gap: 18px;
   align-items: center;
@@ -1246,7 +1253,7 @@ p {
   width: 100%;
   height: 60px;
   margin-bottom: 4px;
-  font-family: monospace;
+  font-family: var(--font-mono);
 }
 
 .widget-code-editor .editor-actions {
@@ -1531,4 +1538,8 @@ body.builder-mode #main-header {
 
 .global-widget:hover {
   box-shadow: 0 0 12px rgba(255, 0, 255, 0.5);
+}
+
+.template-widget:hover {
+  box-shadow: 0 0 12px rgba(0, 128, 255, 0.4);
 }/*# sourceMappingURL=site.css.map */
