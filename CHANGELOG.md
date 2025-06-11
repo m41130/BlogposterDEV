@@ -5,6 +5,10 @@ El Psy Kongroo
 
 ## [Unreleased]
 - Fixed notification hub not opening when clicking the logo by initializing after the header loads.
+- Fixed text block editor in builder to remove old Quill instances on re-render,
+  preventing duplicate toolbars.
+- Fixed SEO description editor in builder to remove old Quill instances before
+  creating a new one, preventing duplicate toolbars.
 - Layout templates widget header reorganized: add button moved next to title and filter tabs aligned left.
 - Modules settings widget now separates Installed and System modules.
 - Added `moduleInfo.json` to system modules with version `0.3.2`.
