@@ -15,6 +15,8 @@ This folder provides additional information on installing, configuring and exten
 - [Notification System](notification_system.md)
 - [How Login Strategies Work](how_login_strategies_work.md)
 - [Custom Post Types](custom_post_types.md)
+- [Permission Groups](permission_groups.md)
+- [Layout Templates](layout_templates.md)
 
 For the full project overview and sarcasm-filled introduction, see the main [README](../README.md).
 
