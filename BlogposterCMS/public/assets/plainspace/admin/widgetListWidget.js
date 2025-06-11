@@ -53,17 +53,21 @@ export async function render(el) {
       lane: 'public'
     });
     const pages = Array.isArray(res?.pages) ? res.pages : res || [];
-    for (const p of pages) {
-      const lay = await meltdownEmit('getLayoutForViewport', {
-        jwt,
-        moduleName: 'plainspace',
-        moduleType: 'core',
-        pageId: p.id,
-        lane: 'public',
-        viewport: 'desktop'
-      });
-      const items = Array.isArray(lay?.layout) ? lay.layout : [];
-      items.forEach(i => { if (i.global) globalIds.add(i.widgetId); });
+    if (pages.length > 20) {
+      console.warn('[widgetList] Too many pages, skipping global widget lookup');
+    } else {
+      for (const p of pages) {
+        const lay = await meltdownEmit('getLayoutForViewport', {
+          jwt,
+          moduleName: 'plainspace',
+          moduleType: 'core',
+          pageId: p.id,
+          lane: 'public',
+          viewport: 'desktop'
+        });
+        const items = Array.isArray(lay?.layout) ? lay.layout : [];
+        items.forEach(i => { if (i.global) globalIds.add(i.widgetId); });
+      }
     }
   } catch (err) {
     console.error('[widgetList] global fetch error', err);
