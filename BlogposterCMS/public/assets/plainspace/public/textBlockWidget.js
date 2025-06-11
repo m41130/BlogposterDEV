@@ -42,6 +42,11 @@ export async function render(el, ctx = {}) {
     if (!quillInstance) return;
     const html = sanitizeHtml(quillInstance.root.innerHTML.trim());
     quillInstance.off('text-change', textChangeHandler);
+    // Remove tooltip elements Quill may have added to the document body
+    if (quillInstance.theme && quillInstance.theme.tooltip) {
+      const tip = quillInstance.theme.tooltip.root;
+      if (tip && tip.parentNode) tip.parentNode.removeChild(tip);
+    }
     quillInstance = null;
     el.__tbQuill = null;
     container.innerHTML = html;
