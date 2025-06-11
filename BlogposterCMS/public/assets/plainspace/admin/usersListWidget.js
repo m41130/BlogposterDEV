@@ -81,23 +81,8 @@ export async function render(el) {
     addPermBtn.title = 'Add new permission';
     addPermBtn.className = 'icon add-permission-btn';
     addPermBtn.style.display = 'none';
-    addPermBtn.addEventListener('click', async () => {
-      const key = prompt('Permission key:');
-      if (!key) return;
-      const desc = prompt('Description (optional):') || '';
-      try {
-        await meltdownEmit('createPermission', {
-          jwt,
-          moduleName: 'userManagement',
-          moduleType: 'core',
-          permissionKey: key,
-          description: desc
-        });
-        await fetchPermissions();
-        renderPermissions();
-      } catch (err) {
-        alert('Error: ' + err.message);
-      }
+    addPermBtn.addEventListener('click', () => {
+      window.location.href = '/admin/settings/permissions';
     });
 
     titleBar.appendChild(title);
