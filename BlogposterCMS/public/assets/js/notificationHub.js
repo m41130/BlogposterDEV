@@ -52,3 +52,4 @@ export default function initNotificationHub() {
 }
 
 document.addEventListener('DOMContentLoaded', initNotificationHub);
+document.addEventListener('top-header-loaded', initNotificationHub);
