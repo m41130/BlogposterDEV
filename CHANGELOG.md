@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Improved media explorer usability with larger dialog and backdrop overlay.
 - Fixed text block editor in builder to clean up tooltip overlays on close,
   preventing multiple toolbars from stacking.
 - Widgets can now be marked as global in the builder. Editing a global widget updates all pages that use it.
