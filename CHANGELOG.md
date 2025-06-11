@@ -5,6 +5,7 @@ El Psy Kongroo
 
 ## [Unreleased]
 - Page list widget now prefixes slugs with `/` and includes new icons to view or share pages directly.
+- Fixed content header disappearing when grid layout rendered.
 - Optimized widget list widget to skip global widget checks when many pages exist, preventing API rate limit errors in the admin dashboard.
 - Fixed new default widgets not seeding when `PLAINSPACE_SEEDED` was already set,
   ensuring `widgetList` and future widgets appear after upgrades.
