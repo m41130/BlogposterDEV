@@ -34,6 +34,19 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   }
 
   const codeMap = {};
+  let gridEl;
+  document.addEventListener('textBlockHtmlUpdate', e => {
+    const { instanceId, html } = e.detail || {};
+    if (!instanceId || typeof html !== 'string') return;
+    codeMap[instanceId] = codeMap[instanceId] || {};
+    codeMap[instanceId].html = html;
+
+    const wrapper = gridEl?.querySelector(`.grid-stack-item[data-instance-id="${instanceId}"]`);
+    if (wrapper && wrapper.__codeEditor && wrapper.__codeEditor.style.display !== 'none') {
+      const htmlField = wrapper.__codeEditor.querySelector('.editor-html');
+      if (htmlField) htmlField.value = html;
+    }
+  });
   let activeLockedEl = null;
   const genId = () => `w${Math.random().toString(36).slice(2,8)}`;
 
@@ -195,6 +208,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       if (!overlay) {
         overlay = document.createElement('div');
         overlay.className = 'widget-code-editor';
+        overlay.dataset.instanceId = el.dataset.instanceId;
         overlay.innerHTML = `
           <div class="editor-inner">
             <label>HTML</label>
@@ -251,6 +265,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
         overlay.updateRender = updateRender;
         el.__codeEditor = overlay;
       } else {
+        overlay.dataset.instanceId = el.dataset.instanceId;
         htmlEl = overlay.querySelector('.editor-html');
         cssEl = overlay.querySelector('.editor-css');
         jsEl = overlay.querySelector('.editor-js');
@@ -392,7 +407,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   });
 
   contentEl.innerHTML = `<div id="builderGrid" class="grid-stack builder-grid"></div>`;
-  const gridEl = document.getElementById('builderGrid');
+  gridEl = document.getElementById('builderGrid');
   // Enable floating mode for easier widget placement in the builder
   const grid = GridStack.init({ float: true, cellHeight: 5, columnWidth: 5, column: 64 }, gridEl);
 
