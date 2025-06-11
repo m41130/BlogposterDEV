@@ -3,6 +3,7 @@ export async function render(el) {
   const meltdownEmit = window.meltdownEmit;
 
   let users = [];
+  let permissions = [];
 
   async function fetchUsers() {
     const res = await meltdownEmit('getAllUsers', {
@@ -11,6 +12,15 @@ export async function render(el) {
       moduleType: 'core'
     });
     users = Array.isArray(res) ? res : (res?.data ?? []);
+  }
+
+  async function fetchPermissions() {
+    const res = await meltdownEmit('getAllPermissions', {
+      jwt,
+      moduleName: 'userManagement',
+      moduleType: 'core'
+    });
+    permissions = Array.isArray(res) ? res : (res?.data ?? []);
   }
 
   function buildCard() {
@@ -22,14 +32,28 @@ export async function render(el) {
 
     const title = document.createElement('div');
     title.className = 'user-title';
-    title.textContent = 'Users';
+    title.textContent = 'User Management';
 
-    const addBtn = document.createElement('img');
-    addBtn.src = '/assets/icons/plus.svg';
-    addBtn.alt = 'Add user';
-    addBtn.title = 'Add new user';
-    addBtn.className = 'icon add-user-btn';
-    addBtn.addEventListener('click', async () => {
+    const tabs = document.createElement('div');
+    tabs.className = 'users-tabs';
+
+    const usersBtn = document.createElement('button');
+    usersBtn.className = 'users-tab active';
+    usersBtn.textContent = 'Users';
+
+    const permsBtn = document.createElement('button');
+    permsBtn.className = 'users-tab';
+    permsBtn.textContent = 'Permissions';
+
+    tabs.appendChild(usersBtn);
+    tabs.appendChild(permsBtn);
+
+    const addUserBtn = document.createElement('img');
+    addUserBtn.src = '/assets/icons/plus.svg';
+    addUserBtn.alt = 'Add user';
+    addUserBtn.title = 'Add new user';
+    addUserBtn.className = 'icon add-user-btn';
+    addUserBtn.addEventListener('click', async () => {
       const username = prompt('Username:');
       if (!username) return;
       const password = prompt('Password:');
@@ -51,26 +75,77 @@ export async function render(el) {
       }
     });
 
+    const addPermBtn = document.createElement('img');
+    addPermBtn.src = '/assets/icons/plus.svg';
+    addPermBtn.alt = 'Add permission';
+    addPermBtn.title = 'Add new permission';
+    addPermBtn.className = 'icon add-permission-btn';
+    addPermBtn.style.display = 'none';
+    addPermBtn.addEventListener('click', async () => {
+      const key = prompt('Permission key:');
+      if (!key) return;
+      const desc = prompt('Description (optional):') || '';
+      try {
+        await meltdownEmit('createPermission', {
+          jwt,
+          moduleName: 'userManagement',
+          moduleType: 'core',
+          permissionKey: key,
+          description: desc
+        });
+        await fetchPermissions();
+        renderPermissions();
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    });
+
     titleBar.appendChild(title);
-    titleBar.appendChild(addBtn);
+    titleBar.appendChild(tabs);
+    titleBar.appendChild(addUserBtn);
+    titleBar.appendChild(addPermBtn);
     card.appendChild(titleBar);
 
-    const listEl = document.createElement('ul');
-    listEl.className = 'users-list';
-    card.appendChild(listEl);
+    const usersListEl = document.createElement('ul');
+    usersListEl.className = 'users-list';
+    card.appendChild(usersListEl);
 
-    return { card, listEl };
+    const permsListEl = document.createElement('ul');
+    permsListEl.className = 'permissions-list';
+    permsListEl.style.display = 'none';
+    card.appendChild(permsListEl);
+
+    usersBtn.addEventListener('click', () => {
+      usersBtn.classList.add('active');
+      permsBtn.classList.remove('active');
+      usersListEl.style.display = '';
+      permsListEl.style.display = 'none';
+      addUserBtn.style.display = '';
+      addPermBtn.style.display = 'none';
+    });
+
+    permsBtn.addEventListener('click', () => {
+      permsBtn.classList.add('active');
+      usersBtn.classList.remove('active');
+      usersListEl.style.display = 'none';
+      permsListEl.style.display = '';
+      addUserBtn.style.display = 'none';
+      addPermBtn.style.display = '';
+    });
+
+    return { card, usersListEl, permsListEl };
   }
 
-  let list;
+  let userList;
+  let permList;
 
   function renderUsers() {
-    list.innerHTML = '';
+    userList.innerHTML = '';
     if (!users.length) {
       const empty = document.createElement('li');
       empty.className = 'empty-state';
       empty.textContent = 'No users found.';
-      list.appendChild(empty);
+      userList.appendChild(empty);
     } else {
       users.forEach(u => {
         const li = document.createElement('li');
@@ -79,17 +154,35 @@ export async function render(el) {
         link.href = `/admin/settings/users/edit/${u.id}`;
         link.textContent = name;
         li.appendChild(link);
-        list.appendChild(li);
+        userList.appendChild(li);
+      });
+    }
+  }
+
+  function renderPermissions() {
+    permList.innerHTML = '';
+    if (!permissions.length) {
+      const empty = document.createElement('li');
+      empty.className = 'empty-state';
+      empty.textContent = 'No permissions found.';
+      permList.appendChild(empty);
+    } else {
+      permissions.forEach(p => {
+        const li = document.createElement('li');
+        li.textContent = p.permission_key + (p.description ? ` - ${p.description}` : '');
+        permList.appendChild(li);
       });
     }
   }
 
   try {
-    await fetchUsers();
+    await Promise.all([fetchUsers(), fetchPermissions()]);
     const built = buildCard();
     const card = built.card;
-    list = built.listEl;
+    userList = built.usersListEl;
+    permList = built.permsListEl;
     renderUsers();
+    renderPermissions();
     el.innerHTML = '';
     el.appendChild(card);
   } catch (err) {

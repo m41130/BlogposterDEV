@@ -17,6 +17,7 @@ const {
 const { setupUserCrudEvents } = require('./userCrudEvents');
 const { setupRoleCrudEvents } = require('./roleCrudEvents');
 const { setupLoginEvents }    = require('./loginEvents');
+const { setupPermissionCrudEvents } = require('./permissionCrudEvents');
 
 async function initialize({ motherEmitter, app, dbConfig, isCore, jwt }) {
   console.log('[USER MANAGEMENT] Initializing user management module...');
@@ -43,6 +44,7 @@ async function initialize({ motherEmitter, app, dbConfig, isCore, jwt }) {
     // D) Now set up meltdown event listeners
     setupUserCrudEvents(motherEmitter);
     setupRoleCrudEvents(motherEmitter);
+    setupPermissionCrudEvents(motherEmitter);
     setupLoginEvents(motherEmitter);
     
     console.log('[USER MANAGEMENT] Module initialized successfully. meltdown meltdown avoided!');

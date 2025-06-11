@@ -59,7 +59,18 @@ switch (operation) {
             updated_at TIMESTAMP DEFAULT NOW()
           );
         `);
-      
+
+        // 4) usermanagement.permissions
+        await client.query(`
+          CREATE TABLE IF NOT EXISTS usermanagement.permissions(
+            id SERIAL PRIMARY KEY,
+            permission_key VARCHAR(255) UNIQUE NOT NULL,
+            description    TEXT,
+            created_at     TIMESTAMP DEFAULT NOW(),
+            updated_at     TIMESTAMP DEFAULT NOW()
+          );
+        `);
+
         return { done: true };
       }
       

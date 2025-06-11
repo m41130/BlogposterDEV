@@ -16,6 +16,10 @@
   @extend .add-page-btn;
 }
 
+.add-permission-btn {
+  @extend .add-page-btn;
+}
+
 .users-list {
   @extend .page-list;
 }
@@ -28,4 +32,34 @@
 
 .users-list li {
   @extend %page-list-item;
+}
+
+.permissions-list {
+  @extend .page-list;
+}
+
+.permissions-list .empty-state {
+  @extend %page-list-empty-state;
+}
+
+.permissions-list li {
+  @extend %page-list-item;
+}
+
+.users-tabs {
+  margin-top: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.users-tab {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+}
+
+.users-tab.active {
+  border-bottom: 2px solid currentColor;
+  font-weight: bold;
 }
