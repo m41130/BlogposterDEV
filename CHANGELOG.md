@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Disabled admin search when not authenticated and show "Login required" placeholder. Token errors now disable the input instead of failing silently.
 - Widget list now includes a Templates tab populated from saved widget templates. Builders can save the current widget state as a template and overwrite after confirmation.
 - Permissions widget now lets admins create permission groups using JSON and shows seeded groups like `admin` and `standard`.
 - Permission groups can now be edited or removed in the settings UI (system groups remain locked).
