@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Fixed "Add new permission" button in user settings to open the Permissions page.
 - Added dedicated Permissions admin page with a new widget for listing and
   creating permissions. Default permissions are seeded at startup.
 - Fixed admin search not initializing when scripts load after DOMContentLoaded.
