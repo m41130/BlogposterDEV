@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Widget code editor now includes an "Insert Image" button that uploads to the media explorer and injects an `<img>` tag.
 - Improved media explorer usability with larger dialog and backdrop overlay.
 - Fixed text block editor in builder to clean up tooltip overlays on close,
   preventing multiple toolbars from stacking.
