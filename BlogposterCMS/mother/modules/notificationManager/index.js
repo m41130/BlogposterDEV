@@ -2,7 +2,8 @@
  * mother/modules/notificationManager/index.js
  */
 const notificationEmitter = require('../../emitters/notificationEmitter');
-const { loadIntegrations } = require('./notificationManagerService');
+const { loadIntegrations, getRecentNotifications } = require('./notificationManagerService');
+const { onceCallback } = require('../../emitters/motherEmitter');
 
 module.exports = {
   async initialize({ motherEmitter, app, isCore, jwt }) {
@@ -39,6 +40,20 @@ module.exports = {
         } catch (err) {
           console.error(`[NOTIFICATION MANAGER] Integration "${name}" error =>`, err.message);
         }
+      }
+    });
+
+    motherEmitter.on('getRecentNotifications', (payload, cb) => {
+      const callback = onceCallback(cb);
+      try {
+        const { jwt, limit = 10 } = payload || {};
+        if (!jwt) {
+          return callback(new Error('[NOTIFICATION MANAGER] getRecentNotifications => missing jwt.'));
+        }
+        const list = getRecentNotifications(limit);
+        callback(null, list);
+      } catch (err) {
+        callback(err);
       }
     });
 
