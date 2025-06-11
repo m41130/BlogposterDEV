@@ -1,0 +1,5 @@
+{
+  "moduleName": "moduleLoader",
+  "version": "0.3.2",
+  "description": "Loads optional modules with sandboxing."
+}

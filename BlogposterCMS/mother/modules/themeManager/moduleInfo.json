@@ -1,0 +1,5 @@
+{
+  "moduleName": "themeManager",
+  "version": "0.3.2",
+  "description": "Provides installed theme metadata."
+}

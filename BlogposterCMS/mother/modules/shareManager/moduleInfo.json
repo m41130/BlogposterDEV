@@ -1,0 +1,5 @@
+{
+  "moduleName": "shareManager",
+  "version": "0.3.2",
+  "description": "Creates secure share links for files."
+}

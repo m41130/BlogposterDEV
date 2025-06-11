@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Modules settings widget now separates Installed and System modules.
+- Added `moduleInfo.json` to system modules with version `0.3.2`.
 - Database initialization now adds missing `preview_path` column for layout templates.
 - Sanitized user management event logs to avoid JWT exposure.
 - Added notification hub UI and meltdown event `getRecentNotifications`.

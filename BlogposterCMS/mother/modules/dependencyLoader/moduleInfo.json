@@ -1,0 +1,5 @@
+{
+  "moduleName": "dependencyLoader",
+  "version": "0.3.2",
+  "description": "Whitelist manager for community module dependencies."
+}

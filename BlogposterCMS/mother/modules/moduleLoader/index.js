@@ -25,6 +25,7 @@ const {
   ensureModuleRegistrySchema,
   initGetModuleRegistryEvent,
   initListActiveGrapesModulesEvent,
+  initListSystemModulesEvent,
   getModuleRegistry,
   insertModuleRegistryEntry,
   updateModuleLastError,
@@ -61,6 +62,7 @@ async function loadAllModules({ emitter, app, jwt }) {
   // 2) meltdown Events für Registry-Fetch + Admin-Kram
   initGetModuleRegistryEvent(motherEmitter);
   initListActiveGrapesModulesEvent(motherEmitter);
+  initListSystemModulesEvent(motherEmitter);
   initModuleRegistryAdminEvents(motherEmitter, app);
 
   // Ohne meltdown JWT können wir nichts laden. Also frühzeitiger Abbruch.

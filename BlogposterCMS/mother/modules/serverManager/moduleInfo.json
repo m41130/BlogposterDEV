@@ -1,0 +1,5 @@
+{
+  "moduleName": "serverManager",
+  "version": "0.3.2",
+  "description": "Stores server location info."
+}
