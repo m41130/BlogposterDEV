@@ -14,7 +14,15 @@
   @extend .page-list;
 }
 
+.roles-list {
+  @extend .page-list;
+}
+
 .permissions-list .empty-state {
+  @extend %page-list-empty-state;
+}
+
+.roles-list .empty-state {
   @extend %page-list-empty-state;
 }
 
@@ -22,6 +30,20 @@
   @extend %page-list-item;
 }
 
+.roles-list li {
+  @extend %page-list-item;
+}
+
 .add-permission-btn {
   @extend .add-page-btn;
+}
+
+.add-group-btn {
+  @extend .add-page-btn;
+}
+
+.permissions-sub-title {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  margin-top: 8px;
 }
