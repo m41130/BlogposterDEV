@@ -151,11 +151,13 @@ function renderPages(pages, list) {
               ${window.featherIcon('edit', 'edit-page" title="Edit page')}
               ${window.featherIcon('pencil', 'edit-layout" title="Edit layout')}
               ${window.featherIcon(page.status === 'draft' ? 'draft' : 'published', 'toggle-draft" title="' + (page.status === 'draft' ? 'Mark as published' : 'Mark as draft') + '"')}
+              ${window.featherIcon('external-link', 'view-page" title="Open page')}
+              ${window.featherIcon('share', 'share-page" title="Share page link')}
               ${window.featherIcon('delete', 'delete-page" title="Delete page')}
           </span>
         </div>
         <div class="page-slug-row">
-          <span class="page-slug" contenteditable="true">${page.slug}</span>
+          <span class="page-slug" contenteditable="true">/${page.slug}</span>
           ${window.featherIcon('editSlug', 'edit-slug" title="Edit slug')}
         </div>
       </div>
@@ -170,10 +172,13 @@ function renderPages(pages, list) {
       }
     });
     slugEl.addEventListener('blur', (e) => {
-      const newSlug = e.target.textContent.trim();
+      const newSlug = e.target.textContent.trim().replace(/^\//, '');
       if (newSlug !== page.slug) {
         updateSlug(page, newSlug);
+        page.slug = newSlug;
       }
+      // always show with leading slash
+      slugEl.textContent = `/${page.slug}`;
     });
 
     // Set as home
@@ -188,6 +193,12 @@ function renderPages(pages, list) {
 
     // Toggle draft
     li.querySelector('.toggle-draft').addEventListener('click', () => toggleDraft(page));
+
+    // View page
+    li.querySelector('.view-page').addEventListener('click', () => viewPage(page));
+
+    // Share page
+    li.querySelector('.share-page').addEventListener('click', () => sharePage(page));
 
     // Delete
     li.querySelector('.delete-page').addEventListener('click', () => deletePage(page.id));
@@ -284,5 +295,19 @@ async function deletePage(id) {
       console.error('deletePage failed', err);
       alert('Failed to delete page: ' + err.message);
     }
+  }
+}
+
+function viewPage(page) {
+  window.open(`/${page.slug}`, '_blank');
+}
+
+async function sharePage(page) {
+  const url = `${window.location.origin}/${page.slug}`;
+  try {
+    await navigator.clipboard.writeText(url);
+    alert('Page link copied to clipboard');
+  } catch (err) {
+    prompt('Copy URL', url);
   }
 }
