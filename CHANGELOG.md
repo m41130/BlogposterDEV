@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Removed Quill editor from the SEO description field in the page editor and
+  switched to a simple textarea.
 - Fixed text block editor in builder so it closes when clicking outside by
   listening for pointerdown events.
 - Fixed notification hub not opening when clicking the logo by initializing after the header loads.
