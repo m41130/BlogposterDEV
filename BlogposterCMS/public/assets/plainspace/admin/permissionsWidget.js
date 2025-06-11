@@ -136,21 +136,79 @@ export async function render(el) {
     }
   }
 
-  function renderRoles() {
-    roleList.innerHTML = '';
-    if (!roles.length) {
-      const empty = document.createElement('li');
-      empty.className = 'empty-state';
-      empty.textContent = 'No permission groups found.';
-      roleList.appendChild(empty);
-    } else {
-      roles.forEach(r => {
-        const li = document.createElement('li');
-        li.textContent = r.role_name + (r.description ? ` - ${r.description}` : '');
-        roleList.appendChild(li);
-      });
+    function handleEditRole(role) {
+      const name = prompt('Group name:', role.role_name);
+      if (!name) return;
+      const permStr = prompt('Permissions JSON:', role.permissions || '{}') || '{}';
+      let perms;
+      try {
+        perms = JSON.parse(permStr);
+      } catch (e) {
+        alert('Invalid JSON');
+        return;
+      }
+      const desc = prompt('Description (optional):', role.description || '') || '';
+      meltdownEmit('updateRole', {
+        jwt,
+        moduleName: 'userManagement',
+        moduleType: 'core',
+        roleId: role.id,
+        newRoleName: name,
+        newDescription: desc,
+        newPermissions: perms
+      }).then(() => {
+        fetchRoles().then(renderRoles);
+      }).catch(err => alert('Error: ' + err.message));
     }
-  }
+
+    function handleDeleteRole(role) {
+      if (!confirm(`Delete group "${role.role_name}"?`)) return;
+      meltdownEmit('deleteRole', {
+        jwt,
+        moduleName: 'userManagement',
+        moduleType: 'core',
+        roleId: role.id
+      }).then(() => {
+        fetchRoles().then(renderRoles);
+      }).catch(err => alert('Error: ' + err.message));
+    }
+
+    function renderRoles() {
+      roleList.innerHTML = '';
+      if (!roles.length) {
+        const empty = document.createElement('li');
+        empty.className = 'empty-state';
+        empty.textContent = 'No permission groups found.';
+        roleList.appendChild(empty);
+      } else {
+        roles.forEach(r => {
+          const li = document.createElement('li');
+          const row = document.createElement('div');
+          row.className = 'page-name-row';
+
+          const nameSpan = document.createElement('span');
+          nameSpan.className = 'page-name';
+          nameSpan.textContent = r.role_name + (r.description ? ` - ${r.description}` : '');
+
+          const actions = document.createElement('span');
+          actions.className = 'page-actions';
+          if (!r.is_system_role) {
+            actions.innerHTML = window.featherIcon('edit', 'edit-role') +
+                              window.featherIcon('delete', 'delete-role');
+          }
+
+          row.appendChild(nameSpan);
+          row.appendChild(actions);
+          li.appendChild(row);
+          roleList.appendChild(li);
+
+          if (!r.is_system_role) {
+            li.querySelector('.edit-role').addEventListener('click', () => handleEditRole(r));
+            li.querySelector('.delete-role').addEventListener('click', () => handleDeleteRole(r));
+          }
+        });
+      }
+    }
 
   try {
     await fetchPermissions();
