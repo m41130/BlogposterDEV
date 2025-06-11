@@ -22,6 +22,17 @@ function sanitizeHtml(html) {
 }
 
 export async function render(el, ctx = {}) {
+  if (el.__tbQuill) {
+    try {
+      const oldRoot = el.__tbQuill.root;
+      if (oldRoot && oldRoot.parentNode) {
+        oldRoot.parentNode.remove();
+      }
+    } catch (err) {
+      console.warn('[textBlockWidget] failed to remove previous editor', err);
+    }
+    el.__tbQuill = null;
+  }
   let initQuill = null;
   let quillInstance = null;
   let saveTimer = null;
@@ -32,6 +43,7 @@ export async function render(el, ctx = {}) {
     const html = sanitizeHtml(quillInstance.root.innerHTML.trim());
     quillInstance.off('text-change', textChangeHandler);
     quillInstance = null;
+    el.__tbQuill = null;
     container.innerHTML = html;
     document.removeEventListener('mousedown', outsideHandler, true);
   }
@@ -102,6 +114,7 @@ export async function render(el, ctx = {}) {
     if (!quillInstance) {
       return;
     }
+    el.__tbQuill = quillInstance;
 
     textChangeHandler = () => {
       clearTimeout(saveTimer);
