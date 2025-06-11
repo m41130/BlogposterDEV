@@ -46,6 +46,7 @@ export async function render(el, ctx = {}) {
     el.__tbQuill = null;
     container.innerHTML = html;
     document.removeEventListener('mousedown', outsideHandler, true);
+    document.removeEventListener('pointerdown', outsideHandler, true);
   }
 
   function outsideHandler(ev) {
@@ -136,6 +137,9 @@ export async function render(el, ctx = {}) {
       }, 1500);
     };
     quillInstance.on('text-change', textChangeHandler);
+    // Use pointerdown so clicks on certain elements cannot prevent the
+    // outside handler from firing via stopPropagation on mousedown.
+    document.addEventListener('pointerdown', outsideHandler, true);
     document.addEventListener('mousedown', outsideHandler, true);
     quillInstance.focus();
   }
