@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Added dedicated Permissions admin page with a new widget for listing and
+  creating permissions. Default permissions are seeded at startup.
 - Added `widgetList` admin widget listing all seeded public widgets with tabs for global widgets. The Widgets admin page is seeded with this widget.
 - User management widget now includes a Permissions tab for viewing and creating permissions.
 - Widget code editor now includes an "Insert Image" button that uploads to the media explorer and injects an `<img>` tag.

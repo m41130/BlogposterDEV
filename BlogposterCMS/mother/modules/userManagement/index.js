@@ -11,6 +11,7 @@ const {
   ensureUserManagementDatabase,
   ensureUserManagementSchemaAndTables,
   ensureDefaultRoles,
+  ensureDefaultPermissions,
   ensureFirstUserIsAdmin
 } = require('./userInitService');
 
@@ -38,7 +39,9 @@ async function initialize({ motherEmitter, app, dbConfig, isCore, jwt }) {
     await ensureUserManagementSchemaAndTables(motherEmitter, jwt);
     // C) Create default roles (admin, standard) if missing
     await ensureDefaultRoles(motherEmitter, jwt);
-    
+    // D) Ensure default permissions for system to work
+    await ensureDefaultPermissions(motherEmitter, jwt);
+
     await ensureFirstUserIsAdmin(motherEmitter, jwt);
 
     // D) Now set up meltdown event listeners

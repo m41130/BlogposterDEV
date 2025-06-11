@@ -93,6 +93,51 @@ async function ensureDefaultRoles(motherEmitter, jwt) {
   console.log('[USER SERVICE] Default roles ensured.');
 }
 
+/* ==================== 2b) Default Permissions ==================== */
+async function ensureDefaultPermissions(motherEmitter, jwt) {
+  console.log('[USER SERVICE] Checking default permissions…');
+  const perms = await emitAsync(motherEmitter, 'dbSelect', {
+    jwt,
+    moduleName: 'userManagement',
+    moduleType: 'core',
+    table: 'permissions'
+  });
+
+  const existing = perms.map(p => (p.permission_key || '').toLowerCase());
+  const tasks = [];
+
+  if (!existing.includes('settings.core.view')) {
+    tasks.push(emitAsync(motherEmitter, 'dbInsert', {
+      jwt,
+      moduleName: 'userManagement',
+      table: 'permissions',
+      data: {
+        permission_key: 'settings.core.view',
+        description: 'View core settings',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+    }));
+  }
+
+  if (!existing.includes('settings.core.edit')) {
+    tasks.push(emitAsync(motherEmitter, 'dbInsert', {
+      jwt,
+      moduleName: 'userManagement',
+      table: 'permissions',
+      data: {
+        permission_key: 'settings.core.edit',
+        description: 'Edit core settings',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+    }));
+  }
+
+  await Promise.all(tasks);
+  console.log('[USER SERVICE] Default permissions ensured.');
+}
+
 /* ============ 3) Self‑Healing: erster User = Admin ============ */
 async function ensureFirstUserIsAdmin(motherEmitter, jwt) {
   console.log('[USER SERVICE] Verifying that at least one admin exists…');
@@ -164,5 +209,6 @@ module.exports = {
   ensureUserManagementDatabase,
   ensureUserManagementSchemaAndTables,
   ensureDefaultRoles,
+  ensureDefaultPermissions,
   ensureFirstUserIsAdmin          // neue Routine wird mit‑exportiert
 };

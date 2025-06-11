@@ -117,6 +117,13 @@ module.exports.DEFAULT_WIDGETS = [
     category: 'core'
   },
   {
+    widgetId: 'permissionsList',
+    widgetType: ADMIN_LANE,
+    label: 'Permissions List',
+    content: '/assets/plainspace/admin/permissionsWidget.js',
+    category: 'core'
+  },
+  {
     widgetId: 'layoutTemplates',
     widgetType: ADMIN_LANE,
     label: 'Layouts',

@@ -1,0 +1,27 @@
+.permissions-card {
+  @extend .page-list-card;
+}
+
+.permissions-title-bar {
+  @extend .page-title-bar;
+}
+
+.permissions-title {
+  @extend .page-title;
+}
+
+.permissions-list {
+  @extend .page-list;
+}
+
+.permissions-list .empty-state {
+  @extend %page-list-empty-state;
+}
+
+.permissions-list li {
+  @extend %page-list-item;
+}
+
+.add-permission-btn {
+  @extend .add-page-btn;
+}
