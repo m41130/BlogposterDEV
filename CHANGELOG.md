@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Text block widget editing now syncs Quill output with the code editor HTML
+  field in the builder, allowing manual HTML tweaks.
 - Optimized widget list widget to skip global widget checks when many pages exist, preventing API rate limit errors in the admin dashboard.
 - Fixed new default widgets not seeding when `PLAINSPACE_SEEDED` was already set,
   ensuring `widgetList` and future widgets appear after upgrades.

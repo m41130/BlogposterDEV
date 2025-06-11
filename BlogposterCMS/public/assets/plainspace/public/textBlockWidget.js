@@ -79,6 +79,11 @@ function disableEdit() {
     if (tip && tip.parentNode) tip.parentNode.removeChild(tip);
   }
   activeContainer.innerHTML = html;
+  if (activeCtx && activeCtx.id) {
+    document.dispatchEvent(new CustomEvent('textBlockHtmlUpdate', {
+      detail: { instanceId: activeCtx.id, html }
+    }));
+  }
   activeContainer = null;
   activeCtx = null;
   globalWrapper.style.display = 'none';
