@@ -1165,6 +1165,10 @@ switch (operation) {
           updated_at TIMESTAMP NOT NULL DEFAULT NOW()
         );
       `);
+      await client.query(`
+        ALTER TABLE plainspace.layout_templates
+          ADD COLUMN IF NOT EXISTS preview_path TEXT;
+      `);
       return { done: true };
     }
     
