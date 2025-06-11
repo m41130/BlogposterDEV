@@ -26,6 +26,7 @@ export async function render(el, ctx = {}) {
   let quillInstance = null;
   let saveTimer = null;
   let textChangeHandler = null;
+  let lastSavedContent = null;
   function disableEdit() {
     if (!quillInstance) return;
     const html = sanitizeHtml(quillInstance.root.innerHTML.trim());
@@ -61,6 +62,7 @@ export async function render(el, ctx = {}) {
   }
   const safeHtml = sanitizeHtml(!initial || initial === 'Text Block' ? defaultText : initial);
   container.innerHTML = safeHtml;
+  lastSavedContent = safeHtml;
 
   async function enableEdit() {
     if (!ctx.jwt || quillInstance) {
@@ -104,19 +106,21 @@ export async function render(el, ctx = {}) {
     textChangeHandler = () => {
       clearTimeout(saveTimer);
       saveTimer = setTimeout(async () => {
-      const html = sanitizeHtml(quillInstance.root.innerHTML.trim());
-      try {
-        await window.meltdownEmit('saveWidgetInstance', {
-          jwt: ctx.jwt,
-          moduleName: 'plainspace',
-          moduleType: 'core',
-          instanceId: ctx.id,
-          content: html
+        const html = sanitizeHtml(quillInstance.root.innerHTML.trim());
+        if (html === lastSavedContent) return;
+        try {
+          await window.meltdownEmit('saveWidgetInstance', {
+            jwt: ctx.jwt,
+            moduleName: 'plainspace',
+            moduleType: 'core',
+            instanceId: ctx.id,
+            content: html
           });
+          lastSavedContent = html;
         } catch (err) {
           console.error('[textBlockWidget] save error', err);
         }
-      }, 600);
+      }, 1500);
     };
     quillInstance.on('text-change', textChangeHandler);
     document.addEventListener('mousedown', outsideHandler, true);
