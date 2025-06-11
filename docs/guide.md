@@ -74,3 +74,10 @@ BlogposterCMS does not use a traditional `post.type` column. Instead content is 
 ## Page Builder and Lightweight UI
 
 The admin lane provides a drag‑and‑drop page builder at `/admin/builder`. The builder retrieves the widget registry via `widget.registry.request.v1` and loads widgets dynamically. Because it relies on minimal JavaScript and CSS, the interface remains lightweight and quick to load even on modest devices.
+
+## New Features in v0.5.0
+
+- **Permission Groups** – manage permissions using reusable groups in the Users settings. The old Permissions page has been removed.
+- **Layouts Page** – create layout templates under `/admin/layouts` and apply them when building pages.
+- **Notification Hub** – click the bell icon in the header to view recent system notifications.
+- **Widget Templates** – save widget configurations for later reuse from the Templates tab in the widget list.
