@@ -6,6 +6,8 @@ El Psy Kongroo
 ## [Unreleased]
 - Added dedicated Permissions admin page with a new widget for listing and
   creating permissions. Default permissions are seeded at startup.
+- Fixed admin search not initializing when scripts load after DOMContentLoaded.
+- Increased default page request limit and documented `PAGE_RATE_LIMIT_MAX` to prevent search lockouts.
 - Added `widgetList` admin widget listing all seeded public widgets with tabs for global widgets. The Widgets admin page is seeded with this widget.
 - User management widget now includes a Permissions tab for viewing and creating permissions.
 - Widget code editor now includes an "Insert Image" button that uploads to the media explorer and injects an `<img>` tag.
