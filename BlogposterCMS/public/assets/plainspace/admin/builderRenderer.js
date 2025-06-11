@@ -594,7 +594,13 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       menu.style.display = 'none';
     };
     menu.querySelector('.menu-snap').onclick = () => {
-      grid.update(el, { x: Math.round(+el.getAttribute('gs-x')), y: Math.round(+el.getAttribute('gs-y')) });
+      grid.update(el, {
+        x: Math.round(+el.getAttribute('gs-x')),
+        y: Math.round(+el.getAttribute('gs-y')),
+        w: Math.round(+el.getAttribute('gs-w')),
+        h: Math.round(+el.getAttribute('gs-h'))
+      });
+      if (pageId) saveCurrentLayout();
       menu.style.display = 'none';
     };
     const globalBtn = menu.querySelector('.menu-global');
