@@ -5,6 +5,7 @@ El Psy Kongroo
 
 ## [Unreleased]
 - Media explorer no longer throws an error when closed; it now resolves with a `cancelled` flag. Builder and image widget updated.
+- Updated all system module versions to `0.5.0`.
 - Suppressed console errors when closing the media explorer without selecting an image.
 - Snap to Grid option now snaps widget width and height so items align correctly.
 - Set body element to use `var(--font-body)` for consistent typography across the dashboard.
