@@ -204,6 +204,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
             <label>JS</label>
             <textarea class="editor-js"></textarea>
             <div class="editor-actions">
+              <button class="media-btn">Insert Image</button>
               <button class="save-btn">Save</button>
               <button class="reset-btn">Reset to Default</button>
               <button class="cancel-btn">Cancel</button>
@@ -214,6 +215,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
         htmlEl = overlay.querySelector('.editor-html');
         cssEl = overlay.querySelector('.editor-css');
         jsEl = overlay.querySelector('.editor-js');
+        const mediaBtn = overlay.querySelector('.media-btn');
         const updateRender = () => {
           const finalCss = wrapCss(cssEl.value, overlay.currentSelector);
           renderWidget(el, widgetDef, {
@@ -227,12 +229,32 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
         cssEl.addEventListener('input', updateRender);
         jsEl.addEventListener('input', updateRender);
 
+        mediaBtn.addEventListener('click', async () => {
+          try {
+            const { shareURL } = await window.meltdownEmit('openMediaExplorer', { jwt: window.ADMIN_TOKEN });
+            if (shareURL) {
+              const ta = htmlEl;
+              const start = ta.selectionStart || 0;
+              const end = ta.selectionEnd || 0;
+              const safeUrl = shareURL.replace(/"/g, '&quot;');
+              const imgTag = `<img src="${safeUrl}" alt="" />`;
+              ta.value = ta.value.slice(0, start) + imgTag + ta.value.slice(end);
+              ta.focus();
+              ta.setSelectionRange(start + imgTag.length, start + imgTag.length);
+              updateRender();
+            }
+          } catch (err) {
+            console.error('[Builder] openMediaExplorer error', err);
+          }
+        });
+
         overlay.updateRender = updateRender;
         el.__codeEditor = overlay;
       } else {
         htmlEl = overlay.querySelector('.editor-html');
         cssEl = overlay.querySelector('.editor-css');
         jsEl = overlay.querySelector('.editor-js');
+        const mediaBtn = overlay.querySelector('.media-btn');
         overlay.updateRender = () => {
           const finalCss = wrapCss(cssEl.value, overlay.currentSelector);
           renderWidget(el, widgetDef, {
@@ -240,6 +262,24 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
             css: finalCss,
             js: jsEl.value
           });
+        };
+        mediaBtn.onclick = async () => {
+          try {
+            const { shareURL } = await window.meltdownEmit('openMediaExplorer', { jwt: window.ADMIN_TOKEN });
+            if (shareURL) {
+              const ta = htmlEl;
+              const start = ta.selectionStart || 0;
+              const end = ta.selectionEnd || 0;
+              const safeUrl = shareURL.replace(/"/g, '&quot;');
+              const imgTag = `<img src="${safeUrl}" alt="" />`;
+              ta.value = ta.value.slice(0, start) + imgTag + ta.value.slice(end);
+              ta.focus();
+              ta.setSelectionRange(start + imgTag.length, start + imgTag.length);
+              overlay.updateRender && overlay.updateRender();
+            }
+          } catch (err) {
+            console.error('[Builder] openMediaExplorer error', err);
+          }
         };
       }
       const instId = el.dataset.instanceId;
