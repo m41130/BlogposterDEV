@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Fixed text block editor in builder to clean up tooltip overlays on close,
+  preventing multiple toolbars from stacking.
+- Fixed text block editor in builder so it closes when clicking outside by
+  listening for pointerdown events.
 - Fixed notification hub not opening when clicking the logo by initializing after the header loads.
 - Fixed text block editor in builder to remove old Quill instances on re-render,
   preventing duplicate toolbars.

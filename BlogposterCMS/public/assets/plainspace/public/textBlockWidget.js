@@ -42,10 +42,16 @@ export async function render(el, ctx = {}) {
     if (!quillInstance) return;
     const html = sanitizeHtml(quillInstance.root.innerHTML.trim());
     quillInstance.off('text-change', textChangeHandler);
+    // Remove tooltip elements Quill may have added to the document body
+    if (quillInstance.theme && quillInstance.theme.tooltip) {
+      const tip = quillInstance.theme.tooltip.root;
+      if (tip && tip.parentNode) tip.parentNode.removeChild(tip);
+    }
     quillInstance = null;
     el.__tbQuill = null;
     container.innerHTML = html;
     document.removeEventListener('mousedown', outsideHandler, true);
+    document.removeEventListener('pointerdown', outsideHandler, true);
   }
 
   function outsideHandler(ev) {
@@ -136,6 +142,9 @@ export async function render(el, ctx = {}) {
       }, 1500);
     };
     quillInstance.on('text-change', textChangeHandler);
+    // Use pointerdown so clicks on certain elements cannot prevent the
+    // outside handler from firing via stopPropagation on mousedown.
+    document.addEventListener('pointerdown', outsideHandler, true);
     document.addEventListener('mousedown', outsideHandler, true);
     quillInstance.focus();
   }
