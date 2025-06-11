@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Media explorer no longer throws an error when closed; it now resolves with a `cancelled` flag. Builder and image widget updated.
+- Suppressed console errors when closing the media explorer without selecting an image.
 - Set body element to use `var(--font-body)` for consistent typography across the dashboard.
 - Ensured builder code editor uses global font variables for consistent typography.
 - Disabled admin search when not authenticated and show "Login required" placeholder. Token errors now disable the input instead of failing silently.

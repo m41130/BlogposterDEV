@@ -4,14 +4,21 @@
     if (!jwt) throw new Error('openExplorer: missing JWT');
     const subPath = opts.subPath || 'public';
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
+      let settled = false;
       const dialog = document.createElement('dialog');
       dialog.className = 'media-explorer';
 
       const closeBtn = document.createElement('button');
       closeBtn.textContent = '×';
       closeBtn.className = 'close-btn';
-      closeBtn.onclick = () => { dialog.close(); reject(new Error('cancelled')); };
+      closeBtn.onclick = () => {
+        dialog.close();
+        if (!settled) {
+          settled = true;
+          resolve({ cancelled: true });
+        }
+      };
 
       const uploadBtn = document.createElement('button');
       uploadBtn.textContent = 'Upload';
@@ -57,7 +64,10 @@
             filePath: subPath + '/' + name
           });
           dialog.close();
-          resolve({ shareURL, name });
+          if (!settled) {
+            settled = true;
+            resolve({ shareURL, name });
+          }
         } catch(err) {
           alert('Error: ' + err.message);
         }
@@ -85,7 +95,10 @@
             listEl.appendChild(li);
           });
         } catch(err) {
-          listEl.innerHTML = `<li>Error: ${err.message}</li>`;
+          listEl.innerHTML = '';
+          const li = document.createElement('li');
+          li.textContent = 'Error: ' + err.message;
+          listEl.appendChild(li);
         }
       }
 
