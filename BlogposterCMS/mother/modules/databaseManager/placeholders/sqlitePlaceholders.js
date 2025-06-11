@@ -1004,6 +1004,7 @@ case 'INIT_PLAINSPACE_LAYOUT_TEMPLATES': {
       lane        TEXT NOT NULL,
       viewport    TEXT NOT NULL,
       layout_json TEXT NOT NULL,
+      preview_path TEXT,
       updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP
     );
   `);
@@ -1027,14 +1028,15 @@ case 'UPSERT_PLAINSPACE_LAYOUT_TEMPLATE': {
   const d = params?.[0] ?? {};
   await db.run(`
     INSERT INTO plainspace_layout_templates
-      (name, lane, viewport, layout_json, updated_at)
-    VALUES (?,?,?,?,CURRENT_TIMESTAMP)
+      (name, lane, viewport, layout_json, preview_path, updated_at)
+    VALUES (?,?,?,?,?,CURRENT_TIMESTAMP)
     ON CONFLICT(name) DO UPDATE SET
       lane        = excluded.lane,
       viewport    = excluded.viewport,
       layout_json = excluded.layout_json,
+      preview_path= excluded.preview_path,
       updated_at  = CURRENT_TIMESTAMP;
-  `, [d.name, d.lane, d.viewport, JSON.stringify(d.layoutArr ?? [])]);
+  `, [d.name, d.lane, d.viewport, JSON.stringify(d.layoutArr ?? []), d.previewPath ?? null]);
   return { success: true };
 }
 
@@ -1050,7 +1052,7 @@ case 'GET_PLAINSPACE_LAYOUT_TEMPLATE': {
 case 'GET_PLAINSPACE_LAYOUT_TEMPLATE_NAMES': {
   const { lane } = params?.[0] ?? {};
   const rows = await db.all(`
-    SELECT name FROM plainspace_layout_templates
+    SELECT name, preview_path FROM plainspace_layout_templates
      WHERE lane = ?
      ORDER BY name ASC;
   `, [lane]);

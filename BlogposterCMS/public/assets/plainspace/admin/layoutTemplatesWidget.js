@@ -29,15 +29,19 @@ export async function render(el) {
     console.warn('[LayoutsWidget] failed to load pages', err);
   }
 
-  const usedSet = new Set();
+  const usedMap = {};
   pages.forEach(p => {
     const name = p.meta?.layoutTemplate;
-    if (name) usedSet.add(name);
+    if (name) {
+      if (!usedMap[name]) usedMap[name] = [];
+      usedMap[name].push(p.title || 'Unnamed');
+    }
   });
 
-  const templates = templateNames.map(name => ({
-    name,
-    used: usedSet.has(name)
+  let templates = templateNames.map(t => ({
+    name: t.name,
+    previewPath: t.previewPath || '',
+    usedPages: usedMap[t.name] || []
   }));
 
   let currentFilter = 'all';
@@ -64,6 +68,49 @@ export async function render(el) {
 
   card.appendChild(titleBar);
 
+  const actionsWrap = document.createElement('div');
+  actionsWrap.className = 'layout-actions-wrap';
+
+  const addBtn = document.createElement('img');
+  addBtn.src = '/assets/icons/plus.svg';
+  addBtn.alt = 'Add layout';
+  addBtn.title = 'Add new layout';
+  addBtn.className = 'icon add-layout-btn';
+  addBtn.addEventListener('click', async () => {
+    const layoutName = prompt('New layout name:');
+    if (!layoutName) return;
+    const previewPath = prompt('Preview image path (optional):') || '';
+    try {
+      await meltdownEmit('saveLayoutTemplate', {
+        jwt,
+        moduleName: 'plainspace',
+        moduleType: 'core',
+        name: layoutName.trim(),
+        lane: 'public',
+        viewport: 'desktop',
+        layout: [],
+        previewPath
+      });
+      const res = await meltdownEmit('getLayoutTemplateNames', {
+        jwt,
+        moduleName: 'plainspace',
+        moduleType: 'core',
+        lane: 'public'
+      });
+      templateNames = Array.isArray(res?.templates) ? res.templates : [];
+      templates = templateNames.map(t => ({
+        name: t.name,
+        previewPath: t.previewPath || '',
+        usedPages: usedMap[t.name] || []
+      }));
+      renderList();
+    } catch (err) {
+      alert('Error: ' + err.message);
+    }
+  });
+
+  actionsWrap.appendChild(addBtn);
+
   const filterNav = document.createElement('nav');
   filterNav.className = 'layout-filters';
   ['all','used','unused'].forEach((f, idx) => {
@@ -78,7 +125,9 @@ export async function render(el) {
     };
     filterNav.appendChild(span);
   });
-  card.appendChild(filterNav);
+  actionsWrap.appendChild(filterNav);
+
+  card.appendChild(actionsWrap);
 
   const list = document.createElement('ul');
   list.className = 'layout-list';
@@ -91,9 +140,9 @@ export async function render(el) {
       arr.sort((a,b) => a.name.localeCompare(b.name));
     }
     if (currentFilter === 'used') {
-      arr = arr.filter(t => t.used);
+      arr = arr.filter(t => t.usedPages.length);
     } else if (currentFilter === 'unused') {
-      arr = arr.filter(t => !t.used);
+      arr = arr.filter(t => !t.usedPages.length);
     }
     if (!arr.length) {
       const empty = document.createElement('div');
@@ -104,12 +153,49 @@ export async function render(el) {
     }
     arr.forEach(t => {
       const li = document.createElement('li');
-      li.innerHTML = `
-        <div class="layout-item">
-          <div class="layout-preview"></div>
-          <div class="layout-name">${t.name}</div>
-          <button class="button use-layout-btn">Use</button>
-        </div>`;
+      const item = document.createElement('div');
+      item.className = 'layout-item';
+
+      const img = document.createElement('img');
+      img.className = 'layout-preview';
+      img.alt = t.name + ' preview';
+      img.src = t.previewPath || '/assets/icons/file.svg';
+
+      const details = document.createElement('div');
+      details.className = 'layout-details';
+
+      const row = document.createElement('div');
+      row.className = 'layout-name-row';
+
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'layout-name';
+      nameSpan.textContent = t.name;
+
+      const actionsSpan = document.createElement('span');
+      actionsSpan.className = 'layout-actions';
+      actionsSpan.innerHTML =
+        window.featherIcon('edit', 'edit-layout') +
+        window.featherIcon('copy', 'duplicate-layout') +
+        window.featherIcon('trash', 'delete-layout');
+
+      row.appendChild(nameSpan);
+      row.appendChild(actionsSpan);
+
+      const usageDiv = document.createElement('div');
+      usageDiv.className = 'layout-usage';
+      const usage = t.usedPages.length === 1
+        ? `Used by ${t.usedPages[0]}`
+        : t.usedPages.length > 1
+          ? 'Multiple pages use it'
+          : 'Not used';
+      usageDiv.textContent = usage;
+
+      details.appendChild(row);
+      details.appendChild(usageDiv);
+
+      item.appendChild(img);
+      item.appendChild(details);
+      li.appendChild(item);
       list.appendChild(li);
     });
   }

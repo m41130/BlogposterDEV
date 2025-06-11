@@ -1161,6 +1161,7 @@ switch (operation) {
           lane VARCHAR(50) NOT NULL,
           viewport VARCHAR(100) NOT NULL,
           layout_json JSONB NOT NULL,
+          preview_path TEXT DEFAULT NULL,
           updated_at TIMESTAMP NOT NULL DEFAULT NOW()
         );
       `);
@@ -1191,18 +1192,20 @@ switch (operation) {
     case 'UPSERT_PLAINSPACE_LAYOUT_TEMPLATE': {
       const d = params[0] || {};
       await client.query(`
-        INSERT INTO plainspace.layout_templates (name, lane, viewport, layout_json, updated_at)
-        VALUES ($1, $2, $3, $4, NOW())
+        INSERT INTO plainspace.layout_templates (name, lane, viewport, layout_json, preview_path, updated_at)
+        VALUES ($1, $2, $3, $4, $5, NOW())
         ON CONFLICT (name)
         DO UPDATE SET lane = EXCLUDED.lane,
                       viewport = EXCLUDED.viewport,
                       layout_json = EXCLUDED.layout_json,
+                      preview_path = EXCLUDED.preview_path,
                       updated_at = NOW()
       `, [
         d.name,
         d.lane,
         d.viewport,
-        JSON.stringify(d.layoutArr || [])
+        JSON.stringify(d.layoutArr || []),
+        d.previewPath || null
       ]);
       return { success:true };
     }
@@ -1220,7 +1223,7 @@ switch (operation) {
     case 'GET_PLAINSPACE_LAYOUT_TEMPLATE_NAMES': {
       const d = params[0] || {};
       const result = await client.query(`
-        SELECT name
+        SELECT name, preview_path
           FROM plainspace.layout_templates
          WHERE lane = $1
          ORDER BY name ASC
