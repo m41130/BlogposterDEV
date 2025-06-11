@@ -10,7 +10,7 @@ Dispatches system notifications to configured integrations such as email or web 
 - Listens to the internal `notificationEmitter` and forwards messages to active integrations.
 
 ## Listened Events
-- This module does not expose meltdown events directly. Instead it listens on `notificationEmitter` for `notify` events.
+- The manager primarily listens on `notificationEmitter` for `notify` events. It also exposes a meltdown event `getRecentNotifications` to fetch log entries for the admin UI.
 
 Each integration can perform its own security checks before sending data externally.
 

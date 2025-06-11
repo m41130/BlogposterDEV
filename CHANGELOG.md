@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Added notification hub UI and meltdown event `getRecentNotifications`.
 - Layout template previews now stored via `preview_path`; widget shows preview images.
 - Layout templates widget now includes a create button and rearranged filters below it.
 - Increased text block auto-save delay to 1.5s and skip identical saves to reduce API load.
