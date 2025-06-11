@@ -37,12 +37,14 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
         await db.createCollection('users').catch(() => {});
         await db.createCollection('roles').catch(() => {});
         await db.createCollection('user_roles').catch(() => {});
+        await db.createCollection('permissions').catch(() => {});
       
         // unique indexes for "users"
         await createIndexWithRetry(db.collection('users'), { username: 1 }, { unique: true }).catch(() => {});
         await createIndexWithRetry(db.collection('users'), { email: 1 }, { unique: true, sparse: true }).catch(() => {});
         // user_roles => unique index on (user_id, role_id)
         await createIndexWithRetry(db.collection('user_roles'), { user_id: 1, role_id: 1 }, { unique: true }).catch(() => {});
+        await createIndexWithRetry(db.collection('permissions'), { permission_key: 1 }, { unique: true }).catch(() => {});
       
         // Add some default fields if they're missing
         await db.collection('users').updateMany({}, {
@@ -77,6 +79,14 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
         // same for user_roles => just ensure created_at, updated_at
         await db.collection('user_roles').updateMany({}, {
           $set: {
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }
+        });
+
+        await db.collection('permissions').updateMany({}, {
+          $set: {
+            description: '',
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           }

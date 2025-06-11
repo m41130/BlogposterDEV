@@ -66,6 +66,15 @@ async function handleBuiltInPlaceholderSqlite(db, operation, params) {
           FOREIGN KEY (user_id) REFERENCES usermanagement_users(id) ON DELETE CASCADE,
           FOREIGN KEY (role_id) REFERENCES usermanagement_roles(id) ON DELETE CASCADE
         );
+
+        /* === usermanagement_permissions =========================== */
+        CREATE TABLE IF NOT EXISTS usermanagement_permissions (
+          id             INTEGER PRIMARY KEY AUTOINCREMENT,
+          permission_key TEXT    NOT NULL UNIQUE,
+          description    TEXT,
+          created_at     DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at     DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
       `);
       return { done: true };
     }
