@@ -12,13 +12,20 @@
 
 .layout-filters {
   @extend .page-filters;
+  margin-bottom: 0;
 }
 
-.layout-actions-wrap {
+
+.layout-tabs-wrap {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.layout-sort {
+  margin-left: auto;
 }
 
 .add-layout-btn {

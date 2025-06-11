@@ -8,6 +8,7 @@ El Psy Kongroo
   preventing duplicate toolbars.
 - Fixed SEO description editor in builder to remove old Quill instances before
   creating a new one, preventing duplicate toolbars.
+- Layout templates widget header reorganized: add button moved next to title and filter tabs aligned left.
 - Modules settings widget now separates Installed and System modules.
 - Added `moduleInfo.json` to system modules with version `0.3.2`.
 - Database initialization now adds missing `preview_path` column for layout templates.
