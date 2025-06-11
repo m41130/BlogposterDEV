@@ -524,6 +524,9 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
 
   function attachLockOnClick(el) {
     el.addEventListener('click', e => {
+      if (!e.target.closest('.grid-stack-item-content')) {
+        return;
+      }
       if (e.target.closest('.widget-menu, .widget-edit, .widget-remove')) {
         return;
       }
