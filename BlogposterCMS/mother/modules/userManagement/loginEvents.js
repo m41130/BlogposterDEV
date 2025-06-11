@@ -10,13 +10,22 @@ const { mergeAllPermissions } = require('./permissionUtils');
 // Because meltdown meltdown can cause double-callback fiasco
 const { onceCallback } = require('../../emitters/motherEmitter');
 
+function sanitizePayload(payload, hide = []) {
+  const sanitized = { ...(payload || {}) };
+  if (sanitized.jwt) sanitized.jwt = '[hidden]';
+  if (sanitized.decodedJWT) sanitized.decodedJWT = '[omitted]';
+  hide.forEach(k => {
+    if (sanitized[k]) sanitized[k] = '***';
+  });
+  return sanitized;
+}
+
 function setupLoginEvents(motherEmitter) {
   // ================ userLogin ================
   motherEmitter.on('userLogin', async (payload, originalCb) => {
     const callback = onceCallback(originalCb);
 
-    const sanitized = { ...payload };
-    if (sanitized && sanitized.password) sanitized.password = '***';
+    const sanitized = sanitizePayload(payload, ['password']);
     console.log('[USER MGMT] "userLogin" event triggered. Payload:', sanitized);
     const { jwt, moduleName, moduleType, username, password } = payload || {};
 
@@ -66,7 +75,7 @@ function setupLoginEvents(motherEmitter) {
   motherEmitter.on('finalizeUserLogin', (payload, originalCb) => {
     const callback = onceCallback(originalCb);
 
-    console.log('[USER MGMT] "finalizeUserLogin" event =>', payload);
+    console.log('[USER MGMT] "finalizeUserLogin" event =>', sanitizePayload(payload));
     const { jwt, moduleName, moduleType, userId, extraData } = payload || {};
 
     if (!jwt || moduleName !== 'userManagement' || moduleType !== 'core') {

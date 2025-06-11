@@ -1008,6 +1008,15 @@ case 'INIT_PLAINSPACE_LAYOUT_TEMPLATES': {
       updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP
     );
   `);
+  const cols = await db.all(`PRAGMA table_info(plainspace_layout_templates);`);
+  const hasCol = Array.isArray(cols) && cols.some(c => c.name === 'preview_path');
+  if (!hasCol) {
+    try {
+      await db.run(`ALTER TABLE plainspace_layout_templates ADD COLUMN preview_path TEXT;`);
+    } catch (e) {
+      if (!/duplicate column/i.test(String(e.message))) throw e;
+    }
+  }
   return { done: true };
 }
 
