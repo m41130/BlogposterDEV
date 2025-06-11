@@ -372,6 +372,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     return items.map(el => ({
       id: el.dataset.instanceId,
       widgetId: el.dataset.widgetId,
+      global: el.dataset.global === 'true',
       x: +el.getAttribute('gs-x'),
       y: +el.getAttribute('gs-y'),
       w: +el.getAttribute('gs-w'),
@@ -472,6 +473,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
         hideMenu();
         return;
       }
+      updateGlobalBtn();
       menu.style.display = 'block';
       menu.style.visibility = 'hidden';
       const rect = menuBtn.getBoundingClientRect();
@@ -492,6 +494,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     menu.querySelector('.menu-copy').onclick = () => {
       const clone = el.cloneNode(true);
       clone.dataset.instanceId = genId();
+      clone.dataset.global = el.dataset.global || 'false';
       gridEl.appendChild(clone);
       grid.makeWidget(clone);
       attachRemoveButton(clone);
@@ -514,9 +517,23 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       grid.update(el, { x: Math.round(+el.getAttribute('gs-x')), y: Math.round(+el.getAttribute('gs-y')) });
       menu.style.display = 'none';
     };
-    menu.querySelector('.menu-global').onclick = () => {
-      alert('Global Widget feature not implemented');
+    const globalBtn = menu.querySelector('.menu-global');
+    function updateGlobalBtn() {
+      const isGlobal = el.dataset.global === 'true';
+      globalBtn.innerHTML = `<img src="/assets/icons/globe.svg" class="icon" alt="global" /> ${isGlobal ? 'Unset Global' : 'Set as Global Widget'}`;
+    }
+    globalBtn.onclick = () => {
+      const isGlobal = el.dataset.global === 'true';
+      if (isGlobal) {
+        el.dataset.global = 'false';
+        el.dataset.instanceId = genId();
+      } else {
+        el.dataset.global = 'true';
+        el.dataset.instanceId = `global-${widgetDef.id}`;
+      }
+      updateGlobalBtn();
       menu.style.display = 'none';
+      if (pageId) saveCurrentLayout();
     };
 
     el.appendChild(menuBtn);
@@ -547,11 +564,13 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     if (!widgetDef) return;
     const instId = item.id || genId();
     item.id = instId;
+    const isGlobal = item.global === true;
     if (item.code) codeMap[instId] = item.code;
     const wrapper = document.createElement('div');
     wrapper.classList.add('grid-stack-item');
     wrapper.dataset.widgetId = widgetDef.id;
     wrapper.dataset.instanceId = instId;
+    wrapper.dataset.global = isGlobal ? 'true' : 'false';
     wrapper.setAttribute('gs-x', item.x ?? 0);
     wrapper.setAttribute('gs-y', item.y ?? 0);
     // Larger defaults for builder widgets
@@ -594,6 +613,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     wrapper.classList.add('grid-stack-item');
     wrapper.dataset.widgetId = widgetDef.id;
     wrapper.dataset.instanceId = instId;
+    wrapper.dataset.global = 'false';
     wrapper.setAttribute('gs-x', x);
     wrapper.setAttribute('gs-y', y);
     wrapper.setAttribute('gs-w', w);

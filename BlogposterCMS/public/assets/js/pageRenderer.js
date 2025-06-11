@@ -366,6 +366,7 @@ function ensureLayout(layout = {}, lane = 'public') {
         wrapper.setAttribute('gs-min-h', 4);
         wrapper.dataset.widgetId = def.id;
         wrapper.dataset.instanceId = item.id;
+        if (item.global) wrapper.dataset.global = 'true';
 
         const content = document.createElement('div');
         content.className = 'grid-stack-item-content';
@@ -418,6 +419,7 @@ function ensureLayout(layout = {}, lane = 'public') {
       wrapper.setAttribute('gs-min-h', DEFAULT_ADMIN_ROWS);
       wrapper.dataset.widgetId = def.id;
       wrapper.dataset.instanceId = meta.id || `w${Math.random().toString(36).slice(2,8)}`;
+      if (meta.global) wrapper.dataset.global = 'true';
 
       const content = document.createElement('div');
       content.className = 'grid-stack-item-content';
@@ -434,6 +436,7 @@ function ensureLayout(layout = {}, lane = 'public') {
       const newLayout = items.map(i => ({
         id: i.el.dataset.instanceId,
         widgetId: i.el.dataset.widgetId,
+        global: i.el.dataset.global === 'true',
         x: i.x, y: i.y, w: i.w, h: i.h,
         code: layout.find(l => l.id === i.el.dataset.instanceId)?.code || null
       }));

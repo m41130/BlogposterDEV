@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Widgets can now be marked as global in the builder. Editing a global widget updates all pages that use it.
 - Removed Quill editor from the SEO description field in the page editor and
   switched to a simple textarea.
 - Fixed text block editor in builder so it closes when clicking outside by

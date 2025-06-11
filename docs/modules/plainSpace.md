@@ -10,6 +10,9 @@ Seeds default admin pages and widgets and handles multi-viewport layouts used by
 - Seeds the admin dashboard pages on first run.
 - Provides `widget.registry.request.v1` for the page builder.
 
+- Widgets can be marked as **global** in the builder. A global widget shares its
+  `instanceId` across pages so editing it updates every occurrence.
+
 ## Listened Events
 - `widget.registry.request.v1`
 
