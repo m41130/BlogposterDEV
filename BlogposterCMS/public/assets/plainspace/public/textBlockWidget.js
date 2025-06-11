@@ -25,6 +25,21 @@ export async function render(el, ctx = {}) {
   let initQuill = null;
   let quillInstance = null;
   let saveTimer = null;
+  let textChangeHandler = null;
+  function disableEdit() {
+    if (!quillInstance) return;
+    const html = sanitizeHtml(quillInstance.root.innerHTML.trim());
+    quillInstance.off('text-change', textChangeHandler);
+    quillInstance = null;
+    container.innerHTML = html;
+    document.removeEventListener('mousedown', outsideHandler, true);
+  }
+
+  function outsideHandler(ev) {
+    if (!container.contains(ev.target)) {
+      disableEdit();
+    }
+  }
   const container = document.createElement('div');
   container.className = 'text-block-widget';
   container.style.width = '100%';
@@ -81,12 +96,12 @@ export async function render(el, ctx = {}) {
         return;
       }
     }
-    quillInstance = initQuill(container);
+    quillInstance = initQuill(container, { placeholder: '' });
     if (!quillInstance) {
       return;
     }
 
-    quillInstance.on('text-change', () => {
+    textChangeHandler = () => {
       clearTimeout(saveTimer);
       saveTimer = setTimeout(async () => {
       const html = sanitizeHtml(quillInstance.root.innerHTML.trim());
@@ -102,7 +117,9 @@ export async function render(el, ctx = {}) {
           console.error('[textBlockWidget] save error', err);
         }
       }, 600);
-    });
+    };
+    quillInstance.on('text-change', textChangeHandler);
+    document.addEventListener('mousedown', outsideHandler, true);
     quillInstance.focus();
   }
 
