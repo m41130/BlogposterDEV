@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Text block widget now uses a single floating Quill instance instead of creating
+  an editor inside each widget's shadow DOM. This avoids focus issues and
+  duplicate toolbars.
 - Fixed text block editor in builder to clean up tooltip overlays on close,
   preventing multiple toolbars from stacking.
 - Widgets can now be marked as global in the builder. Editing a global widget updates all pages that use it.
