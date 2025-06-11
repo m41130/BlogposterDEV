@@ -22,14 +22,23 @@ const { onceCallback } = require('../../emitters/motherEmitter');
 const { hasPermission } = require('./permissionUtils');
 const { getDbType } = require('../databaseManager/helpers/dbTypeHelpers');
 
+function sanitizePayload(payload, hide = []) {
+  const sanitized = { ...(payload || {}) };
+  if (sanitized.jwt) sanitized.jwt = '[hidden]';
+  if (sanitized.decodedJWT) sanitized.decodedJWT = '[omitted]';
+  hide.forEach(k => {
+    if (sanitized[k]) sanitized[k] = '***';
+  });
+  return sanitized;
+}
+
 function setupUserCrudEvents(motherEmitter) {
   // ==================== CREATE USER ====================
   motherEmitter.on('createUser', async (payload, originalCb) => {
     const callback = onceCallback(originalCb);
 
-    const sanitized = { ...payload };
-    if (sanitized && sanitized.password) sanitized.password = '***';
-    console.log('[USER MGMT] "createUser" event triggered. Payload:', sanitized);
+  const sanitized = sanitizePayload(payload, ['password']);
+  console.log('[USER MGMT] "createUser" event triggered. Payload:', sanitized);
 
     const {
       jwt,
@@ -229,7 +238,7 @@ function setupUserCrudEvents(motherEmitter) {
   motherEmitter.on('getAllUsers', (payload, originalCb) => {
     const callback = onceCallback(originalCb);
 
-    console.log('[USER MGMT] "getAllUsers" event triggered. Payload:', payload);
+    console.log('[USER MGMT] "getAllUsers" event triggered. Payload:', sanitizePayload(payload));
     const { jwt, moduleName, moduleType } = payload || {};
 
     if (!jwt || moduleName !== 'userManagement' || moduleType !== 'core') {
@@ -263,7 +272,7 @@ function setupUserCrudEvents(motherEmitter) {
   motherEmitter.on('deleteUser', (payload, originalCb) => {
     const callback = onceCallback(originalCb);
 
-    console.log('[USER MGMT] "deleteUser" event triggered. Payload:', payload);
+    console.log('[USER MGMT] "deleteUser" event triggered. Payload:', sanitizePayload(payload));
     const { jwt, moduleName, moduleType, userId } = payload || {};
 
     if (!jwt || moduleName !== 'userManagement' || moduleType !== 'core') {
@@ -308,7 +317,7 @@ function setupUserCrudEvents(motherEmitter) {
   motherEmitter.on('getUserDetailsByUsername', (payload, originalCb) => {
     const callback = onceCallback(originalCb);
 
-    console.log('[USER MGMT] "getUserDetailsByUsername" event triggered. Payload:', payload);
+    console.log('[USER MGMT] "getUserDetailsByUsername" event triggered. Payload:', sanitizePayload(payload));
     const { jwt, moduleName, moduleType, username } = payload || {};
 
     if (!jwt || moduleName !== 'userManagement' || moduleType !== 'core') {
@@ -353,8 +362,7 @@ function setupUserCrudEvents(motherEmitter) {
   motherEmitter.on('updateUserProfile', async (payload, originalCb) => {
     const callback = onceCallback(originalCb);
 
-    const sanitizedPayload = { ...payload };
-    if (sanitizedPayload && sanitizedPayload.newPassword) sanitizedPayload.newPassword = '***';
+    const sanitizedPayload = sanitizePayload(payload, ['newPassword']);
     console.log('[USER MGMT] "updateUserProfile" event triggered. Payload:', sanitizedPayload);
 
     const {
@@ -440,7 +448,7 @@ function setupUserCrudEvents(motherEmitter) {
   motherEmitter.on('getUserDetailsById', (payload, originalCb) => {
     const callback = onceCallback(originalCb);
 
-    console.log('[USER MGMT] "getUserDetailsById" event triggered. Payload:', payload);
+    console.log('[USER MGMT] "getUserDetailsById" event triggered. Payload:', sanitizePayload(payload));
     const { jwt, moduleName, moduleType, userId } = payload || {};
 
     if (!jwt || moduleName !== 'userManagement' || moduleType !== 'core') {
@@ -487,7 +495,7 @@ function setupUserCrudEvents(motherEmitter) {
   motherEmitter.on('getUserCount', (payload, originalCb) => {
     const callback = onceCallback(originalCb);
 
-    console.log('[USER MGMT] "getUserCount" event triggered. Payload:', payload);
+    console.log('[USER MGMT] "getUserCount" event triggered. Payload:', sanitizePayload(payload));
     const { jwt, moduleName, moduleType } = payload || {};
 
     if (!jwt || moduleName !== 'userManagement' || moduleType !== 'core') {

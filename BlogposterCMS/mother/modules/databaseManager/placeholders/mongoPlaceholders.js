@@ -1157,6 +1157,10 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
     const collectionName = 'plainspace_layout_templates';
     await db.createCollection(collectionName).catch(() => {});
     await db.collection(collectionName).createIndex({ name: 1 }, { unique: true }).catch(() => {});
+    await db.collection(collectionName).updateMany(
+      { preview_path: { $exists: false } },
+      { $set: { preview_path: null } }
+    );
     return { done: true };
     }
 
