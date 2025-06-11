@@ -436,6 +436,15 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     }));
   }
 
+  function getItemData(el) {
+    return {
+      widgetId: el.dataset.widgetId,
+      w: +el.getAttribute('gs-w'),
+      h: +el.getAttribute('gs-h'),
+      code: codeMap[el.dataset.instanceId] || null
+    };
+  }
+
   async function saveCurrentLayout() {
     if (!pageId) return;
     const layout = getCurrentLayout();
@@ -559,7 +568,23 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       menu.style.display = 'none';
     };
     menu.querySelector('.menu-template').onclick = () => {
-      alert('Save as Template not implemented');
+      const defaultName = widgetDef.metadata?.label || widgetDef.id;
+      const name = prompt('Template name:', defaultName);
+      if (!name) { menu.style.display = 'none'; return; }
+      let templates = [];
+      try { templates = JSON.parse(localStorage.getItem('widgetTemplates') || '[]'); } catch {}
+      const data = getItemData(el);
+      const idx = templates.findIndex(t => t.name === name);
+      if (idx !== -1) {
+        if (!confirm('Template exists. Override?')) { menu.style.display = 'none'; return; }
+        templates[idx].data = data;
+        templates[idx].widgetId = widgetDef.id;
+        templates[idx].label = widgetDef.metadata?.label || widgetDef.id;
+      } else {
+        templates.push({ name, widgetId: widgetDef.id, label: widgetDef.metadata?.label || widgetDef.id, data });
+      }
+      localStorage.setItem('widgetTemplates', JSON.stringify(templates));
+      window.dispatchEvent(new Event('widgetTemplatesUpdated'));
       menu.style.display = 'none';
     };
     menu.querySelector('.menu-lock').onclick = () => {

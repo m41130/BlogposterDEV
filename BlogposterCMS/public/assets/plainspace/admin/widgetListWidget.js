@@ -31,6 +31,15 @@ export async function render(el) {
       `<img src="/assets/icons/${name}.svg" alt="${name}" />`;
   }
 
+  function getTemplates() {
+    try {
+      const arr = JSON.parse(localStorage.getItem('widgetTemplates') || '[]');
+      return Array.isArray(arr) ? arr : [];
+    } catch {
+      return [];
+    }
+  }
+
   let widgets = [];
   try {
     const res = await meltdownEmit('widget.registry.request.v1', {
@@ -89,6 +98,22 @@ export async function render(el) {
     });
   }
 
+  function buildTemplateList(list, templates) {
+    if (!templates.length) {
+      const empty = document.createElement('div');
+      empty.className = 'empty-state';
+      empty.textContent = 'No templates found.';
+      list.appendChild(empty);
+      return;
+    }
+    templates.forEach(t => {
+      const def = widgets.find(w => w.id === t.widgetId) || { id: t.widgetId, metadata:{label:t.label || t.widgetId} };
+      const li = document.createElement('li');
+      li.innerHTML = `${getIcon(def.id, def.metadata)}<span class="widget-name">${t.name}</span>`;
+      list.appendChild(li);
+    });
+  }
+
   const card = document.createElement('div');
   card.className = 'widget-list-card page-list-card';
 
@@ -105,8 +130,12 @@ export async function render(el) {
   const globalBtn = document.createElement('button');
   globalBtn.className = 'widget-tab';
   globalBtn.textContent = 'Global';
+  const templatesBtn = document.createElement('button');
+  templatesBtn.className = 'widget-tab';
+  templatesBtn.textContent = 'Templates';
   tabs.appendChild(allBtn);
   tabs.appendChild(globalBtn);
+  tabs.appendChild(templatesBtn);
   titleBar.appendChild(title);
   titleBar.appendChild(tabs);
   card.appendChild(titleBar);
@@ -117,6 +146,9 @@ export async function render(el) {
   const globalList = document.createElement('ul');
   globalList.className = 'widget-list page-list';
   globalList.style.display = 'none';
+  const templatesList = document.createElement('ul');
+  templatesList.className = 'widget-list page-list';
+  templatesList.style.display = 'none';
   const globalArray = Array.from(globalIds);
   if (globalArray.length) {
     globalArray.forEach(id => {
@@ -133,20 +165,40 @@ export async function render(el) {
     globalList.appendChild(empty);
   }
 
+  buildTemplateList(templatesList, getTemplates());
+
+  window.addEventListener('widgetTemplatesUpdated', () => {
+    templatesList.innerHTML = '';
+    buildTemplateList(templatesList, getTemplates());
+  });
+
   card.appendChild(allList);
   card.appendChild(globalList);
+  card.appendChild(templatesList);
 
   allBtn.addEventListener('click', () => {
     allBtn.classList.add('active');
     globalBtn.classList.remove('active');
+    templatesBtn.classList.remove('active');
     allList.style.display = '';
     globalList.style.display = 'none';
+    templatesList.style.display = 'none';
   });
   globalBtn.addEventListener('click', () => {
     globalBtn.classList.add('active');
     allBtn.classList.remove('active');
+    templatesBtn.classList.remove('active');
     allList.style.display = 'none';
     globalList.style.display = '';
+    templatesList.style.display = 'none';
+  });
+  templatesBtn.addEventListener('click', () => {
+    templatesBtn.classList.add('active');
+    allBtn.classList.remove('active');
+    globalBtn.classList.remove('active');
+    allList.style.display = 'none';
+    globalList.style.display = 'none';
+    templatesList.style.display = '';
   });
 
   el.innerHTML = '';
