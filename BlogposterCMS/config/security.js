@@ -29,7 +29,7 @@ const rate = {
   /* General API / meltdown limiter */
   api : {
     windowMs        : 15 * 60 * 1000,      // 15 min
-    max             : 100,                 // sensible default
+    max             : 500,                 // sensible default
     message         : { error: 'Too many requests – try again later.' },
     standardHeaders : true,
     legacyHeaders   : false
@@ -37,7 +37,7 @@ const rate = {
   /* Page rendering limiter */
   pages : {
     windowMs        : 15 * 60 * 1000,      // 15 min
-    max             : 100,                 // same default as API
+    max             : 500,                 // higher default to avoid search lockouts
     message         : { error: 'Too many page requests – try again later.' },
     standardHeaders : true,
     legacyHeaders   : false
