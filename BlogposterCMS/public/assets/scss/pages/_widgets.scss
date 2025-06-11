@@ -1,0 +1,52 @@
+.widget-list-card {
+  @extend .page-list-card;
+}
+
+.widget-title-bar {
+  @extend .page-title-bar;
+}
+
+.widget-title {
+  @extend .page-title;
+}
+
+.widget-list {
+  @extend .page-list;
+}
+
+.widget-list .empty-state {
+  @extend %page-list-empty-state;
+}
+
+.widget-list li {
+  @extend %page-list-item;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.widget-name {
+  flex: 1;
+}
+
+.widget-tabs {
+  margin-top: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.widget-tab {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+}
+
+.widget-tab.active {
+  border-bottom: 2px solid currentColor;
+  font-weight: bold;
+}
+
+.global-widget:hover {
+  box-shadow: 0 0 12px rgba(255, 0, 255, 0.5);
+}
