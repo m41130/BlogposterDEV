@@ -1,0 +1,5 @@
+{
+  "moduleName": "settingsManager",
+  "version": "0.3.2",
+  "description": "Centralized CMS settings service."
+}

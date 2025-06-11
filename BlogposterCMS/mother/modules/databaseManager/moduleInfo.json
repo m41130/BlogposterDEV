@@ -1,0 +1,5 @@
+{
+  "moduleName": "databaseManager",
+  "version": "0.3.2",
+  "description": "Gateway between modules and the database."
+}

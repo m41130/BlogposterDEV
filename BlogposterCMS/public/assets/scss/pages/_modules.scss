@@ -23,3 +23,21 @@
 .modules-list li {
   @extend %page-list-item;
 }
+
+.modules-tabs {
+  margin-top: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.modules-tab {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+}
+
+.modules-tab.active {
+  border-bottom: 2px solid currentColor;
+  font-weight: bold;
+}

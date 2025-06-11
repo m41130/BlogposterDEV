@@ -1,0 +1,5 @@
+{
+  "moduleName": "userManagement",
+  "version": "0.3.2",
+  "description": "CRUD for users and roles."
+}

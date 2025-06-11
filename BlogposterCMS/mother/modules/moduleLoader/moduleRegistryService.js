@@ -128,6 +128,56 @@ function initListActiveGrapesModulesEvent(motherEmitter) {
   });
 }
 
+/**
+ * meltdown => "listSystemModules"
+ */
+function initListSystemModulesEvent(motherEmitter) {
+  motherEmitter.on('listSystemModules', async (payload, originalCb) => {
+    const callback = onceCallback(originalCb);
+
+    if (!payload || typeof payload !== 'object') {
+      return callback(new Error('[MODULE LOADER] listSystemModules => invalid meltdown payload.'));
+    }
+    const { jwt, moduleName, moduleType } = payload;
+    if (!jwt || moduleName !== 'moduleLoader' || moduleType !== 'core') {
+      return callback(new Error('[MODULE LOADER] meltdown => must come from moduleLoader/core.'));
+    }
+
+    if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'modules.list')) {
+      return callback(new Error('Forbidden – missing permission: modules.list'));
+    }
+
+    try {
+      const modulesDir = path.resolve(__dirname, '..');
+      const folders = fs
+        .readdirSync(modulesDir, { withFileTypes: true })
+        .filter(d => d.isDirectory())
+        .map(d => d.name);
+
+      const result = folders.map(folder => {
+        const infoPath = path.join(modulesDir, folder, 'moduleInfo.json');
+        let info = {};
+        if (fs.existsSync(infoPath)) {
+          try {
+            info = JSON.parse(fs.readFileSync(infoPath, 'utf8'));
+          } catch (err) {
+            console.warn(`[MODULE LOADER] Error reading moduleInfo.json for "${folder}": ${err.message}`);
+          }
+        }
+        if (!info.moduleName) info.moduleName = folder;
+        if (!info.version) info.version = '';
+        if (!info.description) info.description = '';
+        return { module_name: folder, moduleInfo: info };
+      });
+
+      callback(null, result);
+    } catch (err) {
+      console.error('[MODULE LOADER] listSystemModules => meltdown meltdown =>', err.message);
+      callback(err);
+    }
+  });
+}
+
 function readFsModuleInfo(moduleName) {
   try {
     const modulesDir = path.resolve(__dirname, '../../../modules');
@@ -386,6 +436,7 @@ module.exports = {
   ensureModuleRegistrySchema,
   initGetModuleRegistryEvent,
   initListActiveGrapesModulesEvent,
+  initListSystemModulesEvent,
   readFsModuleInfo,
   updateModuleInfo,
   getModuleRegistry,

@@ -1,0 +1,5 @@
+{
+  "moduleName": "importer",
+  "version": "0.3.2",
+  "description": "Handles content importers from other platforms."
+}

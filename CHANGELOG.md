@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Modules settings widget now separates Installed and System modules.
+- Added `moduleInfo.json` to system modules with version `0.3.2`.
 - Layout template previews now stored via `preview_path`; widget shows preview images.
 - Layout templates widget now includes a create button and rearranged filters below it.
 - Increased text block auto-save delay to 1.5s and skip identical saves to reduce API load.
