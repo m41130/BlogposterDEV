@@ -46,8 +46,27 @@ async function loadIntegrations() {
   return loaded;
 }
 
+function getRecentNotifications(limit = 10) {
+  const registry = loadRegistry();
+  const logPath = registry.FileLog?.config?.logPath || path.join(__dirname, 'server.log');
+  if (!fs.existsSync(logPath)) return [];
+  const lines = fs.readFileSync(logPath, 'utf8').split('\n').filter(Boolean);
+  const slice = lines.slice(-Math.min(parseInt(limit, 10) || 10, 100));
+  return slice.map(line => {
+    const parts = line.split('|');
+    const priorityMatch = line.match(/^\[(.+?)\]/);
+    return {
+      priority: (priorityMatch ? priorityMatch[1] : 'info').toLowerCase(),
+      timestamp: parts[0].replace(/\[.+?\]\s*/, '').trim(),
+      moduleName: (parts[1] || '').replace('Module:', '').trim(),
+      message: (parts.slice(2).join('|') || '').trim()
+    };
+  });
+}
+
 module.exports = {
   loadRegistry,
   saveRegistry,
-  loadIntegrations
+  loadIntegrations,
+  getRecentNotifications
 };

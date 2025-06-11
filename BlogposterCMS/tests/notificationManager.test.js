@@ -31,7 +31,8 @@ async function testFileLogIntegration() {
   const beforeSize = fs.existsSync(logPath) ? fs.statSync(logPath).size : 0;
 
   const nm = loadNotificationManager();
-  await nm.initialize({ motherEmitter: {}, app: {}, isCore: true, jwt: 't' });
+  const stubEmitter = { on() {}, emit() {} };
+  await nm.initialize({ motherEmitter: stubEmitter, app: {}, isCore: true, jwt: 't' });
   nm._emitter.notify({ moduleName: 'test', notificationType: 'system', priority: 'info', message: 'Hello Test', timestamp: new Date().toISOString() });
 
   await new Promise(r => setTimeout(r, 100));
@@ -42,5 +43,14 @@ async function testFileLogIntegration() {
 
 test('notification manager writes to log file', async () => {
   await testFileLogIntegration();
+});
+
+test('getRecentNotifications returns array', async () => {
+  const nm = loadNotificationManager();
+  const stubEmitter = { on() {}, emit() {} };
+  await nm.initialize({ motherEmitter: stubEmitter, app: {}, isCore: true, jwt: 't' });
+  const { getRecentNotifications } = require('../mother/modules/notificationManager/notificationManagerService');
+  const list = getRecentNotifications(1);
+  assert(Array.isArray(list), 'should return array');
 });
 
