@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Increased default page request limit and documented `PAGE_RATE_LIMIT_MAX` to prevent search lockouts.
 - User management widget now includes a Permissions tab for viewing and creating permissions.
 - Widget code editor now includes an "Insert Image" button that uploads to the media explorer and injects an `<img>` tag.
 - Improved media explorer usability with larger dialog and backdrop overlay.
