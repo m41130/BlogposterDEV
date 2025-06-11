@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Increased text block auto-save delay to 1.5s and skip identical saves to reduce API load.
 - Added "Layouts" admin page with a layout templates widget.
 - Text block editor now closes when clicking outside and uses an empty placeholder.
 - Builder widgets no longer lock when using resize handles; only clicks on widget content toggle locking.
