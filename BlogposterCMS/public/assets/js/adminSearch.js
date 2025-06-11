@@ -5,6 +5,13 @@
     const container = document.querySelector('.search-container');
     if (!input || !results || !container) return;
 
+    // Disable search when no admin token is available
+    if (!window.ADMIN_TOKEN) {
+      input.disabled = true;
+      input.placeholder = 'Login required';
+      return;
+    }
+
     let timer;
     let disabled = false;
 
@@ -35,6 +42,10 @@
         if (err && /permission/i.test(err.message)) {
           input.disabled = true;
           input.placeholder = 'Search unavailable';
+          disabled = true;
+        } else if (err && /(token|auth)/i.test(err.message)) {
+          input.disabled = true;
+          input.placeholder = 'Login required';
           disabled = true;
         }
         console.error('searchPages failed', err);
