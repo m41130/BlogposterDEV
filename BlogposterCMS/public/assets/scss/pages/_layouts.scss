@@ -1,0 +1,45 @@
+.layout-list-card {
+  @extend .page-list-card;
+}
+
+.layout-title-bar {
+  @extend .page-title-bar;
+}
+
+.layout-title {
+  @extend .page-title;
+}
+
+.layout-filters {
+  @extend .page-filters;
+}
+
+.layout-list {
+  @extend .page-list;
+}
+
+.layout-list .empty-state {
+  @extend %page-list-empty-state;
+}
+
+.layout-list li {
+  @extend %page-list-item;
+}
+
+.layout-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.layout-preview {
+  width: 100%;
+  height: 80px;
+  background: #f6f6f6;
+  border-radius: 6px;
+}
+
+.use-layout-btn {
+  margin-top: 4px;
+}

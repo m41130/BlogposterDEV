@@ -99,6 +99,20 @@ module.exports.ADMIN_PAGES = [
     }
   },
   {
+    title: 'Layouts',
+    slug: 'layouts',
+    parentSlug: 'content',
+    lane: 'admin',
+    config: {
+      layout: {
+        header: 'top-header',
+        sidebar: 'default-sidebar',
+        inheritsLayout: true
+      },
+      widgets: ['layoutTemplates']
+    }
+  },
+  {
     title: 'Page Editor',
     // Slug sanitized by pagesManager => slashes become hyphens
     slug: 'edit',

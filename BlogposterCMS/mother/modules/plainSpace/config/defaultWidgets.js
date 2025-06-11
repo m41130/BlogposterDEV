@@ -117,6 +117,13 @@ module.exports.DEFAULT_WIDGETS = [
     category: 'core'
   },
   {
+    widgetId: 'layoutTemplates',
+    widgetType: ADMIN_LANE,
+    label: 'Layouts',
+    content: '/assets/plainspace/admin/layoutTemplatesWidget.js',
+    category: 'core'
+  },
+  {
     widgetId: 'themesList',
     widgetType: ADMIN_LANE,
     label: 'Themes List',
