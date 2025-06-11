@@ -129,5 +129,12 @@ module.exports.DEFAULT_WIDGETS = [
     label: 'Themes List',
     content: '/assets/plainspace/admin/themesListWidget.js',
     category: 'core'
+  },
+  {
+    widgetId: 'widgetList',
+    widgetType: ADMIN_LANE,
+    label: 'Widget List',
+    content: '/assets/plainspace/admin/widgetListWidget.js',
+    category: 'core'
   }
 ];

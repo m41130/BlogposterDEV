@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Added `widgetList` admin widget listing all seeded public widgets with tabs for global widgets. The Widgets admin page is seeded with this widget.
 - Widget code editor now includes an "Insert Image" button that uploads to the media explorer and injects an `<img>` tag.
 - Improved media explorer usability with larger dialog and backdrop overlay.
 - Text block widget now uses a single floating Quill instance instead of creating
