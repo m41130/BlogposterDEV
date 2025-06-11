@@ -6,6 +6,9 @@ El Psy Kongroo
 ## [Unreleased]
 - Fixed text block editor in builder to clean up tooltip overlays on close,
   preventing multiple toolbars from stacking.
+- Widgets can now be marked as global in the builder. Editing a global widget updates all pages that use it.
+- Removed Quill editor from the SEO description field in the page editor and
+  switched to a simple textarea.
 - Fixed text block editor in builder so it closes when clicking outside by
   listening for pointerdown events.
 - Fixed notification hub not opening when clicking the logo by initializing after the header loads.
