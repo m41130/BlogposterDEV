@@ -5,6 +5,9 @@ El Psy Kongroo
 
 ## [Unreleased]
 - Fixed content header disappearing when grid layout rendered.
+- Optimized widget list widget to skip global widget checks when many pages exist, preventing API rate limit errors in the admin dashboard.
+- Fixed new default widgets not seeding when `PLAINSPACE_SEEDED` was already set,
+  ensuring `widgetList` and future widgets appear after upgrades.
 - Fixed "Add new permission" button in user settings to open the Permissions page.
 - Added dedicated Permissions admin page with a new widget for listing and
   creating permissions. Default permissions are seeded at startup.
