@@ -3,10 +3,6 @@ All notable changes to this project will be documented in this file.
 
 El Psy Kongroo
 
-## [Unreleased]
-- Documentation updates for v0.5.0 features: permission groups, layout
-  templates, notification hub and widget templates.
-
 ## [0.5.0] – 2025-06-11
 -- **Breaking change:** delete your existing database and reinitialize BlogposterCMS after upgrading for the new features to work.
 - Media explorer no longer throws an error when closed; it now resolves with a `cancelled` flag. Builder and image widget updated.
