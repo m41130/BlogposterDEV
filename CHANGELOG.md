@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Admin navigation now uses a gradient layout icon for improved visual consistency.
 - Text block widget editing now syncs Quill output with the code editor HTML
   field in the builder, allowing manual HTML tweaks.
 - Page list widget now prefixes slugs with `/` and includes new icons to view or share pages directly.
