@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Permissions widget now lets admins create permission groups using JSON and shows seeded groups like `admin` and `standard`.
 - Text block widget editing now syncs Quill output with the code editor HTML
   field in the builder, allowing manual HTML tweaks.
 - Page list widget now prefixes slugs with `/` and includes new icons to view or share pages directly.
