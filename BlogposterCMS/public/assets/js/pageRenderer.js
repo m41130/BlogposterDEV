@@ -136,6 +136,13 @@ function renderWidget(wrapper, def, code = null, lane = 'public') {
     .catch(err => console.error(`[Widget ${def.id}] import error:`, err));
 }
 
+function clearContentKeepHeader(el) {
+  if (!el) return;
+  const header = el.querySelector('#content-header');
+  el.innerHTML = '';
+  if (header) el.appendChild(header);
+}
+
 function ensureLayout(layout = {}, lane = 'public') {
   let scope = document.querySelector('.app-scope');
   if (!scope) {
@@ -339,12 +346,19 @@ function ensureLayout(layout = {}, lane = 'public') {
       const items = layout.length ? layout : (config.widgets || []).map((id, idx) => ({ id: `w${idx}`, widgetId: id, x:0,y:idx*2,w:8,h:4, code:null }));
 
       if (!items.length) {
-        contentEl.innerHTML = '<p class="empty-state">No widgets configured.</p>';
+        clearContentKeepHeader(contentEl);
+        const msg = document.createElement('p');
+        msg.className = 'empty-state';
+        msg.textContent = 'No widgets configured.';
+        contentEl.appendChild(msg);
         return;
       }
 
-      contentEl.innerHTML = '<div id="publicGrid" class="grid-stack"></div>';
-      const gridEl = document.getElementById('publicGrid');
+      clearContentKeepHeader(contentEl);
+      const gridEl = document.createElement('div');
+      gridEl.id = 'publicGrid';
+      gridEl.className = 'grid-stack';
+      contentEl.appendChild(gridEl);
       // Static mode: public pages should not be directly editable
       const grid = GridStack.init({ staticGrid: true, float: true, cellHeight: 5, columnWidth: 5, column: 64 }, gridEl);
 
@@ -394,8 +408,11 @@ function ensureLayout(layout = {}, lane = 'public') {
 
     let layout = Array.isArray(layoutRes?.layout) ? layoutRes.layout : [];
 
-    contentEl.innerHTML = '<div id="adminGrid" class="grid-stack"></div>';
-    const gridEl = document.getElementById('adminGrid');
+    clearContentKeepHeader(contentEl);
+    const gridEl = document.createElement('div');
+    gridEl.id = 'adminGrid';
+    gridEl.className = 'grid-stack';
+    contentEl.appendChild(gridEl);
     const grid = GridStack.init({ cellHeight: 5, columnWidth: 5, column: 64 }, gridEl);
     // Temporary patch: allow moving admin widgets again until drag bug is resolved
     grid.setStatic(false);
