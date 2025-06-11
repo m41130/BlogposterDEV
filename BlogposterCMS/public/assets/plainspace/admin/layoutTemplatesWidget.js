@@ -52,24 +52,10 @@ export async function render(el) {
 
   const titleBar = document.createElement('div');
   titleBar.className = 'layout-title-bar';
+
   const title = document.createElement('div');
   title.className = 'layout-title';
   title.textContent = 'Layouts';
-  titleBar.appendChild(title);
-
-  const sortSelect = document.createElement('select');
-  sortSelect.className = 'layout-sort';
-  sortSelect.innerHTML = '<option value="name">A-Z</option><option value="date">Date</option>';
-  sortSelect.onchange = () => {
-    currentSort = sortSelect.value;
-    renderList();
-  };
-  titleBar.appendChild(sortSelect);
-
-  card.appendChild(titleBar);
-
-  const actionsWrap = document.createElement('div');
-  actionsWrap.className = 'layout-actions-wrap';
 
   const addBtn = document.createElement('img');
   addBtn.src = '/assets/icons/plus.svg';
@@ -109,7 +95,12 @@ export async function render(el) {
     }
   });
 
-  actionsWrap.appendChild(addBtn);
+  titleBar.appendChild(title);
+  titleBar.appendChild(addBtn);
+  card.appendChild(titleBar);
+
+  const tabsWrap = document.createElement('div');
+  tabsWrap.className = 'layout-tabs-wrap';
 
   const filterNav = document.createElement('nav');
   filterNav.className = 'layout-filters';
@@ -125,9 +116,18 @@ export async function render(el) {
     };
     filterNav.appendChild(span);
   });
-  actionsWrap.appendChild(filterNav);
+  tabsWrap.appendChild(filterNav);
 
-  card.appendChild(actionsWrap);
+  const sortSelect = document.createElement('select');
+  sortSelect.className = 'layout-sort';
+  sortSelect.innerHTML = '<option value="name">A-Z</option><option value="date">Date</option>';
+  sortSelect.onchange = () => {
+    currentSort = sortSelect.value;
+    renderList();
+  };
+  tabsWrap.appendChild(sortSelect);
+
+  card.appendChild(tabsWrap);
 
   const list = document.createElement('ul');
   list.className = 'layout-list';
