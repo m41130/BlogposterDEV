@@ -3,7 +3,7 @@ export async function render(el) {
   const meltdownEmit = window.meltdownEmit;
 
   let users = [];
-  let permissions = [];
+  let roles = [];
 
   async function fetchUsers() {
     const res = await meltdownEmit('getAllUsers', {
@@ -14,13 +14,13 @@ export async function render(el) {
     users = Array.isArray(res) ? res : (res?.data ?? []);
   }
 
-  async function fetchPermissions() {
-    const res = await meltdownEmit('getAllPermissions', {
+  async function fetchRoles() {
+    const res = await meltdownEmit('getAllRoles', {
       jwt,
       moduleName: 'userManagement',
       moduleType: 'core'
     });
-    permissions = Array.isArray(res) ? res : (res?.data ?? []);
+    roles = Array.isArray(res) ? res : (res?.data ?? []);
   }
 
   function buildCard() {
@@ -75,54 +75,71 @@ export async function render(el) {
       }
     });
 
-    const addPermBtn = document.createElement('img');
-    addPermBtn.src = '/assets/icons/plus.svg';
-    addPermBtn.alt = 'Add permission';
-    addPermBtn.title = 'Add new permission';
-    addPermBtn.className = 'icon add-permission-btn';
-    addPermBtn.style.display = 'none';
-    addPermBtn.addEventListener('click', () => {
-      window.location.href = '/admin/settings/permissions';
+    const addRoleBtn = document.createElement('img');
+    addRoleBtn.src = '/assets/icons/plus.svg';
+    addRoleBtn.alt = 'Add group';
+    addRoleBtn.title = 'Add permission group';
+    addRoleBtn.className = 'icon add-group-btn';
+    addRoleBtn.style.display = 'none';
+    addRoleBtn.addEventListener('click', async () => {
+      const name = prompt('Group name:');
+      if (!name) return;
+      const permStr = prompt('Permissions JSON:', '{}') || '{}';
+      let perms;
+      try { perms = JSON.parse(permStr); } catch { alert('Invalid JSON'); return; }
+      try {
+        await meltdownEmit('createRole', {
+          jwt,
+          moduleName: 'userManagement',
+          moduleType: 'core',
+          roleName: name,
+          permissions: perms
+        });
+        await fetchRoles();
+        renderRoles();
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
     });
 
     titleBar.appendChild(title);
     titleBar.appendChild(tabs);
     titleBar.appendChild(addUserBtn);
-    titleBar.appendChild(addPermBtn);
+    titleBar.appendChild(addRoleBtn);
     card.appendChild(titleBar);
 
     const usersListEl = document.createElement('ul');
     usersListEl.className = 'users-list';
     card.appendChild(usersListEl);
 
-    const permsListEl = document.createElement('ul');
-    permsListEl.className = 'permissions-list';
-    permsListEl.style.display = 'none';
-    card.appendChild(permsListEl);
+    const rolesListEl = document.createElement('ul');
+    rolesListEl.className = 'roles-list';
+    rolesListEl.style.display = 'none';
+    card.appendChild(rolesListEl);
 
     usersBtn.addEventListener('click', () => {
       usersBtn.classList.add('active');
       permsBtn.classList.remove('active');
       usersListEl.style.display = '';
-      permsListEl.style.display = 'none';
+      rolesListEl.style.display = 'none';
       addUserBtn.style.display = '';
-      addPermBtn.style.display = 'none';
+      addRoleBtn.style.display = 'none';
     });
 
     permsBtn.addEventListener('click', () => {
       permsBtn.classList.add('active');
       usersBtn.classList.remove('active');
       usersListEl.style.display = 'none';
-      permsListEl.style.display = '';
+      rolesListEl.style.display = '';
       addUserBtn.style.display = 'none';
-      addPermBtn.style.display = '';
+      addRoleBtn.style.display = '';
     });
 
-    return { card, usersListEl, permsListEl };
+    return { card, usersListEl, rolesListEl };
   }
 
   let userList;
-  let permList;
+  let roleList;
 
   function renderUsers() {
     userList.innerHTML = '';
@@ -144,30 +161,83 @@ export async function render(el) {
     }
   }
 
-  function renderPermissions() {
-    permList.innerHTML = '';
-    if (!permissions.length) {
+  function handleEditRole(role) {
+    const name = prompt('Group name:', role.role_name);
+    if (!name) return;
+    const permStr = prompt('Permissions JSON:', role.permissions || '{}') || '{}';
+    let perms;
+    try { perms = JSON.parse(permStr); } catch { alert('Invalid JSON'); return; }
+    const desc = prompt('Description (optional):', role.description || '') || '';
+    meltdownEmit('updateRole', {
+      jwt,
+      moduleName: 'userManagement',
+      moduleType: 'core',
+      roleId: role.id,
+      newRoleName: name,
+      newDescription: desc,
+      newPermissions: perms
+    }).then(() => {
+      fetchRoles().then(renderRoles);
+    }).catch(err => alert('Error: ' + err.message));
+  }
+
+  function handleDeleteRole(role) {
+    if (!confirm(`Delete group "${role.role_name}"?`)) return;
+    meltdownEmit('deleteRole', {
+      jwt,
+      moduleName: 'userManagement',
+      moduleType: 'core',
+      roleId: role.id
+    }).then(() => {
+      fetchRoles().then(renderRoles);
+    }).catch(err => alert('Error: ' + err.message));
+  }
+
+  function renderRoles() {
+    roleList.innerHTML = '';
+    if (!roles.length) {
       const empty = document.createElement('li');
       empty.className = 'empty-state';
-      empty.textContent = 'No permissions found.';
-      permList.appendChild(empty);
+      empty.textContent = 'No permission groups found.';
+      roleList.appendChild(empty);
     } else {
-      permissions.forEach(p => {
+      roles.forEach(r => {
         const li = document.createElement('li');
-        li.textContent = p.permission_key + (p.description ? ` - ${p.description}` : '');
-        permList.appendChild(li);
+        const row = document.createElement('div');
+        row.className = 'page-name-row';
+
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'page-name';
+        nameSpan.textContent = r.role_name + (r.description ? ` - ${r.description}` : '');
+
+        const actions = document.createElement('span');
+        actions.className = 'page-actions';
+        if (!r.is_system_role) {
+          actions.innerHTML = window.featherIcon('edit', 'edit-role') +
+                            window.featherIcon('delete', 'delete-role');
+        }
+
+        row.appendChild(nameSpan);
+        row.appendChild(actions);
+        li.appendChild(row);
+        roleList.appendChild(li);
+
+        if (!r.is_system_role) {
+          li.querySelector('.edit-role').addEventListener('click', () => handleEditRole(r));
+          li.querySelector('.delete-role').addEventListener('click', () => handleDeleteRole(r));
+        }
       });
     }
   }
 
   try {
-    await Promise.all([fetchUsers(), fetchPermissions()]);
+    await Promise.all([fetchUsers(), fetchRoles()]);
     const built = buildCard();
     const card = built.card;
     userList = built.usersListEl;
-    permList = built.permsListEl;
+    roleList = built.rolesListEl;
     renderUsers();
-    renderPermissions();
+    renderRoles();
     el.innerHTML = '';
     el.appendChild(card);
   } catch (err) {

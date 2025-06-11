@@ -184,20 +184,6 @@ module.exports.ADMIN_PAGES = [
     }
   },
   {
-    title: 'Permissions',
-    slug: 'permissions',
-    parentSlug: 'settings',
-    lane: 'admin',
-    config: {
-      layout: {
-        header: 'top-header',
-        sidebar: 'settings-sidebar',
-        inheritsLayout: true
-      },
-      widgets: ['permissionsList']
-    }
-  },
-  {
     title: 'Modules',
     slug: 'modules',
     parentSlug: 'settings',
