@@ -6,7 +6,9 @@ window.featherIcons = {
   published:   '/assets/icons/check-circle.svg',       
   delete:      '/assets/icons/trash-2.svg',
   editSlug:    '/assets/icons/edit-3.svg',
-  pencil:      '/assets/icons/pencil-gradient.svg'
+  pencil:      '/assets/icons/pencil-gradient.svg',
+  share:       '/assets/icons/share.svg',
+  'external-link': '/assets/icons/external-link.svg'
 };
 
 window.featherIcon = function(name, extraClass = '') {
