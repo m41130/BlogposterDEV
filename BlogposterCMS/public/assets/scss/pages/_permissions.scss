@@ -34,6 +34,14 @@
   @extend %page-list-item;
 }
 
+.roles-list .page-name-row {
+  @extend .page-name-row;
+}
+
+.roles-list .page-actions {
+  @extend .page-actions;
+}
+
 .add-permission-btn {
   @extend .add-page-btn;
 }

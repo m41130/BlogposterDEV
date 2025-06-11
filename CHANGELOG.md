@@ -6,8 +6,10 @@ El Psy Kongroo
 ## [Unreleased]
 - Set body element to use `var(--font-body)` for consistent typography across the dashboard.
 - Ensured builder code editor uses global font variables for consistent typography.
+- Disabled admin search when not authenticated and show "Login required" placeholder. Token errors now disable the input instead of failing silently.
 - Widget list now includes a Templates tab populated from saved widget templates. Builders can save the current widget state as a template and overwrite after confirmation.
 - Permissions widget now lets admins create permission groups using JSON and shows seeded groups like `admin` and `standard`.
+- Permission groups can now be edited or removed in the settings UI (system groups remain locked).
 - Admin navigation now uses a gradient layout icon for improved visual consistency.
 - Text block widget editing now syncs Quill output with the code editor HTML
   field in the builder, allowing manual HTML tweaks.
