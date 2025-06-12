@@ -232,6 +232,7 @@ function ensureLayout(layout = {}, lane = 'public') {
     }
 
     const config = page.meta || {};
+    window.CONTENT_ACTION = config.actionButton || null;
 
     if (lane === 'admin' && page.title) {
       document.title = `${page.title} - Admin`;
@@ -279,6 +280,7 @@ function ensureLayout(layout = {}, lane = 'public') {
           config.layout?.contentHeader || 'content-header',
           'headers'
         );
+        document.dispatchEvent(new CustomEvent('content-header-loaded'));
       }
     }
 
