@@ -4,6 +4,16 @@ export async function render(el) {
 
   const container = document.createElement('div');
   container.className = 'media-explorer';
+
+  const navBar = document.createElement('div');
+  navBar.className = 'media-nav';
+  const backBtn = document.createElement('button');
+  backBtn.textContent = '←';
+  const pathLabel = document.createElement('span');
+  pathLabel.className = 'path-display';
+  navBar.appendChild(backBtn);
+  navBar.appendChild(pathLabel);
+
   const controlBar = document.createElement('div');
   controlBar.className = 'media-controls';
   const uploadBtn = document.createElement('button');
@@ -18,13 +28,16 @@ export async function render(el) {
   controlBar.appendChild(uploadBtn);
   controlBar.appendChild(folderBtn);
   controlBar.appendChild(hiddenInput);
-  container.appendChild(controlBar);
 
-  const listEl = document.createElement('ul');
-  listEl.className = 'media-list';
-  container.appendChild(listEl);
+  const grid = document.createElement('div');
+  grid.className = 'media-grid';
+
+  container.appendChild(navBar);
+  container.appendChild(controlBar);
+  container.appendChild(grid);
 
   let currentPath = '';
+  let parentPath = '';
 
   uploadBtn.onclick = () => hiddenInput.click();
   hiddenInput.onchange = async (e) => {
@@ -64,6 +77,12 @@ export async function render(el) {
     }
   };
 
+  backBtn.onclick = () => {
+    if (parentPath !== undefined) {
+      load(parentPath);
+    }
+  };
+
   async function share(fullPath) {
     try {
       const { shareURL } = await emitter('createShareLink', {
@@ -87,17 +106,22 @@ export async function render(el) {
         moduleType: 'core',
         subPath: path
       });
-      const { folders = [], files = [] } = res || {};
-      listEl.innerHTML = '';
+      const { folders = [], files = [], parentPath: p = '' } = res || {};
+      parentPath = p;
+      pathLabel.textContent = '/' + (currentPath || '');
+      backBtn.disabled = !currentPath;
+      grid.innerHTML = '';
       if (folders.length === 0 && files.length === 0) {
-        const empty = document.createElement('li');
+        const empty = document.createElement('p');
         empty.textContent = 'This folder is empty.';
-        listEl.appendChild(empty);
+        grid.appendChild(empty);
       }
       folders.forEach(name => {
-        const li = document.createElement('li');
-        li.textContent = name + '/';
-        li.onclick = () => load(path ? path + '/' + name : name);
+        const item = document.createElement('div');
+        item.className = 'media-item folder';
+        item.innerHTML = '<div class="media-icon">📁</div><div class="media-name"></div>';
+        item.querySelector('.media-name').textContent = name;
+        item.onclick = () => load(path ? path + '/' + name : name);
         const shareBtn = document.createElement('button');
         shareBtn.textContent = 'share';
         shareBtn.onclick = (ev) => {
@@ -105,12 +129,14 @@ export async function render(el) {
           const full = (path ? path + '/' + name : name);
           share(full);
         };
-        li.appendChild(shareBtn);
-        listEl.appendChild(li);
+        item.appendChild(shareBtn);
+        grid.appendChild(item);
       });
       files.forEach(name => {
-        const li = document.createElement('li');
-        li.textContent = name;
+        const item = document.createElement('div');
+        item.className = 'media-item file';
+        item.innerHTML = '<div class="media-icon">🖼️</div><div class="media-name"></div>';
+        item.querySelector('.media-name').textContent = name;
         const shareBtn = document.createElement('button');
         shareBtn.textContent = 'share';
         shareBtn.onclick = (ev) => {
@@ -118,11 +144,11 @@ export async function render(el) {
           const full = path ? path + '/' + name : name;
           share(full);
         };
-        li.appendChild(shareBtn);
-        listEl.appendChild(li);
+        item.appendChild(shareBtn);
+        grid.appendChild(item);
       });
     } catch (err) {
-      listEl.innerHTML = `<li>Error: ${err.message}</li>`;
+      grid.innerHTML = `<p>Error: ${err.message}</p>`;
     }
   }
 

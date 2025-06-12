@@ -8,15 +8,44 @@
 .media-explorer::backdrop {
   background: rgba(0, 0, 0, 0.3);
 }
-.media-list {
+
+.media-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.media-nav .path-display {
+  font-weight: bold;
+  flex: 1;
+}
+
+.media-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
   list-style: none;
   padding: 0;
 }
-.media-list li {
-  padding: 4px 6px;
-  cursor: pointer;
+
+.media-item {
+  padding: 6px;
   border-radius: 4px;
+  text-align: center;
+  cursor: pointer;
 }
-.media-list li:hover {
+
+.media-item:hover {
   background: #f2f2f2;
+}
+
+.media-icon {
+  font-size: 32px;
+}
+
+.media-name {
+  font-size: 14px;
+  word-break: break-all;
+  margin-top: 4px;
 }
