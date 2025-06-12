@@ -73,7 +73,18 @@ BlogposterCMS does not use a traditional `post.type` column. Instead content is 
 
 ## Page Builder and Lightweight UI
 
+
 The admin lane provides a drag‑and‑drop page builder at `/admin/builder`. The builder retrieves the widget registry via `widget.registry.request.v1` and loads widgets dynamically. Because it relies on minimal JavaScript and CSS, the interface remains lightweight and quick to load even on modest devices.
+
+### Widget CSS Layers
+
+Each widget is rendered inside a Shadow DOM to isolate its styles. The builder injects three CSS layers in this order:
+
+1. **Admin styles** – `/assets/css/site.css` provides baseline rules for the dashboard and is imported first.
+2. **Widget styles** – any custom CSS defined for the widget itself is added next inside the shadow root.
+3. **Active theme** – the current theme’s `theme.css` is imported last so themes can override previous layers.
+
+This layering keeps widgets secure from style collisions while allowing themes to customize their appearance.
 
 ## New Features in v0.5.0
 

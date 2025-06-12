@@ -185,7 +185,7 @@ function ensureLayout(layout = {}, lane = 'public') {
     scope.appendChild(mainContent);
   }
 
-  if (inherit || layout.sidebar) {
+  if ((inherit || layout.sidebar) && layout.sidebar !== 'empty-sidebar') {
     if (!document.getElementById('sidebar')) {
       const sidebar = document.createElement('aside');
       sidebar.id = 'sidebar';
@@ -241,6 +241,10 @@ function ensureLayout(layout = {}, lane = 'public') {
 
     const config = page.meta || {};
 
+    if (lane === 'admin' && page.title) {
+      document.title = `${page.title} - Admin`;
+    }
+
     ensureLayout(config.layout || {}, lane);
 
     // 3. DOM REFERENCES
@@ -266,13 +270,17 @@ function ensureLayout(layout = {}, lane = 'public') {
         );
         document.dispatchEvent(new CustomEvent('top-header-loaded'));
       }
-      if (mainHeaderEl) {
-        if (config.layout?.inheritsLayout === false && !config.layout?.topHeader) {
-          mainHeaderEl.innerHTML = '';
-        } else {
-          mainHeaderEl.innerHTML = await fetchPartial(config.layout?.mainHeader || 'main-header', 'headers');
+        if (mainHeaderEl) {
+          if (config.layout?.inheritsLayout === false && !config.layout?.topHeader) {
+            mainHeaderEl.innerHTML = '';
+          } else {
+            mainHeaderEl.innerHTML = await fetchPartial(config.layout?.mainHeader || 'main-header', 'headers');
+          }
+          if (lane === 'admin' && page.title) {
+            const t = mainHeaderEl.querySelector('.site-title');
+            if (t) t.textContent = page.title;
+          }
         }
-      }
       const contentHeaderEl = document.getElementById('content-header');
       if (contentHeaderEl) {
         contentHeaderEl.innerHTML = await fetchPartial(
