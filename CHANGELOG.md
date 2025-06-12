@@ -6,6 +6,7 @@ El Psy Kongroo
 ## [Unreleased]
 - Scoped theme injection in builder mode for live preview without altering the builder UI.
 - Removed global theme injection in builder mode to protect the editor UX.
+- Redesigned media explorer with a grid layout and folder navigation.
 - Removed content sidebar from admin home screen.
 - Admin dashboard now displays the current page title in the header and browser tab.
 - Documentation updates for v0.5.0 features: permission groups, layout
