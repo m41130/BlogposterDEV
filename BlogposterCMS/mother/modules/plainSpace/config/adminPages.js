@@ -9,7 +9,7 @@ module.exports.ADMIN_PAGES = [
     config: {
       layout: {
         header: 'top-header',
-        sidebar: 'default-sidebar',
+        sidebar: 'empty-sidebar',
         inheritsLayout: true
       },
       widgets: ['systemInfo', 'activityLog']
