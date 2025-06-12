@@ -88,6 +88,19 @@ const jwtExpiryConfig = {
 const ACTIVE_THEME = (process.env.ACTIVE_THEME || 'default')
   .replace(/[^a-zA-Z0-9_-]/g, '') || 'default';
 
+let PLAINSPACE_VERSION = '';
+try {
+  const infoPath = path.join(__dirname, 'mother', 'modules', 'plainSpace', 'moduleInfo.json');
+  if (fs.existsSync(infoPath)) {
+    const info = JSON.parse(fs.readFileSync(infoPath, 'utf8'));
+    if (info && typeof info.version === 'string') {
+      PLAINSPACE_VERSION = info.version;
+    }
+  }
+} catch (err) {
+  console.warn('[SERVER] Failed to load PlainSpace moduleInfo:', err.message);
+}
+
 //───────────────────────────────────────────────────────────────────────────
 // Load local secret overrides (optional .secrets.js files)
 //───────────────────────────────────────────────────────────────────────────
@@ -550,6 +563,7 @@ app.get('/admin/*', pageLimiter, csrfProtection, async (req, res, next) => {
         window.PAGE_SLUG   = ${JSON.stringify(slug)};
         window.ADMIN_TOKEN = ${JSON.stringify(adminJwt)};
         window.ACTIVE_THEME = ${JSON.stringify(ACTIVE_THEME)};
+        window.PLAINSPACE_VERSION = ${JSON.stringify(PLAINSPACE_VERSION)};
         window.NONCE       = ${JSON.stringify(nonce)};
       </script>
     </head>`;
@@ -692,6 +706,7 @@ app.get('/:slug?', pageLimiter, async (req, res, next) => {
       window.LANE    = ${JSON.stringify(lane)};
       window.PUBLIC_TOKEN = ${JSON.stringify(token)};
       window.ACTIVE_THEME = ${JSON.stringify(ACTIVE_THEME)};
+      window.PLAINSPACE_VERSION = ${JSON.stringify(PLAINSPACE_VERSION)};
       window.NONCE  = ${JSON.stringify(nonce)};
     </script>`;
     html = html.replace('</head>', inject + '</head>');

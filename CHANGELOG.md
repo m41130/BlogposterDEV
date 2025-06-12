@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Builder footer shows the Plainspace version using a server-injected variable and warns the builder is in alpha.
 - Quill text editor overlay appears above widget text but stays below menu buttons.
 - Quill editor overlay no longer blocks builder menu buttons.
 - Added preview mode toggle to the page builder for quick layout previews.

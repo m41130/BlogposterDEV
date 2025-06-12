@@ -301,3 +301,14 @@ body.preview-mode #builderGrid {
   z-index: 100;
 }
 
+.builder-version {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  padding: 2px 4px;
+  font-size: 10px;
+  color: var(--color-text);
+  background: rgba(255, 255, 255, 0.6);
+  pointer-events: none;
+  z-index: 50;
+}
