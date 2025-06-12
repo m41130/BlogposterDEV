@@ -22,16 +22,8 @@ function ensureGlobalStyle(lane) {
   link.dataset.globalStyle = lane;
   document.head.appendChild(link);
 
-  if (lane === 'admin' && document.body.classList.contains('builder-mode')) {
-    const theme = window.ACTIVE_THEME || 'default';
-    if (!document.querySelector('link[data-builder-theme]')) {
-      const themeLink = document.createElement('link');
-      themeLink.rel = 'stylesheet';
-      themeLink.href = `/themes/${theme}/theme.css`;
-      themeLink.dataset.builderTheme = '';
-      document.head.appendChild(themeLink);
-    }
-  }
+  // In builder mode widgets import the theme in their shadow roots.
+  // Avoid injecting the theme globally so the builder UI remains untouched.
 }
 
 function executeJs(code, wrapper, root) {
