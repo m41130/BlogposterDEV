@@ -185,7 +185,7 @@ function ensureLayout(layout = {}, lane = 'public') {
     scope.appendChild(mainContent);
   }
 
-  if (inherit || layout.sidebar) {
+  if ((inherit || layout.sidebar) && layout.sidebar !== 'empty-sidebar') {
     if (!document.getElementById('sidebar')) {
       const sidebar = document.createElement('aside');
       sidebar.id = 'sidebar';

@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Removed content sidebar from admin home screen.
 - Documentation updates for v0.5.0 features: permission groups, layout
   templates, notification hub and widget templates.
 - Corrected instructions to open the Notification Hub using the Blogposter logo
