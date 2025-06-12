@@ -84,7 +84,7 @@ Each widget is rendered inside a Shadow DOM to isolate its styles. The builder i
 2. **Widget styles** – any custom CSS defined for the widget itself is added next inside the shadow root.
 3. **Active theme** – the current theme’s `theme.css` is imported last so themes can override previous layers.
 
-This layering keeps widgets secure from style collisions while allowing themes to customize their appearance.
+This layering keeps widgets secure from style collisions while allowing themes to customize their appearance. When using the page builder, the active theme is scoped to the preview grid so you can see changes live without the builder interface inheriting those styles.
 
 ## New Features in v0.5.0
 

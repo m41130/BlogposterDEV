@@ -1,14 +1,9 @@
 // public/assets/plainspace/admin/builderRenderer.js
 export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   document.body.classList.add('builder-mode');
-  if (!document.querySelector('link[data-builder-theme]')) {
-    const theme = window.ACTIVE_THEME || 'default';
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = `/themes/${theme}/theme.css`;
-    link.dataset.builderTheme = '';
-    document.head.appendChild(link);
-  }
+  // Builder widgets load the active theme inside their shadow roots.
+  // Inject the theme scoped to the builder grid so the preview matches
+  // the active theme without altering the surrounding UI.
   // Temporary patch: larger default widget height
   const DEFAULT_ROWS = 20; // around 100px with 5px grid cells
   const ICON_MAP = {
@@ -32,6 +27,35 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     savePageWidget: 'save',
     contentSummary: 'activity'
   };
+
+  function scopeThemeCss(css, prefix) {
+    return css.replace(/(^|\})([^@{}]+)\{/g, (m, brace, selectors) => {
+      selectors = selectors.trim();
+      if (!selectors || selectors.startsWith('@')) return m;
+      const scoped = selectors.split(',').map(s => {
+        s = s.trim();
+        if ([':root', 'html', 'body'].includes(s)) return prefix;
+        return `${prefix} ${s}`;
+      }).join(', ');
+      return `${brace}${scoped}{`;
+    });
+  }
+
+  async function applyBuilderTheme() {
+    const theme = window.ACTIVE_THEME || 'default';
+    try {
+      const res = await fetch(`/themes/${theme}/theme.css`);
+      if (!res.ok) throw new Error('theme css fetch failed');
+      const css = await res.text();
+      const scoped = scopeThemeCss(css, '#builderGrid');
+      const style = document.createElement('style');
+      style.dataset.builderTheme = theme;
+      style.textContent = scoped;
+      document.head.appendChild(style);
+    } catch (err) {
+      console.error('[Builder] failed to apply theme', err);
+    }
+  }
 
   function getCssUrls() {
     const theme = window.ACTIVE_THEME || 'default';
@@ -416,6 +440,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
 
   contentEl.innerHTML = `<div id="builderGrid" class="grid-stack builder-grid"></div>`;
   gridEl = document.getElementById('builderGrid');
+  await applyBuilderTheme();
   // Enable floating mode for easier widget placement in the builder
   const grid = GridStack.init({ float: true, cellHeight: 5, columnWidth: 5, column: 64 }, gridEl);
 
