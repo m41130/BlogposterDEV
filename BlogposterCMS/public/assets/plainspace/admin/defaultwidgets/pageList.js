@@ -143,7 +143,7 @@ function renderPages(pages, list) {
     li.innerHTML = `
       <div class="page-details">
         <div class="page-name-row">
-          <span class="page-name">${page.title}</span>
+          <span class="page-name" contenteditable="true">${page.title}</span>
           <span class="page-actions">
               ${page.is_start
                 ? '<span class="home-indicator" title="Current home page">Home</span>'
@@ -162,6 +162,24 @@ function renderPages(pages, list) {
         </div>
       </div>
     `;
+
+    // Inline title editing
+    const titleEl = li.querySelector('.page-name');
+    titleEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        titleEl.blur();
+      }
+    });
+    titleEl.addEventListener('blur', (e) => {
+      const newTitle = e.target.textContent.trim();
+      if (newTitle && newTitle !== page.title) {
+        updateTitle(page, newTitle);
+        page.title = newTitle;
+      } else {
+        titleEl.textContent = page.title;
+      }
+    });
 
     // Inline slug editing
     const slugEl = li.querySelector('.page-slug');
@@ -231,6 +249,30 @@ async function updateSlug(page, slug) {
   } catch (err) {
     console.error('updateSlug failed', err);
     alert('Failed to update slug: ' + err.message);
+  }
+}
+
+async function updateTitle(page, title) {
+  try {
+    await meltdownEmit('updatePage', {
+      jwt: window.ADMIN_TOKEN,
+      moduleName: 'pagesManager',
+      moduleType: 'core',
+      pageId: page.id,
+      slug: page.slug,
+      status: page.status,
+      seo_Image: page.seo_image,
+      parent_id: page.parent_id,
+      is_content: page.is_content,
+      lane: page.lane,
+      language: page.language,
+      title,
+      meta: page.meta
+    });
+    page.title = title;
+  } catch (err) {
+    console.error('updateTitle failed', err);
+    alert('Failed to update title: ' + err.message);
   }
 }
 
