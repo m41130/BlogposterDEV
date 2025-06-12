@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Added preview mode toggle to the page builder for quick layout previews.
 - Redesigned media explorer with a grid layout and folder navigation.
 - Removed content sidebar from admin home screen.
 - Admin dashboard now displays the current page title in the header and browser tab.

@@ -14,7 +14,8 @@
 }
 
 .builder-header .builder-back-btn,
-.builder-header .builder-save-btn {
+.builder-header .builder-save-btn,
+.builder-header .builder-preview-btn {
   background: transparent;
   border: none;
   cursor: pointer;
@@ -250,6 +251,24 @@ body.builder-mode #builderGrid {
 body.builder-mode #top-header,
 body.builder-mode #main-header {
   display: none;
+}
+
+body.preview-mode .builder-sidebar,
+body.preview-mode .widget-code-editor,
+body.preview-mode .widget-options-menu,
+body.preview-mode .grid-stack-item .widget-remove,
+body.preview-mode .grid-stack-item .widget-edit,
+body.preview-mode .grid-stack-item .widget-menu {
+  display: none !important;
+}
+
+body.preview-mode .builder-header .builder-save-btn,
+body.preview-mode .builder-header .layout-info {
+  display: none;
+}
+
+body.preview-mode #builderGrid {
+  pointer-events: none;
 }
 
 .grid-stack-item[gs-locked="true"] > .ui-resizable-handle {

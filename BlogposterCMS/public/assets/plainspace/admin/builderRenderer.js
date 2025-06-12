@@ -800,6 +800,13 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     '<img src="/assets/icons/save.svg" alt="Save" />';
   topBar.appendChild(saveBtn);
 
+  const previewBtn = document.createElement('button');
+  previewBtn.id = 'previewLayoutBtn';
+  previewBtn.className = 'builder-preview-btn';
+  previewBtn.innerHTML = window.featherIcon ? window.featherIcon('eye') :
+    '<img src="/assets/icons/eye.svg" alt="Preview" />';
+  topBar.appendChild(previewBtn);
+
   const appScope = document.querySelector('.app-scope');
   const mainContent = document.querySelector('.main-content');
   if (appScope && mainContent) {
@@ -842,6 +849,16 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     } catch (err) {
       console.error('[Builder] saveLayoutTemplate error', err);
       alert('Save failed: ' + err.message);
+    }
+  });
+
+  previewBtn.addEventListener('click', () => {
+    const active = document.body.classList.toggle('preview-mode');
+    if (window.featherIcon) {
+      previewBtn.innerHTML = window.featherIcon(active ? 'eye-off' : 'eye');
+    } else {
+      const icon = active ? 'eye-off' : 'eye';
+      previewBtn.innerHTML = `<img src="/assets/icons/${icon}.svg" alt="Preview" />`;
     }
   });
 }
