@@ -2,6 +2,7 @@
 export async function render(el) {
     try {
       const res = await meltdownEmit('getAllPages', {
+        jwt: window.ADMIN_TOKEN,
         moduleName: 'pagesManager',
         moduleType: 'core'
       });

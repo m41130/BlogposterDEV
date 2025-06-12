@@ -10,6 +10,8 @@ El Psy Kongroo
   templates, notification hub and widget templates.
 - Corrected instructions to open the Notification Hub using the Blogposter logo
   instead of the bell icon.
+- Fixed page statistics widget to display actual page counts on the admin
+  dashboard.
 - Documented the layered CSS approach for widgets in the Page Builder.
 
 ## [0.5.0] – 2025-06-11
