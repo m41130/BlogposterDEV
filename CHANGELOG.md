@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Removed content sidebar from admin home screen.
 - Admin dashboard now displays the current page title in the header and browser tab.
 - Documentation updates for v0.5.0 features: permission groups, layout
   templates, notification hub and widget templates.
