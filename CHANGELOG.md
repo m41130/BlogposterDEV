@@ -5,10 +5,12 @@ El Psy Kongroo
 
 ## [Unreleased]
 - Removed content sidebar from admin home screen.
+- Admin dashboard now displays the current page title in the header and browser tab.
 - Documentation updates for v0.5.0 features: permission groups, layout
   templates, notification hub and widget templates.
 - Corrected instructions to open the Notification Hub using the Blogposter logo
   instead of the bell icon.
+- Documented the layered CSS approach for widgets in the Page Builder.
 
 ## [0.5.0] – 2025-06-11
 -- **Breaking change:** delete your existing database and reinitialize BlogposterCMS after upgrading for the new features to work.
