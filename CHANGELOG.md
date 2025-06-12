@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Added preview mode toggle to the page builder for quick layout previews.
 - Scoped theme injection in builder mode for live preview without altering the builder UI.
 - Removed global theme injection in builder mode to protect the editor UX.
 - Redesigned media explorer with a grid layout and folder navigation.
