@@ -8,6 +8,8 @@ El Psy Kongroo
   templates, notification hub and widget templates.
 - Corrected instructions to open the Notification Hub using the Blogposter logo
   instead of the bell icon.
+- Fixed builder page missing global theme injection, ensuring widgets inherit
+  active theme styles.
 
 ## [0.5.0] – 2025-06-11
 -- **Breaking change:** delete your existing database and reinitialize BlogposterCMS after upgrading for the new features to work.

@@ -1,6 +1,14 @@
 // public/assets/plainspace/admin/builderRenderer.js
 export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   document.body.classList.add('builder-mode');
+  if (!document.querySelector('link[data-builder-theme]')) {
+    const theme = window.ACTIVE_THEME || 'default';
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = `/themes/${theme}/theme.css`;
+    link.dataset.builderTheme = '';
+    document.head.appendChild(link);
+  }
   // Temporary patch: larger default widget height
   const DEFAULT_ROWS = 20; // around 100px with 5px grid cells
   const ICON_MAP = {
