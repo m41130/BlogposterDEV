@@ -138,6 +138,7 @@
   border: none;
   padding: 2px;
   cursor: pointer;
+  z-index: 1000;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s ease;
@@ -155,6 +156,7 @@
   border: none;
   padding: 2px;
   cursor: pointer;
+  z-index: 1000;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s ease;

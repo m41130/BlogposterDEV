@@ -11,7 +11,7 @@
 
 .text-block-editor-overlay {
   position: absolute;
-  z-index: 1000;
+  z-index: 950; // sits above widget content but below builder controls
   width: 100%;
   height: 100%;
   display: none;
