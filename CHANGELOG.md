@@ -12,6 +12,8 @@ El Psy Kongroo
   instead of the bell icon.
 - Page list widget now lets admins edit page titles and slugs inline; press
   Enter or click outside to save changes.
+- Fixed page statistics widget to display actual page counts on the admin
+  dashboard.
 - Documented the layered CSS approach for widgets in the Page Builder.
 
 ## [0.5.0] – 2025-06-11
