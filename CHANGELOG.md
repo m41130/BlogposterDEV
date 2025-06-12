@@ -6,6 +6,7 @@ El Psy Kongroo
 ## [Unreleased]
 - Quill text editor overlay appears above widget text but stays below menu buttons.
 - Quill editor overlay no longer blocks builder menu buttons.
+- Added preview mode toggle to the page builder for quick layout previews.
 - Scoped theme injection in builder mode for live preview without altering the builder UI.
 - Removed global theme injection in builder mode to protect the editor UX.
 - Redesigned media explorer with a grid layout and folder navigation.
