@@ -80,7 +80,68 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       if (htmlField) htmlField.value = html;
     }
   });
-  let activeLockedEl = null;
+  let activeWidgetEl = null;
+  const actionBar = document.createElement('div');
+  actionBar.className = 'widget-action-bar';
+  actionBar.innerHTML = `
+    <button class="action-lock"></button>
+    <button class="action-duplicate"></button>
+    <button class="action-delete"></button>
+  `;
+  actionBar.style.display = 'none';
+  document.body.appendChild(actionBar);
+
+  const lockBtn = actionBar.querySelector('.action-lock');
+  const dupBtn = actionBar.querySelector('.action-duplicate');
+  const delBtn = actionBar.querySelector('.action-delete');
+
+  const setLockIcon = locked => {
+    const icon = locked ? 'unlock' : 'lock';
+    lockBtn.innerHTML = window.featherIcon
+      ? window.featherIcon(icon)
+      : `<img src="/assets/icons/${icon}.svg" alt="${icon}" />`;
+  };
+  dupBtn.innerHTML = window.featherIcon
+    ? window.featherIcon('copy')
+    : '<img src="/assets/icons/copy.svg" alt="copy" />';
+  delBtn.innerHTML = window.featherIcon
+    ? window.featherIcon('trash')
+    : '<img src="/assets/icons/trash.svg" alt="delete" />';
+
+  lockBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    if (!activeWidgetEl) return;
+    const locked = activeWidgetEl.getAttribute('gs-locked') === 'true';
+    activeWidgetEl.setAttribute('gs-locked', (!locked).toString());
+    grid.update(activeWidgetEl, { locked: !locked, noMove: !locked, noResize: !locked });
+    setLockIcon(!locked);
+    if (pageId) saveCurrentLayout();
+  });
+
+  dupBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    if (!activeWidgetEl) return;
+    const clone = activeWidgetEl.cloneNode(true);
+    clone.dataset.instanceId = genId();
+    clone.dataset.global = activeWidgetEl.dataset.global || 'false';
+    gridEl.appendChild(clone);
+    grid.makeWidget(clone);
+    const widgetDef = allWidgets.find(w => w.id === clone.dataset.widgetId);
+    attachRemoveButton(clone);
+    const cEditBtn = attachEditButton(clone, widgetDef);
+    attachOptionsMenu(clone, widgetDef, cEditBtn);
+    attachLockOnClick(clone);
+    renderWidget(clone, widgetDef);
+    if (pageId) saveCurrentLayout();
+  });
+
+  delBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    if (!activeWidgetEl) return;
+    grid.removeWidget(activeWidgetEl);
+    actionBar.style.display = 'none';
+    if (pageId) saveCurrentLayout();
+  });
   const genId = () => `w${Math.random().toString(36).slice(2,8)}`;
 
   function extractCssProps(el) {
@@ -446,14 +507,13 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   const grid = GridStack.init({ float: true, cellHeight: 5, columnWidth: 5, column: 64 }, gridEl);
 
   document.addEventListener('click', e => {
-    if (!activeLockedEl) return;
-    if (e.target.closest('.grid-stack-item') === activeLockedEl ||
-        e.target.closest('.widget-menu, .widget-edit, .widget-remove')) {
+    if (!activeWidgetEl) return;
+    if (e.target.closest('.grid-stack-item') === activeWidgetEl ||
+        e.target.closest('.widget-action-bar')) {
       return;
     }
-    activeLockedEl.setAttribute('gs-locked', 'false');
-    grid.update(activeLockedEl, { locked: false, noMove: false, noResize: false });
-    activeLockedEl = null;
+    actionBar.style.display = 'none';
+    activeWidgetEl = null;
   });
 
   function getCurrentLayout() {
@@ -661,20 +721,18 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
 
   function attachLockOnClick(el) {
     el.addEventListener('click', e => {
-      if (!e.target.closest('.grid-stack-item-content')) {
-        return;
-      }
-      if (e.target.closest('.widget-menu, .widget-edit, .widget-remove')) {
-        return;
-      }
-      if (activeLockedEl && activeLockedEl !== el) {
-        activeLockedEl.setAttribute('gs-locked', 'false');
-        grid.update(activeLockedEl, { locked: false, noMove: false, noResize: false });
-      }
-      activeLockedEl = el;
-      el.setAttribute('gs-locked', 'true');
-      grid.update(el, { locked: true, noMove: true, noResize: true });
+      if (!e.target.closest('.grid-stack-item-content')) return;
+      if (e.target.closest('.widget-action-bar')) return;
       e.stopPropagation();
+      activeWidgetEl = el;
+      const locked = el.getAttribute('gs-locked') === 'true';
+      setLockIcon(locked);
+      actionBar.style.display = 'flex';
+      actionBar.style.visibility = 'hidden';
+      const rect = el.getBoundingClientRect();
+      actionBar.style.top = `${rect.top - 28 + window.scrollY}px`;
+      actionBar.style.left = `${rect.left + rect.width / 2 + window.scrollX}px`;
+      actionBar.style.visibility = '';
     });
   }
 

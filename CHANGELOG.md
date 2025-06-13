@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Widget action buttons now appear as a popup toolbar when selecting a widget, offering lock, duplicate and delete options.
 - Builder widgets now show a border in the active user's color on hover.
 - Users can now select a personal UI color that sets the `--user-color` CSS variable across the dashboard.
 - Theme styles in the builder no longer change menu buttons; active theme now only affects widget previews and background.
