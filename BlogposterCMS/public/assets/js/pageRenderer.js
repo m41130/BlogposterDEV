@@ -416,9 +416,11 @@ function ensureLayout(layout = {}, lane = 'public') {
     gridEl.className = 'grid-stack';
     contentEl.appendChild(gridEl);
     const grid = GridStack.init({ cellHeight: 5, columnWidth: 5, column: 64 }, gridEl);
-    // Temporary patch: allow moving admin widgets again until drag bug is resolved
-    grid.setStatic(false);
+    // Widgets start locked in place until edit mode is enabled
+    grid.setStatic(true);
     window.adminGrid = grid;
+    window.adminPageContext = { pageId: page.id, lane };
+    window.adminCurrentLayout = layout;
 
     const matchedWidgets = allWidgets.filter(w => (config.widgets || []).includes(w.id));
 
@@ -451,7 +453,7 @@ function ensureLayout(layout = {}, lane = 'public') {
 
     });
 
-    grid.on('change', async (_, items) => {
+    grid.on('change', (_, items) => {
       const newLayout = items.map(i => ({
         id: i.el.dataset.instanceId,
         widgetId: i.el.dataset.widgetId,
@@ -459,20 +461,26 @@ function ensureLayout(layout = {}, lane = 'public') {
         x: i.x, y: i.y, w: i.w, h: i.h,
         code: layout.find(l => l.id === i.el.dataset.instanceId)?.code || null
       }));
+      window.adminCurrentLayout = newLayout;
+    });
 
+    window.saveAdminLayout = async () => {
+      if (!window.adminCurrentLayout) return;
       try {
         await meltdownEmit('saveLayoutForViewport', {
+          jwt: window.ADMIN_TOKEN,
           moduleName: 'plainspace',
           moduleType: 'core',
           pageId: page.id,
-          lane, viewport: 'desktop',
-          layout: newLayout
+          lane,
+          viewport: 'desktop',
+          layout: window.adminCurrentLayout
         });
-        layout = newLayout;
+        layout = window.adminCurrentLayout;
       } catch (e) {
         console.error('[Admin] Layout save error:', e);
       }
-    });
+    };
 
   } catch (err) {
     console.error('[Renderer] Fatal error:', err);
