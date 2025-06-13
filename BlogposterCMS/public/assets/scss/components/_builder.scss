@@ -261,12 +261,13 @@
 }
 
 // Highlight widget wrapper on hover using the active user's color
-.grid-stack-item {
+.builder-mode .grid-stack-item {
   border: 2px solid transparent;
   transition: border-color 0.2s ease;
 }
 
-.grid-stack-item:hover {
+.builder-mode .grid-stack-item:hover,
+.builder-mode .grid-stack-item.selected {
   border-color: var(--user-color);
 }
 

@@ -154,8 +154,11 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   delBtn.addEventListener('click', e => {
     e.stopPropagation();
     if (!activeWidgetEl) return;
-    grid.removeWidget(activeWidgetEl);
+    const target = activeWidgetEl;
+    target.classList.remove('selected');
+    grid.removeWidget(target);
     actionBar.style.display = 'none';
+    activeWidgetEl = null;
     if (pageId) saveCurrentLayout();
   });
   const genId = () => `w${Math.random().toString(36).slice(2,8)}`;
@@ -529,6 +532,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       return;
     }
     actionBar.style.display = 'none';
+    activeWidgetEl.classList.remove('selected');
     activeWidgetEl = null;
   });
 
@@ -749,7 +753,9 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       if (!e.target.closest('.grid-stack-item-content')) return;
       if (e.target.closest('.widget-action-bar')) return;
       e.stopPropagation();
+      if (activeWidgetEl) activeWidgetEl.classList.remove('selected');
       activeWidgetEl = el;
+      activeWidgetEl.classList.add('selected');
       const locked = el.getAttribute('gs-locked') === 'true';
       setLockIcon(locked);
       actionBar.style.display = 'flex';
