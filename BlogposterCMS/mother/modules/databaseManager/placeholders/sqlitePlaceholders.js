@@ -80,15 +80,26 @@ async function handleBuiltInPlaceholderSqlite(db, operation, params) {
     }
 
     case 'INIT_B2B_FIELDS': {
-      await db.run(`ALTER TABLE usermanagement_users ADD COLUMN IF NOT EXISTS company_name TEXT;`);
-      await db.run(`ALTER TABLE usermanagement_users ADD COLUMN IF NOT EXISTS vat_number   TEXT;`);
+      const tableInfo = await db.all(`PRAGMA table_info(usermanagement_users);`);
+      const hasCompany = tableInfo.some(col => col.name === 'company_name');
+      const hasVat = tableInfo.some(col => col.name === 'vat_number');
+      if (!hasCompany) {
+        await db.run(`ALTER TABLE usermanagement_users ADD COLUMN company_name TEXT;`);
+      }
+      if (!hasVat) {
+        await db.run(`ALTER TABLE usermanagement_users ADD COLUMN vat_number TEXT;`);
+      }
       return { done: true };
     }
 
     case 'ADD_USER_FIELD': {
-      const fieldName = params?.fieldName ?? 'extra_field';
+      const fieldName = (params?.fieldName ?? 'extra_field').replace(/[^a-zA-Z0-9_]/g, '');
       const fieldType = params?.fieldType ?? 'TEXT';
-      await db.run(`ALTER TABLE usermanagement_users ADD COLUMN IF NOT EXISTS "${fieldName}" ${fieldType};`);
+      const info = await db.all(`PRAGMA table_info(usermanagement_users);`);
+      const exists = info.some(col => col.name === fieldName);
+      if (!exists) {
+        await db.run(`ALTER TABLE usermanagement_users ADD COLUMN "${fieldName}" ${fieldType};`);
+      }
       return { done: true };
     }
 
