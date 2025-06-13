@@ -33,7 +33,8 @@
 
     li {
       display: flex;
-      gap: 8px;
+      flex-direction: column;
+      gap: 4px;
       padding: 8px;
       border-bottom: 1px solid #eee;
       font-size: 0.875rem;
@@ -43,9 +44,8 @@
       &.priority-info { background: #f0f0f0; }
     }
 
-    .timestamp {
-      color: #666;
-      flex-shrink: 0;
+    .title {
+      font-weight: bold;
     }
     .msg {
       flex-grow: 1;

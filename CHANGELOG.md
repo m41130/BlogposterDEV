@@ -23,6 +23,7 @@ El Psy Kongroo
 - Fixed page statistics widget to display actual page counts on the admin
   dashboard.
 - Documented the layered CSS approach for widgets in the Page Builder.
+- Meltdown notifications now use concise text in the Notification Hub while logs keep full details.
 
 ## [0.5.0] – 2025-06-11
 -- **Breaking change:** delete your existing database and reinitialize BlogposterCMS after upgrading for the new features to work.

@@ -103,6 +103,37 @@ function maskJwtInArgs(args) {
 }
 
 /**
+ * Convert detailed meltdown reasons to concise, user friendly messages for the
+ * Notification Hub UI. We only have limited space there so internal details are
+ * mapped to short strings. Logs remain unaffected.
+ */
+function formatMeltdownMessage(moduleName, reason) {
+  const lower = String(reason || '').toLowerCase();
+
+  if (lower.startsWith('no jwt provided')) {
+    return `${moduleName} deactivated because it did not provide a valid token`;
+  }
+
+  if (lower.startsWith('invalid jwt')) {
+    return `${moduleName} deactivated because it provided an invalid token`;
+  }
+
+  if (lower.startsWith('invalid authmodulesecret')) {
+    return `${moduleName} deactivated due to invalid module secret`;
+  }
+
+  if (lower.startsWith('unauthorized skipjwt usage')) {
+    return `${moduleName} deactivated due to unauthorized skipJWT usage`;
+  }
+
+  if (lower.startsWith('could not decode token')) {
+    return `${moduleName} deactivated because its token could not be decoded`;
+  }
+
+  return `Local meltdown for ${moduleName}`;
+}
+
+/**
  * meltdownForModule => local meltdown that deactivates the module. 
  * We remove all its listeners. No server kill (unless you want it).
  */
@@ -110,12 +141,14 @@ function meltdownForModule(reason, moduleName, motherEmitter) {
   // Mark meltdown triggered => ignore subsequent events from that module
   meltdownStates.set(moduleName, true);
 
+  const userFriendly = formatMeltdownMessage(moduleName, reason);
+
   // Possibly notify. Up to you if you want a “critical” priority or “warning”
   notificationEmitter.notify({
     moduleName,
     notificationType: 'system',
     priority: 'warning', // or 'critical' if you prefer
-    message: `Local meltdown for module='${moduleName}' => reason='${reason}'`
+    message: userFriendly
   });
 
   console.warn('[MotherEmitter] meltdown => deactivating module="%s" => reason="%s"', moduleName, reason);
