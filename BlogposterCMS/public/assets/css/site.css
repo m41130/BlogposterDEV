@@ -643,7 +643,8 @@ p {
 }
 .notification-hub ul li {
   display: flex;
-  gap: 8px;
+  flex-direction: column;
+  gap: 4px;
   padding: 8px;
   border-bottom: 1px solid #eee;
   font-size: 0.875rem;
@@ -657,9 +658,8 @@ p {
 .notification-hub ul li.priority-info {
   background: #f0f0f0;
 }
-.notification-hub ul .timestamp {
-  color: #666;
-  flex-shrink: 0;
+.notification-hub ul .title {
+  font-weight: bold;
 }
 .notification-hub ul .msg {
   flex-grow: 1;

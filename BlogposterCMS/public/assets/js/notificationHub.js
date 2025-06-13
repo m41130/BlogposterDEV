@@ -19,13 +19,13 @@ export default function initNotificationHub() {
       (data || []).forEach(n => {
         const li = document.createElement('li');
         li.className = `priority-${n.priority}`;
-        const ts = document.createElement('span');
-        ts.className = 'timestamp';
-        ts.textContent = new Date(n.timestamp).toLocaleString();
+        const title = document.createElement('strong');
+        title.className = 'title';
+        title.textContent = `${n.moduleName} ${new Date(n.timestamp).toLocaleString()}`;
         const msg = document.createElement('span');
         msg.className = 'msg';
         msg.textContent = n.message;
-        li.appendChild(ts);
+        li.appendChild(title);
         li.appendChild(msg);
         list.appendChild(li);
       });
