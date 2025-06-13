@@ -1,5 +1,19 @@
 export function initContentHeader() {
   const editToggle = document.getElementById('edit-toggle');
+  const actionBtn  = document.getElementById('dynamic-action-btn');
+  const actionCfg  = window.CONTENT_ACTION;
+
+  if (actionBtn && actionCfg && actionCfg.icon) {
+    actionBtn.src = actionCfg.icon;
+    actionBtn.style.display = 'inline';
+    const fn = typeof actionCfg.action === 'function'
+      ? actionCfg.action
+      : window[actionCfg.action];
+    if (typeof fn === 'function') {
+      actionBtn.addEventListener('click', fn);
+    }
+  }
+
   if (!editToggle) return;
 
   let editing = false;
@@ -15,3 +29,4 @@ export function initContentHeader() {
 }
 
 document.addEventListener('DOMContentLoaded', initContentHeader);
+document.addEventListener('content-header-loaded', initContentHeader);

@@ -5,6 +5,7 @@ El Psy Kongroo
 
 ## [Unreleased]
 - Builder footer shows the Plainspace version using a server-injected variable and warns the builder is in alpha.
+- Refactored page statistics widget to show live counts by lane.
 - Quill text editor overlay appears above widget text but stays below menu buttons.
 - Quill editor overlay no longer blocks builder menu buttons.
 - Added preview mode toggle to the page builder for quick layout previews.
@@ -17,6 +18,8 @@ El Psy Kongroo
   templates, notification hub and widget templates.
 - Corrected instructions to open the Notification Hub using the Blogposter logo
   instead of the bell icon.
+- Added configurable action button in the content header with a plus icon on the
+  Page Management screen for quick page creation.
 - Fixed builder page missing global theme injection, ensuring widgets inherit
   active theme styles.
 - Page list widget now lets admins edit page titles and slugs inline; press
