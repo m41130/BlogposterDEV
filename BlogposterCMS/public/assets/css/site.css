@@ -1536,6 +1536,7 @@ p {
   cursor: pointer;
   width: 100%;
   text-align: left;
+  font-family: var(--font-body);
 }
 
 .widget-options-menu button:hover {
