@@ -138,6 +138,19 @@ async function ensureDefaultPermissions(motherEmitter, jwt) {
   console.log('[USER SERVICE] Default permissions ensured.');
 }
 
+async function ensureUserColorField(motherEmitter, jwt) {
+  console.log('[USER SERVICE] Ensuring ui_color field…');
+  await emitAsync(motherEmitter, 'dbUpdate', {
+    jwt,
+    moduleName: 'userManagement',
+    moduleType: 'core',
+    table: '__rawSQL__',
+    where: {},
+    data: { rawSQL: 'ADD_USER_FIELD', fieldName: 'ui_color', fieldType: 'VARCHAR(16)' }
+  });
+  console.log('[USER SERVICE] ui_color field ensured.');
+}
+
 /* ============ 3) Self‑Healing: erster User = Admin ============ */
 async function ensureFirstUserIsAdmin(motherEmitter, jwt) {
   console.log('[USER SERVICE] Verifying that at least one admin exists…');
@@ -210,5 +223,6 @@ module.exports = {
   ensureUserManagementSchemaAndTables,
   ensureDefaultRoles,
   ensureDefaultPermissions,
+  ensureUserColorField,
   ensureFirstUserIsAdmin          // neue Routine wird mit‑exportiert
 };

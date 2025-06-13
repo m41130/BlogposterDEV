@@ -12,6 +12,7 @@ const {
   ensureUserManagementSchemaAndTables,
   ensureDefaultRoles,
   ensureDefaultPermissions,
+  ensureUserColorField,
   ensureFirstUserIsAdmin
 } = require('./userInitService');
 
@@ -41,6 +42,7 @@ async function initialize({ motherEmitter, app, dbConfig, isCore, jwt }) {
     await ensureDefaultRoles(motherEmitter, jwt);
     // D) Ensure default permissions for system to work
     await ensureDefaultPermissions(motherEmitter, jwt);
+    await ensureUserColorField(motherEmitter, jwt);
 
     await ensureFirstUserIsAdmin(motherEmitter, jwt);
 

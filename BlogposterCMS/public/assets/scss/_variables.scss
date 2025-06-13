@@ -8,7 +8,9 @@
   --color-secondary-light: #F5F5F5; // Hellgrau für Inputs (nicht für Cards)
   --color-text: #222222; // Dunkler für mehr Kontrast
   --color-white: #FFFFFF;
-  --gradient-primary: linear-gradient(90deg, #008080, #FF00FF, #FFA500);
+  --user-color: #008080; // User-selected accent color
+  --color-primary: var(--user-color);
+  --gradient-primary: linear-gradient(90deg, var(--user-color), #FF00FF, #FFA500);
   --shadow-card: 0 1px 28px rgba(0,0,0,0.07);
 
   // Typography

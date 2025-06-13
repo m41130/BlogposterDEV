@@ -29,7 +29,8 @@
 .page-settings-widget .field textarea,
 .seo-image-widget .field input,
 .user-edit-widget .field input,
-.user-edit-widget .field textarea {
+.user-edit-widget .field textarea,
+.user-edit-widget select {
   width: 100%;
   padding: 1.5rem 0.75rem 0.5rem;
   border: none;
@@ -47,7 +48,8 @@
 .page-settings-widget .field textarea:focus,
 .seo-image-widget .field input:focus,
 .user-edit-widget .field input:focus,
-.user-edit-widget .field textarea:focus {
+.user-edit-widget .field textarea:focus,
+.user-edit-widget select:focus {
   outline: none;
   border-bottom: 2px solid #008080;
 }
@@ -80,7 +82,9 @@
 .user-edit-widget .field input:focus + label,
 .user-edit-widget .field input:not(:placeholder-shown) + label,
 .user-edit-widget .field textarea:focus + label,
-.user-edit-widget .field textarea:not(:placeholder-shown) + label {
+.user-edit-widget .field textarea:not(:placeholder-shown) + label,
+.user-edit-widget select:focus + label,
+.user-edit-widget select:not([data-empty="true"]) + label {
   top: 0.25rem;
   font-size: 0.75rem;
   color: #008080;

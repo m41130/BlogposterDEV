@@ -31,24 +31,43 @@ export async function render(el) {
       'company',
       'website',
       'avatar_url',
-      'bio'
+      'bio',
+      'ui_color'
     ];
     const inputs = {};
     const container = document.createElement('div');
     container.className = 'user-edit-widget';
 
+    const colorChoices = ['#008080', '#FF00FF', '#FFA500', '#00A2FF', '#8A2BE2', '#FF4500'];
+
     fields.forEach(f => {
       const field = document.createElement('div');
       field.className = 'field';
 
-      const input = document.createElement(f === 'bio' ? 'textarea' : 'input');
-      const id = `ue-${f}`;
-      if (input.tagName === 'INPUT') {
+      let input;
+      if (f === 'bio') {
+        input = document.createElement('textarea');
+      } else if (f === 'ui_color') {
+        input = document.createElement('select');
+        colorChoices.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c;
+          opt.textContent = c;
+          opt.style.backgroundColor = c;
+          opt.style.color = '#fff';
+          input.appendChild(opt);
+        });
+      } else {
+        input = document.createElement('input');
         input.type = 'text';
       }
+
+      const id = `ue-${f}`;
       input.id = id;
-      input.placeholder = ' ';
+      if (f !== 'ui_color') input.placeholder = ' ';
       input.value = user[f] || '';
+      if (f === 'ui_color' && !user[f]) input.dataset.empty = 'true';
+      input.addEventListener('change', () => { if (f === 'ui_color') delete input.dataset.empty; });
       inputs[f] = input;
 
       const label = document.createElement('label');
@@ -95,7 +114,8 @@ export async function render(el) {
         newCompany: inputs.company.value.trim(),
         newWebsite: inputs.website.value.trim(),
         newAvatarUrl: inputs.avatar_url.value.trim(),
-        newBio: inputs.bio.value
+        newBio: inputs.bio.value,
+        newUiColor: inputs.ui_color.value
       };
       if (passInput.value.trim()) {
         payload.newPassword = passInput.value.trim();

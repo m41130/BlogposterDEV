@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Users can now select a personal UI color that sets the `--user-color` CSS variable across the dashboard.
 - Theme styles in the builder no longer change menu buttons; active theme now only affects widget previews and background.
 - Dynamic action button now hides unless configured and shows as a circle with hover and click animations.
 - Redesigned modules list widget with activation toggles and module details.

@@ -55,6 +55,7 @@ function setupUserCrudEvents(motherEmitter) {
       website,
       avatarUrl,
       bio,
+      uiColor,
       role
     } = payload || {};
 
@@ -94,6 +95,7 @@ function setupUserCrudEvents(motherEmitter) {
         website     : website     || null,
         avatar_url  : avatarUrl   || null,
         bio         : bio         || null,
+        ui_color    : uiColor     || null,
         token_version: 0,
         created_at  : new Date().toISOString(),
         updated_at  : new Date().toISOString()
@@ -381,7 +383,8 @@ function setupUserCrudEvents(motherEmitter) {
       newCompany,
       newWebsite,
       newAvatarUrl,
-      newBio
+      newBio,
+      newUiColor
     } = payload || {};
 
     if (!jwt || moduleName !== 'userManagement' || moduleType !== 'core') {
@@ -414,6 +417,7 @@ function setupUserCrudEvents(motherEmitter) {
       if (newWebsite)      dataToUpdate.website      = newWebsite;
       if (newAvatarUrl)    dataToUpdate.avatar_url   = newAvatarUrl;
       if (newBio)          dataToUpdate.bio          = newBio;
+      if (newUiColor)     dataToUpdate.ui_color     = newUiColor;
 
       // Password?
       if (newPassword) {
