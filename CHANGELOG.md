@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Content header edit icon now toggles widget drag mode and saves layout when exiting edit mode. Widgets remain fixed by default.
 - Builder footer shows the Plainspace version using a server-injected variable and warns the builder is in alpha.
 - Refactored page statistics widget to show live counts by lane.
 - Quill text editor overlay appears above widget text but stays below menu buttons.

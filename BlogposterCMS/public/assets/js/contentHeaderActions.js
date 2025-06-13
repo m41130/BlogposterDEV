@@ -17,7 +17,7 @@ export function initContentHeader() {
   if (!editToggle) return;
 
   let editing = false;
-  editToggle.addEventListener('click', () => {
+  editToggle.addEventListener('click', async () => {
     const grid = window.adminGrid;
     if (!grid || typeof grid.setStatic !== 'function') return;
     editing = !editing;
@@ -25,6 +25,9 @@ export function initContentHeader() {
     editToggle.src = editing ? '/assets/icons/check.svg' : '/assets/icons/edit.svg';
     editToggle.classList.add('spin');
     setTimeout(() => editToggle.classList.remove('spin'), 300);
+    if (!editing && typeof window.saveAdminLayout === 'function') {
+      try { await window.saveAdminLayout(); } catch(e) { console.error(e); }
+    }
   });
 }
 
