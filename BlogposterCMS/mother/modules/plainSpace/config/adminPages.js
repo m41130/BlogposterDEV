@@ -39,6 +39,10 @@ module.exports.ADMIN_PAGES = [
         sidebar: 'default-sidebar',
         inheritsLayout: true
       },
+      actionButton: {
+        icon: '/assets/icons/plus.svg',
+        action: 'createNewPage'
+      },
       widgets: ['pageList', 'pageStats']
     }
   },
