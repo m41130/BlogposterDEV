@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Theme styles in the builder no longer change menu buttons; active theme now only affects widget previews and background.
 - Content header edit icon now toggles widget drag mode and saves layout when exiting edit mode. Widgets remain fixed by default.
 - Builder footer shows the Plainspace version using a server-injected variable and warns the builder is in alpha.
 - Login route now redirects authenticated users and disables caching.

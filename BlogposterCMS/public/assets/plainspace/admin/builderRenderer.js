@@ -29,14 +29,14 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     contentSummary: 'activity'
   };
 
-  function scopeThemeCss(css, prefix) {
+  function scopeThemeCss(css, rootPrefix, contentPrefix) {
     return css.replace(/(^|\})([^@{}]+)\{/g, (m, brace, selectors) => {
       selectors = selectors.trim();
       if (!selectors || selectors.startsWith('@')) return m;
       const scoped = selectors.split(',').map(s => {
         s = s.trim();
-        if ([':root', 'html', 'body'].includes(s)) return prefix;
-        return `${prefix} ${s}`;
+        if ([':root', 'html', 'body'].includes(s)) return rootPrefix;
+        return `${contentPrefix} ${s}`;
       }).join(', ');
       return `${brace}${scoped}{`;
     });
@@ -48,7 +48,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       const res = await fetch(`/themes/${theme}/theme.css`);
       if (!res.ok) throw new Error('theme css fetch failed');
       const css = await res.text();
-      const scoped = scopeThemeCss(css, '#builderGrid');
+      const scoped = scopeThemeCss(css, '#builderGrid', '#builderGrid .builder-themed');
       const style = document.createElement('style');
       style.dataset.builderTheme = theme;
       style.textContent = scoped;
@@ -699,7 +699,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     wrapper.setAttribute('gs-min-w', 4);
     wrapper.setAttribute('gs-min-h', DEFAULT_ROWS);
     const content = document.createElement('div');
-    content.className = 'grid-stack-item-content';
+    content.className = 'grid-stack-item-content builder-themed';
     content.innerHTML = `${getWidgetIcon(widgetDef)}<span>${widgetDef.metadata?.label || widgetDef.id}</span>`;
     wrapper.appendChild(content);
     attachRemoveButton(wrapper);
@@ -742,7 +742,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     wrapper.setAttribute('gs-min-h', DEFAULT_ROWS);
 
     const content = document.createElement('div');
-    content.className = 'grid-stack-item-content';
+    content.className = 'grid-stack-item-content builder-themed';
     content.innerHTML = `${getWidgetIcon(widgetDef)}<span>${widgetDef.metadata?.label || widgetDef.id}</span>`;
     wrapper.appendChild(content);
     attachRemoveButton(wrapper);
