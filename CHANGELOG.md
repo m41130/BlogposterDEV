@@ -5,6 +5,7 @@ El Psy Kongroo
 
 ## [Unreleased]
 - Builder footer shows the Plainspace version using a server-injected variable and warns the builder is in alpha.
+- Login route now redirects authenticated users and disables caching.
 - Refactored page statistics widget to show live counts by lane.
 - Quill text editor overlay appears above widget text but stays below menu buttons.
 - Quill editor overlay no longer blocks builder menu buttons.

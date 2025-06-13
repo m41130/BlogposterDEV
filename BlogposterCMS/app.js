@@ -584,9 +584,27 @@ app.get('/admin/*', pageLimiter, csrfProtection, async (req, res, next) => {
 // ─────────────────────────────────────────────────────────────────
 // 8) Explicit /login route
 // ─────────────────────────────────────────────────────────────────
-app.get('/login', pageLimiter, csrfProtection, (req, res) => {
+app.get('/login', pageLimiter, csrfProtection, async (req, res) => {
+  const adminJwt = req.cookies?.admin_jwt;
+
+  if (adminJwt) {
+    try {
+      await validateAdminToken(adminJwt);
+      return res.redirect('/admin/home');
+    } catch (err) {
+      console.warn('[GET /login] Invalid admin token =>', err.message);
+      res.clearCookie('admin_jwt', {
+        path: '/',
+        httpOnly: true,
+        sameSite: 'strict',
+        secure: isProduction
+      });
+    }
+  }
+
   let html = fs.readFileSync(path.join(publicPath, 'login.html'), 'utf8');
   html = html.replace('{{CSRF_TOKEN}}', req.csrfToken());
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
   res.send(html);
 });
 
