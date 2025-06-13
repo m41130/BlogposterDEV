@@ -28,11 +28,11 @@
       }
 
       if (userCount === 0) {
-        window.location.href = '/register';
+        window.location.href = '/install';
       }
     }
   } catch (err) {
     console.error('[firstInstallCheck] Error checking setting', err);
-    window.location.href = '/register';
+    window.location.href = '/install';
   }
 })();
