@@ -166,8 +166,8 @@
 
 .grid-stack-item:hover .widget-menu,
 .grid-stack-item:hover .widget-remove {
-  opacity: 1;
-  pointer-events: auto;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .widget-options-menu {
@@ -196,6 +196,27 @@
 
 .widget-options-menu button:hover {
   background: var(--color-light-gray, #f0f0f0);
+}
+
+.widget-action-bar {
+  position: absolute;
+  background: var(--color-white);
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  gap: 4px;
+  padding: 2px;
+  z-index: 1000;
+}
+
+.widget-action-bar button {
+  background: transparent;
+  border: none;
+  padding: 2px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
 }
 
 .widget-code-editor {
@@ -233,9 +254,20 @@
   margin-right: auto;
 }
 
+
 .grid-stack-item .widget-remove .icon {
   width: 16px;
   height: 16px;
+}
+
+// Highlight widget wrapper on hover using the active user's color
+.grid-stack-item {
+  border: 2px solid transparent;
+  transition: border-color 0.2s ease;
+}
+
+.grid-stack-item:hover {
+  border-color: var(--user-color);
 }
 
 

@@ -5,6 +5,8 @@ El Psy Kongroo
 
 ## [Unreleased]
 - Added /install route for first-time setup collecting admin details.
+- Widget action buttons now appear as a popup toolbar when selecting a widget, offering lock, duplicate and delete options.
+- Builder widgets now show a border in the active user's color on hover.
 - Users can now select a personal UI color that sets the `--user-color` CSS variable across the dashboard.
 - Theme styles in the builder no longer change menu buttons; active theme now only affects widget previews and background.
 - Dynamic action button now hides unless configured and shows as a circle with hover and click animations.

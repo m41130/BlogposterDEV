@@ -180,7 +180,7 @@
   overflow: hidden;
   background: var(--color-white);
   border-radius: 9px;
-  box-shadow: var(--shadow-card);
+  /*box-shadow: var(--shadow-card);*/
   transition: all 0.2s ease;
   min-width: 120px;
   min-height: 80px;
@@ -233,7 +233,9 @@
   --color-secondary-light: #F5F5F5;
   --color-text: #222222;
   --color-white: #FFFFFF;
-  --gradient-primary: linear-gradient(90deg, #008080, #FF00FF, #FFA500);
+  --user-color: #008080;
+  --color-primary: var(--user-color);
+  --gradient-primary: linear-gradient(90deg, var(--user-color), #FF00FF, #FFA500);
   --shadow-card: 0 1px 28px rgba(0,0,0,0.07);
   --font-body: "Manrope", sans-serif;
   --font-heading: "Oswald", sans-serif;
@@ -682,6 +684,9 @@ p {
   align-items: center;
   gap: 12px;
 }
+.content-header #dynamic-action-btn {
+  display: none;
+}
 .content-header .icon {
   width: 20px;
   height: 20px;
@@ -696,6 +701,17 @@ p {
 .content-header .icon.spin {
   animation: spin 0.3s linear;
 }
+.content-header #dynamic-action-btn[src] {
+  border-radius: 50%;
+  overflow: hidden;
+  transition: transform 0.2s ease;
+}
+.content-header #dynamic-action-btn[src]:hover {
+  animation: action-hover 0.25s forwards;
+}
+.content-header #dynamic-action-btn[src]:active {
+  animation: action-click 0.2s forwards;
+}
 
 @keyframes spin {
   from {
@@ -703,6 +719,28 @@ p {
   }
   to {
     transform: rotate(360deg);
+  }
+}
+@keyframes action-hover {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes action-click {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
   }
 }
 .page-list-card, .widget-list-card, .permissions-card, .user-list-card, .layout-list-card, .modules-list-card {
@@ -799,20 +837,20 @@ p {
   box-shadow: 0 2px 16px rgba(208, 0, 175, 0.08);
 }
 
-.page-details {
+.page-details, .module-details {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.page-name-row, .roles-list .page-name-row {
+.page-name-row, .roles-list .page-name-row, .roles-list .module-name-row, .module-name-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
 }
 
-.page-name {
+.page-name, .module-name {
   font-family: var(--font-body);
   font-size: 1.04rem;
   color: #181818;
@@ -829,20 +867,20 @@ p {
   border: 1px solid transparent;
   transition: border 0.18s;
 }
-.page-name[contenteditable=true]:focus {
+.page-name[contenteditable=true]:focus, [contenteditable=true].module-name:focus {
   border: 1px solid #ddd;
   background: #fff0ff;
   color: #181818;
 }
 
-.page-actions, .roles-list .page-actions {
+.page-actions, .roles-list .page-actions, .roles-list .module-actions, .module-actions {
   display: flex;
   gap: 18px;
   align-items: center;
   justify-content: flex-end;
 }
 
-.page-actions .icon {
+.page-actions .icon, .module-actions .icon {
   width: 22px;
   height: 22px;
   display: inline-flex;
@@ -853,7 +891,7 @@ p {
   opacity: 0.72;
   transition: fill 0.16s, opacity 0.14s, transform 0.14s;
 }
-.page-actions .icon:hover {
+.page-actions .icon:hover, .module-actions .icon:hover {
   fill: #ff00ff;
   opacity: 1;
   transform: scale(1.13);
@@ -894,6 +932,28 @@ p {
 .edit-slug:hover {
   fill: #FFA500;
   opacity: 1;
+}
+
+.page-stats-widget {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.07);
+  padding: 20px;
+  margin: 0 auto;
+  width: 100%;
+  font-family: var(--font-body);
+}
+.page-stats-widget ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.page-stats-widget li {
+  color: #555;
+  font-size: 0.95rem;
 }
 
 .media-explorer {
@@ -989,6 +1049,21 @@ p {
 .modules-tab.active {
   border-bottom: 2px solid currentColor;
   font-weight: bold;
+}
+
+.module-meta {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.module-toggle-btn {
+  background: #f6f6f6;
+  border: none;
+  border-radius: 5px;
+  padding: 2px 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
 }
 
 .layout-filters {
@@ -1237,8 +1312,8 @@ p {
 
 .grid-stack-item:hover .widget-menu,
 .grid-stack-item:hover .widget-remove {
-  opacity: 1;
-  pointer-events: auto;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .widget-options-menu {
@@ -1267,6 +1342,27 @@ p {
 
 .widget-options-menu button:hover {
   background: var(--color-light-gray, #f0f0f0);
+}
+
+.widget-action-bar {
+  position: absolute;
+  background: var(--color-white);
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  gap: 4px;
+  padding: 2px;
+  z-index: 1000;
+}
+
+.widget-action-bar button {
+  background: transparent;
+  border: none;
+  padding: 2px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
 }
 
 .widget-code-editor {
@@ -1306,6 +1402,15 @@ p {
 .grid-stack-item .widget-remove .icon {
   width: 16px;
   height: 16px;
+}
+
+.grid-stack-item {
+  border: 2px solid transparent;
+  transition: border-color 0.2s ease;
+}
+
+.grid-stack-item:hover {
+  border-color: var(--user-color);
 }
 
 body.builder-mode #content {
@@ -1370,6 +1475,18 @@ body.preview-mode #builderGrid {
   z-index: 100;
 }
 
+.builder-version {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  padding: 2px 4px;
+  font-size: 10px;
+  color: var(--color-text);
+  background: rgba(255, 255, 255, 0.6);
+  pointer-events: none;
+  z-index: 50;
+}
+
 .heading-widget {
   display: flex;
   align-items: center;
@@ -1409,7 +1526,8 @@ body.preview-mode #builderGrid {
 .page-settings-widget .field textarea,
 .seo-image-widget .field input,
 .user-edit-widget .field input,
-.user-edit-widget .field textarea {
+.user-edit-widget .field textarea,
+.user-edit-widget select {
   width: 100%;
   padding: 1.5rem 0.75rem 0.5rem;
   border: none;
@@ -1427,7 +1545,8 @@ body.preview-mode #builderGrid {
 .page-settings-widget .field textarea:focus,
 .seo-image-widget .field input:focus,
 .user-edit-widget .field input:focus,
-.user-edit-widget .field textarea:focus {
+.user-edit-widget .field textarea:focus,
+.user-edit-widget select:focus {
   outline: none;
   border-bottom: 2px solid #008080;
 }
@@ -1470,7 +1589,9 @@ body.preview-mode #builderGrid {
 .user-edit-widget .field input:focus + label,
 .user-edit-widget .field input:not(:placeholder-shown) + label,
 .user-edit-widget .field textarea:focus + label,
-.user-edit-widget .field textarea:not(:placeholder-shown) + label {
+.user-edit-widget .field textarea:not(:placeholder-shown) + label,
+.user-edit-widget select:focus + label,
+.user-edit-widget select:not([data-empty=true]) + label {
   top: 0.25rem;
   font-size: 0.75rem;
   color: #008080;
