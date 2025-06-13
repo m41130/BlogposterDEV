@@ -86,6 +86,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   actionBar.innerHTML = `
     <button class="action-lock"></button>
     <button class="action-duplicate"></button>
+    <button class="action-menu"></button>
     <button class="action-delete"></button>
   `;
   actionBar.style.display = 'none';
@@ -93,6 +94,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
 
   const lockBtn = actionBar.querySelector('.action-lock');
   const dupBtn = actionBar.querySelector('.action-duplicate');
+  const menuBtn = actionBar.querySelector(".action-menu");
   const delBtn = actionBar.querySelector('.action-delete');
 
   const setLockIcon = locked => {
@@ -104,6 +106,9 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   dupBtn.innerHTML = window.featherIcon
     ? window.featherIcon('copy')
     : '<img src="/assets/icons/copy.svg" alt="copy" />';
+  menuBtn.innerHTML = window.featherIcon
+    ? window.featherIcon('more-vertical')
+    : '<img src="/assets/icons/more-vertical.svg" alt="menu" />';
   delBtn.innerHTML = window.featherIcon
     ? window.featherIcon('trash')
     : '<img src="/assets/icons/trash.svg" alt="delete" />';
@@ -133,6 +138,16 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     attachLockOnClick(clone);
     renderWidget(clone, widgetDef);
     if (pageId) saveCurrentLayout();
+  });
+  menuBtn.addEventListener("click", e => {
+    e.stopPropagation();
+    if (!activeWidgetEl || !activeWidgetEl.__optionsMenu) return;
+    const menu = activeWidgetEl.__optionsMenu;
+    if (menu.style.display === "block" && menu.currentTrigger === menuBtn) {
+      menu.hide();
+      return;
+    }
+    menu.show(menuBtn);
   });
 
   delBtn.addEventListener('click', e => {
@@ -617,24 +632,15 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     document.body.appendChild(menu);
 
     function hideMenu() {
-      menu.style.display = 'none';
-      document.removeEventListener('click', outsideHandler);
+      menu.style.display = "none";
+      document.removeEventListener("click", outsideHandler);
     }
 
-    function outsideHandler(ev) {
-      if (!menu.contains(ev.target) && ev.target !== menuBtn) hideMenu();
-    }
-
-    menuBtn.addEventListener('click', e => {
-      e.stopPropagation();
-      if (menu.style.display === 'block') {
-        hideMenu();
-        return;
-      }
+    function showMenu(triggerEl = menuBtn) {
       updateGlobalBtn();
-      menu.style.display = 'block';
-      menu.style.visibility = 'hidden';
-      const rect = menuBtn.getBoundingClientRect();
+      menu.style.display = "block";
+      menu.style.visibility = "hidden";
+      const rect = triggerEl.getBoundingClientRect();
       menu.style.top = `${rect.top}px`;
       const spaceRight = window.innerWidth - rect.right;
       const spaceLeft = rect.left;
@@ -644,8 +650,25 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
         const left = rect.left - menu.offsetWidth - 4;
         menu.style.left = `${Math.max(0, left)}px`;
       }
-      menu.style.visibility = '';
-      document.addEventListener('click', outsideHandler);
+      menu.style.visibility = "";
+      menu.currentTrigger = triggerEl;
+      document.addEventListener("click", outsideHandler);
+    }
+
+    function outsideHandler(ev) {
+      if (!menu.contains(ev.target) && ev.target !== menu.currentTrigger) hideMenu();
+    }
+
+    menu.show = showMenu;
+    menu.hide = hideMenu;
+
+    menuBtn.addEventListener("click", e => {
+      e.stopPropagation();
+      if (menu.style.display === "block" && menu.currentTrigger === menuBtn) {
+        hideMenu();
+        return;
+      }
+      showMenu(menuBtn);
     });
 
     menu.querySelector('.menu-edit').onclick = () => { editBtn.click(); menu.style.display = 'none'; };
@@ -717,6 +740,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     };
 
     el.appendChild(menuBtn);
+    el.__optionsMenu = menu;
   }
 
   function attachLockOnClick(el) {

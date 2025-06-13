@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Fixed options menu button in the builder action bar to display widget actions correctly.
+- Added options menu button to the builder action bar for widget actions.
 - Fixed userManagement initialization failure on SQLite by checking for existing columns before adding them.
 - Added /install route for first-time setup collecting admin details.
 - Widget action buttons now appear as a popup toolbar when selecting a widget, offering lock, duplicate and delete options.
