@@ -647,7 +647,7 @@ app.post('/install', pageLimiter, csrfProtection, async (req, res) => {
 
 app.get('/install', pageLimiter, csrfProtection, async (req, res) => {
   try {
-    const pubTok = await new Promise((r, j) => motherEmitter.emit('issuePublicToken', { purpose: 'checkFirstInstall', moduleName: 'auth' }, (e, d) => e ? j(e) : r(d)));
+    const pubTok = await new Promise((r, j) => motherEmitter.emit('issuePublicToken', { purpose: 'firstInstallCheck', moduleName: 'auth' }, (e, d) => e ? j(e) : r(d)));
     const val = await new Promise((r, j) => motherEmitter.emit('getPublicSetting', { jwt: pubTok, moduleName: 'settingsManager', moduleType: 'core', key: 'FIRST_INSTALL_DONE' }, (e, d) => e ? j(e) : r(d)));
     const userCount = await new Promise((r, j) => motherEmitter.emit('getUserCount', { jwt: pubTok, moduleName: 'userManagement', moduleType: 'core' }, (e, d) => e ? j(e) : r(d)));
     if (val === 'true' || userCount > 0) {

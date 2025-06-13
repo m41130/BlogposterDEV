@@ -23,7 +23,7 @@ async function meltdownEmit(eventName, payload = {}) {
 (async () => {
   try {
     const pubTok = await meltdownEmit('issuePublicToken', {
-      purpose: 'checkFirstInstall',
+      purpose: 'firstInstallCheck',
       moduleName: 'auth'
     });
     const val = await meltdownEmit('getPublicSetting', {

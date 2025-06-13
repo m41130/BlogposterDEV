@@ -5,7 +5,7 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         eventName: 'issuePublicToken',
-        payload: { purpose: 'checkFirstInstall', moduleName: 'auth' }
+        payload: { purpose: 'firstInstallCheck', moduleName: 'auth' }
       })
     }).then(r => r.json()).then(j => j.data);
     const val = await fetch('/api/meltdown', {
