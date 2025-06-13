@@ -442,7 +442,7 @@ app.get('/admin/home', pageLimiter, csrfProtection, async (req, res) => {
 
     // User existiert noch nicht, zeige register.html
     if (userCount === 0) {
-      return res.sendFile(path.join(publicPath, 'register.html'));
+      return res.redirect('/install');
     }
 
     // Wenn Nutzer bereits authentifiziert ist, zeige admin.html
@@ -609,8 +609,60 @@ app.get('/login', pageLimiter, csrfProtection, async (req, res) => {
 });
 
 // Convenience redirect for first-time registration
+
+app.post('/install', pageLimiter, csrfProtection, async (req, res) => {
+  const { name, username, email, password, favoriteColor } = req.body || {};
+  if (!name || !username || !email || !password) {
+    return res.status(400).send('Missing fields');
+  }
+  try {
+    await new Promise((resolve, reject) => {
+      motherEmitter.emit('createUser', {
+        jwt: dbManagerToken,
+        moduleName: 'userManagement',
+        moduleType: 'core',
+        username: username.trim(),
+        password,
+        email: email.trim(),
+        displayName: name.trim(),
+        uiColor: favoriteColor,
+        role: 'admin'
+      }, err => err ? reject(err) : resolve());
+    });
+    await new Promise((resolve, reject) => {
+      motherEmitter.emit('setSetting', {
+        jwt: dbManagerToken,
+        moduleName: 'settingsManager',
+        moduleType: 'core',
+        key: 'FIRST_INSTALL_DONE',
+        value: 'true'
+      }, err => err ? reject(err) : resolve());
+    });
+    res.json({ success: true });
+  } catch (err) {
+    console.error('[POST /install] Error:', err);
+    res.status(500).send('Installation failed');
+  }
+});
+
+app.get('/install', pageLimiter, csrfProtection, async (req, res) => {
+  try {
+    const pubTok = await new Promise((r, j) => motherEmitter.emit('issuePublicToken', { purpose: 'checkFirstInstall', moduleName: 'auth' }, (e, d) => e ? j(e) : r(d)));
+    const val = await new Promise((r, j) => motherEmitter.emit('getPublicSetting', { jwt: pubTok, moduleName: 'settingsManager', moduleType: 'core', key: 'FIRST_INSTALL_DONE' }, (e, d) => e ? j(e) : r(d)));
+    const userCount = await new Promise((r, j) => motherEmitter.emit('getUserCount', { jwt: pubTok, moduleName: 'userManagement', moduleType: 'core' }, (e, d) => e ? j(e) : r(d)));
+    if (val === 'true' || userCount > 0) {
+      return res.redirect('/login');
+    }
+    let html = fs.readFileSync(path.join(publicPath, 'install.html'), 'utf8');
+    html = html.replace('{{CSRF_TOKEN}}', req.csrfToken());
+    res.send(html);
+  } catch (err) {
+    console.error('[GET /install] Error:', err);
+    res.status(500).send('Server misconfiguration');
+  }
+});
 app.get('/register', pageLimiter, (_req, res) => {
-  res.redirect('/admin/home');
+  res.redirect('/install');
 });
 
 

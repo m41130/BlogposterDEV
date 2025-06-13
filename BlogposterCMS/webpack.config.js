@@ -15,7 +15,8 @@ module.exports = {
     pageRenderer: './public/assets/js/pageRenderer.js',
     quill: './public/assets/js/quill.js',
     quillEditor: './public/assets/js/quillEditor.js',
-    register: './public/assets/js/register.js',
+    
+    install: './public/assets/js/install.js',
     sortable: './public/assets/js/sortable.min.js',
     tokenLoader: './public/assets/js/tokenLoader.js',
     topHeaderActions: './public/assets/js/topHeaderActions.js',

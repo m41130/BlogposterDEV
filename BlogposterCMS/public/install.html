@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Install BlogposterCMS</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="/assets/css/site.css" />
+  <meta name="csrf-token" content="{{CSRF_TOKEN}}">
+</head>
+<body>
+  <h1 class="branding-top-left">BlogposterCMS</h1>
+  <div class="app-scope install-page">
+    <div class="login-form form-container">
+      <img id="logo" class="logo" src="/assets/logo/logo_blogposter_min_transparent.png" alt="BlogposterCMS Logo"/>
+      <div class="cms-title">Initial Setup</div>
+      <form id="installForm">
+        <div class="field">
+          <input name="name" required placeholder=" ">
+          <label>Name</label>
+        </div>
+        <div class="field">
+          <input name="username" required placeholder=" " autocomplete="username">
+          <label>Username</label>
+        </div>
+        <div class="field">
+          <input name="email" type="email" required placeholder=" " autocomplete="email">
+          <label>Email</label>
+        </div>
+        <div class="field">
+          <input name="password" type="password" required placeholder=" " autocomplete="new-password">
+          <label>Password</label>
+        </div>
+        <div class="field">
+          <input name="favoriteColor" type="color" value="#008080">
+          <label>Favorite Color</label>
+        </div>
+        <button type="submit" class="button">Install</button>
+      </form>
+    </div>
+  </div>
+  <script src="/assets/js/install.js"></script>
+</body>
+</html>
