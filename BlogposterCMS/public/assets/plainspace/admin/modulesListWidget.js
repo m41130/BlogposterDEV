@@ -59,9 +59,58 @@ export async function render(el) {
       installed.forEach(m => {
         const li = document.createElement('li');
         const info = m.module_info || {};
-        const desc = info.description ? ` - ${info.description}` : '';
-        const status = m.is_active ? '' : ' (inactive)';
-        li.textContent = `${m.module_name}${desc}${status}`;
+        const name = info.moduleName || m.module_name;
+        const version = info.version ? `v${info.version}` : '';
+        const developer = info.developer || 'Unknown Developer';
+        const desc = info.description || '';
+
+        const details = document.createElement('div');
+        details.className = 'module-details';
+
+        const nameRow = document.createElement('div');
+        nameRow.className = 'module-name-row';
+
+        const nameEl = document.createElement('span');
+        nameEl.className = 'module-name';
+        nameEl.textContent = name;
+
+        const actions = document.createElement('span');
+        actions.className = 'module-actions';
+
+        const toggleBtn = document.createElement('button');
+        toggleBtn.className = 'module-toggle-btn';
+        toggleBtn.textContent = m.is_active ? 'Deactivate' : 'Activate';
+        toggleBtn.addEventListener('click', async () => {
+          try {
+            await meltdownEmit(m.is_active ? 'deactivateModuleInRegistry' : 'activateModuleInRegistry', {
+              jwt,
+              moduleName: 'moduleLoader',
+              moduleType: 'core',
+              targetModuleName: m.module_name
+            });
+            m.is_active = !m.is_active;
+            toggleBtn.textContent = m.is_active ? 'Deactivate' : 'Activate';
+          } catch (err) {
+            alert('Error: ' + err.message);
+          }
+        });
+
+        actions.appendChild(toggleBtn);
+        nameRow.appendChild(nameEl);
+        nameRow.appendChild(actions);
+
+        const meta = document.createElement('div');
+        meta.className = 'module-meta';
+        const pieces = [];
+        if (version) pieces.push(version);
+        if (developer) pieces.push(developer);
+        if (desc) pieces.push(desc);
+        meta.textContent = pieces.join(' \u2022 ');
+
+        details.appendChild(nameRow);
+        details.appendChild(meta);
+        li.appendChild(details);
+
         installedList.appendChild(li);
       });
     }
@@ -79,8 +128,35 @@ export async function render(el) {
       system.forEach(m => {
         const li = document.createElement('li');
         const info = m.moduleInfo || {};
-        const desc = info.description ? ` - ${info.description}` : '';
-        li.textContent = `${m.module_name}${desc}`;
+        const name = info.moduleName || m.module_name;
+        const version = info.version ? `v${info.version}` : '';
+        const developer = info.developer || 'Unknown Developer';
+        const desc = info.description || '';
+
+        const details = document.createElement('div');
+        details.className = 'module-details';
+
+        const nameRow = document.createElement('div');
+        nameRow.className = 'module-name-row';
+
+        const nameEl = document.createElement('span');
+        nameEl.className = 'module-name';
+        nameEl.textContent = name;
+
+        nameRow.appendChild(nameEl);
+
+        const meta = document.createElement('div');
+        meta.className = 'module-meta';
+        const pieces = [];
+        if (version) pieces.push(version);
+        if (developer) pieces.push(developer);
+        if (desc) pieces.push(desc);
+        meta.textContent = pieces.join(' \u2022 ');
+
+        details.appendChild(nameRow);
+        details.appendChild(meta);
+        li.appendChild(details);
+
         systemList.appendChild(li);
       });
     }
