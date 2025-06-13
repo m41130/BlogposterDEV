@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Display active public login strategies on the login page.
+- Added login settings page with toggleable OAuth strategies.
 - Fixed options menu button in the builder action bar to display widget actions correctly.
 - Added options menu button to the builder action bar for widget actions.
 - Fixed userManagement initialization failure on SQLite by checking for existing columns before adding them.

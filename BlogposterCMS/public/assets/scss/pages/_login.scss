@@ -85,6 +85,23 @@
   width: 100%;
 }
 
+.strategy-buttons {
+  width: 100%;
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.strategy-buttons .oauth-button {
+  background: #f6f6f6;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-family: var(--font-body);
+}
+
 .login-form .field {
   width: 100%;
   margin-bottom: 1rem;

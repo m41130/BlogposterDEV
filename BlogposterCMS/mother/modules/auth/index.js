@@ -49,12 +49,28 @@ module.exports = {
         if (strategyObj.isEnabled) {
           activeStrategies.push({
             name: strategyName,
-            description: strategyObj.description || '(No description)'
+            description: strategyObj.description || '(No description)',
+            scope: strategyObj.scope || 'admin'
           });
         }
       });
 
       callback(null, activeStrategies);
+    });
+
+    // meltdown => listLoginStrategies
+    motherEmitter.on('listLoginStrategies', (payload, cb) => {
+      const callback = onceCallback(cb);
+      if (!payload || !payload.jwt || payload.moduleName !== 'auth' || payload.moduleType !== 'core') {
+        return callback(new Error('[AUTH MODULE] listLoginStrategies => invalid meltdown payload.'));
+      }
+      const all = Object.entries(global.loginStrategies).map(([name, obj]) => ({
+        name,
+        description: obj.description || '(No description)',
+        isEnabled: !!obj.isEnabled,
+        scope: obj.scope || 'admin'
+      }));
+      callback(null, all);
     });
 
     // meltdown => setLoginStrategyEnabled
@@ -88,6 +104,7 @@ module.exports = {
         strategyName,
         description,
         loginFunction,
+        scope,
         authModuleSecret: providedSecret
       } = payload || {};
 
@@ -108,7 +125,8 @@ module.exports = {
       global.loginStrategies[strategyName] = {
         description,
         loginFunction,
-        isEnabled: strategyName === 'adminLocal'
+        isEnabled: strategyName === 'adminLocal',
+        scope: scope || 'admin'
       };
       console.log(`[AUTH MODULE] Registered login strategy => ${strategyName}`);
       return callback(null, true);

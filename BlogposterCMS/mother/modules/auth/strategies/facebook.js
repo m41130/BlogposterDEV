@@ -20,6 +20,7 @@ module.exports = {
         authModuleSecret: authModuleSecret,
         strategyName    : 'facebook',
         description     : 'Facebook OAuth login (configured via admin settings)',
+        scope           : 'public',
 
         // Called during actual login flow
         loginFunction: async (facebookToken, callback) => {
