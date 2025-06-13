@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Fixed userManagement initialization failure on SQLite by checking for existing columns before adding them.
 - Added /install route for first-time setup collecting admin details.
 - Widget action buttons now appear as a popup toolbar when selecting a widget, offering lock, duplicate and delete options.
 - Builder widgets now show a border in the active user's color on hover.
