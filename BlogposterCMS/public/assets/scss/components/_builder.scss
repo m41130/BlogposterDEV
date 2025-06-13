@@ -233,9 +233,20 @@
   margin-right: auto;
 }
 
+
 .grid-stack-item .widget-remove .icon {
   width: 16px;
   height: 16px;
+}
+
+// Highlight widget wrapper on hover using the active user's color
+.grid-stack-item {
+  border: 2px solid transparent;
+  transition: border-color 0.2s ease;
+}
+
+.grid-stack-item:hover {
+  border-color: var(--user-color);
 }
 
 
