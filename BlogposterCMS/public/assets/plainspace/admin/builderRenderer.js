@@ -1,4 +1,5 @@
 // public/assets/plainspace/admin/builderRenderer.js
+
 export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   document.body.classList.add('builder-mode');
   // Builder widgets load the active theme inside their shadow roots.
@@ -886,4 +887,20 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       previewBtn.innerHTML = `<img src="/assets/icons/${icon}.svg" alt="Preview" />`;
     }
   });
+
+  let versionEl = document.getElementById('builderVersion');
+  if (!versionEl) {
+    versionEl = document.createElement('div');
+    versionEl.id = 'builderVersion';
+    versionEl.className = 'builder-version';
+    document.body.appendChild(versionEl);
+  }
+
+  const builderVersion = window.PLAINSPACE_VERSION;
+
+  if (builderVersion) {
+    versionEl.textContent = `${builderVersion} builder still in alpha expect breaking changes`;
+  } else {
+    versionEl.textContent = 'builder still in alpha expect breaking changes';
+  }
 }
