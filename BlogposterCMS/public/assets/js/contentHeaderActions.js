@@ -3,14 +3,20 @@ export function initContentHeader() {
   const actionBtn  = document.getElementById('dynamic-action-btn');
   const actionCfg  = window.CONTENT_ACTION;
 
-  if (actionBtn && actionCfg && actionCfg.icon) {
-    actionBtn.src = actionCfg.icon;
-    actionBtn.style.display = 'inline';
-    const fn = typeof actionCfg.action === 'function'
-      ? actionCfg.action
-      : window[actionCfg.action];
-    if (typeof fn === 'function') {
-      actionBtn.addEventListener('click', fn);
+  if (actionBtn) {
+    if (actionCfg && actionCfg.icon) {
+      actionBtn.src = actionCfg.icon;
+      actionBtn.style.display = 'inline';
+      const fn = typeof actionCfg.action === 'function'
+        ? actionCfg.action
+        : window[actionCfg.action];
+      if (typeof fn === 'function') {
+        actionBtn.onclick = fn;
+      }
+    } else {
+      actionBtn.removeAttribute('src');
+      actionBtn.style.display = 'none';
+      actionBtn.onclick = null;
     }
   }
 

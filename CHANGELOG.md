@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Dynamic action button now hides unless configured and shows as a circle with hover and click animations.
 - Content header edit icon now toggles widget drag mode and saves layout when exiting edit mode. Widgets remain fixed by default.
 - Builder footer shows the Plainspace version using a server-injected variable and warns the builder is in alpha.
 - Login route now redirects authenticated users and disables caching.
