@@ -86,8 +86,9 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   actionBar.innerHTML = `
     <button class="action-lock"></button>
     <button class="action-duplicate"></button>
-    <button class="action-menu"></button>
     <button class="action-delete"></button>
+    <button class="action-menu"></button>
+ 
   `;
   actionBar.style.display = 'none';
   document.body.appendChild(actionBar);
