@@ -138,6 +138,13 @@ module.exports.DEFAULT_WIDGETS = [
     category: 'core'
   },
   {
+    widgetId: 'loginStrategies',
+    widgetType: ADMIN_LANE,
+    label: 'Login Strategies',
+    content: '/assets/plainspace/admin/loginStrategiesWidget.js',
+    category: 'core'
+  },
+  {
     widgetId: 'widgetList',
     widgetType: ADMIN_LANE,
     label: 'Widget List',

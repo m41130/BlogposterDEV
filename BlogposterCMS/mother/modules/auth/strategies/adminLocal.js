@@ -18,6 +18,7 @@ module.exports = {
         authModuleSecret: authModuleSecret,
         strategyName    : 'adminLocal',
         description     : 'Local admin username/password for userManagement',
+        scope           : 'admin',
 
         // This function does the actual local user/pw check
         loginFunction: async (loginPayload, callback) => {

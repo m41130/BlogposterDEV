@@ -20,6 +20,7 @@ module.exports = {
         authModuleSecret: authModuleSecret,
         strategyName    : 'google',
         description     : 'Google OAuth login (configured via admin settings)',
+        scope           : 'public',
 
         loginFunction: async (googleToken, callback) => {
           try {

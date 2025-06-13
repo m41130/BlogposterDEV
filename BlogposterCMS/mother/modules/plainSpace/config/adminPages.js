@@ -202,6 +202,20 @@ module.exports.ADMIN_PAGES = [
     }
   },
   {
+    title: 'Login',
+    slug: 'login',
+    parentSlug: 'settings',
+    lane: 'admin',
+    config: {
+      layout: {
+        header: 'top-header',
+        sidebar: 'settings-sidebar',
+        inheritsLayout: true
+      },
+      widgets: ['loginStrategies']
+    }
+  },
+  {
     title: 'Themes',
     slug: 'themes',
     parentSlug: 'settings',
