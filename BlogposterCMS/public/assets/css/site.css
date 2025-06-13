@@ -85,6 +85,23 @@
   width: 100%;
 }
 
+.strategy-buttons {
+  width: 100%;
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.strategy-buttons .oauth-button {
+  background: #f6f6f6;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-family: var(--font-body);
+}
+
 .login-form .field {
   width: 100%;
   margin-bottom: 1rem;
@@ -226,6 +243,23 @@
 
 .login-form form {
   width: 100%;
+}
+
+.strategy-buttons {
+  width: 100%;
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.strategy-buttons .oauth-button {
+  background: #f6f6f6;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-family: var(--font-body);
 }
 
 .login-form .field {
@@ -947,7 +981,7 @@ p {
   color: #fff;
 }
 
-.page-list, .widget-list, .permissions-list, .roles-list, .users-list, .layout-list, .modules-list {
+.page-list, .widget-list, .permissions-list, .roles-list, .users-list, .layout-list, .modules-list, .login-strategies-list {
   list-style: none;
   padding: 0;
   margin: 0;
@@ -956,7 +990,7 @@ p {
   gap: 6px;
 }
 
-.page-list .empty-state, .widget-list .empty-state, .permissions-list .empty-state, .roles-list .empty-state, .users-list .empty-state, .layout-list .empty-state, .modules-list .empty-state {
+.page-list .empty-state, .widget-list .empty-state, .permissions-list .empty-state, .roles-list .empty-state, .users-list .empty-state, .layout-list .empty-state, .modules-list .empty-state, .login-strategies-list .empty-state {
   color: #bbb;
   padding: 20px 0 8px 0;
   text-align: center;
@@ -964,7 +998,7 @@ p {
   font-family: var(--font-body);
 }
 
-.page-list li, .widget-list li, .permissions-list li, .roles-list li, .users-list li, .layout-list li, .modules-list li {
+.page-list li, .widget-list li, .permissions-list li, .roles-list li, .users-list li, .layout-list li, .modules-list li, .login-strategies-list li {
   border-radius: 8px;
   background: #fafbfc;
   box-shadow: 0 1px 6px rgba(0, 0, 0, 0.04);
@@ -975,7 +1009,7 @@ p {
   transition: box-shadow 0.16s;
   border: 1px solid transparent;
 }
-.page-list li:hover, .widget-list li:hover, .permissions-list li:hover, .roles-list li:hover, .users-list li:hover, .layout-list li:hover, .modules-list li:hover {
+.page-list li:hover, .widget-list li:hover, .permissions-list li:hover, .roles-list li:hover, .users-list li:hover, .layout-list li:hover, .modules-list li:hover, .login-strategies-list li:hover {
   border: 1px solid #f0cfff;
   box-shadow: 0 2px 16px rgba(208, 0, 175, 0.08);
 }
@@ -986,14 +1020,14 @@ p {
   gap: 4px;
 }
 
-.page-name-row, .roles-list .page-name-row, .roles-list .module-name-row, .module-name-row {
+.page-name-row, .roles-list .page-name-row, .roles-list .login-strategy-name-row, .roles-list .module-name-row, .module-name-row, .login-strategy-name-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
 }
 
-.page-name, .module-name {
+.page-name, .module-name, .login-strategy-name {
   font-family: var(--font-body);
   font-size: 1.04rem;
   color: #181818;
@@ -1010,20 +1044,20 @@ p {
   border: 1px solid transparent;
   transition: border 0.18s;
 }
-.page-name[contenteditable=true]:focus, [contenteditable=true].module-name:focus {
+.page-name[contenteditable=true]:focus, [contenteditable=true].module-name:focus, [contenteditable=true].login-strategy-name:focus {
   border: 1px solid #ddd;
   background: #fff0ff;
   color: #181818;
 }
 
-.page-actions, .roles-list .page-actions, .roles-list .module-actions, .module-actions {
+.page-actions, .roles-list .page-actions, .roles-list .login-strategy-actions, .roles-list .module-actions, .module-actions, .login-strategy-actions {
   display: flex;
   gap: 18px;
   align-items: center;
   justify-content: flex-end;
 }
 
-.page-actions .icon, .module-actions .icon {
+.page-actions .icon, .module-actions .icon, .login-strategy-actions .icon {
   width: 22px;
   height: 22px;
   display: inline-flex;
@@ -1034,7 +1068,7 @@ p {
   opacity: 0.72;
   transition: fill 0.16s, opacity 0.14s, transform 0.14s;
 }
-.page-actions .icon:hover, .module-actions .icon:hover {
+.page-actions .icon:hover, .module-actions .icon:hover, .login-strategy-actions .icon:hover {
   fill: #ff00ff;
   opacity: 1;
   transform: scale(1.13);
@@ -1174,6 +1208,27 @@ p {
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.login-strategy-scope {
+  margin-left: 0.25rem;
+  font-size: 0.85rem;
+  color: #777;
+}
+
+.login-strategy-desc {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.login-strategy-toggle-btn {
+  background: #f6f6f6;
+  border: none;
+  border-radius: 5px;
+  padding: 2px 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
 }
 
 .modules-tabs {
@@ -1464,8 +1519,7 @@ p {
   top: 0;
   left: 0;
   background: var(--color-white);
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 9px;
   box-shadow: var(--shadow-card);
   display: none;
   z-index: 1000;
@@ -1474,8 +1528,8 @@ p {
 .widget-options-menu button {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
+  gap: 9px;
+  padding: 9px 9px;
   background: transparent;
   border: none;
   cursor: pointer;
