@@ -335,6 +335,68 @@ app.post('/api/meltdown', apiLimiter, async (req, res) => {
   });
 });
 
+// Batch variant to reduce number of requests from the admin UI
+app.post('/api/meltdown/batch', apiLimiter, async (req, res) => {
+  const { events } = req.body || {};
+  if (!Array.isArray(events)) {
+    return res.status(400).json({ error: 'Invalid events array' });
+  }
+
+  const PUBLIC_EVENTS = [
+    'issuePublicToken',
+    'ensurePublicToken',
+    'removeListenersByModule',
+    'deactivateModule'
+  ];
+
+  const headerJwt = req.get('X-Public-Token') || null;
+  const cookieJwt = req.cookies?.admin_jwt || null;
+  const globalJwt = headerJwt || cookieJwt;
+
+  const results = [];
+
+  for (const ev of events) {
+    const { eventName, payload = {} } = ev || {};
+    if (!eventName) {
+      results.push({ error: 'Missing eventName' });
+      continue;
+    }
+
+    let jwt = payload.jwt || globalJwt;
+
+    if (!jwt && !PUBLIC_EVENTS.includes(eventName)) {
+      results.push({ eventName, error: 'Authentication required: missing JWT.' });
+      continue;
+    }
+
+    if (!PUBLIC_EVENTS.includes(eventName) && jwt) {
+      try {
+        payload.decodedJWT = await validateAdminToken(jwt);
+        payload.jwt = jwt;
+      } catch (err) {
+        console.warn('[POST /api/meltdown/batch] Invalid admin token =>', err.message);
+        results.push({ eventName, error: 'Invalid token' });
+        continue;
+      }
+    } else if (jwt) {
+      payload.jwt = jwt;
+    }
+
+    try {
+      const data = await new Promise((resolve, reject) => {
+        motherEmitter.emit(eventName, payload, (err, d) => err ? reject(err) : resolve(d));
+      });
+      results.push({ eventName, data });
+    } catch (err) {
+      const safeEvent = String(eventName).replace(/[\n\r]/g, '');
+      console.error('[MELTDOWN BATCH] Event "%s" failed => %s', safeEvent, err.message);
+      results.push({ eventName, error: err.message });
+    }
+  }
+
+  return res.json({ results });
+});
+
 
 // ─────────────────────────────────────────────────────────────────
 // 6) CSRF-protected login endpoint

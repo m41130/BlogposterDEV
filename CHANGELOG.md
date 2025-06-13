@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Added /api/meltdown/batch endpoint and `meltdownEmitBatch` helper to reduce request spam from the admin dashboard.
 - Display active public login strategies on the login page.
 - Added login settings page with toggleable OAuth strategies.
 - Fixed options menu button in the builder action bar to display widget actions correctly.
