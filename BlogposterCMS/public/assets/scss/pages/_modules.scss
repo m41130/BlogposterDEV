@@ -41,3 +41,34 @@
   border-bottom: 2px solid currentColor;
   font-weight: bold;
 }
+
+.module-details {
+  @extend .page-details;
+}
+
+.module-name-row {
+  @extend .page-name-row;
+}
+
+.module-name {
+  @extend .page-name;
+}
+
+.module-actions {
+  @extend .page-actions;
+}
+
+.module-meta {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.module-toggle-btn {
+  background: #f6f6f6;
+  border: none;
+  border-radius: 5px;
+  padding: 2px 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
