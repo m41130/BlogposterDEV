@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Added /api/meltdown/batch endpoint and `meltdownEmitBatch` helper to reduce request spam from the admin dashboard.
 - Fixed first-time install page failing due to incorrect token purpose for user count check.
 - Display active public login strategies on the login page.
 - Added login settings page with toggleable OAuth strategies.
