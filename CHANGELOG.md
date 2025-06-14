@@ -5,6 +5,7 @@ El Psy Kongroo
 
 ## [Unreleased]
 - POST /install now checks installation status to prevent creating
+- Automatically recreates `cms_settings` table if missing to avoid SQLite errors during first-time setup.
   additional admin users after setup.
 - Fixed Settings Manager crash on SQLite by converting named parameters to
   positional arrays for `GET_SETTING` and `UPSERT_SETTING` queries.

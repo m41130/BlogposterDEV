@@ -153,6 +153,15 @@ async function handleBuiltInPlaceholderSqlite(db, operation, params) {
 
     case 'GET_SETTING': {
       const settingKey = params?.[0];
+      await db.exec(`
+        CREATE TABLE IF NOT EXISTS settingsManager_cms_settings (
+          id         INTEGER PRIMARY KEY AUTOINCREMENT,
+          key        TEXT NOT NULL UNIQUE,
+          value      TEXT,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
       const row = await db.get(
         `SELECT value FROM settingsManager_cms_settings WHERE key = ? LIMIT 1;`,
         [settingKey]
@@ -162,6 +171,15 @@ async function handleBuiltInPlaceholderSqlite(db, operation, params) {
 
     case 'UPSERT_SETTING': {
       const [settingKey, settingValue] = params;
+      await db.exec(`
+        CREATE TABLE IF NOT EXISTS settingsManager_cms_settings (
+          id         INTEGER PRIMARY KEY AUTOINCREMENT,
+          key        TEXT NOT NULL UNIQUE,
+          value      TEXT,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
       await db.run(
         `INSERT INTO settingsManager_cms_settings (key, value, created_at, updated_at)
            VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
@@ -173,6 +191,15 @@ async function handleBuiltInPlaceholderSqlite(db, operation, params) {
     }
 
     case 'GET_ALL_SETTINGS': {
+      await db.exec(`
+        CREATE TABLE IF NOT EXISTS settingsManager_cms_settings (
+          id         INTEGER PRIMARY KEY AUTOINCREMENT,
+          key        TEXT NOT NULL UNIQUE,
+          value      TEXT,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
       const rows = await db.all(`SELECT key, value FROM settingsManager_cms_settings ORDER BY id ASC;`);
       return rows;
     }
