@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- POST /install now checks installation status to prevent creating
+  additional admin users after setup.
 - Fixed Settings Manager crash on SQLite by converting named parameters to
   positional arrays for `GET_SETTING` and `UPSERT_SETTING` queries.
 - Fixed ADD_USER_FIELD placeholder to pass named parameters correctly, preventing SQLite install errors.
