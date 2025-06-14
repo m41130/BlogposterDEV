@@ -678,27 +678,67 @@ app.post('/install', pageLimiter, csrfProtection, async (req, res) => {
     return res.status(400).send('Missing fields');
   }
   try {
+    const pubTok = await new Promise((resolve, reject) => {
+      motherEmitter.emit(
+        'issuePublicToken',
+        { purpose: 'firstInstallCheck', moduleName: 'auth' },
+        (e, d) => (e ? reject(e) : resolve(d))
+      );
+    });
+    const [val, userCount] = await Promise.all([
+      new Promise((r, j) =>
+        motherEmitter.emit(
+          'getPublicSetting',
+          {
+            jwt: pubTok,
+            moduleName: 'settingsManager',
+            moduleType: 'core',
+            key: 'FIRST_INSTALL_DONE'
+          },
+          (e, d) => (e ? j(e) : r(d))
+        )
+      ),
+      new Promise((r, j) =>
+        motherEmitter.emit(
+          'getUserCount',
+          { jwt: pubTok, moduleName: 'userManagement', moduleType: 'core' },
+          (e, d) => (e ? j(e) : r(d))
+        )
+      )
+    ]);
+    if (val === 'true' || userCount > 0) {
+      return res.status(403).send('Already installed');
+    }
+
     await new Promise((resolve, reject) => {
-      motherEmitter.emit('createUser', {
-        jwt: dbManagerToken,
-        moduleName: 'userManagement',
-        moduleType: 'core',
-        username: username.trim(),
-        password,
-        email: email.trim(),
-        displayName: name.trim(),
-        uiColor: favoriteColor,
-        role: 'admin'
-      }, err => err ? reject(err) : resolve());
+      motherEmitter.emit(
+        'createUser',
+        {
+          jwt: dbManagerToken,
+          moduleName: 'userManagement',
+          moduleType: 'core',
+          username: username.trim(),
+          password,
+          email: email.trim(),
+          displayName: name.trim(),
+          uiColor: favoriteColor,
+          role: 'admin'
+        },
+        err => (err ? reject(err) : resolve())
+      );
     });
     await new Promise((resolve, reject) => {
-      motherEmitter.emit('setSetting', {
-        jwt: dbManagerToken,
-        moduleName: 'settingsManager',
-        moduleType: 'core',
-        key: 'FIRST_INSTALL_DONE',
-        value: 'true'
-      }, err => err ? reject(err) : resolve());
+      motherEmitter.emit(
+        'setSetting',
+        {
+          jwt: dbManagerToken,
+          moduleName: 'settingsManager',
+          moduleType: 'core',
+          key: 'FIRST_INSTALL_DONE',
+          value: 'true'
+        },
+        err => (err ? reject(err) : resolve())
+      );
     });
     res.json({ success: true });
   } catch (err) {
