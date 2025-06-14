@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Fixed ADD_USER_FIELD placeholder to pass named parameters correctly, preventing SQLite install errors.
 - Fixed first-time install page failing due to incorrect token purpose for user count check.
 - Display active public login strategies on the login page.
 - Added login settings page with toggleable OAuth strategies.
