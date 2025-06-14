@@ -611,13 +611,23 @@ function extractParamsIfNeeded(dataObj, whereObj) {
     return numericKeys.map(k => dataObj[k]);
   }
 
-  // If rawSQL with named parameters, return the object directly so
-  // placeholder handlers receive the expected shape
-  if (
-    dataObj.rawSQL &&
-    Object.keys(dataObj).some(k => !/^(rawSQL|params|\d+)$/.test(k))
-  ) {
-    return dataObj;
+  // If rawSQL with named parameters, map common placeholders to positional
+  // arrays for cross-engine compatibility. Fallback to returning the object
+  // as-is for custom handlers.
+  if (dataObj.rawSQL) {
+    if (dataObj.rawSQL === 'GET_SETTING' && dataObj.key !== undefined) {
+      return [ dataObj.key ];
+    }
+    if (
+      dataObj.rawSQL === 'UPSERT_SETTING' &&
+      dataObj.key !== undefined &&
+      dataObj.value !== undefined
+    ) {
+      return [ dataObj.key, dataObj.value ];
+    }
+    if (Object.keys(dataObj).some(k => !/^(rawSQL|params|\d+)$/.test(k))) {
+      return dataObj;
+    }
   }
 
   return [ dataObj ];

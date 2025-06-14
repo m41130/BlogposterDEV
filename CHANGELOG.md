@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Fixed Settings Manager crash on SQLite by converting named parameters to
+  positional arrays for `GET_SETTING` and `UPSERT_SETTING` queries.
 - Fixed ADD_USER_FIELD placeholder to pass named parameters correctly, preventing SQLite install errors.
 - Added /api/meltdown/batch endpoint and `meltdownEmitBatch` helper to reduce request spam from the admin dashboard.
 - Fixed first-time install page failing due to incorrect token purpose for user count check.
