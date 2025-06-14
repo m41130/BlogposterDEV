@@ -611,6 +611,15 @@ function extractParamsIfNeeded(dataObj, whereObj) {
     return numericKeys.map(k => dataObj[k]);
   }
 
+  // If rawSQL with named parameters, return the object directly so
+  // placeholder handlers receive the expected shape
+  if (
+    dataObj.rawSQL &&
+    Object.keys(dataObj).some(k => !/^(rawSQL|params|\d+)$/.test(k))
+  ) {
+    return dataObj;
+  }
+
   return [ dataObj ];
 }
 
