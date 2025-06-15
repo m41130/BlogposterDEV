@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 
 El Psy Kongroo
 
-## [Unreleased]
+## [0.5.1] – 2025-06-15
 - Startup no longer marks `FIRST_INSTALL_DONE` as true when no users exist, so
   `/install` remains accessible for creating the first admin account.
 - Fixed crash when hitting `/admin` or `/login` during setup. The routes now
