@@ -489,21 +489,29 @@ app.get('/admin/home', pageLimiter, csrfProtection, async (req, res) => {
     const publicJwt = await new Promise((resolve, reject) => {
       motherEmitter.emit(
         'issuePublicToken',
-        { purpose: 'login', moduleName: 'auth' },
+        { purpose: 'firstInstallCheck', moduleName: 'auth' },
         (err, tok) => err ? reject(err) : resolve(tok)
       );
     });
 
-    const userCount = await new Promise((resolve, reject) => {
-      motherEmitter.emit(
-        'getUserCount',
-        { jwt: publicJwt, moduleName: 'userManagement', moduleType: 'core' },
-        (err, count = 0) => err ? reject(err) : resolve(count)
-      );
-    });
+    const [installVal, userCount] = await Promise.all([
+      new Promise((resolve, reject) => {
+        motherEmitter.emit(
+          'getPublicSetting',
+          { jwt: publicJwt, moduleName: 'settingsManager', moduleType: 'core', key: 'FIRST_INSTALL_DONE' },
+          (err, val) => err ? reject(err) : resolve(val)
+        );
+      }),
+      new Promise((resolve, reject) => {
+        motherEmitter.emit(
+          'getUserCount',
+          { jwt: publicJwt, moduleName: 'userManagement', moduleType: 'core' },
+          (err, count = 0) => err ? reject(err) : resolve(count)
+        );
+      })
+    ]);
 
-    // User existiert noch nicht, zeige register.html
-    if (userCount === 0) {
+    if (installVal !== 'true' || userCount === 0) {
       return res.redirect('/install');
     }
 
