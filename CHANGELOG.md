@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Fixed admin layout saving on SQLite by passing placeholder parameters as arrays.
 - Startup no longer marks `FIRST_INSTALL_DONE` as true when no users exist, so
   `/install` remains accessible for creating the first admin account.
 - Fixed crash when hitting `/admin` or `/login` during setup. The routes now
