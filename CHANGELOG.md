@@ -9,6 +9,8 @@ El Psy Kongroo
   goes to `/login`.
 - Admin home now checks installation status and redirects to `/install`
   if setup hasn't finished or no users exist.
+- `/login` also redirects to `/install` when the system is not yet set up
+  or no users exist.
 - POST /install now checks installation status to prevent creating
 - Automatically recreates `cms_settings` table if missing to avoid SQLite errors during first-time setup.
   additional admin users after setup.

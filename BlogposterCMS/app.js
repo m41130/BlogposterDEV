@@ -175,6 +175,41 @@ function getModuleTokenForDbManager() {
     });
   }
 
+  // Helper to check if the system still requires the initial setup
+  async function needsInitialSetup() {
+    const pubTok = await new Promise((resolve, reject) => {
+      motherEmitter.emit(
+        'issuePublicToken',
+        { purpose: 'firstInstallCheck', moduleName: 'auth' },
+        (err, tok) => (err ? reject(err) : resolve(tok))
+      );
+    });
+
+    const [installVal, userCount] = await Promise.all([
+      new Promise((resolve, reject) => {
+        motherEmitter.emit(
+          'getPublicSetting',
+          {
+            jwt: pubTok,
+            moduleName: 'settingsManager',
+            moduleType: 'core',
+            key: 'FIRST_INSTALL_DONE'
+          },
+          (err, val) => (err ? reject(err) : resolve(val))
+        );
+      }),
+      new Promise((resolve, reject) => {
+        motherEmitter.emit(
+          'getUserCount',
+          { jwt: pubTok, moduleName: 'userManagement', moduleType: 'core' },
+          (err, count = 0) => (err ? reject(err) : resolve(count))
+        );
+      })
+    ]);
+
+    return installVal !== 'true' || userCount === 0;
+  }
+
   // Set up paths
   const publicPath = path.join(__dirname, 'public');
   const assetsPath = path.join(publicPath, 'assets');
@@ -480,32 +515,7 @@ app.get('/admin/logout', (req, res) => {
 // Redirect plain /admin to login or install depending on setup
 app.get('/admin', pageLimiter, csrfProtection, async (_req, res) => {
   try {
-    const token = await new Promise((resolve, reject) => {
-      motherEmitter.emit(
-        'issuePublicToken',
-        { purpose: 'firstInstallCheck', moduleName: 'auth' },
-        (err, tok) => (err ? reject(err) : resolve(tok))
-      );
-    });
-
-    const [installVal, userCount] = await Promise.all([
-      new Promise((resolve, reject) => {
-        motherEmitter.emit(
-          'getPublicSetting',
-          { jwt: token, moduleName: 'settingsManager', moduleType: 'core', key: 'FIRST_INSTALL_DONE' },
-          (err, val) => (err ? reject(err) : resolve(val))
-        );
-      }),
-      new Promise((resolve, reject) => {
-        motherEmitter.emit(
-          'getUserCount',
-          { jwt: token, moduleName: 'userManagement', moduleType: 'core' },
-          (err, count = 0) => (err ? reject(err) : resolve(count))
-        );
-      })
-    ]);
-
-    if (installVal !== 'true' || userCount === 0) {
+    if (await needsInitialSetup()) {
       return res.redirect('/install');
     }
 
@@ -519,32 +529,7 @@ app.get('/admin', pageLimiter, csrfProtection, async (_req, res) => {
 // Admin Home Route
 app.get('/admin/home', pageLimiter, csrfProtection, async (req, res) => {
   try {
-    const publicJwt = await new Promise((resolve, reject) => {
-      motherEmitter.emit(
-        'issuePublicToken',
-        { purpose: 'firstInstallCheck', moduleName: 'auth' },
-        (err, tok) => err ? reject(err) : resolve(tok)
-      );
-    });
-
-    const [installVal, userCount] = await Promise.all([
-      new Promise((resolve, reject) => {
-        motherEmitter.emit(
-          'getPublicSetting',
-          { jwt: publicJwt, moduleName: 'settingsManager', moduleType: 'core', key: 'FIRST_INSTALL_DONE' },
-          (err, val) => err ? reject(err) : resolve(val)
-        );
-      }),
-      new Promise((resolve, reject) => {
-        motherEmitter.emit(
-          'getUserCount',
-          { jwt: publicJwt, moduleName: 'userManagement', moduleType: 'core' },
-          (err, count = 0) => err ? reject(err) : resolve(count)
-        );
-      })
-    ]);
-
-    if (installVal !== 'true' || userCount === 0) {
+    if (await needsInitialSetup()) {
       return res.redirect('/install');
     }
 
@@ -688,6 +673,10 @@ app.get('/admin/*', pageLimiter, csrfProtection, async (req, res, next) => {
 // 8) Explicit /login route
 // ─────────────────────────────────────────────────────────────────
 app.get('/login', pageLimiter, csrfProtection, async (req, res) => {
+  if (await needsInitialSetup()) {
+    return res.redirect('/install');
+  }
+
   const adminJwt = req.cookies?.admin_jwt;
 
   if (adminJwt) {
