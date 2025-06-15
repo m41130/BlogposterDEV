@@ -177,37 +177,42 @@ function getModuleTokenForDbManager() {
 
   // Helper to check if the system still requires the initial setup
   async function needsInitialSetup() {
-    const pubTok = await new Promise((resolve, reject) => {
-      motherEmitter.emit(
-        'issuePublicToken',
-        { purpose: 'firstInstallCheck', moduleName: 'auth' },
-        (err, tok) => (err ? reject(err) : resolve(tok))
-      );
-    });
-
-    const [installVal, userCount] = await Promise.all([
-      new Promise((resolve, reject) => {
+    try {
+      const pubTok = await new Promise((resolve, reject) => {
         motherEmitter.emit(
-          'getPublicSetting',
-          {
-            jwt: pubTok,
-            moduleName: 'settingsManager',
-            moduleType: 'core',
-            key: 'FIRST_INSTALL_DONE'
-          },
-          (err, val) => (err ? reject(err) : resolve(val))
+          'issuePublicToken',
+          { purpose: 'firstInstallCheck', moduleName: 'auth' },
+          (err, tok) => (err ? reject(err) : resolve(tok))
         );
-      }),
-      new Promise((resolve, reject) => {
-        motherEmitter.emit(
-          'getUserCount',
-          { jwt: pubTok, moduleName: 'userManagement', moduleType: 'core' },
-          (err, count = 0) => (err ? reject(err) : resolve(count))
-        );
-      })
-    ]);
+      });
 
-    return installVal !== 'true' && userCount === 0;
+      const [installVal, userCount] = await Promise.all([
+        new Promise((resolve, reject) => {
+          motherEmitter.emit(
+            'getPublicSetting',
+            {
+              jwt: pubTok,
+              moduleName: 'settingsManager',
+              moduleType: 'core',
+              key: 'FIRST_INSTALL_DONE'
+            },
+            (err, val) => (err ? reject(err) : resolve(val))
+          );
+        }),
+        new Promise((resolve, reject) => {
+          motherEmitter.emit(
+            'getUserCount',
+            { jwt: pubTok, moduleName: 'userManagement', moduleType: 'core' },
+            (err, count = 0) => (err ? reject(err) : resolve(count))
+          );
+        })
+      ]);
+
+      return installVal !== 'true' && userCount === 0;
+    } catch (err) {
+      console.error('[needsInitialSetup] Error:', err.message);
+      return true; // default to requiring setup when uncertain
+    }
   }
 
   // Set up paths
@@ -673,11 +678,12 @@ app.get('/admin/*', pageLimiter, csrfProtection, async (req, res, next) => {
 // 8) Explicit /login route
 // ─────────────────────────────────────────────────────────────────
 app.get('/login', pageLimiter, csrfProtection, async (req, res) => {
-  if (await needsInitialSetup()) {
-    return res.redirect('/install');
-  }
+  try {
+    if (await needsInitialSetup()) {
+      return res.redirect('/install');
+    }
 
-  const adminJwt = req.cookies?.admin_jwt;
+    const adminJwt = req.cookies?.admin_jwt;
 
   if (adminJwt) {
     try {
@@ -694,10 +700,14 @@ app.get('/login', pageLimiter, csrfProtection, async (req, res) => {
     }
   }
 
-  let html = fs.readFileSync(path.join(publicPath, 'login.html'), 'utf8');
-  html = html.replace('{{CSRF_TOKEN}}', req.csrfToken());
-  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-  res.send(html);
+    let html = fs.readFileSync(path.join(publicPath, 'login.html'), 'utf8');
+    html = html.replace('{{CSRF_TOKEN}}', req.csrfToken());
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.send(html);
+  } catch (err) {
+    console.error('[GET /login] Error:', err);
+    res.status(500).send('Server misconfiguration');
+  }
 });
 
 // Convenience redirect for first-time registration
@@ -943,27 +953,33 @@ try {
   });
 
   if (firstInstallDone !== 'true') {
-    console.log('[APP] Detected FIRST_INSTALL_DONE is false => running initial seeding now...');
-    
-    // 1) Perform any "only once" tasks:
-    //    - e.g. meltdown calls to create certain pages or roles, etc.
-
-    // 2) Then set FIRST_INSTALL_DONE => 'true'
-    await new Promise((resolve, reject) => {
+    const userCount = await new Promise((resolve, reject) => {
       motherEmitter.emit(
-        'setSetting',
-        {
-          jwt         : dbManagerToken,
-          moduleName  : 'settingsManager',
-          moduleType  : 'core',
-          key         : 'FIRST_INSTALL_DONE',
-          value       : 'true'
-        },
-        err => err ? reject(err) : resolve()
+        'getUserCount',
+        { jwt: dbManagerToken, moduleName: 'userManagement', moduleType: 'core' },
+        (err, count = 0) => (err ? reject(err) : resolve(count))
       );
     });
 
-    console.log('[APP] Finished first-time setup => FIRST_INSTALL_DONE is now "true".');
+    if (userCount > 0) {
+      console.log('[APP] FIRST_INSTALL_DONE false but users exist => marking installed.');
+      await new Promise((resolve, reject) => {
+        motherEmitter.emit(
+          'setSetting',
+          {
+            jwt         : dbManagerToken,
+            moduleName  : 'settingsManager',
+            moduleType  : 'core',
+            key         : 'FIRST_INSTALL_DONE',
+            value       : 'true'
+          },
+          err => err ? reject(err) : resolve()
+        );
+      });
+      console.log('[APP] FIRST_INSTALL_DONE set to "true" based on existing users.');
+    } else {
+      console.log('[APP] FIRST_INSTALL_DONE false and no users => waiting for installation.');
+    }
   } else {
     console.log('[APP] FIRST_INSTALL_DONE is "true" => skipping initial seeding.');
   }
