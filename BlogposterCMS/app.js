@@ -177,42 +177,37 @@ function getModuleTokenForDbManager() {
 
   // Helper to check if the system still requires the initial setup
   async function needsInitialSetup() {
-    try {
-      const pubTok = await new Promise((resolve, reject) => {
+    const pubTok = await new Promise((resolve, reject) => {
+      motherEmitter.emit(
+        'issuePublicToken',
+        { purpose: 'firstInstallCheck', moduleName: 'auth' },
+        (err, tok) => (err ? reject(err) : resolve(tok))
+      );
+    });
+
+    const [installVal, userCount] = await Promise.all([
+      new Promise((resolve, reject) => {
         motherEmitter.emit(
-          'issuePublicToken',
-          { purpose: 'firstInstallCheck', moduleName: 'auth' },
-          (err, tok) => (err ? reject(err) : resolve(tok))
+          'getPublicSetting',
+          {
+            jwt: pubTok,
+            moduleName: 'settingsManager',
+            moduleType: 'core',
+            key: 'FIRST_INSTALL_DONE'
+          },
+          (err, val) => (err ? reject(err) : resolve(val))
         );
-      });
+      }),
+      new Promise((resolve, reject) => {
+        motherEmitter.emit(
+          'getUserCount',
+          { jwt: pubTok, moduleName: 'userManagement', moduleType: 'core' },
+          (err, count = 0) => (err ? reject(err) : resolve(count))
+        );
+      })
+    ]);
 
-      const [installVal, userCount] = await Promise.all([
-        new Promise((resolve, reject) => {
-          motherEmitter.emit(
-            'getPublicSetting',
-            {
-              jwt: pubTok,
-              moduleName: 'settingsManager',
-              moduleType: 'core',
-              key: 'FIRST_INSTALL_DONE'
-            },
-            (err, val) => (err ? reject(err) : resolve(val))
-          );
-        }),
-        new Promise((resolve, reject) => {
-          motherEmitter.emit(
-            'getUserCount',
-            { jwt: pubTok, moduleName: 'userManagement', moduleType: 'core' },
-            (err, count = 0) => (err ? reject(err) : resolve(count))
-          );
-        })
-      ]);
-
-      return installVal !== 'true' && userCount === 0;
-    } catch (err) {
-      console.error('[needsInitialSetup] Error:', err.message);
-      return true; // default to requiring setup when uncertain
-    }
+    return installVal !== 'true' && userCount === 0;
   }
 
   // Set up paths
@@ -678,12 +673,11 @@ app.get('/admin/*', pageLimiter, csrfProtection, async (req, res, next) => {
 // 8) Explicit /login route
 // ─────────────────────────────────────────────────────────────────
 app.get('/login', pageLimiter, csrfProtection, async (req, res) => {
-  try {
-    if (await needsInitialSetup()) {
-      return res.redirect('/install');
-    }
+  if (await needsInitialSetup()) {
+    return res.redirect('/install');
+  }
 
-    const adminJwt = req.cookies?.admin_jwt;
+  const adminJwt = req.cookies?.admin_jwt;
 
   if (adminJwt) {
     try {
@@ -700,14 +694,10 @@ app.get('/login', pageLimiter, csrfProtection, async (req, res) => {
     }
   }
 
-    let html = fs.readFileSync(path.join(publicPath, 'login.html'), 'utf8');
-    html = html.replace('{{CSRF_TOKEN}}', req.csrfToken());
-    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-    res.send(html);
-  } catch (err) {
-    console.error('[GET /login] Error:', err);
-    res.status(500).send('Server misconfiguration');
-  }
+  let html = fs.readFileSync(path.join(publicPath, 'login.html'), 'utf8');
+  html = html.replace('{{CSRF_TOKEN}}', req.csrfToken());
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  res.send(html);
 });
 
 // Convenience redirect for first-time registration
