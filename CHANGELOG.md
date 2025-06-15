@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Admin route now checks installation status and redirects to `/install`
+  when no users exist or `FIRST_INSTALL_DONE` is not set.
 - POST /install now checks installation status to prevent creating
 - Automatically recreates `cms_settings` table if missing to avoid SQLite errors during first-time setup.
   additional admin users after setup.
