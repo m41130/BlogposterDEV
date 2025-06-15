@@ -4,8 +4,6 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
-- Fixed crash when hitting `/admin` or `/login` during setup. The routes now
-  catch database errors and fall back to the installer instead of terminating.
 - Fixed infinite redirect loop between `/install` and `/login` when
   `FIRST_INSTALL_DONE` wasn't set but user accounts existed.
 - `/admin` now verifies installation and user count before redirecting,
