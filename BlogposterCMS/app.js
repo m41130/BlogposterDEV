@@ -175,6 +175,41 @@ function getModuleTokenForDbManager() {
     });
   }
 
+  // Helper to check if the system still requires the initial setup
+  async function needsInitialSetup() {
+    const pubTok = await new Promise((resolve, reject) => {
+      motherEmitter.emit(
+        'issuePublicToken',
+        { purpose: 'firstInstallCheck', moduleName: 'auth' },
+        (err, tok) => (err ? reject(err) : resolve(tok))
+      );
+    });
+
+    const [installVal, userCount] = await Promise.all([
+      new Promise((resolve, reject) => {
+        motherEmitter.emit(
+          'getPublicSetting',
+          {
+            jwt: pubTok,
+            moduleName: 'settingsManager',
+            moduleType: 'core',
+            key: 'FIRST_INSTALL_DONE'
+          },
+          (err, val) => (err ? reject(err) : resolve(val))
+        );
+      }),
+      new Promise((resolve, reject) => {
+        motherEmitter.emit(
+          'getUserCount',
+          { jwt: pubTok, moduleName: 'userManagement', moduleType: 'core' },
+          (err, count = 0) => (err ? reject(err) : resolve(count))
+        );
+      })
+    ]);
+
+    return installVal !== 'true' || userCount === 0;
+  }
+
   // Set up paths
   const publicPath = path.join(__dirname, 'public');
   const assetsPath = path.join(publicPath, 'assets');
@@ -477,33 +512,24 @@ app.get('/admin/logout', (req, res) => {
 // 7a) Admin entry point: redirect to /admin/home and render shell
 // ──────────────────────────────────────────────────────────────────────────
 
-// Redirect plain /admin to /admin/home
-app.get('/admin', (_req, res) => {
-  // immediate redirect
-  return res.redirect('/admin/home');
+// Redirect plain /admin to login or install depending on setup
+app.get('/admin', pageLimiter, csrfProtection, async (_req, res) => {
+  try {
+    if (await needsInitialSetup()) {
+      return res.redirect('/install');
+    }
+
+    return res.redirect('/login');
+  } catch (err) {
+    console.error('[GET /admin] Error:', err);
+    return res.redirect('/login');
+  }
 });
 
 // Admin Home Route
 app.get('/admin/home', pageLimiter, csrfProtection, async (req, res) => {
   try {
-    const publicJwt = await new Promise((resolve, reject) => {
-      motherEmitter.emit(
-        'issuePublicToken',
-        { purpose: 'login', moduleName: 'auth' },
-        (err, tok) => err ? reject(err) : resolve(tok)
-      );
-    });
-
-    const userCount = await new Promise((resolve, reject) => {
-      motherEmitter.emit(
-        'getUserCount',
-        { jwt: publicJwt, moduleName: 'userManagement', moduleType: 'core' },
-        (err, count = 0) => err ? reject(err) : resolve(count)
-      );
-    });
-
-    // User existiert noch nicht, zeige register.html
-    if (userCount === 0) {
+    if (await needsInitialSetup()) {
       return res.redirect('/install');
     }
 
@@ -647,6 +673,10 @@ app.get('/admin/*', pageLimiter, csrfProtection, async (req, res, next) => {
 // 8) Explicit /login route
 // ─────────────────────────────────────────────────────────────────
 app.get('/login', pageLimiter, csrfProtection, async (req, res) => {
+  if (await needsInitialSetup()) {
+    return res.redirect('/install');
+  }
+
   const adminJwt = req.cookies?.admin_jwt;
 
   if (adminJwt) {
