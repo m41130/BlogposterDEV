@@ -953,27 +953,33 @@ try {
   });
 
   if (firstInstallDone !== 'true') {
-    console.log('[APP] Detected FIRST_INSTALL_DONE is false => running initial seeding now...');
-    
-    // 1) Perform any "only once" tasks:
-    //    - e.g. meltdown calls to create certain pages or roles, etc.
-
-    // 2) Then set FIRST_INSTALL_DONE => 'true'
-    await new Promise((resolve, reject) => {
+    const userCount = await new Promise((resolve, reject) => {
       motherEmitter.emit(
-        'setSetting',
-        {
-          jwt         : dbManagerToken,
-          moduleName  : 'settingsManager',
-          moduleType  : 'core',
-          key         : 'FIRST_INSTALL_DONE',
-          value       : 'true'
-        },
-        err => err ? reject(err) : resolve()
+        'getUserCount',
+        { jwt: dbManagerToken, moduleName: 'userManagement', moduleType: 'core' },
+        (err, count = 0) => (err ? reject(err) : resolve(count))
       );
     });
 
-    console.log('[APP] Finished first-time setup => FIRST_INSTALL_DONE is now "true".');
+    if (userCount > 0) {
+      console.log('[APP] FIRST_INSTALL_DONE false but users exist => marking installed.');
+      await new Promise((resolve, reject) => {
+        motherEmitter.emit(
+          'setSetting',
+          {
+            jwt         : dbManagerToken,
+            moduleName  : 'settingsManager',
+            moduleType  : 'core',
+            key         : 'FIRST_INSTALL_DONE',
+            value       : 'true'
+          },
+          err => err ? reject(err) : resolve()
+        );
+      });
+      console.log('[APP] FIRST_INSTALL_DONE set to "true" based on existing users.');
+    } else {
+      console.log('[APP] FIRST_INSTALL_DONE false and no users => waiting for installation.');
+    }
   } else {
     console.log('[APP] FIRST_INSTALL_DONE is "true" => skipping initial seeding.');
   }
