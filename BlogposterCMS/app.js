@@ -207,7 +207,7 @@ function getModuleTokenForDbManager() {
       })
     ]);
 
-    return installVal !== 'true' || userCount === 0;
+    return installVal !== 'true' && userCount === 0;
   }
 
   // Set up paths

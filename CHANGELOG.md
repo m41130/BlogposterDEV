@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Fixed infinite redirect loop between `/install` and `/login` when
+  `FIRST_INSTALL_DONE` wasn't set but user accounts existed.
 - `/admin` now verifies installation and user count before redirecting,
   ensuring first-time setups reach `/install` and all subsequent access
   goes to `/login`.
