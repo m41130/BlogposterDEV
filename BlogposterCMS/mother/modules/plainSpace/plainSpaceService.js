@@ -213,7 +213,7 @@ function registerPlainSpaceEvents(motherEmitter) {
           table: '__rawSQL__',
           data: {
             rawSQL: 'UPSERT_PLAINSPACE_LAYOUT',
-            params: { pageId, lane, viewport, layoutArr: layout }
+            params: [{ pageId, lane, viewport, layoutArr: layout }]
           }
         },
         cb
@@ -239,7 +239,7 @@ function registerPlainSpaceEvents(motherEmitter) {
           table: '__rawSQL__',
           data: {
             rawSQL: 'GET_PLAINSPACE_LAYOUT',
-            params: { pageId, lane, viewport }
+            params: [{ pageId, lane, viewport }]
           }
         },
         (err, rows = []) => {
@@ -275,7 +275,7 @@ function registerPlainSpaceEvents(motherEmitter) {
           table: '__rawSQL__',
           data: {
             rawSQL: 'GET_ALL_PLAINSPACE_LAYOUTS',
-            params: { pageId, lane }
+            params: [{ pageId, lane }]
           }
         },
         (err, rows = []) => {
@@ -314,7 +314,7 @@ function registerPlainSpaceEvents(motherEmitter) {
           table: '__rawSQL__',
           data: {
             rawSQL: 'UPSERT_PLAINSPACE_LAYOUT_TEMPLATE',
-            params: { name, lane, viewport, layoutArr: layout, previewPath }
+            params: [{ name, lane, viewport, layoutArr: layout, previewPath }]
           }
         },
         cb
@@ -340,7 +340,7 @@ function registerPlainSpaceEvents(motherEmitter) {
           table: '__rawSQL__',
           data: {
             rawSQL: 'GET_PLAINSPACE_LAYOUT_TEMPLATE',
-            params: { name }
+            params: [{ name }]
           }
         },
         (err, rows = []) => {
@@ -376,7 +376,7 @@ function registerPlainSpaceEvents(motherEmitter) {
           table: '__rawSQL__',
           data: {
             rawSQL: 'GET_PLAINSPACE_LAYOUT_TEMPLATE_NAMES',
-            params: { lane }
+            params: [{ lane }]
           }
         },
         (err, rows = []) => {
@@ -407,7 +407,7 @@ function registerPlainSpaceEvents(motherEmitter) {
           moduleName: MODULE,
           moduleType: 'core',
           table: '__rawSQL__',
-          data: { rawSQL: 'UPSERT_WIDGET_INSTANCE', params: { instanceId, content } }
+          data: { rawSQL: 'UPSERT_WIDGET_INSTANCE', params: [{ instanceId, content }] }
         },
         cb
       );
@@ -433,7 +433,7 @@ function registerPlainSpaceEvents(motherEmitter) {
           moduleName: MODULE,
           moduleType: 'core',
           table: '__rawSQL__',
-          data: { rawSQL: 'GET_WIDGET_INSTANCE', params: { instanceId } }
+          data: { rawSQL: 'GET_WIDGET_INSTANCE', params: [{ instanceId }] }
         },
         (err, rows = []) => {
           if (err) return cb(err);
