@@ -35,6 +35,7 @@ async function seedAdminPages(motherEmitter, jwt, adminPages = []) {
       .substring(0, 96);
 
   for (const page of adminPages) {
+    try {
     let parentId = null;
     let finalSlugForCheck = page.slug.replace(/\//g, '-');
     let finalSlugForCreate = page.slug;
@@ -97,7 +98,7 @@ async function seedAdminPages(motherEmitter, jwt, adminPages = []) {
       continue;
     }
 
-    await meltdownEmit(motherEmitter, 'createPage', {
+    const createRes = await meltdownEmit(motherEmitter, 'createPage', {
       jwt,
       moduleName: 'pagesManager',
       moduleType: 'core',
@@ -113,15 +114,41 @@ async function seedAdminPages(motherEmitter, jwt, adminPages = []) {
         html: '<div id="root"></div>',
         css: '',
         metaDesc: '',
-        seoTitle: page.title,
-        seoKeywords: ''
+      seoTitle: page.title,
+      seoKeywords: ''
       }]
-    }).then(() => {
-      console.log(`[plainSpace] ✅ Admin page "${finalSlugForCheck}" successfully created.`);
-    }).catch(err => {
-      console.error(`[plainSpace] Error creating "${finalSlugForCheck}":`, err.message);
-
     });
+    console.log(`[plainSpace] ✅ Admin page "${finalSlugForCheck}" successfully created.`);
+
+    const pageId = createRes?.pageId;
+    if (pageId && Array.isArray(page.config?.widgets) && page.config.widgets.length) {
+      const layout = page.config.widgets.map((wId, idx) => ({
+        id: `w${idx}`,
+        widgetId: wId,
+        x: 0,
+        y: idx * 2,
+        w: 8,
+        h: 4,
+        code: null
+      }));
+      try {
+        await meltdownEmit(motherEmitter, 'saveLayoutForViewport', {
+          jwt,
+          moduleName: MODULE,
+          moduleType: 'core',
+          pageId,
+          lane: page.lane,
+          viewport: 'desktop',
+          layout
+        });
+        console.log(`[plainSpace] Default layout seeded for "${finalSlugForCheck}".`);
+      } catch (err) {
+        console.error(`[plainSpace] Failed to seed layout for "${finalSlugForCheck}":`, err.message);
+      }
+    }
+    } catch(err) {
+      console.error(`[plainSpace] Error creating "${finalSlugForCheck}":`, err.message);
+    }
   }
 }
 
