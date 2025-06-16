@@ -32,13 +32,22 @@ function isEditableElement(el) {
   return el.children.length === 0;
 }
 
+function withinGridItem(el) {
+  let node = el;
+  while (node && node !== document.body) {
+    if (node.classList && node.classList.contains('grid-stack-item')) return true;
+    node = node.parentElement || (node.getRootNode && node.getRootNode().host);
+  }
+  return false;
+}
+
 function findEditable(target) {
   let t = target;
   while (t && t !== document.body) {
-    if (isEditableElement(t) && t.closest('.grid-stack-item')) {
+    if (isEditableElement(t) && withinGridItem(t)) {
       return t;
     }
-    t = t.parentElement;
+    t = t.parentElement || (t.getRootNode && t.getRootNode().host);
   }
   return null;
 }
@@ -47,7 +56,7 @@ function findEditableFromEvent(ev) {
   if (typeof ev.composedPath === 'function') {
     const path = ev.composedPath();
     for (const node of path) {
-      if (node instanceof Element && isEditableElement(node) && node.closest('.grid-stack-item')) {
+      if (node instanceof Element && isEditableElement(node) && withinGridItem(node)) {
         return node;
       }
     }
