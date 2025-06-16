@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Added Fonts Manager core module with pluggable providers and admin page.
 - GridStack resize handles are hidden in the builder; the transformable bounding box now manages resizing.
 - Added login settings link in the sidebar and redesigned login strategies widget with toggle and edit icons.
 - Widgets temporarily lock while editing text in the builder, enabling text selection.

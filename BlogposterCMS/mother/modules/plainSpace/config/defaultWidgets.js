@@ -145,6 +145,12 @@ module.exports.DEFAULT_WIDGETS = [
     category: 'core'
   },
   {
+    widgetId: 'fontsList',
+    widgetType: ADMIN_LANE,
+    label: 'Font Providers',
+    content: '/assets/plainspace/admin/fontsListWidget.js',
+    category: 'core'
+  },
     widgetId: 'loginStrategyEdit',
     widgetType: ADMIN_LANE,
     label: 'Login Strategy Edit',
