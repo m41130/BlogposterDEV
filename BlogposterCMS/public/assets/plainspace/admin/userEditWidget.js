@@ -34,15 +34,6 @@ export async function render(el) {
       'bio',
       'ui_color'
     ];
-    const requiredSetting = await meltdownEmit('getSetting', {
-      jwt,
-      moduleName: 'settingsManager',
-      moduleType: 'core',
-      key: 'REQUIRED_USER_FIELDS'
-    }).catch(() => ({}));
-    const requiredFields = (() => {
-      try { return JSON.parse(requiredSetting) || {}; } catch { return {}; }
-    })();
     const inputs = {};
     const container = document.createElement('div');
     container.className = 'user-edit-widget';
@@ -79,7 +70,7 @@ export async function render(el) {
 
     fields.forEach(f => {
       const row = document.createElement('div');
-      row.className = 'user-field-row';
+      row.className = 'field user-field-row';
 
       let input;
       if (f === 'bio') {
@@ -133,14 +124,7 @@ export async function render(el) {
       row.appendChild(input);
       row.appendChild(label);
 
-      if (f !== 'username' && f !== 'ui_color') {
-        const req = document.createElement('input');
-        req.type = 'checkbox';
-        req.className = 'reg-required';
-        req.checked = !!requiredFields[f];
-        req.addEventListener('change', () => { requiredFields[f] = req.checked; });
-        row.appendChild(req);
-      }
+
 
       container.appendChild(row);
     });
@@ -188,13 +172,6 @@ export async function render(el) {
       }
       try {
         await meltdownEmit('updateUserProfile', payload);
-        await meltdownEmit('setSetting', {
-          jwt,
-          moduleName: 'settingsManager',
-          moduleType: 'core',
-          key: 'REQUIRED_USER_FIELDS',
-          value: JSON.stringify(requiredFields)
-        });
         alert('Saved');
       } catch (err) {
         alert('Error: ' + err.message);
