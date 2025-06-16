@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Switching between client and server render modes now works by setting the
+  `RENDER_MODE` environment variable or `features.renderMode` in
+  `runtime.local.js`. The server strips `pageRenderer.js` automatically when
+  `RENDER_MODE=server`.
+- `runtime.local.js` overrides now merge feature flags instead of replacing
+  them. The sample environment file documents `RENDER_MODE` for clarity.
+- Clarified that switching render mode requires configuration changes; no
+  runtime toggle exists.
 - Documentation on switching the render engine with sections for SSR and CSR.
 - Documented how to toggle render mode using the `RENDER_MODE` env var or runtime.local.js.
 - Fixed admin layout saving on SQLite by passing placeholder parameters as arrays.

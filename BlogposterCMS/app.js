@@ -26,7 +26,8 @@ const csurf        = require('csurf');
 const { apiLimiter, loginLimiter, pageLimiter } = require('./mother/utils/rateLimiters');
 const crypto = require('crypto');
 const { sanitizeCookieName, sanitizeCookiePath, sanitizeCookieDomain } = require('./mother/utils/cookieUtils');
-const { isProduction } = require('./config/runtime');
+const { isProduction, features } = require('./config/runtime');
+const renderMode = features?.renderMode || 'client';
 
 
 
@@ -543,6 +544,12 @@ app.get('/admin/home', pageLimiter, csrfProtection, async (req, res) => {
       try {
         await validateAdminToken(req.cookies.admin_jwt);
         let html = fs.readFileSync(path.join(publicPath, 'admin.html'), 'utf8');
+        if (renderMode === 'server') {
+          html = html.replace(
+            /<script type="module" src="\/assets\/js\/pageRenderer.js"><\/script>\s*/i,
+            ''
+          );
+        }
         html = html.replace(
           '</head>',
           `<meta name="csrf-token" content="${req.csrfToken()}"></head>`
@@ -647,6 +654,12 @@ app.get('/admin/*', pageLimiter, csrfProtection, async (req, res, next) => {
       path.join(__dirname, 'public', 'admin.html'),
       'utf8'
     );
+    if (renderMode === 'server') {
+      html = html.replace(
+        /<script type="module" src="\/assets\/js\/pageRenderer.js"><\/script>\s*/i,
+        ''
+      );
+    }
 
     const inject = `
       <meta name="csrf-token" content="${csrfTok}">
@@ -912,6 +925,12 @@ app.get('/:slug?', pageLimiter, async (req, res, next) => {
     const nonce = crypto.randomBytes(16).toString('base64');
 
     let html = fs.readFileSync(pageHtmlPath, 'utf8');
+    if (renderMode === 'server') {
+      html = html.replace(
+        /<script type="module" src="\/assets\/js\/pageRenderer.js"><\/script>\s*/i,
+        ''
+      );
+    }
     const inject = `<script nonce="${nonce}">
       window.PAGE_ID = ${JSON.stringify(pageId)};
       window.PAGE_SLUG = ${JSON.stringify(slugToUse)};
