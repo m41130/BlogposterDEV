@@ -346,26 +346,3 @@ body.preview-mode #builderGrid {
   pointer-events: none;
   z-index: 50;
 }
-
-.bounding-box {
-  position: absolute;
-  border: 1px dashed var(--user-color, #333);
-  pointer-events: none;
-  z-index: 1000;
-  .bbox-handle {
-    position: absolute;
-    width: 8px;
-    height: 8px;
-    background: var(--user-color, #333);
-    border-radius: 50%;
-    pointer-events: all;
-  }
-  .nw { top: -4px; left: -4px; cursor: nwse-resize; }
-  .n { top: -4px; left: 50%; transform: translateX(-50%); cursor: ns-resize; }
-  .ne { top: -4px; right: -4px; cursor: nesw-resize; }
-  .e { top: 50%; right: -4px; transform: translateY(-50%); cursor: ew-resize; }
-  .se { bottom: -4px; right: -4px; cursor: nwse-resize; }
-  .s { bottom: -4px; left: 50%; transform: translateX(-50%); cursor: ns-resize; }
-  .sw { bottom: -4px; left: -4px; cursor: nesw-resize; }
-  .w { top: 50%; left: -4px; transform: translateY(-50%); cursor: ew-resize; }
-}
