@@ -7,6 +7,7 @@ const quillCssUrl = new URL('/assets/css/quill.snow.css', document.baseURI).href
 
 let toolbar = null;
 let quill = null;
+let qToolbar = null;
 let editorEl = null;
 let initPromise = null;
 let activeEl = null;
@@ -14,6 +15,12 @@ let changeHandler = null;
 let outsideHandler = null;
 let editingPlain = false;
 let autoHandler = null;
+const DEFAULT_TOOLBAR = [
+  [{ header: [1, 2, false] }],
+  ['bold', 'italic', 'underline', 'link'],
+  [{ list: 'ordered' }, { list: 'bullet' }],
+  ['clean']
+];
 
 export function sanitizeHtml(html) {
   const div = document.createElement('div');
@@ -103,6 +110,7 @@ function close() {
   }
   activeEl.innerHTML = html;
   toolbar.style.display = 'none';
+  if (qToolbar && toolbar.contains(qToolbar)) toolbar.removeChild(qToolbar);
   document.removeEventListener('pointerdown', outsideHandler, true);
   document.removeEventListener('mousedown', outsideHandler, true);
   const el = activeEl;
@@ -110,6 +118,7 @@ function close() {
   activeEl = null;
   editingPlain = false;
   editorEl = null;
+  qToolbar = null;
   quill = null;
   if (typeof cb === 'function') cb(el, html);
 }
@@ -132,7 +141,9 @@ export async function editElement(el, onSave) {
   el.appendChild(editorEl);
 
   const { initQuill } = await import(quillEditorUrl);
-  quill = initQuill(editorEl, { placeholder: '', modules: { toolbar } });
+  quill = initQuill(editorEl, { placeholder: '', modules: { toolbar: DEFAULT_TOOLBAR } });
+  qToolbar = quill.getModule('toolbar').container;
+  toolbar.appendChild(qToolbar);
   toolbar.style.display = 'block';
   quill.focus();
 
