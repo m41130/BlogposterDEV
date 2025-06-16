@@ -840,6 +840,22 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       e.stopPropagation();
       selectWidget(el);
     });
+
+    // Select and temporarily lock the widget when focusing text inputs
+    el.addEventListener('focusin', e => {
+      if (!e.target.closest('input, textarea')) return;
+      selectWidget(el);
+      if (!el.dataset.tempLock) {
+        document.dispatchEvent(new CustomEvent('textEditStart', { detail: { widget: el } }));
+      }
+    });
+
+    el.addEventListener('focusout', e => {
+      if (!e.target.closest('input, textarea')) return;
+      if (el.dataset.tempLock) {
+        document.dispatchEvent(new CustomEvent('textEditStop', { detail: { widget: el } }));
+      }
+    });
   }
 
 
