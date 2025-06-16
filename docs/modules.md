@@ -18,7 +18,7 @@ This mechanism ensures that even community modules cannot bypass security bounda
 
 1. Add a new folder under `modules/`.
 2. Place an `index.js` file inside it with an exported `initialize` function.
-3. Optionally include a `moduleInfo.json` file with metadata (name, version, permissions, description).
+3. Include a `moduleInfo.json` file with metadata. It must define `moduleName`, `version`, `developer` and `description` so the loader can detect updates and show author details. Additional fields like permissions are optional.
 4. Register any meltdown listeners within the `initialize` function. Use `motherEmitter.on('eventName', handler)` to react to events.
 5. Restart the CMS. The Module Loader will sandbox your module and activate it if no errors occur.
 

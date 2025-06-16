@@ -41,6 +41,15 @@ async function installModuleFromZip(motherEmitter, jwt, uploadedZipBuffer, optio
       if (!moduleInfo.moduleName) {
         throw new Error('moduleInfo.json missing "moduleName" field.');
       }
+      if (!moduleInfo.version) {
+        throw new Error('moduleInfo.json missing "version" field.');
+      }
+      if (!moduleInfo.developer) {
+        throw new Error('moduleInfo.json missing "developer" field.');
+      }
+      if (!moduleInfo.description) {
+        throw new Error('moduleInfo.json missing "description" field.');
+      }
 
       // 3) Move to final /modules folder
       const finalModuleFolder = path.resolve(__dirname, `../../../modules/${moduleInfo.moduleName}`);

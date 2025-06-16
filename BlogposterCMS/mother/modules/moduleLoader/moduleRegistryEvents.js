@@ -102,6 +102,34 @@ function initModuleRegistryAdminEvents(motherEmitter, app) {
       callback(ex);
     }
   });
+
+  // meltdown => 'installModuleFromZip'
+  motherEmitter.on('installModuleFromZip', async (payload, originalCb) => {
+    const callback = onceCallback(originalCb);
+
+    try {
+      const { jwt, moduleName, moduleType, zipData } = payload || {};
+      if (!jwt || moduleName !== 'moduleLoader' || moduleType !== 'core') {
+        return callback(new Error('[REGISTRY EVENTS] installModuleFromZip => invalid meltdown payload.'));
+      }
+
+      if (payload.decodedJWT && !hasPermission(payload.decodedJWT, 'modules.install')) {
+        return callback(new Error('Forbidden – missing permission: modules.install'));
+      }
+
+      if (!zipData) {
+        return callback(new Error('No zipData provided.'));
+      }
+
+      const buffer = Buffer.isBuffer(zipData) ? zipData : Buffer.from(zipData, 'base64');
+
+      const { installModuleFromZip } = require('./moduleInstallerService');
+      const result = await installModuleFromZip(motherEmitter, jwt, buffer, { notifyAdmin: true });
+      callback(null, result);
+    } catch (ex) {
+      callback(ex);
+    }
+  });
 }
 
 async function attemptSingleLoad(moduleName, motherEmitter, app, jwt) {

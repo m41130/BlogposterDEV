@@ -1,5 +1,6 @@
 {
   "moduleName": "widgetManager",
   "version": "0.5.0",
-  "description": "Stores widgets for site and admin."
+  "description": "Stores widgets for site and admin.",
+  "developer": "Blogposter Team"
 }
