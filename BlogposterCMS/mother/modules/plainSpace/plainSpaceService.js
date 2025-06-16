@@ -7,10 +7,16 @@ const { hasPermission } = require('../userManagement/permissionUtils');
 
 function meltdownEmit(emitter, event, payload) {
   return new Promise((resolve, reject) => {
-    emitter.emit(event, payload, onceCallback((err, res) => {
+    const callback = onceCallback((err, res) => {
       if (err) return reject(err);
       resolve(res);
-    }));
+    });
+
+    const emitted = emitter.emit(event, payload, callback);
+
+    if (!emitted) {
+      reject(new Error(`No listeners for event "${event}"`));
+    }
   });
 }
 
@@ -478,6 +484,7 @@ module.exports = {
   seedAdminPages,
   checkOrCreateWidget,
   registerPlainSpaceEvents,
+  meltdownEmit,
   MODULE,
   PUBLIC_LANE,
   ADMIN_LANE
