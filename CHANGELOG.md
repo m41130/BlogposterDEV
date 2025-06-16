@@ -30,6 +30,7 @@ El Psy Kongroo
 =======
 - Admin home screen now hides the sidebar completely.
 - Admin widgets subtly adopt the user's selected color across the dashboard for a personalized UI.
+- Resolved SQLite `NOT NULL` errors when creating share links; raw SQL placeholders now return parameter arrays.
 
 ## [0.5.1] – 2025-06-15
 - Startup no longer marks `FIRST_INSTALL_DONE` as true when no users exist, so

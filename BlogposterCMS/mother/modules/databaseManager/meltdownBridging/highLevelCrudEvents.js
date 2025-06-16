@@ -626,7 +626,9 @@ function extractParamsIfNeeded(dataObj, whereObj) {
       return [ dataObj.key, dataObj.value ];
     }
     if (Object.keys(dataObj).some(k => !/^(rawSQL|params|\d+)$/.test(k))) {
-      return dataObj;
+      // Preserve named parameters but wrap them in an array so placeholders
+      // expecting params[0] receive the object consistently across engines.
+      return [ dataObj ];
     }
   }
 
