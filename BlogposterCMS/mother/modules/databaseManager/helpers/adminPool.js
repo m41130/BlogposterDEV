@@ -12,9 +12,8 @@ const {
   pgHost,
   pgPort
 } = require('../config/databaseConfig');
-const notificationEmitter = require('../../../emitters/notificationEmitter');
 
-let adminPool = new Pool({
+const adminPool = new Pool({
   user: pgAdminUser,
   host: pgHost,
   database: pgAdminDb,
@@ -22,40 +21,4 @@ let adminPool = new Pool({
   port: pgPort
 });
 
-async function getAdminClient() {
-  try {
-    return await adminPool.connect();
-  } catch (err) {
-    if (err.code === '3D000' && pgAdminDb !== 'postgres') {
-      notificationEmitter.notify({
-        moduleName: 'databaseManager',
-        notificationType: 'system',
-        priority: 'warning',
-        message: `Admin database "${pgAdminDb}" missing, falling back to "postgres".`
-      });
-      adminPool = new Pool({
-        user: pgAdminUser,
-        host: pgHost,
-        database: 'postgres',
-        password: pgAdminPass,
-        port: pgPort
-      });
-      return await adminPool.connect();
-    }
-    throw err;
-  }
-}
-
-async function adminQuery(sql, params) {
-  const client = await getAdminClient();
-  try {
-    return await client.query(sql, params);
-  } finally {
-    client.release();
-  }
-}
-
-module.exports = {
-  getAdminClient,
-  adminQuery
-};
+module.exports = { adminPool };
