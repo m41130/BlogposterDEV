@@ -2,6 +2,7 @@
 
 import { fetchPartial } from '../plainspace/admin/fetchPartial.js';
 import { initBuilder } from '../plainspace/admin/builderRenderer.js';
+import { enableAutoEdit } from './globalTextEditor.js';
 
 // Default rows for admin widgets (~50px with 5px grid cells)
 // Temporary patch: double the default height for larger widgets
@@ -306,6 +307,8 @@ function ensureLayout(layout = {}, lane = 'public') {
       const pageIdParam = urlParams.get('pageId') || null;
 
       await initBuilder(sidebarEl, contentEl, pageIdParam);
+
+      enableAutoEdit();
 
       return;
     }

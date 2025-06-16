@@ -6,6 +6,9 @@ El Psy Kongroo
 ## [Unreleased]
 - Added drag-and-drop module upload with ZIP validation. Modules require `moduleInfo.json` and `index.js`.
 - Module uploads now enforce `version`, `developer` and `description` fields in `moduleInfo.json`.
+- Fixed text editor overlay only activates for text inside widgets, preventing random opens in builder mode.
+- Fixed duplicate key error on startup when the userManagement module
+  reinitializes with existing MongoDB users lacking email addresses.
 - Switching between client and server render modes now works by setting the
   `RENDER_MODE` environment variable or `features.renderMode` in
   `runtime.local.js`. The server strips `pageRenderer.js` automatically when
@@ -17,6 +20,11 @@ El Psy Kongroo
 - Documentation on switching the render engine with sections for SSR and CSR.
 - Documented how to toggle render mode using the `RENDER_MODE` env var or runtime.local.js.
 - Fixed admin layout saving on SQLite by passing placeholder parameters as arrays.
+- Text block widget now preserves plain HTML when editing, working with raw text or headings.
+- Added floating toolbar to text block widget that appears when editing text in the builder.
+- Global text editor overlay works for all text-based widgets in the builder.
+- Quill editor now loads automatically in builder mode and opens when clicking any editable text element.
+=======
 - Admin home screen now hides the sidebar completely.
 - Admin widgets subtly adopt the user's selected color across the dashboard for a personalized UI.
 
