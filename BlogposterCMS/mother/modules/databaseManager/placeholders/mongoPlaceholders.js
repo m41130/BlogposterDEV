@@ -63,6 +63,10 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
           { $set: { display_name: '' } }
         );
         await usersCol.updateMany(
+          { ui_color: { $exists: false } },
+          { $set: { ui_color: '' } }
+        );
+        await usersCol.updateMany(
           { phone: { $exists: false } },
           { $set: { phone: '' } }
         );

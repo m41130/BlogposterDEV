@@ -35,6 +35,7 @@ async function handleBuiltInPlaceholderSqlite(db, operation, params) {
           first_name    TEXT,
           last_name     TEXT,
           display_name  TEXT,
+          ui_color     TEXT,
           phone         TEXT,
           company       TEXT,
           website       TEXT,
