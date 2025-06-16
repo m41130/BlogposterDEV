@@ -14,6 +14,8 @@ El Psy Kongroo
 - Module uploads now enforce `version`, `developer` and `description` fields in `moduleInfo.json`.
 - User editor revamped with color picker, mandatory-field toggles and delete
   button. Username and email uniqueness is validated before account creation.
+- Modules page now uses the header action button for uploads and exposes
+  `openUploadPopup` globally.
 - Fixed text editor overlay only activates for text inside widgets, preventing random opens in builder mode.
 - Fixed duplicate key error on startup when the userManagement module
   reinitializes with existing MongoDB users lacking email addresses.

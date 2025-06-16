@@ -31,15 +31,6 @@ export async function render(el) {
 
     titleBar.appendChild(title);
 
-    const uploadBtn = document.createElement('img');
-    uploadBtn.src = '/assets/icons/plus.svg';
-    uploadBtn.alt = 'Upload module';
-    uploadBtn.title = 'Upload module';
-    uploadBtn.className = 'icon add-module-btn';
-    uploadBtn.addEventListener('click', () => {
-      openUploadPopup();
-    });
-    titleBar.appendChild(uploadBtn);
 
     const tabs = document.createElement('div');
     tabs.className = 'modules-tabs';
@@ -250,3 +241,6 @@ function openUploadPopup() {
   overlay.appendChild(box);
   document.body.appendChild(overlay);
 }
+
+// Expose for page action button
+window.openUploadPopup = openUploadPopup;

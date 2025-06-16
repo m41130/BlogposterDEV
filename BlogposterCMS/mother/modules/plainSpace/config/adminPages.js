@@ -202,7 +202,11 @@ module.exports.ADMIN_PAGES = [
         sidebar: 'settings-sidebar',
         inheritsLayout: true
       },
-      widgets: ['modulesList']
+      widgets: ['modulesList'],
+      actionButton: {
+        icon: '/assets/icons/plus.svg',
+        action: 'openUploadPopup'
+      }
     }
   },
   {
