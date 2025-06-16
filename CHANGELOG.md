@@ -8,6 +8,8 @@ El Psy Kongroo
 - Text block widget reports initial HTML to the builder and is always recognized as editable.
 - Fixed text block editor toolbar not opening after custom HTML edits by
   scanning shadow DOM with composedPath.
+- Global text editor toolbar activates again after editing widget code by
+  traversing shadow DOM to locate grid items.
 - Restored styling for the user editor with new classes for delete button
   and required field checkboxes.
 - Replaced Quill editor with a lightweight contenteditable toolbar (bold, italic, underline).
