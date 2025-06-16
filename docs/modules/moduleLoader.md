@@ -20,7 +20,7 @@ Every module folder must export an `initialize` function and include `moduleInfo
 
 ## Module Uploads
 
-Administrators can install additional modules through the admin interface. The upload button on the Modules page accepts a single ZIP archive. For security reasons the archive is extracted in a temporary directory and validated before activation.
+Administrators can install additional modules through the admin interface. The upload button in the Modules page header accepts a single ZIP archive. For security reasons the archive is extracted in a temporary directory and validated before activation.
 
 The ZIP must contain a folder with at least these files:
 
