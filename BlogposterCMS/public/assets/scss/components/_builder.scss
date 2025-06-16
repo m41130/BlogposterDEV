@@ -272,6 +272,11 @@
   border-color: var(--user-color);
 }
 
+// Hide GridStack resize handles when using the bounding box
+.builder-mode .grid-stack-item > .ui-resizable-handle {
+  display: none;
+}
+
 
 body.builder-mode #content {
   margin-left: 96px;
