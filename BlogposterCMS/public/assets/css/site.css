@@ -987,7 +987,7 @@ p {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 12px;
 }
 
 .page-list .empty-state, .widget-list .empty-state, .permissions-list .empty-state, .roles-list .empty-state, .users-list .empty-state, .layout-list .empty-state, .modules-list .empty-state, .login-strategies-list .empty-state {
