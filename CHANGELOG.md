@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- User editor revamped with color picker, mandatory-field toggles and delete
+  button. Username and email uniqueness is validated before account creation.
 - Fixed duplicate key error on startup when the userManagement module
   reinitializes with existing MongoDB users lacking email addresses.
 - Switching between client and server render modes now works by setting the

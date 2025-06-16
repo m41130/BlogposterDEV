@@ -64,7 +64,10 @@ async function testPublicRegister() {
   loadUserCrud(em);
   em.on('issueModuleToken', (p, cb) => cb(null, 'hight'));
   em.on('dbInsert', (p, cb) => { cb(null, [{ id: 1 }]); });
-  em.on('dbSelect', (p, cb) => { cb(null, [{ id: 10, role_name:'standard' }]); });
+  em.on('dbSelect', (p, cb) => {
+    if (p.table === 'users') return cb(null, []);
+    cb(null, [{ id: 10, role_name:'standard' }]);
+  });
   em.on('assignRoleToUser', (p, cb) => cb(null, true));
   const res = await new Promise((res, rej) => {
     em.emit('publicRegister', {
