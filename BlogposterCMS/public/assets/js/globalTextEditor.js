@@ -95,6 +95,7 @@ async function init() {
       ev.preventDefault();
       const cmd = btn.dataset.cmd;
       document.execCommand(cmd, false, null);
+      editingPlain = false;
       activeEl?.focus();
     });
     document.body.appendChild(toolbar);
@@ -108,7 +109,33 @@ async function init() {
       if (!val) return;
       fsInput.value = val;
       fsCurrent.textContent = val;
-      if (activeEl) activeEl.style.fontSize = val + 'px';
+      if (!activeEl) return;
+
+      const sel = window.getSelection();
+      if (
+        sel &&
+        !sel.isCollapsed &&
+        activeEl.contains(sel.anchorNode) &&
+        activeEl.contains(sel.focusNode)
+      ) {
+        try {
+          const range = sel.getRangeAt(0);
+          const span = document.createElement('span');
+          span.style.fontSize = val + 'px';
+          range.surroundContents(span);
+          sel.removeAllRanges();
+          const newRange = document.createRange();
+          newRange.selectNodeContents(span);
+          sel.addRange(newRange);
+          editingPlain = false;
+        } catch (err) {
+          activeEl.style.fontSize = val + 'px';
+        }
+      } else {
+        activeEl.style.fontSize = val + 'px';
+      }
+      editingPlain = false;
+      activeEl.focus();
     };
     toolbar.querySelector('.fs-inc').addEventListener('click', () => {
       applySize((parseInt(fsInput.value, 10) || 16) + 1);
