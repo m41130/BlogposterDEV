@@ -24,6 +24,14 @@
   border-bottom: 1px solid #eee;
 }
 
+.text-block-editor-toolbar.floating {
+  position: fixed;
+  top: 56px;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
 .text-block-editor {
   flex: 1;
 }
