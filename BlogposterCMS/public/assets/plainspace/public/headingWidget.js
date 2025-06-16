@@ -5,9 +5,10 @@ function sanitizeLevel(lvl) {
   return ALLOWED_LEVELS.includes(val) ? val : 'h3';
 }
 
+import { registerElement } from '../../js/globalTextEditor.js';
+
 export function render(el, ctx = {}) {
   const defaultLevel = sanitizeLevel(ctx?.metadata?.category || 'h3');
-  // Remove placeholder text so widgets start empty
   const defaultText = ctx?.metadata?.label || '';
 
   let level = defaultLevel;
@@ -19,7 +20,21 @@ export function render(el, ctx = {}) {
   container.appendChild(heading);
 
   if (ctx.jwt) {
-    heading.contentEditable = 'true';
+    const saveHandler = async (_el) => {
+      const newText = _el.textContent.trim();
+      try {
+        await window.meltdownEmit('updateWidget', {
+          jwt: ctx.jwt,
+          moduleName: 'widgetManager',
+          moduleType: 'core',
+          widgetId: ctx.widgetId,
+          widgetType: 'public',
+          newLabel: newText
+        });
+      } catch (err) {
+        console.error('[headingWidget] save error', err);
+      }
+    };
 
     const select = document.createElement('select');
     select.className = 'heading-level-select';
@@ -37,10 +52,11 @@ export function render(el, ctx = {}) {
       if (newLevel !== level) {
         const newHeading = document.createElement(newLevel);
         newHeading.textContent = heading.textContent;
-        newHeading.contentEditable = 'true';
         container.replaceChild(newHeading, heading);
         heading = newHeading;
         level = newLevel;
+
+        registerElement(heading, saveHandler);
 
         try {
           await window.meltdownEmit('updateWidget', {
@@ -57,22 +73,7 @@ export function render(el, ctx = {}) {
       }
     });
 
-    heading.addEventListener('blur', async () => {
-      const newText = heading.textContent.trim();
-      try {
-        await window.meltdownEmit('updateWidget', {
-          jwt: ctx.jwt,
-          moduleName: 'widgetManager',
-          moduleType: 'core',
-          widgetId: ctx.widgetId,
-          widgetType: 'public',
-          newLabel: newText
-        });
-      } catch (err) {
-        console.error('[headingWidget] save error', err);
-      }
-    });
-
+    registerElement(heading, saveHandler);
     container.appendChild(select);
   }
 
