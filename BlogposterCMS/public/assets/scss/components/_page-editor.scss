@@ -51,7 +51,7 @@
 .user-edit-widget .field textarea:focus,
 .user-edit-widget select:focus {
   outline: none;
-  border-bottom: 2px solid #008080;
+  border-bottom: 2px solid var(--user-color);
 }
 
 .page-info-widget .field label,
@@ -87,7 +87,7 @@
 .user-edit-widget select:not([data-empty="true"]) + label {
   top: 0.25rem;
   font-size: 0.75rem;
-  color: #008080;
+  color: var(--user-color);
   background: none;
   font-weight: 500;
   letter-spacing: 0.02em;

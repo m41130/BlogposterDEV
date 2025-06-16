@@ -16,6 +16,7 @@ El Psy Kongroo
 - Documented how to toggle render mode using the `RENDER_MODE` env var or runtime.local.js.
 - Fixed admin layout saving on SQLite by passing placeholder parameters as arrays.
 - Admin home screen now hides the sidebar completely.
+- Admin widgets subtly adopt the user's selected color across the dashboard for a personalized UI.
 
 ## [0.5.1] – 2025-06-15
 - Startup no longer marks `FIRST_INSTALL_DONE` as true when no users exist, so
