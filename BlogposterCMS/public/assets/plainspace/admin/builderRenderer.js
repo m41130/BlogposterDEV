@@ -230,6 +230,16 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   });
   const genId = () => `w${Math.random().toString(36).slice(2,8)}`;
 
+  function autoLockWidget(widget, locked) {
+    if (!widget) return;
+    grid.update(widget, { locked, noMove: locked, noResize: locked });
+    if (locked) {
+      widget.dataset.tempLock = 'true';
+    } else {
+      widget.removeAttribute('data-temp-lock');
+    }
+  }
+
   function extractCssProps(el) {
     if (!el) return '';
     const style = getComputedStyle(el);
@@ -596,16 +606,14 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     const widget = e.detail?.widget;
     if (!widget) return;
     if (widget.getAttribute('gs-locked') === 'true') return;
-    grid.update(widget, { locked: true, noMove: true, noResize: true });
-    widget.dataset.tempLock = 'true';
+    autoLockWidget(widget, true);
     grid.clearSelection();
   });
 
   document.addEventListener('textEditStop', e => {
     const widget = e.detail?.widget;
     if (!widget || widget.dataset.tempLock !== 'true') return;
-    grid.update(widget, { locked: false, noMove: false, noResize: false });
-    widget.removeAttribute('data-temp-lock');
+    autoLockWidget(widget, false);
     selectWidget(widget);
   });
 
