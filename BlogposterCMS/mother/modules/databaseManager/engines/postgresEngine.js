@@ -5,7 +5,7 @@
  * plus performing normal queries or placeholders.
  */
 const { Pool } = require('pg');
-const { adminPool } = require('../helpers/adminPool');
+const { getAdminClient, adminQuery } = require('../helpers/adminPool');
 const { generateUserAndPass } = require('../helpers/cryptoHelpers');
 const { pgHost, pgPort, pgMainDb, pgMainUser, pgMainPass } = require('../config/databaseConfig');
 const { handleBuiltInPlaceholderPostgres } = require('../placeholders/postgresPlaceholders');
@@ -34,7 +34,7 @@ async function createOrFixPostgresDatabaseForOwnModule(moduleName) {
     // Check existence
     const exists = await checkIfDbExists(dbName);
     if (!exists) {
-      await adminPool.query(`CREATE DATABASE "${dbName}"`);
+      await adminQuery(`CREATE DATABASE "${dbName}"`);
       notificationEmitter.notify({
         moduleName: 'databaseManager',
         notificationType: 'system',
@@ -54,7 +54,7 @@ async function createOrFixPostgresDatabaseForOwnModule(moduleName) {
     if (moduleName.toLowerCase() !== 'databasemanager') {
       const userExists = await checkIfUserExists(dbUser);
       if (!userExists) {
-        await adminPool.query(`CREATE USER "${dbUser}" WITH ENCRYPTED PASSWORD '${dbPassword}';`);
+        await adminQuery(`CREATE USER "${dbUser}" WITH ENCRYPTED PASSWORD '${dbPassword}';`);
         notificationEmitter.notify({
           moduleName: 'databaseManager',
           notificationType: 'system',
@@ -62,7 +62,7 @@ async function createOrFixPostgresDatabaseForOwnModule(moduleName) {
           message: `Created Postgres user "${dbUser}" for DB "${dbName}".`
         });
       }
-      await adminPool.query(`
+      await adminQuery(`
         ALTER DATABASE "${dbName}" OWNER TO "${dbUser}";
         GRANT CREATE ON DATABASE "${dbName}" TO "${dbUser}";
         GRANT TEMPORARY ON DATABASE "${dbName}" TO "${dbUser}";
@@ -95,7 +95,7 @@ async function createOrFixSchemaInMainDb(moduleName) {
 
   // Connect as admin
   try {
-    const client = await adminPool.connect();
+    const client = await getAdminClient();
     const dbExistsRes = await client.query('SELECT 1 FROM pg_database WHERE datname = $1;', [pgMainDb]);
     if (dbExistsRes.rows.length === 0) {
       await client.query(`CREATE DATABASE "${pgMainDb}"`);
@@ -228,11 +228,11 @@ async function performPostgresOperation(moduleName, operation, params, isOwnDb) 
    4) Utility
    ------------------------------------------------------------------ */
 async function checkIfDbExists(dbName) {
-  const res = await adminPool.query('SELECT 1 FROM pg_database WHERE datname = $1;', [dbName.toLowerCase()]);
+  const res = await adminQuery('SELECT 1 FROM pg_database WHERE datname = $1;', [dbName.toLowerCase()]);
   return res.rows.length > 0;
 }
 async function checkIfUserExists(dbUser) {
-  const res = await adminPool.query('SELECT 1 FROM pg_roles WHERE rolname = $1;', [dbUser]);
+  const res = await adminQuery('SELECT 1 FROM pg_roles WHERE rolname = $1;', [dbUser]);
   return res.rows.length > 0;
 }
 let globalMainPool = null;
