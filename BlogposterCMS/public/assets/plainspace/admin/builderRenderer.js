@@ -1,4 +1,5 @@
 // public/assets/plainspace/admin/builderRenderer.js
+import { init as initCanvasGrid } from '../../js/canvasGrid.js';
 
 export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   document.body.classList.add('builder-mode');
@@ -159,6 +160,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     grid.removeWidget(target);
     actionBar.style.display = 'none';
     activeWidgetEl = null;
+    grid.clearSelection();
     if (pageId) saveCurrentLayout();
   });
   const genId = () => `w${Math.random().toString(36).slice(2,8)}`;
@@ -523,7 +525,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   gridEl = document.getElementById('builderGrid');
   await applyBuilderTheme();
   // Enable floating mode for easier widget placement in the builder
-  const grid = GridStack.init({ float: true, cellHeight: 5, columnWidth: 5, column: 64 }, gridEl);
+  const grid = initCanvasGrid({ float: true, cellHeight: 5, columnWidth: 5, column: 64 }, gridEl);
 
   document.addEventListener('click', e => {
     if (!activeWidgetEl) return;
@@ -534,6 +536,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     actionBar.style.display = 'none';
     activeWidgetEl.classList.remove('selected');
     activeWidgetEl = null;
+    grid.clearSelection();
   });
 
   function getCurrentLayout() {
@@ -756,6 +759,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       if (activeWidgetEl) activeWidgetEl.classList.remove('selected');
       activeWidgetEl = el;
       activeWidgetEl.classList.add('selected');
+      grid.select(el);
       const locked = el.getAttribute('gs-locked') === 'true';
       setLockIcon(locked);
       actionBar.style.display = 'flex';
