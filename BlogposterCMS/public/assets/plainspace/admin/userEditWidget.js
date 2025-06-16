@@ -34,29 +34,85 @@ export async function render(el) {
       'bio',
       'ui_color'
     ];
+    const requiredSetting = await meltdownEmit('getSetting', {
+      jwt,
+      moduleName: 'settingsManager',
+      moduleType: 'core',
+      key: 'REQUIRED_USER_FIELDS'
+    }).catch(() => ({}));
+    const requiredFields = (() => {
+      try { return JSON.parse(requiredSetting) || {}; } catch { return {}; }
+    })();
     const inputs = {};
     const container = document.createElement('div');
     container.className = 'user-edit-widget';
 
-    const colorChoices = ['#008080', '#FF00FF', '#FFA500', '#00A2FF', '#8A2BE2', '#FF4500'];
+    const colorChoices = [
+      '#FF0000', '#FF4040', '#FFC0CB', '#FF00FF', '#800080', '#8A2BE2',
+      '#00CED1', '#00FFFF', '#40E0D0', '#ADD8E6', '#4169E1', '#0047AB',
+      '#008000', '#7CFC00', '#BFFF00', '#FFFF00', '#FFDAB9', '#FFA500',
+      '#000000', '#A9A9A9', '#808080'
+    ];
+    let selectedColor = user.ui_color || colorChoices[0];
+
+    const headerDelete = document.createElement('img');
+    headerDelete.src = '/assets/icons/trash-2.svg';
+    headerDelete.className = 'icon delete-user-btn';
+    headerDelete.title = 'Delete user';
+    headerDelete.style.alignSelf = 'flex-end';
+    headerDelete.addEventListener('click', async () => {
+      if (!confirm('Delete this user?')) return;
+      try {
+        await meltdownEmit('deleteUser', {
+          jwt,
+          moduleName: 'userManagement',
+          moduleType: 'core',
+          userId: user.id
+        });
+        alert('User deleted');
+        window.location.href = '/admin/settings/users';
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    });
+    container.appendChild(headerDelete);
 
     fields.forEach(f => {
-      const field = document.createElement('div');
-      field.className = 'field';
+      const row = document.createElement('div');
+      row.className = 'user-field-row';
 
       let input;
       if (f === 'bio') {
         input = document.createElement('textarea');
       } else if (f === 'ui_color') {
-        input = document.createElement('select');
+        input = document.createElement('div');
+        input.className = 'color-choices';
         colorChoices.forEach(c => {
-          const opt = document.createElement('option');
-          opt.value = c;
-          opt.textContent = c;
-          opt.style.backgroundColor = c;
-          opt.style.color = '#fff';
-          input.appendChild(opt);
+          const circle = document.createElement('div');
+          circle.className = 'color-circle';
+          circle.style.backgroundColor = c;
+          circle.addEventListener('click', () => {
+            selectedColor = c;
+            Array.from(input.children).forEach(n => n.classList.remove('active'));
+            circle.classList.add('active');
+          });
+          if (c === selectedColor) circle.classList.add('active');
+          input.appendChild(circle);
         });
+        const addCustom = document.createElement('div');
+        addCustom.className = 'color-circle add-custom';
+        const colorInput = document.createElement('input');
+        colorInput.type = 'color';
+        colorInput.style.display = 'none';
+        addCustom.appendChild(colorInput);
+        addCustom.addEventListener('click', () => colorInput.click());
+        colorInput.addEventListener('input', () => {
+          selectedColor = colorInput.value;
+          Array.from(input.children).forEach(n => n.classList.remove('active'));
+          addCustom.style.backgroundColor = selectedColor;
+          addCustom.classList.add('active');
+        });
+        input.appendChild(addCustom);
       } else {
         input = document.createElement('input');
         input.type = 'text';
@@ -65,18 +121,28 @@ export async function render(el) {
       const id = `ue-${f}`;
       input.id = id;
       if (f !== 'ui_color') input.placeholder = ' ';
-      input.value = user[f] || '';
+      if (f !== 'ui_color') {
+        input.value = user[f] || '';
+      }
       if (f === 'ui_color' && !user[f]) input.dataset.empty = 'true';
-      input.addEventListener('change', () => { if (f === 'ui_color') delete input.dataset.empty; });
       inputs[f] = input;
 
       const label = document.createElement('label');
       label.setAttribute('for', id);
       label.textContent = f.replace('_', ' ');
+      row.appendChild(input);
+      row.appendChild(label);
 
-      field.appendChild(input);
-      field.appendChild(label);
-      container.appendChild(field);
+      if (f !== 'username' && f !== 'ui_color') {
+        const req = document.createElement('input');
+        req.type = 'checkbox';
+        req.className = 'reg-required';
+        req.checked = !!requiredFields[f];
+        req.addEventListener('change', () => { requiredFields[f] = req.checked; });
+        row.appendChild(req);
+      }
+
+      container.appendChild(row);
     });
 
     const passField = document.createElement('div');
@@ -99,7 +165,7 @@ export async function render(el) {
     el.innerHTML = '';
     el.appendChild(container);
 
-    saveBtn.addEventListener('click', async () => {
+    async function saveUser() {
       const payload = {
         jwt,
         moduleName: 'userManagement',
@@ -115,18 +181,27 @@ export async function render(el) {
         newWebsite: inputs.website.value.trim(),
         newAvatarUrl: inputs.avatar_url.value.trim(),
         newBio: inputs.bio.value,
-        newUiColor: inputs.ui_color.value
+        newUiColor: selectedColor
       };
       if (passInput.value.trim()) {
         payload.newPassword = passInput.value.trim();
       }
       try {
         await meltdownEmit('updateUserProfile', payload);
+        await meltdownEmit('setSetting', {
+          jwt,
+          moduleName: 'settingsManager',
+          moduleType: 'core',
+          key: 'REQUIRED_USER_FIELDS',
+          value: JSON.stringify(requiredFields)
+        });
         alert('Saved');
       } catch (err) {
         alert('Error: ' + err.message);
       }
-    });
+    }
+    window.saveUserChanges = saveUser;
+    saveBtn.addEventListener('click', saveUser);
   } catch (err) {
     el.innerHTML = `<div class="error">Failed to load user: ${err.message}</div>`;
   }

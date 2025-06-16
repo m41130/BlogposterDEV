@@ -6,6 +6,8 @@ El Psy Kongroo
 ## [Unreleased]
 - Added drag-and-drop module upload with ZIP validation. Modules require `moduleInfo.json` and `index.js`.
 - Module uploads now enforce `version`, `developer` and `description` fields in `moduleInfo.json`.
+- User editor revamped with color picker, mandatory-field toggles and delete
+  button. Username and email uniqueness is validated before account creation.
 - Fixed text editor overlay only activates for text inside widgets, preventing random opens in builder mode.
 - Fixed duplicate key error on startup when the userManagement module
   reinitializes with existing MongoDB users lacking email addresses.
