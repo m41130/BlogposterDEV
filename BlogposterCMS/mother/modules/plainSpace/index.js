@@ -7,6 +7,7 @@ const {
   seedAdminPages,
   checkOrCreateWidget,
   registerPlainSpaceEvents,
+  meltdownEmit,
   MODULE,
   PUBLIC_LANE,
   ADMIN_LANE
@@ -30,7 +31,47 @@ module.exports = {
     console.log('[plainSpace] Initializing...');
 
     try {
-      // 1) Check if PLAINSPACE_SEEDED is already 'true'
+      // 1) Register meltdown events early so seeding can use them
+      registerPlainSpaceEvents(motherEmitter);
+
+      // 2) Ensure DB tables required for layouts and widgets
+      await meltdownEmit(motherEmitter, 'dbUpdate', {
+        jwt,
+        moduleName: MODULE,
+        moduleType: 'core',
+        table: '__rawSQL__',
+        data: { rawSQL: 'INIT_PLAINSPACE_LAYOUTS' }
+      }).then(() => {
+        console.log('[plainSpace] "plainspace.layouts" table creation ensured.');
+      }).catch(err => {
+        console.error('[plainSpace] Could not create "plainspace.layouts" table:', err.message);
+      });
+
+      await meltdownEmit(motherEmitter, 'dbUpdate', {
+        jwt,
+        moduleName: MODULE,
+        moduleType: 'core',
+        table: '__rawSQL__',
+        data: { rawSQL: 'INIT_PLAINSPACE_LAYOUT_TEMPLATES' }
+      }).then(() => {
+        console.log('[plainSpace] "plainspace.layout_templates" table creation ensured.');
+      }).catch(err => {
+        console.error('[plainSpace] Could not create "plainspace.layout_templates" table:', err.message);
+      });
+
+      await meltdownEmit(motherEmitter, 'dbUpdate', {
+        jwt,
+        moduleName: MODULE,
+        moduleType: 'core',
+        table: '__rawSQL__',
+        data: { rawSQL: 'INIT_PLAINSPACE_WIDGET_INSTANCES' }
+      }).then(() => {
+        console.log('[plainSpace] "plainspace.widget_instances" table creation ensured.');
+      }).catch(err => {
+        console.error('[plainSpace] Could not create "plainspace.widget_instances" table:', err.message);
+      });
+
+      // 3) Check if PLAINSPACE_SEEDED is already 'true'
       const seededVal = await getSetting(motherEmitter, jwt, 'PLAINSPACE_SEEDED');
       if (seededVal === 'true') {
         console.log('[plainSpace] Already seeded (PLAINSPACE_SEEDED=true). Checking for missing admin pages and widgets...');
@@ -59,9 +100,6 @@ module.exports = {
         console.log('[plainSpace] Set "PLAINSPACE_SEEDED"=true => no more seeds next time.');
       }
 
-      // 2) Register meltdown events for multi-viewport layouts
-      registerPlainSpaceEvents(motherEmitter);
-
       // 3) Issue a public token for front-end usage (why not?)
       motherEmitter.emit(
         'issuePublicToken',
@@ -72,63 +110,6 @@ module.exports = {
           } else {
             global.plainspacePublicToken = token;
             console.log('[plainSpace] Public token for multi-viewport usage is ready ✔');
-          }
-        }
-      );
-
-      // 4) Ensure DB table for storing layouts (if that’s a separate table)
-      motherEmitter.emit(
-        'dbUpdate',
-        {
-          jwt,
-          moduleName: MODULE,
-          moduleType: 'core',
-          table: '__rawSQL__',
-          data: { rawSQL: 'INIT_PLAINSPACE_LAYOUTS' }
-        },
-        (err) => {
-          if (err) {
-            console.error('[plainSpace] Could not create "plainspace.layouts" table:', err.message);
-          } else {
-            console.log('[plainSpace] "plainspace.layouts" table creation ensured.');
-          }
-        }
-      );
-
-      // 4b) Ensure DB table for layout templates
-      motherEmitter.emit(
-        'dbUpdate',
-        {
-          jwt,
-          moduleName: MODULE,
-          moduleType: 'core',
-          table: '__rawSQL__',
-          data: { rawSQL: 'INIT_PLAINSPACE_LAYOUT_TEMPLATES' }
-        },
-        (err) => {
-          if (err) {
-            console.error('[plainSpace] Could not create "plainspace.layout_templates" table:', err.message);
-          } else {
-            console.log('[plainSpace] "plainspace.layout_templates" table creation ensured.');
-          }
-        }
-      );
-
-      // 4c) Ensure DB table for widget instance content
-      motherEmitter.emit(
-        'dbUpdate',
-        {
-          jwt,
-          moduleName: MODULE,
-          moduleType: 'core',
-          table: '__rawSQL__',
-          data: { rawSQL: 'INIT_PLAINSPACE_WIDGET_INSTANCES' }
-        },
-        (err) => {
-          if (err) {
-            console.error('[plainSpace] Could not create "plainspace.widget_instances" table:', err.message);
-          } else {
-            console.log('[plainSpace] "plainspace.widget_instances" table creation ensured.');
           }
         }
       );

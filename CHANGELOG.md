@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- PlainSpace initialization now registers layout events and creates tables
+  before seeding pages, fixing warnings about missing listeners.
+- Server initialization no longer hangs if a seeded layout triggers an event
+  without listeners. `meltdownEmit` now rejects such cases, preventing staled
+  promises during setup.
 - Fixed seeding for the Fonts page so the Font Providers widget is available on first run.
 - Bounding box respects widget lock state when editing text, preventing accidental resize.
 - Resizing widgets via the bounding box now adjusts their grid position when using the left or top handles.
