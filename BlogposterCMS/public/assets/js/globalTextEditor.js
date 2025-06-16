@@ -79,7 +79,15 @@ async function init() {
       '<button type="button" class="tb-btn" data-cmd="underline">' + window.featherIcon('underline') + '</button>',
       '<select class="heading-select" style="display:none">' +
         ['h1','h2','h3','h4','h5','h6'].map(h => `<option value="${h}">${h.toUpperCase()}</option>`).join('') +
-      '</select>'
+      '</select>',
+      '<div class="font-size-control">' +
+        '<button type="button" class="tb-btn fs-dec">-</button>' +
+        '<input type="number" class="fs-input" value="16" min="8" />' +
+        '<button type="button" class="tb-btn fs-inc">+</button>' +
+        '<div class="fs-dropdown"><span class="fs-current">16</span><div class="fs-options">' +
+          [12,14,16,18,24,36].map(s => `<span data-size="${s}">${s}</span>`).join('') +
+        '</div></div>' +
+      '</div>'
     ].join('');
     toolbar.addEventListener('click', ev => {
       const btn = ev.target.closest('button[data-cmd]');
@@ -90,6 +98,34 @@ async function init() {
       activeEl?.focus();
     });
     document.body.appendChild(toolbar);
+
+    const fsInput = toolbar.querySelector('.fs-input');
+    const fsCurrent = toolbar.querySelector('.fs-current');
+    const fsDropdown = toolbar.querySelector('.fs-dropdown');
+    const fsOptions = toolbar.querySelector('.fs-options');
+    const applySize = size => {
+      const val = parseInt(size, 10);
+      if (!val) return;
+      fsInput.value = val;
+      fsCurrent.textContent = val;
+      if (activeEl) activeEl.style.fontSize = val + 'px';
+    };
+    toolbar.querySelector('.fs-inc').addEventListener('click', () => {
+      applySize((parseInt(fsInput.value, 10) || 16) + 1);
+    });
+    toolbar.querySelector('.fs-dec').addEventListener('click', () => {
+      applySize((parseInt(fsInput.value, 10) || 16) - 1);
+    });
+    fsInput.addEventListener('change', () => applySize(fsInput.value));
+    fsCurrent.addEventListener('click', () => {
+      fsDropdown.classList.toggle('open');
+    });
+    fsOptions.addEventListener('click', ev => {
+      const opt = ev.target.closest('span[data-size]');
+      if (!opt) return;
+      applySize(opt.dataset.size);
+      fsDropdown.classList.remove('open');
+    });
   })();
   await initPromise;
 }
