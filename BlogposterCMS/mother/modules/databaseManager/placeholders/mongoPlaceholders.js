@@ -46,23 +46,54 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
         await createIndexWithRetry(db.collection('user_roles'), { user_id: 1, role_id: 1 }, { unique: true }).catch(() => {});
         await createIndexWithRetry(db.collection('permissions'), { permission_key: 1 }, { unique: true }).catch(() => {});
       
-        // Add some default fields if they're missing
-        await db.collection('users').updateMany({}, {
-          $set: {
-            email: '',
-            first_name: '',
-            last_name: '',
-            display_name: '',
-            phone: '',
-            company: '',
-            website: '',
-            avatar_url: '',
-            bio: '',
-            token_version: 0,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          }
-        });
+        // Add some default fields if they're missing without overriding
+        // existing values. Avoid setting `email` to the same value on all
+        // documents as it conflicts with the unique index.
+        const usersCol = db.collection('users');
+        await usersCol.updateMany(
+          { first_name: { $exists: false } },
+          { $set: { first_name: '' } }
+        );
+        await usersCol.updateMany(
+          { last_name: { $exists: false } },
+          { $set: { last_name: '' } }
+        );
+        await usersCol.updateMany(
+          { display_name: { $exists: false } },
+          { $set: { display_name: '' } }
+        );
+        await usersCol.updateMany(
+          { phone: { $exists: false } },
+          { $set: { phone: '' } }
+        );
+        await usersCol.updateMany(
+          { company: { $exists: false } },
+          { $set: { company: '' } }
+        );
+        await usersCol.updateMany(
+          { website: { $exists: false } },
+          { $set: { website: '' } }
+        );
+        await usersCol.updateMany(
+          { avatar_url: { $exists: false } },
+          { $set: { avatar_url: '' } }
+        );
+        await usersCol.updateMany(
+          { bio: { $exists: false } },
+          { $set: { bio: '' } }
+        );
+        await usersCol.updateMany(
+          { token_version: { $exists: false } },
+          { $set: { token_version: 0 } }
+        );
+        await usersCol.updateMany(
+          { created_at: { $exists: false } },
+          { $set: { created_at: new Date().toISOString() } }
+        );
+        await usersCol.updateMany(
+          { updated_at: { $exists: false } },
+          { $set: { updated_at: new Date().toISOString() } }
+        );
       
         // Create index for "roles" and update to default fields
         await createIndexWithRetry(db.collection('roles'), { role_name: 1 }, { unique: true }).catch(() => {});
