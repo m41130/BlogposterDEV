@@ -51,7 +51,9 @@ function isEditableElement(el) {
 function findEditable(target) {
   let t = target;
   while (t && t !== document.body) {
-    if (isEditableElement(t)) return t;
+    if (isEditableElement(t) && t.closest('.grid-stack-item')) {
+      return t;
+    }
     t = t.parentElement;
   }
   return null;
