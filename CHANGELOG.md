@@ -7,6 +7,7 @@ El Psy Kongroo
 - Fixed seeding for the Fonts page so the Font Providers widget is available on first run.
 - Bounding box respects widget lock state when editing text, preventing accidental resize.
 - Resizing widgets via the bounding box now adjusts their grid position when using the left or top handles.
+- Widget selection is restored after editing text so the action toolbar and bounding box reappear automatically.
 - Added Fonts Manager core module with pluggable providers and admin page.
 - GridStack resize handles are hidden in the builder; the transformable bounding box now manages resizing.
 - Added login settings link in the sidebar and redesigned login strategies widget with toggle and edit icons.
