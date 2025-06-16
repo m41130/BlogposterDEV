@@ -1,0 +1,52 @@
+// Styles for Font Providers widget
+
+.fonts-list-card {
+  @extend .page-list-card;
+}
+
+.fonts-title-bar {
+  @extend .page-title-bar;
+}
+
+.fonts-title {
+  @extend .page-title;
+}
+
+.fonts-list {
+  @extend .page-list;
+}
+
+.fonts-list .empty-state {
+  @extend %page-list-empty-state;
+}
+
+.fonts-list li {
+  @extend %page-list-item;
+}
+
+.font-name-row {
+  @extend .page-name-row;
+}
+
+.font-name {
+  @extend .page-name;
+}
+
+.font-actions {
+  @extend .page-actions;
+}
+
+.font-desc {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.font-toggle-btn {
+  background: #f6f6f6;
+  border: none;
+  border-radius: 5px;
+  padding: 2px 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}

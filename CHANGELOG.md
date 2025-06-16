@@ -5,6 +5,7 @@ El Psy Kongroo
 
 ## [Unreleased]
 - Resizing widgets via the bounding box now adjusts their grid position when using the left or top handles.
+- Added Fonts Manager core module with pluggable providers and admin page.
 - GridStack resize handles are hidden in the builder; the transformable bounding box now manages resizing.
 - Added login settings link in the sidebar and redesigned login strategies widget with toggle and edit icons.
 - Widgets temporarily lock while editing text in the builder, enabling text selection.
