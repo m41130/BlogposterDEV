@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Added login settings link in the sidebar and redesigned login strategies widget with toggle and edit icons.
 - Heading widget now uses the global text editor toolbar and retains content when opening the code editor.
 - Text block widget reports initial HTML to the builder and is always recognized as editable.
 - Fixed text block editor toolbar not opening after custom HTML edits by
