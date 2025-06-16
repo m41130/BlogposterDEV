@@ -43,14 +43,12 @@
 }
 
 .widget-tab.active {
-  border-bottom: 2px solid currentColor;
+  border-bottom: 2px solid var(--user-color);
+  color: var(--user-color);
   font-weight: bold;
 }
 
-.global-widget:hover {
-  box-shadow: 0 0 12px rgba(255, 0, 255, 0.5);
-}
-
+.global-widget:hover,
 .template-widget:hover {
-  box-shadow: 0 0 12px rgba(0, 128, 255, 0.4);
+  box-shadow: 0 0 0 2px var(--user-color);
 }
