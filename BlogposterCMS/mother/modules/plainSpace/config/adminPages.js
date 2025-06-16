@@ -236,5 +236,19 @@ module.exports.ADMIN_PAGES = [
       },
       widgets: ['themesList']
     }
+  },
+  {
+    title: 'Fonts',
+    slug: 'fonts',
+    parentSlug: 'settings',
+    lane: 'admin',
+    config: {
+      layout: {
+        header: 'top-header',
+        sidebar: 'settings-sidebar',
+        inheritsLayout: true
+      },
+      widgets: ['fontsList']
+    }
   }
 ];

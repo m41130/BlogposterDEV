@@ -57,4 +57,5 @@ important security notes.
 - [userManagement](modules/userManagement.md)
 - [widgetManager](modules/widgetManager.md)
 - [dummyModule](modules/dummyModule.md)
+- [fontsManager](modules/fontsManager.md)
 - [Choosing a Database Engine](choosing_database_engine.md)
