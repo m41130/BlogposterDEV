@@ -10,6 +10,8 @@ El Psy Kongroo
   scanning shadow DOM with composedPath.
 - Global text editor toolbar activates again after editing widget code by
   traversing shadow DOM to locate grid items.
+- User editor now follows the global floating field styling and removes
+  mandatory-field checkboxes.
 - Restored styling for the user editor with new classes for delete button
   and required field checkboxes.
 - Replaced Quill editor with a lightweight contenteditable toolbar (bold, italic, underline).
