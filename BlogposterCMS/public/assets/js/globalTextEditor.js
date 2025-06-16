@@ -67,7 +67,10 @@ async function init() {
     toolbar.innerHTML = [
       '<button type="button" class="tb-btn" data-cmd="bold">' + window.featherIcon('bold') + '</button>',
       '<button type="button" class="tb-btn" data-cmd="italic">' + window.featherIcon('italic') + '</button>',
-      '<button type="button" class="tb-btn" data-cmd="underline">' + window.featherIcon('underline') + '</button>'
+      '<button type="button" class="tb-btn" data-cmd="underline">' + window.featherIcon('underline') + '</button>',
+      '<select class="heading-select" style="display:none">' +
+        ['h1','h2','h3','h4','h5','h6'].map(h => `<option value="${h}">${h.toUpperCase()}</option>`).join('') +
+      '</select>'
     ].join('');
     toolbar.addEventListener('click', ev => {
       const btn = ev.target.closest('button[data-cmd]');
@@ -88,6 +91,11 @@ function close() {
   let html = editingPlain ? activeEl.textContent : activeEl.innerHTML;
   html = sanitizeHtml(html.trim());
   toolbar.style.display = 'none';
+  const headingSelect = toolbar.querySelector('.heading-select');
+  if (headingSelect) {
+    headingSelect.style.display = 'none';
+    headingSelect.onchange = null;
+  }
   document.removeEventListener('pointerdown', outsideHandler, true);
   document.removeEventListener('mousedown', outsideHandler, true);
   const el = activeEl;
@@ -108,6 +116,32 @@ export async function editElement(el, onSave) {
   el.setAttribute('contenteditable', 'true');
   el.focus();
   toolbar.style.display = 'block';
+
+  const headingSelect = toolbar.querySelector('.heading-select');
+  if (headingSelect) {
+    const tag = el.tagName.toLowerCase();
+    if (/^h[1-6]$/.test(tag)) {
+      headingSelect.style.display = '';
+      headingSelect.value = tag;
+      headingSelect.onchange = () => {
+        const newTag = headingSelect.value.toLowerCase();
+        if (newTag !== el.tagName.toLowerCase()) {
+          const newEl = document.createElement(newTag);
+          newEl.innerHTML = el.innerHTML;
+          el.replaceWith(newEl);
+          newEl.dispatchEvent(new CustomEvent('headingLevelChange', { detail: { level: newTag } }));
+          registerElement(newEl, onSave);
+          activeEl = newEl;
+          el = newEl;
+          newEl.setAttribute('contenteditable', 'true');
+          newEl.focus();
+        }
+      };
+    } else {
+      headingSelect.style.display = 'none';
+      headingSelect.onchange = null;
+    }
+  }
 
   outsideHandler = ev => {
     if (!el.contains(ev.target) && !toolbar.contains(ev.target)) close();
