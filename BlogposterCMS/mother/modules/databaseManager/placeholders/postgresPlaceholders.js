@@ -25,6 +25,7 @@ switch (operation) {
             first_name     VARCHAR(255),
             last_name      VARCHAR(255),
             display_name   VARCHAR(255),
+            ui_color       VARCHAR(16),
             phone          VARCHAR(50),
             company        VARCHAR(255),
             website        VARCHAR(255),

@@ -13,6 +13,8 @@ El Psy Kongroo
 - Preview mode now locks widgets and expands the builder. A new preview header
   lets you switch between desktop, tablet and mobile display ports.
 - Heading widget now uses the global text editor toolbar and retains content when opening the code editor.
+- User Management tables now include `ui_color` by default and migrations add
+  the column if missing, preventing installer failures on SQLite.
 - Text block widget reports initial HTML to the builder and is always recognized as editable.
 - Fixed text block editor toolbar not opening after custom HTML edits by
   scanning shadow DOM with composedPath.
