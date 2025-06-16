@@ -1835,6 +1835,10 @@ body.preview-desktop #content {
   cursor: ew-resize;
 }
 
+.bounding-box.disabled {
+  display: none;
+}
+
 .heading-widget {
   display: flex;
   align-items: center;
@@ -2071,6 +2075,43 @@ body.preview-desktop #content {
 }
 .text-block-editor-toolbar .heading-select {
   margin-left: 8px;
+}
+.text-block-editor-toolbar .font-size-control {
+  margin-left: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  position: relative;
+}
+.text-block-editor-toolbar .font-size-control .fs-input {
+  width: 40px;
+  text-align: center;
+}
+.text-block-editor-toolbar .font-size-control .fs-dropdown {
+  position: relative;
+  cursor: pointer;
+}
+.text-block-editor-toolbar .font-size-control .fs-dropdown .fs-options {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: var(--color-white);
+  box-shadow: var(--shadow-default);
+  z-index: 2000;
+  padding: 4px 0;
+  white-space: nowrap;
+}
+.text-block-editor-toolbar .font-size-control .fs-dropdown .fs-options span {
+  display: block;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+.text-block-editor-toolbar .font-size-control .fs-dropdown .fs-options span:hover {
+  background: var(--color-primary-light);
+}
+.text-block-editor-toolbar .font-size-control .fs-dropdown.open .fs-options {
+  display: block;
 }
 
 .text-block-editor-toolbar.floating {

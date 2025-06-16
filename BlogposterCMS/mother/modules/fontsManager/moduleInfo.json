@@ -1,6 +1,6 @@
 {
   "moduleName": "fontsManager",
-  "version": "0.5.0",
+  "version": "0.0.1",
   "description": "Manages font provider strategies.",
   "developer": "Blogposter Team"
 }
