@@ -8,6 +8,9 @@ window.featherIcons = {
   editSlug:    '/assets/icons/edit-3.svg',
   pencil:      '/assets/icons/pencil-gradient.svg',
   share:       '/assets/icons/share.svg',
+  bold:        '/assets/icons/bold.svg',
+  italic:      '/assets/icons/italic.svg',
+  underline:   '/assets/icons/underline.svg',
   'external-link': '/assets/icons/external-link.svg'
 };
 

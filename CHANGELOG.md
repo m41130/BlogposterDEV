@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Replaced Quill editor with a lightweight contenteditable toolbar (bold, italic, underline).
 - Widgets show a dashed border in dashboard edit mode using the user's selected color.
 - Fixed floating text editor toolbar missing default controls in builder mode.
 - Text editor toolbar now floats below the builder header and edits inline.
