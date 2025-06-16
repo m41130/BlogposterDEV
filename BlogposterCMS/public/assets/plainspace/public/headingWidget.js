@@ -5,7 +5,7 @@ function sanitizeLevel(lvl) {
   return ALLOWED_LEVELS.includes(val) ? val : 'h3';
 }
 
-import { registerElement } from '../../js/globalTextEditor.js';
+import { registerElement, sanitizeHtml } from '../../js/globalTextEditor.js';
 
 export function render(el, ctx = {}) {
   const defaultLevel = sanitizeLevel(ctx?.metadata?.category || 'h3');
@@ -14,6 +14,7 @@ export function render(el, ctx = {}) {
   let level = defaultLevel;
   let heading = document.createElement(level);
   heading.textContent = defaultText;
+  heading.dataset.textEditable = '';
 
   const container = document.createElement('div');
   container.className = 'heading-widget';
@@ -36,19 +37,8 @@ export function render(el, ctx = {}) {
       }
     };
 
-    const select = document.createElement('select');
-    select.className = 'heading-level-select';
-    for (let i = 1; i <= 6; i++) {
-      const tag = `h${i}`;
-      const opt = document.createElement('option');
-      opt.value = tag;
-      opt.textContent = tag.toUpperCase();
-      if (tag === level) opt.selected = true;
-      select.appendChild(opt);
-    }
-
-    select.addEventListener('change', async () => {
-      const newLevel = sanitizeLevel(select.value);
+    heading.addEventListener('headingLevelChange', async ev => {
+      const newLevel = sanitizeLevel(ev.detail?.level);
       if (newLevel !== level) {
         const newHeading = document.createElement(newLevel);
         newHeading.textContent = heading.textContent;
@@ -74,9 +64,15 @@ export function render(el, ctx = {}) {
     });
 
     registerElement(heading, saveHandler);
-    container.appendChild(select);
   }
 
   el.innerHTML = '';
   el.appendChild(container);
+
+  const safeHtml = sanitizeHtml(container.innerHTML);
+  if (ctx.id) {
+    document.dispatchEvent(new CustomEvent('textBlockHtmlUpdate', {
+      detail: { instanceId: ctx.id, html: safeHtml }
+    }));
+  }
 }

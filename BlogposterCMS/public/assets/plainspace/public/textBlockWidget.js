@@ -7,6 +7,7 @@ export async function render(el, ctx = {}) {
   const container = document.createElement('div');
   container.className = 'text-block-widget';
   container.dataset.tbw = ctx.id || '';
+  container.dataset.textEditable = '';
   container.style.width = '100%';
   container.style.height = '100%';
 
@@ -27,6 +28,12 @@ export async function render(el, ctx = {}) {
   }
   const safeHtml = sanitizeHtml(!initial || initial === 'Text Block' ? defaultText : initial);
   container.innerHTML = safeHtml;
+
+  if (ctx.id) {
+    document.dispatchEvent(new CustomEvent('textBlockHtmlUpdate', {
+      detail: { instanceId: ctx.id, html: safeHtml }
+    }));
+  }
 
   registerElement(container, async (_el, html) => {
     if (ctx.jwt && ctx.id) {
