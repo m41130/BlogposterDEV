@@ -6,6 +6,21 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   // Builder widgets load the active theme inside their shadow roots.
   // Inject the theme scoped to the builder grid so the preview matches
   // the active theme without altering the surrounding UI.
+  const DEFAULT_PORTS = [
+    { id: 'desktop', label: 'Desktop', class: 'preview-desktop' },
+    { id: 'tablet', label: 'Tablet', class: 'preview-tablet' },
+    { id: 'mobile', label: 'Mobile', class: 'preview-mobile' }
+  ];
+
+  const displayPorts = (Array.isArray(window.DISPLAY_PORTS) ? window.DISPLAY_PORTS : [])
+    .filter(p => p && p.id && p.label)
+    .map(p => ({
+      id: String(p.id),
+      label: String(p.label),
+      class: `preview-${String(p.id).replace(/[^a-z0-9_-]/gi, '')}`
+    }));
+  if (!displayPorts.length) displayPorts.push(...DEFAULT_PORTS);
+
   // Temporary patch: larger default widget height
   const DEFAULT_ROWS = 20; // around 100px with 5px grid cells
   const ICON_MAP = {
@@ -29,6 +44,40 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     savePageWidget: 'save',
     contentSummary: 'activity'
   };
+
+  let previewHeader;
+  let viewportSelect;
+
+  function showPreviewHeader() {
+    if (previewHeader) return;
+    previewHeader = document.createElement('div');
+    previewHeader.id = 'previewHeader';
+    previewHeader.className = 'preview-header';
+    viewportSelect = document.createElement('select');
+    displayPorts.forEach(p => {
+      const o = document.createElement('option');
+      o.value = p.class;
+      o.textContent = p.label;
+      viewportSelect.appendChild(o);
+    });
+    viewportSelect.addEventListener('change', () => {
+      document.body.classList.remove('preview-mobile', 'preview-tablet', 'preview-desktop');
+      const cls = viewportSelect.value;
+      if (cls) document.body.classList.add(cls);
+    });
+    previewHeader.appendChild(viewportSelect);
+    document.body.prepend(previewHeader);
+    viewportSelect.dispatchEvent(new Event('change'));
+  }
+
+  function hidePreviewHeader() {
+    if (previewHeader) {
+      previewHeader.remove();
+      previewHeader = null;
+      viewportSelect = null;
+    }
+    document.body.classList.remove('preview-mobile', 'preview-tablet', 'preview-desktop');
+  }
 
   function scopeThemeCss(css, rootPrefix, contentPrefix) {
     return css.replace(/(^|\})([^@{}]+)\{/g, (m, brace, selectors) => {
@@ -527,6 +576,21 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   // Enable floating mode for easier widget placement in the builder
   const grid = initCanvasGrid({ float: true, cellHeight: 5, columnWidth: 5, column: 64 }, gridEl);
 
+  document.addEventListener('textEditStart', e => {
+    const widget = e.detail?.widget;
+    if (!widget) return;
+    if (widget.getAttribute('gs-locked') === 'true') return;
+    grid.update(widget, { locked: true, noMove: true, noResize: true });
+    widget.dataset.tempLock = 'true';
+  });
+
+  document.addEventListener('textEditStop', e => {
+    const widget = e.detail?.widget;
+    if (!widget || widget.dataset.tempLock !== 'true') return;
+    grid.update(widget, { locked: false, noMove: false, noResize: false });
+    widget.removeAttribute('data-temp-lock');
+  });
+
   document.addEventListener('click', e => {
     if (!activeWidgetEl) return;
     if (e.target.closest('.grid-stack-item') === activeWidgetEl ||
@@ -978,6 +1042,11 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     } else {
       const icon = active ? 'eye-off' : 'eye';
       previewBtn.innerHTML = `<img src="/assets/icons/${icon}.svg" alt="Preview" />`;
+    }
+    if (active) {
+      showPreviewHeader();
+    } else {
+      hidePreviewHeader();
     }
   });
 
