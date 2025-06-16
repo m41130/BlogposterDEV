@@ -13,8 +13,6 @@ module.exports = {
     meltdownEmitter: './public/assets/js/meltdownEmitter.js',
     pageDataLoader: './public/assets/js/pageDataLoader.js',
     pageRenderer: './public/assets/js/pageRenderer.js',
-    quill: './public/assets/js/quill.js',
-    quillEditor: './public/assets/js/quillEditor.js',
     
     install: './public/assets/js/install.js',
     sortable: './public/assets/js/sortable.min.js',

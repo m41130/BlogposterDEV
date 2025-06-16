@@ -1,26 +1,12 @@
 // public/assets/js/globalTextEditor.js
-// Provides a Quill-powered toolbar for editing any text element in the builder.
-
-const quillEditorUrl = new URL('/assets/js/quillEditor.js', document.baseURI).href;
-const quillLibUrl = new URL('/assets/js/quill.js', document.baseURI).href;
-const quillCssUrl = new URL('/assets/css/quill.snow.css', document.baseURI).href;
+// Lightweight global text editor for builder mode.
 
 let toolbar = null;
-let quill = null;
-let qToolbar = null;
-let editorEl = null;
-let initPromise = null;
 let activeEl = null;
-let changeHandler = null;
 let outsideHandler = null;
-let editingPlain = false;
+let initPromise = null;
 let autoHandler = null;
-const DEFAULT_TOOLBAR = [
-  [{ header: [1, 2, false] }],
-  ['bold', 'italic', 'underline', 'link'],
-  [{ list: 'ordered' }, { list: 'bullet' }],
-  ['clean']
-];
+let editingPlain = false;
 
 export function sanitizeHtml(html) {
   const div = document.createElement('div');
@@ -34,21 +20,11 @@ export function sanitizeHtml(html) {
   return div.innerHTML;
 }
 
-function ensureBlockHtml(html) {
-  const trimmed = html.trim();
-  if (!/<[a-z][\s\S]*>/i.test(trimmed)) {
-    const lines = trimmed.split(/\r?\n/);
-    return lines.map(l => `<p>${l || '<br>'}</p>`).join('');
-  }
-  return trimmed;
-}
-
 function isEditableElement(el) {
   if (!el || el.nodeType !== 1) return false;
   const ignore = ['A', 'BUTTON', 'INPUT', 'TEXTAREA', 'SELECT', 'IMG', 'SVG', 'VIDEO', 'AUDIO', 'CANVAS'];
   if (ignore.includes(el.tagName)) return false;
   if (!el.textContent.trim()) return false;
-  if (el.closest('.text-block-editor-overlay')) return false;
   const tag = el.tagName.toLowerCase();
   const allowed = ['p', 'span', 'label', 'div', 'li', 'figcaption', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
   if (allowed.includes(tag)) return true;
@@ -73,53 +49,39 @@ async function init() {
     return;
   }
   initPromise = (async () => {
-    if (!window.Quill) {
-      await new Promise((resolve, reject) => {
-        const s = document.createElement('script');
-        s.src = quillLibUrl;
-        s.onload = resolve;
-        s.onerror = reject;
-        document.head.appendChild(s);
-      });
-    }
-    if (!document.querySelector(`link[href="${quillCssUrl}"]`)) {
-      const link = document.createElement('link');
-      link.rel = 'stylesheet';
-      link.href = quillCssUrl;
-      document.head.appendChild(link);
-    }
-    await import(quillEditorUrl);
     toolbar = document.createElement('div');
     toolbar.className = 'text-block-editor-toolbar floating';
     toolbar.style.display = 'none';
+    toolbar.innerHTML = [
+      '<button type="button" class="tb-btn" data-cmd="bold">' + window.featherIcon('bold') + '</button>',
+      '<button type="button" class="tb-btn" data-cmd="italic">' + window.featherIcon('italic') + '</button>',
+      '<button type="button" class="tb-btn" data-cmd="underline">' + window.featherIcon('underline') + '</button>'
+    ].join('');
+    toolbar.addEventListener('click', ev => {
+      const btn = ev.target.closest('button[data-cmd]');
+      if (!btn) return;
+      ev.preventDefault();
+      const cmd = btn.dataset.cmd;
+      document.execCommand(cmd, false, null);
+      activeEl?.focus();
+    });
     document.body.appendChild(toolbar);
   })();
   await initPromise;
 }
 
-
-
 function close() {
-  if (!activeEl || !quill) return;
-  quill.off('text-change', changeHandler);
-  let html = sanitizeHtml(quill.root.innerHTML.trim());
-  if (editingPlain) {
-    const tmp = document.createElement('div');
-    tmp.innerHTML = html;
-    html = tmp.textContent;
-  }
-  activeEl.innerHTML = html;
+  if (!activeEl) return;
+  activeEl.removeAttribute('contenteditable');
+  let html = editingPlain ? activeEl.textContent : activeEl.innerHTML;
+  html = sanitizeHtml(html.trim());
   toolbar.style.display = 'none';
-  if (qToolbar && toolbar.contains(qToolbar)) toolbar.removeChild(qToolbar);
   document.removeEventListener('pointerdown', outsideHandler, true);
   document.removeEventListener('mousedown', outsideHandler, true);
   const el = activeEl;
   const cb = activeEl.__onSave;
   activeEl = null;
   editingPlain = false;
-  editorEl = null;
-  qToolbar = null;
-  quill = null;
   if (typeof cb === 'function') cb(el, html);
 }
 
@@ -130,25 +92,10 @@ export async function editElement(el, onSave) {
   activeEl = el;
   activeEl.__onSave = onSave;
 
-  const rawHtml = el.innerHTML;
-  editingPlain = !/<[a-z][\s\S]*>/i.test(rawHtml.trim());
-  const htmlForEditor = editingPlain ? ensureBlockHtml(el.textContent) : rawHtml;
-
-  editorEl = document.createElement('div');
-  editorEl.className = 'text-block-editor';
-  editorEl.innerHTML = htmlForEditor;
-  el.innerHTML = '';
-  el.appendChild(editorEl);
-
-  const { initQuill } = await import(quillEditorUrl);
-  quill = initQuill(editorEl, { placeholder: '', modules: { toolbar: DEFAULT_TOOLBAR } });
-  qToolbar = quill.getModule('toolbar').container;
-  toolbar.appendChild(qToolbar);
+  editingPlain = !/<[a-z][\s\S]*>/i.test(el.innerHTML.trim());
+  el.setAttribute('contenteditable', 'true');
+  el.focus();
   toolbar.style.display = 'block';
-  quill.focus();
-
-  changeHandler = () => {};
-  quill.on('text-change', changeHandler);
 
   outsideHandler = ev => {
     if (!el.contains(ev.target) && !toolbar.contains(ev.target)) close();
