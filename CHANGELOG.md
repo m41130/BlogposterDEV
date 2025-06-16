@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Fixed text block editor toolbar not opening after custom HTML edits by
+  scanning shadow DOM with composedPath.
 - Restored styling for the user editor with new classes for delete button
   and required field checkboxes.
 - Replaced Quill editor with a lightweight contenteditable toolbar (bold, italic, underline).

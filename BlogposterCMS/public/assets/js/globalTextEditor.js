@@ -43,6 +43,18 @@ function findEditable(target) {
   return null;
 }
 
+function findEditableFromEvent(ev) {
+  if (typeof ev.composedPath === 'function') {
+    const path = ev.composedPath();
+    for (const node of path) {
+      if (node instanceof Element && isEditableElement(node) && node.closest('.grid-stack-item')) {
+        return node;
+      }
+    }
+  }
+  return findEditable(ev.target);
+}
+
 async function init() {
   if (initPromise) {
     await initPromise;
@@ -116,7 +128,7 @@ export function enableAutoEdit() {
   autoHandler = ev => {
     if (!document.body.classList.contains('builder-mode')) return;
     if (toolbar && toolbar.contains(ev.target)) return;
-    const el = findEditable(ev.target);
+    const el = findEditableFromEvent(ev);
     if (!el) return;
     ev.stopPropagation();
     editElement(el, el.__onSave);
