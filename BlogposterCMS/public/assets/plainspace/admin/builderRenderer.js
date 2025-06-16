@@ -164,6 +164,22 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     ? window.featherIcon('trash')
     : '<img src="/assets/icons/trash.svg" alt="delete" />';
 
+  function selectWidget(el) {
+    if (!el) return;
+    if (activeWidgetEl) activeWidgetEl.classList.remove('selected');
+    activeWidgetEl = el;
+    activeWidgetEl.classList.add('selected');
+    grid.select(el);
+    const locked = el.getAttribute('gs-locked') === 'true';
+    setLockIcon(locked);
+    actionBar.style.display = 'flex';
+    actionBar.style.visibility = 'hidden';
+    const rect = el.getBoundingClientRect();
+    actionBar.style.top = `${rect.top - 28 + window.scrollY}px`;
+    actionBar.style.left = `${rect.left + rect.width / 2 + window.scrollX}px`;
+    actionBar.style.visibility = '';
+  }
+
   lockBtn.addEventListener('click', e => {
     e.stopPropagation();
     if (!activeWidgetEl) return;
@@ -590,7 +606,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     if (!widget || widget.dataset.tempLock !== 'true') return;
     grid.update(widget, { locked: false, noMove: false, noResize: false });
     widget.removeAttribute('data-temp-lock');
-    grid.select(widget);
+    selectWidget(widget);
   });
 
   document.addEventListener('click', e => {
@@ -822,18 +838,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       if (!e.target.closest('.grid-stack-item-content')) return;
       if (e.target.closest('.widget-action-bar')) return;
       e.stopPropagation();
-      if (activeWidgetEl) activeWidgetEl.classList.remove('selected');
-      activeWidgetEl = el;
-      activeWidgetEl.classList.add('selected');
-      grid.select(el);
-      const locked = el.getAttribute('gs-locked') === 'true';
-      setLockIcon(locked);
-      actionBar.style.display = 'flex';
-      actionBar.style.visibility = 'hidden';
-      const rect = el.getBoundingClientRect();
-      actionBar.style.top = `${rect.top - 28 + window.scrollY}px`;
-      actionBar.style.left = `${rect.left + rect.width / 2 + window.scrollX}px`;
-      actionBar.style.visibility = '';
+      selectWidget(el);
     });
   }
 
