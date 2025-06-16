@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Restored styling for the user editor with new classes for delete button
+  and required field checkboxes.
 - Replaced Quill editor with a lightweight contenteditable toolbar (bold, italic, underline).
 - Widgets show a dashed border in dashboard edit mode using the user's selected color.
 - Fixed floating text editor toolbar missing default controls in builder mode.

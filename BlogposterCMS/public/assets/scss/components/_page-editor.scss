@@ -7,6 +7,29 @@
   gap: 12px;
 }
 
+// Layout for the user profile editor widget
+.user-edit-widget {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.delete-user-btn {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  align-self: flex-end;
+  transition: opacity 0.2s;
+}
+
+.delete-user-btn:hover {
+  opacity: 0.7;
+}
+
+.reg-required {
+  margin-left: auto;
+}
+
 .page-info-widget label,
 .page-settings-widget label,
 .seo-image-widget label,
