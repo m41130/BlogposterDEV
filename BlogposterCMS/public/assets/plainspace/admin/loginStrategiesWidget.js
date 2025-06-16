@@ -11,6 +11,17 @@ export async function render(el) {
     let strategies = Array.isArray(res) ? res : (res?.data ?? []);
     strategies = strategies.filter(s => s.name !== 'adminLocal');
 
+    const card = document.createElement('div');
+    card.className = 'login-strategies-card page-list-card';
+
+    const titleBar = document.createElement('div');
+    titleBar.className = 'login-strategy-title-bar page-title-bar';
+    const title = document.createElement('div');
+    title.className = 'login-strategy-title page-title';
+    title.textContent = 'Login Strategies';
+    titleBar.appendChild(title);
+    card.appendChild(titleBar);
+
     const list = document.createElement('ul');
     list.className = 'login-strategies-list';
 
@@ -35,12 +46,13 @@ export async function render(el) {
         scopeEl.textContent = `(${s.scope || 'admin'})`;
 
         const actions = document.createElement('span');
-        actions.className = 'login-strategy-actions';
+        actions.className = 'login-strategy-actions page-actions';
 
-        const toggleBtn = document.createElement('button');
-        toggleBtn.className = 'login-strategy-toggle-btn';
-        toggleBtn.textContent = s.isEnabled ? 'Deactivate' : 'Activate';
-        toggleBtn.addEventListener('click', async () => {
+        const toggleIcon = document.createElement('span');
+        toggleIcon.className = 'icon toggle-strategy';
+        toggleIcon.innerHTML = window.featherIcon(s.isEnabled ? 'toggle-right' : 'toggle-left');
+        toggleIcon.title = s.isEnabled ? 'Disable' : 'Enable';
+        toggleIcon.addEventListener('click', async () => {
           try {
             await meltdownEmit('setLoginStrategyEnabled', {
               jwt,
@@ -50,13 +62,25 @@ export async function render(el) {
               enabled: !s.isEnabled
             });
             s.isEnabled = !s.isEnabled;
-            toggleBtn.textContent = s.isEnabled ? 'Deactivate' : 'Activate';
+            toggleIcon.innerHTML = window.featherIcon(s.isEnabled ? 'toggle-right' : 'toggle-left');
+            toggleIcon.title = s.isEnabled ? 'Disable' : 'Enable';
           } catch (err) {
             alert('Error: ' + err.message);
           }
         });
 
-        actions.appendChild(toggleBtn);
+        const editIcon = document.createElement('span');
+        editIcon.className = 'icon edit-strategy';
+        editIcon.innerHTML = window.featherIcon('edit');
+        editIcon.title = 'Edit strategy';
+        editIcon.addEventListener('click', () => {
+          const url = `/admin/settings/login/edit?strategy=${encodeURIComponent(s.name)}`;
+          window.location.href = url;
+        });
+
+        actions.appendChild(toggleIcon);
+        actions.appendChild(editIcon);
+
         nameRow.appendChild(nameEl);
         nameRow.appendChild(scopeEl);
         nameRow.appendChild(actions);
@@ -71,8 +95,10 @@ export async function render(el) {
       });
     }
 
+    card.appendChild(list);
+
     el.innerHTML = '';
-    el.appendChild(list);
+    el.appendChild(card);
   } catch (err) {
     el.innerHTML = `<div class="error">Failed to load strategies: ${err.message}</div>`;
   }

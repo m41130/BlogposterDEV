@@ -224,6 +224,24 @@ module.exports.ADMIN_PAGES = [
     }
   },
   {
+    title: 'Strategy Editor',
+    slug: 'edit',
+    parentSlug: 'settings-login',
+    lane: 'admin',
+    config: {
+      layout: {
+        header: 'top-header',
+        sidebar: 'settings-sidebar',
+        inheritsLayout: true
+      },
+      widgets: ['loginStrategyEdit'],
+      actionButton: {
+        icon: '/assets/icons/save.svg',
+        action: 'saveLoginStrategy'
+      }
+    }
+  },
+  {
     title: 'Themes',
     slug: 'themes',
     parentSlug: 'settings',

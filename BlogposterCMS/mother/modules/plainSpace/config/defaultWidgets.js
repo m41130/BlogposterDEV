@@ -145,6 +145,13 @@ module.exports.DEFAULT_WIDGETS = [
     category: 'core'
   },
   {
+    widgetId: 'loginStrategyEdit',
+    widgetType: ADMIN_LANE,
+    label: 'Login Strategy Edit',
+    content: '/assets/plainspace/admin/loginStrategyEditWidget.js',
+    category: 'core'
+  },
+  {
     widgetId: 'widgetList',
     widgetType: ADMIN_LANE,
     label: 'Widget List',
