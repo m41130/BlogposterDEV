@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Form inputs in widgets now select and lock the widget when focused, so
+  the action menu appears during text entry.
 - PlainSpace initialization now registers layout events and creates tables
   before seeding pages, fixing warnings about missing listeners.
 - Server initialization no longer hangs if a seeded layout triggers an event
