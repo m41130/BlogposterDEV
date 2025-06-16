@@ -18,6 +18,9 @@ El Psy Kongroo
   button. Username and email uniqueness is validated before account creation.
 - Modules page now uses the header action button for uploads and exposes
   `openUploadPopup` globally.
+- Builder widgets now show a transformable bounding box with resize handles for
+  canvas-like editing. GridStack is wrapped via `canvasGrid.js` to keep core
+  behavior intact.
 - Fixed text editor overlay only activates for text inside widgets, preventing random opens in builder mode.
 - Fixed duplicate key error on startup when the userManagement module
   reinitializes with existing MongoDB users lacking email addresses.
