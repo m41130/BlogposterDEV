@@ -62,6 +62,10 @@ export class CanvasGrid {
     Object.values(this.handles).forEach(h => {
       h.addEventListener('mousedown', e => {
         if (!this.activeEl) return;
+        if (this.activeEl.getAttribute('gs-locked') === 'true' ||
+            this.activeEl.getAttribute('gs-no-resize') === 'true') {
+          return;
+        }
         e.stopPropagation();
         pos = h.dataset.pos;
         const rect = this.activeEl.getBoundingClientRect();
@@ -76,6 +80,13 @@ export class CanvasGrid {
   }
 
   _updateBBox() {
+    if (!this.activeEl) return;
+    const locked = this.activeEl.getAttribute('gs-locked') === 'true';
+    const noResize = this.activeEl.getAttribute('gs-no-resize') === 'true';
+    const noMove = this.activeEl.getAttribute('gs-no-move') === 'true';
+    const hide = locked || noResize || noMove;
+    this.bbox.classList.toggle('disabled', hide);
+    if (hide) return;
     const rect = this.activeEl.getBoundingClientRect();
     this.bbox.style.top = `${rect.top + window.scrollY}px`;
     this.bbox.style.left = `${rect.left + window.scrollX}px`;

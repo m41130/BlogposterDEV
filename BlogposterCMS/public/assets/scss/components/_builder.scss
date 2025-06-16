@@ -411,3 +411,7 @@ body.preview-desktop #content {
   .sw { bottom: -4px; left: -4px; cursor: nesw-resize; }
   .w { top: 50%; left: -4px; transform: translateY(-50%); cursor: ew-resize; }
 }
+
+.bounding-box.disabled {
+  display: none;
+}

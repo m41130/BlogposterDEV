@@ -582,6 +582,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     if (widget.getAttribute('gs-locked') === 'true') return;
     grid.update(widget, { locked: true, noMove: true, noResize: true });
     widget.dataset.tempLock = 'true';
+    grid.clearSelection();
   });
 
   document.addEventListener('textEditStop', e => {
@@ -589,6 +590,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     if (!widget || widget.dataset.tempLock !== 'true') return;
     grid.update(widget, { locked: false, noMove: false, noResize: false });
     widget.removeAttribute('data-temp-lock');
+    grid.select(widget);
   });
 
   document.addEventListener('click', e => {
