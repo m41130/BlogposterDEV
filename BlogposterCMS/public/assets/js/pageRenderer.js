@@ -186,6 +186,15 @@ function ensureLayout(layout = {}, lane = 'public') {
     }
   }
 
+  const sidebarEl = document.getElementById('sidebar');
+  if (sidebarEl) {
+    if (layout.sidebar === 'empty-sidebar') {
+      sidebarEl.style.display = 'none';
+    } else {
+      sidebarEl.style.display = '';
+    }
+  }
+
   if (!document.getElementById('content')) {
     const content = document.createElement('section');
     content.id = 'content';
@@ -312,8 +321,10 @@ function ensureLayout(layout = {}, lane = 'public') {
     if (sidebarEl) {
       if (sidebarPartial !== 'empty-sidebar') {
         sidebarEl.innerHTML = await fetchPartial(sidebarPartial, 'sidebars');
+        sidebarEl.style.display = '';
       } else {
         sidebarEl.innerHTML = '';
+        sidebarEl.style.display = 'none';
       }
     }
 

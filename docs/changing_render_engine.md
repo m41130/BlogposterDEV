@@ -8,7 +8,7 @@ hook in your own rendering logic and what to consider for both strategies.
 
 ## Switching via Environment Variables
 
-To avoid editing core files, you can toggle the renderer using the `RENDER_MODE` environment variable or by creating `config/runtime.local.js`. Set `RENDER_MODE=server` for server-side rendering or `RENDER_MODE=client` for the default client-side approach. `runtime.local.js` can export `{ features: { renderMode: "server" } }` to override the setting locally. The application reads this flag during start-up so you modify configuration only, not the code.
+To avoid editing core files, you can toggle the renderer using the `RENDER_MODE` environment variable or by creating `config/runtime.local.js`. Set `RENDER_MODE=server` for server-side rendering or `RENDER_MODE=client` for the default client-side approach. When overriding via `runtime.local.js`, you may export `{ features: { renderMode: "server" } }` – Blogposter merges this with existing feature flags, so other settings remain intact. The application reads this flag during start-up so you modify configuration only, not the code. When `renderMode` is `server`, Blogposter automatically strips the `pageRenderer.js` script from the served HTML files. Currently there is no in-app toggle; switching via environment variables or `runtime.local.js` is the supported approach.
 
 
 ## Server-Side Rendering
