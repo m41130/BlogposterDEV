@@ -4,7 +4,11 @@
  * meltdown => "createDatabase"
  */
 const { getEngine } = require('../engines/engineFactory');
-const { moduleHasOwnDb, getDbType } = require('../helpers/dbTypeHelpers');
+const { moduleHasOwnDb } = require('../helpers/dbTypeHelpers');
+const { createOrFixSchemaInMainDb } = require('../engines/postgresEngine');
+const { createMongoDatabase } = require('../engines/mongoEngine');
+const { createOrFixSqliteDatabaseForModule } = require('../engines/sqliteEngine');
+const { getDbType } = require('../helpers/dbTypeHelpers');
 const { onceCallback } = require('../../../emitters/motherEmitter');
 
 // NEW: Notification Emitter for typed notifications
@@ -46,7 +50,7 @@ function registerCreateDatabaseEvent(motherEmitter) {
           callback(null, { success: true, type: 'ownDb' });
         } else {
           // create or fix a shared schema in main DB
-          await engine.createOrFixSchemaInMainDb(moduleName);
+          await createOrFixSchemaInMainDb(moduleName);
           notificationEmitter.notify({
             moduleName: 'databaseManager',
             notificationType: 'info',
@@ -56,7 +60,7 @@ function registerCreateDatabaseEvent(motherEmitter) {
           callback(null, { success: true, type: 'sharedSchema' });
         }
       } else if (dbType === 'mongodb') {
-        await engine.createMongoDatabase(moduleName);
+        await createMongoDatabase(moduleName);
         notificationEmitter.notify({
           moduleName: 'databaseManager',
           notificationType: 'info',
@@ -65,7 +69,7 @@ function registerCreateDatabaseEvent(motherEmitter) {
         });
         callback(null, { success: true, type: 'mongodb' });
       } else if (dbType === 'sqlite') {
-        await engine.createOrFixSqliteDatabaseForModule(moduleName, isOwnDb);
+        await createOrFixSqliteDatabaseForModule(moduleName, isOwnDb);
         notificationEmitter.notify({
           moduleName: 'databaseManager',
           notificationType: 'info',
