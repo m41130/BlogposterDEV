@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Widgets temporarily lock while editing text in the builder, enabling text selection.
 - Preview mode now locks widgets and expands the builder. A new preview header
   lets you switch between desktop, tablet and mobile display ports.
 - Heading widget now uses the global text editor toolbar and retains content when opening the code editor.

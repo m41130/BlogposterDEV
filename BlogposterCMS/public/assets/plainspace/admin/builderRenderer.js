@@ -576,6 +576,21 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   // Enable floating mode for easier widget placement in the builder
   const grid = initCanvasGrid({ float: true, cellHeight: 5, columnWidth: 5, column: 64 }, gridEl);
 
+  document.addEventListener('textEditStart', e => {
+    const widget = e.detail?.widget;
+    if (!widget) return;
+    if (widget.getAttribute('gs-locked') === 'true') return;
+    grid.update(widget, { locked: true, noMove: true, noResize: true });
+    widget.dataset.tempLock = 'true';
+  });
+
+  document.addEventListener('textEditStop', e => {
+    const widget = e.detail?.widget;
+    if (!widget || widget.dataset.tempLock !== 'true') return;
+    grid.update(widget, { locked: false, noMove: false, noResize: false });
+    widget.removeAttribute('data-temp-lock');
+  });
+
   document.addEventListener('click', e => {
     if (!activeWidgetEl) return;
     if (e.target.closest('.grid-stack-item') === activeWidgetEl ||
