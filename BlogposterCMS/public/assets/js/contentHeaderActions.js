@@ -28,6 +28,7 @@ export function initContentHeader() {
     if (!grid || typeof grid.setStatic !== 'function') return;
     editing = !editing;
     grid.setStatic(!editing);
+    document.body.classList.toggle('dashboard-edit-mode', editing);
     editToggle.src = editing ? '/assets/icons/check.svg' : '/assets/icons/edit.svg';
     editToggle.classList.add('spin');
     setTimeout(() => editToggle.classList.remove('spin'), 300);
