@@ -33,6 +33,9 @@
 }
 
 .text-block-editor-toolbar.floating {
+  border-radius: 9px;
+  box-shadow: var(--shadow-default);
+  margin: 20px 42px 0;
   position: fixed;
   top: 56px;
   left: 0;
