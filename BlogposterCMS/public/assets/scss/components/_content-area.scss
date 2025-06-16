@@ -30,3 +30,8 @@
   min-height: 80px;
 }
 
+// Highlight widgets while the admin layout is editable
+body.dashboard-edit-mode .grid-stack-item {
+  border: 2px dashed var(--user-color);
+}
+
