@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Fixed text editor overlay only activates for text inside widgets, preventing random opens in builder mode.
 - Fixed duplicate key error on startup when the userManagement module
   reinitializes with existing MongoDB users lacking email addresses.
 - Switching between client and server render modes now works by setting the
