@@ -39,19 +39,23 @@ export class CanvasGrid {
   }
 
   _bindResize() {
-    let startX, startY, startW, startH, pos;
+    let startX, startY, startW, startH, startGX, startGY, pos;
     const move = e => {
       if (!this.activeEl || pos == null) return;
       const dx = e.clientX - startX;
       const dy = e.clientY - startY;
       let w = startW, h = startH;
+      let gx = startGX, gy = startGY;
       if (pos.includes('e')) w += dx;
       if (pos.includes('s')) h += dy;
-      if (pos.includes('w')) w -= dx;
-      if (pos.includes('n')) h -= dy;
+      if (pos.includes('w')) { w -= dx; gx += Math.round(dx/5); }
+      if (pos.includes('n')) { h -= dy; gy += Math.round(dy/5); }
       w = Math.max(20, w);
       h = Math.max(20, h);
-      this.grid.update(this.activeEl, {w: Math.round(w/5), h: Math.round(h/5)});
+      const opts = {w: Math.round(w/5), h: Math.round(h/5)};
+      if (pos.includes('w')) opts.x = gx;
+      if (pos.includes('n')) opts.y = gy;
+      this.grid.update(this.activeEl, opts);
       this._updateBBox();
     };
     const up = () => { pos = null; document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', up); };
@@ -63,6 +67,8 @@ export class CanvasGrid {
         const rect = this.activeEl.getBoundingClientRect();
         startX = e.clientX; startY = e.clientY;
         startW = rect.width; startH = rect.height;
+        startGX = +this.activeEl.getAttribute('gs-x');
+        startGY = +this.activeEl.getAttribute('gs-y');
         document.addEventListener('mousemove', move);
         document.addEventListener('mouseup', up);
       });

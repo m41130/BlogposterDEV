@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Resizing widgets via the bounding box now adjusts their grid position when using the left or top handles.
 - GridStack resize handles are hidden in the builder; the transformable bounding box now manages resizing.
 - Added login settings link in the sidebar and redesigned login strategies widget with toggle and edit icons.
 - Widgets temporarily lock while editing text in the builder, enabling text selection.
