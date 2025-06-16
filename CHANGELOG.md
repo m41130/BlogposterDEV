@@ -5,6 +5,11 @@ El Psy Kongroo
 
 ## [Unreleased]
 - Added Fonts Manager core module with pluggable providers and admin page.
+- GridStack resize handles are hidden in the builder; the transformable bounding box now manages resizing.
+- Added login settings link in the sidebar and redesigned login strategies widget with toggle and edit icons.
+- Widgets temporarily lock while editing text in the builder, enabling text selection.
+- Preview mode now locks widgets and expands the builder. A new preview header
+  lets you switch between desktop, tablet and mobile display ports.
 - Heading widget now uses the global text editor toolbar and retains content when opening the code editor.
 - Text block widget reports initial HTML to the builder and is always recognized as editable.
 - Fixed text block editor toolbar not opening after custom HTML edits by

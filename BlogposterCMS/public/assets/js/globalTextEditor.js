@@ -96,6 +96,10 @@ async function init() {
 
 function close() {
   if (!activeEl) return;
+  const widget = activeEl.closest('.grid-stack-item');
+  if (widget) {
+    document.dispatchEvent(new CustomEvent('textEditStop', { detail: { widget } }));
+  }
   activeEl.removeAttribute('contenteditable');
   let html = editingPlain ? activeEl.textContent : activeEl.innerHTML;
   html = sanitizeHtml(html.trim());
@@ -119,6 +123,10 @@ export async function editElement(el, onSave) {
   if (activeEl === el) return;
   if (activeEl) close();
   activeEl = el;
+  const startWidget = el.closest('.grid-stack-item');
+  if (startWidget) {
+    document.dispatchEvent(new CustomEvent('textEditStart', { detail: { widget: startWidget } }));
+  }
   activeEl.__onSave = onSave;
 
   editingPlain = !/<[a-z][\s\S]*>/i.test(el.innerHTML.trim());

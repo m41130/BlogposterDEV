@@ -1,5 +1,18 @@
 // Styles for Login Strategies widget
 
+
+.login-strategies-card {
+  @extend .page-list-card;
+}
+
+.login-strategy-title-bar {
+  @extend .page-title-bar;
+}
+
+.login-strategy-title {
+  @extend .page-title;
+}
+
 .login-strategies-list {
   @extend .page-list;
 }
@@ -36,11 +49,3 @@
   color: #555;
 }
 
-.login-strategy-toggle-btn {
-  background: #f6f6f6;
-  border: none;
-  border-radius: 5px;
-  padding: 2px 8px;
-  cursor: pointer;
-  font-size: 0.85rem;
-}
