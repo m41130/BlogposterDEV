@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Restored styling for the user editor with new classes for delete button
+  and required field checkboxes.
 - Fixed floating text editor toolbar missing default controls in builder mode.
 - Text editor toolbar now floats below the builder header and edits inline.
 - Added drag-and-drop module upload with ZIP validation. Modules require `moduleInfo.json` and `index.js`.
