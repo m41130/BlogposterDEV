@@ -29,7 +29,7 @@ export async function render(el) {
     if (!providers.length) {
       const empty = document.createElement('div');
       empty.className = 'empty-state';
-      empty.textContent = 'No providers found.';
+      empty.textContent = 'No font providers configured. Add one to use custom fonts.';
       list.appendChild(empty);
     } else {
       providers.forEach(p => {
@@ -45,10 +45,11 @@ export async function render(el) {
         const actions = document.createElement('span');
         actions.className = 'font-actions';
 
-        const toggleBtn = document.createElement('button');
-        toggleBtn.className = 'font-toggle-btn';
-        toggleBtn.textContent = p.isEnabled ? 'Deactivate' : 'Activate';
-        toggleBtn.addEventListener('click', async () => {
+        const toggleIcon = document.createElement('span');
+        toggleIcon.className = 'icon font-toggle-icon';
+        toggleIcon.innerHTML = window.featherIcon(p.isEnabled ? 'toggle-right' : 'toggle-left');
+        toggleIcon.title = p.isEnabled ? 'Disable' : 'Enable';
+        toggleIcon.addEventListener('click', async () => {
           try {
             await meltdownEmit('setFontProviderEnabled', {
               jwt,
@@ -58,13 +59,14 @@ export async function render(el) {
               enabled: !p.isEnabled
             });
             p.isEnabled = !p.isEnabled;
-            toggleBtn.textContent = p.isEnabled ? 'Deactivate' : 'Activate';
+            toggleIcon.innerHTML = window.featherIcon(p.isEnabled ? 'toggle-right' : 'toggle-left');
+            toggleIcon.title = p.isEnabled ? 'Disable' : 'Enable';
           } catch (err) {
             alert('Error: ' + err.message);
           }
         });
 
-        actions.appendChild(toggleBtn);
+        actions.appendChild(toggleIcon);
         nameRow.appendChild(nameEl);
         nameRow.appendChild(actions);
 

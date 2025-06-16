@@ -14,6 +14,7 @@ El Psy Kongroo
   promises during setup.
 - Fixed seeding for the Fonts page so the Font Providers widget is available on first run.
 - Bounding box respects widget lock state when editing text, preventing accidental resize.
+- Fonts widget now shows toggle icons and clearer empty-state text to match other settings widgets.
 - Resizing widgets via the bounding box now adjusts their grid position when using the left or top handles.
 - Widget selection is restored after editing text so the action toolbar and bounding box reappear automatically.
 - Added Fonts Manager core module with pluggable providers and admin page.
