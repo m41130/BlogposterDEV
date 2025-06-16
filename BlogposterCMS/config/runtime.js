@@ -30,12 +30,21 @@ module.exports = {
   /* Feature Flags – flip without redeploying code */
   features: {
     enableMarketplace : env.FEAT_MARKETPLACE   === 'true',
-    allowRegistration : env.ALLOW_REGISTRATION === 'true'
+    allowRegistration : env.ALLOW_REGISTRATION === 'true',
+    renderMode: (env.RENDER_MODE || 'client').toLowerCase() === 'server' ? 'server' : 'client'
   }
 };
 
 /* Optional runtime.local.js (git‑ignored) */
 try {
-  Object.assign(module.exports, require('./runtime.local'));
+  const local = require('./runtime.local');
+  const { features: localFeatures, ...rest } = local;
+  Object.assign(module.exports, rest);
+  if (localFeatures) {
+    module.exports.features = {
+      ...module.exports.features,
+      ...localFeatures
+    };
+  }
   console.log('[RUNTIME] Loaded local overrides from config/runtime.local.js');
 } catch { /* nothing to override – carry on */ }
