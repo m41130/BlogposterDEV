@@ -94,6 +94,37 @@
   opacity: 0.94;
 }
 
+.user-field-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 1rem;
+}
+
+.color-choices {
+  display: flex;
+  gap: 6px;
+}
+
+.color-circle {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+.color-circle.active {
+  border-color: var(--user-color);
+}
+.color-circle.add-custom {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border: 1px dashed #ccc;
+  color: #555;
+}
+
 #pe-save {
   display: inline-flex;
   align-items: center;

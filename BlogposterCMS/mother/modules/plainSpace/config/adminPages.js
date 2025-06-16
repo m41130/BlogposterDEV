@@ -184,7 +184,11 @@ module.exports.ADMIN_PAGES = [
         sidebar: 'settings-sidebar',
         inheritsLayout: true
       },
-      widgets: ['userEdit']
+      widgets: ['userEdit'],
+      actionButton: {
+        icon: '/assets/icons/save.svg',
+        action: 'saveUserChanges'
+      }
     }
   },
   {

@@ -78,11 +78,38 @@ function setupUserCrudEvents(motherEmitter) {
     }, TIMEOUT_DURATION);
 
     try {
-      // 1) Hash password
+      // 1) ensure username/email are unique
+      const existingUser = await new Promise((res, rej) => {
+        motherEmitter.emit(
+          'dbSelect',
+          { jwt, moduleName: 'userManagement', table: 'users', where: { username } },
+          (e, rows) => (e ? rej(e) : res(rows && rows[0]))
+        );
+      });
+      if (existingUser) {
+        clearTimeout(timeout);
+        return callback(new Error('Username already exists.'));
+      }
+      let existingEmail = null;
+      if (email) {
+        existingEmail = await new Promise((res, rej) => {
+          motherEmitter.emit(
+            'dbSelect',
+            { jwt, moduleName: 'userManagement', table: 'users', where: { email } },
+            (e, rows) => (e ? rej(e) : res(rows && rows[0]))
+          );
+        });
+        if (existingEmail) {
+          clearTimeout(timeout);
+          return callback(new Error('Email already exists.'));
+        }
+      }
+
+      // 2) Hash password
       const saltedPassword = password + (process.env.USER_PASSWORD_SALT || '');
       const hashedPassword = await bcrypt.hash(saltedPassword, 10);
 
-      // 2) Prepare data
+      // 3) Prepare data
       const dataToInsert = {
         username,
         email       : email       || null,
