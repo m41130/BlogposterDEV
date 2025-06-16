@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Added drag-and-drop module upload with ZIP validation. Modules require `moduleInfo.json` and `index.js`.
+- Module uploads now enforce `version`, `developer` and `description` fields in `moduleInfo.json`.
 - Switching between client and server render modes now works by setting the
   `RENDER_MODE` environment variable or `features.renderMode` in
   `runtime.local.js`. The server strips `pageRenderer.js` automatically when

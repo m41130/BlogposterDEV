@@ -61,7 +61,7 @@ The callback receives results only if the token has the `db.read` permission. Th
 1. Create a new folder under `modules/`.
 2. Add an `index.js` that exports an `initialize({ motherEmitter, jwt, isCore })` function.
 3. Inside `initialize`, register any meltdown event listeners your module needs.
-4. Include a `moduleInfo.json` file describing your module (name, version, permissions, etc.).
+4. Include a `moduleInfo.json` file describing your module. It must define `moduleName`, `version`, `developer` and `description`; other properties like permissions are optional.
 5. Restart the server. The Module Loader will automatically attempt to load the new module inside its sandbox.
 
 Modules should only interact with the rest of the CMS through meltdown events. Refer to existing core modules for practical examples.

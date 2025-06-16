@@ -31,6 +31,16 @@ export async function render(el) {
 
     titleBar.appendChild(title);
 
+    const uploadBtn = document.createElement('img');
+    uploadBtn.src = '/assets/icons/plus.svg';
+    uploadBtn.alt = 'Upload module';
+    uploadBtn.title = 'Upload module';
+    uploadBtn.className = 'icon add-module-btn';
+    uploadBtn.addEventListener('click', () => {
+      openUploadPopup();
+    });
+    titleBar.appendChild(uploadBtn);
+
     const tabs = document.createElement('div');
     tabs.className = 'modules-tabs';
 
@@ -183,4 +193,60 @@ export async function render(el) {
   } catch (err) {
     el.innerHTML = `<div class="error">Failed to load modules: ${err.message}</div>`;
   }
+}
+
+function openUploadPopup() {
+  const overlay = document.createElement('div');
+  overlay.className = 'module-upload-overlay';
+
+  const box = document.createElement('div');
+  box.className = 'module-upload-box';
+  box.innerHTML = `
+    <p>Drop a ZIP file here or select one</p>
+    <input type="file" accept=".zip" />
+    <div style="margin-top:10px;">
+      <button class="cancel-btn">Cancel</button>
+    </div>`;
+
+  const input = box.querySelector('input');
+  const cancelBtn = box.querySelector('.cancel-btn');
+
+  const remove = () => overlay.remove();
+  cancelBtn.addEventListener('click', remove);
+
+  function handleFiles(files) {
+    const file = files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async () => {
+      try {
+        await window.meltdownEmit('installModuleFromZip', {
+          jwt: window.ADMIN_TOKEN,
+          moduleName: 'moduleLoader',
+          moduleType: 'core',
+          zipData: reader.result.split(',')[1]
+        });
+        window.location.reload();
+      } catch (err) {
+        alert('Upload failed: ' + err.message);
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+
+  input.addEventListener('change', e => handleFiles(e.target.files));
+
+  box.addEventListener('dragover', e => {
+    e.preventDefault();
+    box.classList.add('dragover');
+  });
+  box.addEventListener('dragleave', () => box.classList.remove('dragover'));
+  box.addEventListener('drop', e => {
+    e.preventDefault();
+    box.classList.remove('dragover');
+    handleFiles(e.dataTransfer.files);
+  });
+
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
 }
