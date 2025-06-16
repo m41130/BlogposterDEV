@@ -4,8 +4,13 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+<<<<<<< fix-font-size-increment-behavior
+- Font size styling is now saved correctly for plain text blocks.
+- Font size controls now apply to selected text when editing text blocks.
+=======
 - Widgets auto-lock when editing text fields and unlock as soon as focus leaves
   the text, improving editing flow.
+>>>>>>> main
 - Added font size control to the text editor toolbar for customizing widget text sizes.
 - Form inputs in widgets now select and lock the widget when focused, so
   the action menu appears during text entry.
