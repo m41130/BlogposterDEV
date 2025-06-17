@@ -82,11 +82,13 @@ async function init() {
       '</select>',
       '<div class="font-size-control">' +
         '<button type="button" class="tb-btn fs-dec">-</button>' +
-        '<input type="number" class="fs-input" value="16" min="8" />' +
+        '<div class="fs-dropdown">' +
+          '<input type="number" class="fs-input" value="16" min="8" />' +
+          '<div class="fs-options">' +
+            [12,14,16,18,24,36].map(s => `<span data-size="${s}">${s}</span>`).join('') +
+          '</div>' +
+        '</div>' +
         '<button type="button" class="tb-btn fs-inc">+</button>' +
-        '<div class="fs-dropdown"><span class="fs-current">16</span><div class="fs-options">' +
-          [12,14,16,18,24,36].map(s => `<span data-size="${s}">${s}</span>`).join('') +
-        '</div></div>' +
       '</div>'
     ].join('');
     toolbar.addEventListener('click', ev => {
@@ -101,14 +103,12 @@ async function init() {
     document.body.appendChild(toolbar);
 
     const fsInput = toolbar.querySelector('.fs-input');
-    const fsCurrent = toolbar.querySelector('.fs-current');
     const fsDropdown = toolbar.querySelector('.fs-dropdown');
     const fsOptions = toolbar.querySelector('.fs-options');
     const applySize = size => {
       const val = parseInt(size, 10);
       if (!val) return;
       fsInput.value = val;
-      fsCurrent.textContent = val;
       if (!activeEl) return;
 
       const sel = window.getSelection();
@@ -143,10 +143,25 @@ async function init() {
     toolbar.querySelector('.fs-dec').addEventListener('click', () => {
       applySize((parseInt(fsInput.value, 10) || 16) - 1);
     });
-    fsInput.addEventListener('change', () => applySize(fsInput.value));
-    fsCurrent.addEventListener('click', () => {
-      fsDropdown.classList.toggle('open');
+    const filterOptions = val => {
+      fsOptions.querySelectorAll('span[data-size]').forEach(span => {
+        span.style.display = !val || span.textContent.startsWith(val) ? 'block' : 'none';
+      });
+    };
+
+    fsInput.addEventListener('focus', () => {
+      fsDropdown.classList.add('open');
+      filterOptions(fsInput.value);
     });
+    fsInput.addEventListener('input', () => {
+      fsDropdown.classList.add('open');
+      filterOptions(fsInput.value);
+    });
+    fsInput.addEventListener('change', () => applySize(fsInput.value));
+    fsInput.addEventListener('blur', () => {
+      setTimeout(() => fsDropdown.classList.remove('open'), 150);
+    });
+
     fsOptions.addEventListener('click', ev => {
       const opt = ev.target.closest('span[data-size]');
       if (!opt) return;

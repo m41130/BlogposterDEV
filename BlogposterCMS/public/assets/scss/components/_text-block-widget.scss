@@ -37,14 +37,16 @@
     gap: 4px;
     position: relative;
 
-    .fs-input {
-      width: 40px;
-      text-align: center;
-    }
-
     .fs-dropdown {
       position: relative;
-      cursor: pointer;
+      display: flex;
+      align-items: center;
+
+      .fs-input {
+        width: 40px;
+        text-align: center;
+        height: 28px;
+      }
 
       .fs-options {
         display: none;
@@ -56,7 +58,6 @@
         z-index: 2000;
         padding: 4px 0;
         white-space: nowrap;
-
         span {
           display: block;
           padding: 4px 8px;
