@@ -398,6 +398,13 @@ function close() {
   }
   const el = activeEl;
   const cb = activeEl.__onSave;
+  if (widget && widget.dataset.instanceId) {
+    document.dispatchEvent(
+      new CustomEvent('widgetHtmlUpdate', {
+        detail: { instanceId: widget.dataset.instanceId, html }
+      })
+    );
+  }
   activeEl = null;
   editingPlain = false;
   if (typeof cb === 'function') cb(el, html);

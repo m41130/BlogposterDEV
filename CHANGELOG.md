@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Widget HTML edits from the toolbar now sync to the code editor, keeping custom code up to date.
 - Fonts now load from the fonts manager so custom providers can add new fonts.
 - Added font selection dropdown to the builder text editor toolbar.
 - Font size and text color changes now wrap text in spans so styles persist when saving.
