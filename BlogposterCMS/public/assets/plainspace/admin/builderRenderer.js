@@ -935,21 +935,9 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       selectWidget(el);
     });
 
-    // Select and temporarily lock the widget when focusing text inputs
-    el.addEventListener('focusin', e => {
-      if (!e.target.closest('input, textarea')) return;
-      selectWidget(el);
-      if (!el.dataset.tempLock) {
-        document.dispatchEvent(new CustomEvent('textEditStart', { detail: { widget: el } }));
-      }
-    });
-
-    el.addEventListener('focusout', e => {
-      if (!e.target.closest('input, textarea')) return;
-      if (el.dataset.tempLock) {
-        document.dispatchEvent(new CustomEvent('textEditStop', { detail: { widget: el } }));
-      }
-    });
+    // Widgets used to lock when any form input gained focus. This caused
+    // unexpected locks during normal interactions. Auto-locking now only
+    // occurs after clicking inside a text field via the global editor.
   }
 
 
