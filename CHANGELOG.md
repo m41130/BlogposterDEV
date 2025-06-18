@@ -4,7 +4,9 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Increasing font size without a selection now affects the entire widget.
 - Font size selector in the text editor now shows preset sizes below the input while typing and aligns with other toolbar controls.
+- Font size tool aligns with other buttons and updates selected text directly in widgets.
 
 ## [0.5.2] – 2025-06-16
 - Widgets auto-lock when editing text fields and unlock as soon as focus leaves
