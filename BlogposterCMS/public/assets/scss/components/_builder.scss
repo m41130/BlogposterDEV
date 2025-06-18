@@ -311,6 +311,11 @@
   display: none;
 }
 
+// Hide GridStack drag placeholder to avoid showing an old position
+.builder-mode .grid-stack-placeholder {
+  display: none !important;
+}
+
 
 body.builder-mode #content {
   margin-left: 96px;
