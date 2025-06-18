@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Canvas grid enforces boundaries so widgets stay within the grid area.
 - Removed GridStack dependency in favor of a custom drag-and-drop canvas grid.
 - Updated admin template and SCSS to use the new canvas grid classes.
 - Widget HTML edits from the toolbar now sync to the code editor, keeping custom code up to date.

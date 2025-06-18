@@ -3,7 +3,13 @@
 
 export class CanvasGrid {
   constructor(options = {}, el) {
-    this.options = Object.assign({ cellHeight: 5, columnWidth: 5 }, options);
+    this.options = Object.assign(
+      { cellHeight: 5, columnWidth: 5, columns: Infinity, rows: Infinity },
+      options
+    );
+    if (Number.isFinite(this.options.column)) {
+      this.options.columns = this.options.column;
+    }
     this.el = typeof el === 'string' ? document.querySelector(el) : el;
     this.el.classList.add('canvas-grid');
     this.widgets = [];
@@ -21,11 +27,36 @@ export class CanvasGrid {
   }
 
   _applyPosition(el) {
-    const { columnWidth, cellHeight } = this.options;
-    const x = +el.getAttribute('gs-x') || 0;
-    const y = +el.getAttribute('gs-y') || 0;
-    const w = +el.getAttribute('gs-w') || 1;
-    const h = +el.getAttribute('gs-h') || 1;
+    const { columnWidth, cellHeight, columns, rows } = this.options;
+    let x = +el.getAttribute('gs-x') || 0;
+    let y = +el.getAttribute('gs-y') || 0;
+    let w = +el.getAttribute('gs-w') || 1;
+    let h = +el.getAttribute('gs-h') || 1;
+
+    w = Math.max(1, w);
+    h = Math.max(1, h);
+
+    if (Number.isFinite(columns)) {
+      if (w > columns) w = columns;
+      if (x < 0) x = 0;
+      if (x + w > columns) x = columns - w;
+    } else if (x < 0) {
+      x = 0;
+    }
+
+    if (Number.isFinite(rows)) {
+      if (h > rows) h = rows;
+      if (y < 0) y = 0;
+      if (y + h > rows) y = rows - h;
+    } else if (y < 0) {
+      y = 0;
+    }
+
+    el.setAttribute('gs-x', x);
+    el.setAttribute('gs-y', y);
+    el.setAttribute('gs-w', w);
+    el.setAttribute('gs-h', h);
+
     el.style.position = 'absolute';
     el.style.left = `${x * columnWidth}px`;
     el.style.top = `${y * cellHeight}px`;
