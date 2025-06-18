@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Core Fonts Manager can now register providers without triggering an unauthorized skipJWT meltdown.
 - Text color button now displays an underlined 'A' icon reflecting the selected color and opens the palette below the toolbar.
 - Color picker in user editor now floats above fields when opened.
 - Text editor toolbar now includes a floating color picker to change selected text or entire blocks.

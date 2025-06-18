@@ -38,6 +38,7 @@ const ALLOWED_SKIPJWT_EVENTS = [
   'issueUserToken',
   'issueModuleToken',
   'registerLoginStrategy',
+  'registerFontProvider',
   'validateToken'
 ];
 
