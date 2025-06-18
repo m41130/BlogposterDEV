@@ -82,15 +82,23 @@
     margin-left: 8px;
     position: relative;
     .color-picker-toggle {
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
       cursor: pointer;
-      border: 2px solid var(--user-color);
+      border: none;
+      background: none;
+    }
+    .color-picker-toggle .color-icon {
+      font-size: 18px;
+      line-height: 1;
+      text-decoration: underline;
     }
     .color-picker {
       position: absolute;
-      top: 100%;
+      top: calc(100% + 4px);
       left: 0;
       background: var(--color-white);
       box-shadow: var(--shadow-default);
