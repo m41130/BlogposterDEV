@@ -1,3 +1,5 @@
+import Pickr from './vendor/pickr.min.js';
+
 export function createColorPicker(options = {}) {
   const {
     presetColors = [
@@ -43,18 +45,31 @@ export function createColorPicker(options = {}) {
     });
     const addCustom = document.createElement('div');
     addCustom.className = 'color-circle add-custom';
-    const colorInput = document.createElement('input');
-    colorInput.type = 'color';
-    colorInput.style.display = 'none';
-    addCustom.appendChild(colorInput);
-    addCustom.addEventListener('click', () => colorInput.click());
-    colorInput.addEventListener('input', () => {
-      selectedColor = colorInput.value;
+
+    const pickr = Pickr.create({
+      el: addCustom,
+      theme: 'nano',
+      default: selectedColor,
+      components: {
+        preview: true,
+        opacity: true,
+        hue: true,
+        interaction: {
+          input: true,
+          save: true
+        }
+      }
+    });
+
+    pickr.on('change', color => {
+      selectedColor = color.toHEXA().toString();
       container.querySelectorAll('.color-circle').forEach(n => n.classList.remove('active'));
       addCustom.style.backgroundColor = selectedColor;
       addCustom.classList.add('active');
       onSelect(selectedColor);
     });
+
+    pickr.on('save', () => pickr.hide());
     section.appendChild(addCustom);
     wrapper.appendChild(section);
     container.appendChild(wrapper);
