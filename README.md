@@ -41,7 +41,7 @@ You get the power of plugins — without the plugin drama.
 - ⚙️ Built-in sandbox for third-party modules (crash protection included)
 - 🛡️ Hardened security layer with granular permissions
 - 📦 PostgreSQL, MongoDB or SQLite – you choose
-- 💠 Drag-and-drop pages thanks to [GridStack](https://gridstackjs.com/)
+- 💠 Drag-and-drop pages with a built-in canvas grid
 - 🧠 AI & Microservices support (because why not?)
 - ☢️ Meltdown event bus keeps rogue modules isolated
 - 🔑 Dynamic login strategies and secure share links

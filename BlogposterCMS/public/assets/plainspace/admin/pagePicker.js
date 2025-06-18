@@ -3,15 +3,10 @@
   // Use the global emitter function, not an import
   const meltdownEmit = window.meltdownEmit;
   const jwt         = window.ADMIN_TOKEN;         // injected by your Express route
+  const { init: initCanvasGrid } = await import('../js/canvasGrid.js');
 
-  // GridStack target
-  const grid = GridStack.init({
-    cellHeight: 5,
-    float:      false,
-    disableResize: true,
-    columnWidth: 5,
-    column: 64
-  }, '#pagePickerGrid');
+  // Lightweight grid for arranging pages
+  const grid = initCanvasGrid({ cellHeight: 5, columnWidth: 5 }, '#pagePickerGrid');
 
   // 1) load & render all public pages
   async function loadPages() {
@@ -26,7 +21,7 @@
 
     pages.forEach((p, idx) => {
       const item = document.createElement('div');
-      item.classList.add('grid-stack-item');
+      item.classList.add('canvas-item');
       item.setAttribute('gs-x', 0);
       item.setAttribute('gs-y', idx);
       item.setAttribute('gs-w', 4);
@@ -36,7 +31,7 @@
       item.dataset.pageId = p.pageId;
 
       const content = document.createElement('div');
-      content.classList.add('grid-stack-item-content');
+      content.classList.add('canvas-item-content');
       content.innerHTML = `
         <strong>${p.title}</strong>
         <span style="float:right">

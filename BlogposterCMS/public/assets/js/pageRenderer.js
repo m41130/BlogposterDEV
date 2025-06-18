@@ -2,6 +2,7 @@
 
 import { fetchPartial } from '../plainspace/admin/fetchPartial.js';
 import { initBuilder } from '../plainspace/admin/builderRenderer.js';
+import { init as initCanvasGrid } from './canvasGrid.js';
 import { enableAutoEdit, sanitizeHtml } from './globalTextEditor.js';
 
 // Default rows for admin widgets (~50px with 5px grid cells)
@@ -82,10 +83,9 @@ function renderWidget(wrapper, def, code = null, lane = 'public') {
 
   const container = document.createElement('div');
   container.className = 'widget-container';
-  // Prevent GridStack from starting a drag when interacting with
-  // form controls inside widgets on admin pages. Attach the handler
-  // on both the container and the grid item content element so events
-  // are intercepted before GridStack can act on them.
+  // Prevent drag actions when interacting with form controls inside widgets on
+  // admin pages. Attach the handler on both the container and the grid item
+  // content element so events are intercepted before the grid logic runs.
   const stop = ev => {
     const t = ev.target.closest('input, textarea, select, label, button');
     if (t) {
@@ -124,7 +124,7 @@ function renderWidget(wrapper, def, code = null, lane = 'public') {
     }
     return;
   }
-  const host = wrapper.closest('.grid-stack-item') || wrapper;
+  const host = wrapper.closest('.canvas-item') || wrapper;
   const ctx = {
     id: host.dataset.instanceId,
     widgetId: def.id,
@@ -392,10 +392,10 @@ function ensureLayout(layout = {}, lane = 'public') {
       clearContentKeepHeader(contentEl);
       const gridEl = document.createElement('div');
       gridEl.id = 'publicGrid';
-      gridEl.className = 'grid-stack';
+      gridEl.className = 'canvas-grid';
       contentEl.appendChild(gridEl);
       // Static mode: public pages should not be directly editable
-      const grid = GridStack.init({ staticGrid: true, float: true, cellHeight: 5, columnWidth: 5, column: 64 }, gridEl);
+      const grid = initCanvasGrid({ staticGrid: true, float: true, cellHeight: 5, columnWidth: 5, column: 64 }, gridEl);
 
       items.forEach(item => {
         const def = allWidgets.find(w => w.id === item.widgetId);
@@ -406,7 +406,7 @@ function ensureLayout(layout = {}, lane = 'public') {
         const [x, y, w, h] = [item.x ?? 0, item.y ?? 0, item.w ?? 8, item.h ?? 4];
 
         const wrapper = document.createElement('div');
-        wrapper.classList.add('grid-stack-item');
+        wrapper.classList.add('canvas-item');
         wrapper.setAttribute('gs-x', x);
         wrapper.setAttribute('gs-y', y);
         wrapper.setAttribute('gs-w', w);
@@ -418,7 +418,7 @@ function ensureLayout(layout = {}, lane = 'public') {
         if (item.global) wrapper.dataset.global = 'true';
 
         const content = document.createElement('div');
-        content.className = 'grid-stack-item-content';
+        content.className = 'canvas-item-content';
         wrapper.appendChild(content);
 
         gridEl.appendChild(wrapper);
@@ -446,11 +446,10 @@ function ensureLayout(layout = {}, lane = 'public') {
     clearContentKeepHeader(contentEl);
     const gridEl = document.createElement('div');
     gridEl.id = 'adminGrid';
-    gridEl.className = 'grid-stack';
+    gridEl.className = 'canvas-grid';
     contentEl.appendChild(gridEl);
-    const grid = GridStack.init({ cellHeight: 5, columnWidth: 5, column: 64 }, gridEl);
-    // Widgets start locked in place until edit mode is enabled
-    grid.setStatic(true);
+    const grid = initCanvasGrid({ cellHeight: 5, columnWidth: 5, column: 64 }, gridEl);
+    grid.on('change', () => {});
     window.adminGrid = grid;
     window.adminPageContext = { pageId: page.id, lane };
     window.adminCurrentLayout = layout;
@@ -464,7 +463,7 @@ function ensureLayout(layout = {}, lane = 'public') {
       const [x, y, w, h] = [meta.x ?? 0, meta.y ?? 0, meta.w ?? 8, meta.h ?? DEFAULT_ADMIN_ROWS];
 
       const wrapper = document.createElement('div');
-      wrapper.classList.add('grid-stack-item');
+      wrapper.classList.add('canvas-item');
       wrapper.setAttribute('gs-x', x);
       wrapper.setAttribute('gs-y', y);
       wrapper.setAttribute('gs-w', w);
@@ -476,7 +475,7 @@ function ensureLayout(layout = {}, lane = 'public') {
       if (meta.global) wrapper.dataset.global = 'true';
 
       const content = document.createElement('div');
-      content.className = 'grid-stack-item-content';
+      content.className = 'canvas-item-content';
       wrapper.appendChild(content);
 
       gridEl.appendChild(wrapper);
@@ -486,13 +485,17 @@ function ensureLayout(layout = {}, lane = 'public') {
 
     });
 
-    grid.on('change', (_, items) => {
-      const newLayout = items.map(i => ({
-        id: i.el.dataset.instanceId,
-        widgetId: i.el.dataset.widgetId,
-        global: i.el.dataset.global === 'true',
-        x: i.x, y: i.y, w: i.w, h: i.h,
-        code: layout.find(l => l.id === i.el.dataset.instanceId)?.code || null
+    grid.on('change', () => {
+      const items = Array.from(gridEl.querySelectorAll('.canvas-item'));
+      const newLayout = items.map(el => ({
+        id: el.dataset.instanceId,
+        widgetId: el.dataset.widgetId,
+        global: el.dataset.global === 'true',
+        x: +el.getAttribute('gs-x'),
+        y: +el.getAttribute('gs-y'),
+        w: +el.getAttribute('gs-w'),
+        h: +el.getAttribute('gs-h'),
+        code: layout.find(l => l.id === el.dataset.instanceId)?.code || null
       }));
       window.adminCurrentLayout = newLayout;
     });
