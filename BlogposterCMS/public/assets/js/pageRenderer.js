@@ -2,7 +2,7 @@
 
 import { fetchPartial } from '../plainspace/admin/fetchPartial.js';
 import { initBuilder } from '../plainspace/admin/builderRenderer.js';
-import { enableAutoEdit } from './globalTextEditor.js';
+import { enableAutoEdit, sanitizeHtml } from './globalTextEditor.js';
 
 // Default rows for admin widgets (~50px with 5px grid cells)
 // Temporary patch: double the default height for larger widgets
@@ -116,7 +116,7 @@ function renderWidget(wrapper, def, code = null, lane = 'public') {
       root.appendChild(customStyle);
     }
     if (code.html) {
-      container.innerHTML = code.html;
+      container.innerHTML = sanitizeHtml(code.html);
     }
     if (code.js) {
       try { executeJs(code.js, wrapper, root); } catch (e) { console.error('[Renderer] custom js error', e); }
@@ -276,9 +276,11 @@ function ensureLayout(layout = {}, lane = 'public') {
     // 4. LOAD HEADER PARTIALS
     if (slug !== 'builder') {
       if (topHeaderEl) {
-        topHeaderEl.innerHTML = await fetchPartial(
-          config.layout?.header || 'top-header',
-          'headers'
+        topHeaderEl.innerHTML = sanitizeHtml(
+          await fetchPartial(
+            config.layout?.header || 'top-header',
+            'headers'
+          )
         );
         document.dispatchEvent(new CustomEvent('top-header-loaded'));
       }
@@ -286,7 +288,9 @@ function ensureLayout(layout = {}, lane = 'public') {
           if (config.layout?.inheritsLayout === false && !config.layout?.topHeader) {
             mainHeaderEl.innerHTML = '';
           } else {
-            mainHeaderEl.innerHTML = await fetchPartial(config.layout?.mainHeader || 'main-header', 'headers');
+            mainHeaderEl.innerHTML = sanitizeHtml(
+              await fetchPartial(config.layout?.mainHeader || 'main-header', 'headers')
+            );
           }
           if (lane === 'admin' && page.title) {
             const t = mainHeaderEl.querySelector('.site-title');
@@ -295,9 +299,11 @@ function ensureLayout(layout = {}, lane = 'public') {
         }
       const contentHeaderEl = document.getElementById('content-header');
       if (contentHeaderEl) {
-        contentHeaderEl.innerHTML = await fetchPartial(
-          config.layout?.contentHeader || 'content-header',
-          'headers'
+        contentHeaderEl.innerHTML = sanitizeHtml(
+          await fetchPartial(
+            config.layout?.contentHeader || 'content-header',
+            'headers'
+          )
         );
         document.dispatchEvent(new CustomEvent('content-header-loaded'));
       }
@@ -307,7 +313,9 @@ function ensureLayout(layout = {}, lane = 'public') {
     if (slug === 'builder') {
       const builderSidebar = config.layout?.sidebar || 'sidebar-builder';
       if (sidebarEl) {
-        sidebarEl.innerHTML = await fetchPartial(builderSidebar, 'sidebars');
+        sidebarEl.innerHTML = sanitizeHtml(
+          await fetchPartial(builderSidebar, 'sidebars')
+        );
       }
 
       const urlParams = new URLSearchParams(window.location.search);
@@ -329,7 +337,9 @@ function ensureLayout(layout = {}, lane = 'public') {
 
     if (sidebarEl) {
       if (sidebarPartial !== 'empty-sidebar') {
-        sidebarEl.innerHTML = await fetchPartial(sidebarPartial, 'sidebars');
+        sidebarEl.innerHTML = sanitizeHtml(
+          await fetchPartial(sidebarPartial, 'sidebars')
+        );
         sidebarEl.style.display = '';
       } else {
         sidebarEl.innerHTML = '';
