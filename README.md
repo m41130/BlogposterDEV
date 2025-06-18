@@ -41,7 +41,7 @@ You get the power of plugins — without the plugin drama.
 - ⚙️ Built-in sandbox for third-party modules (crash protection included)
 - 🛡️ Hardened security layer with granular permissions
 - 📦 PostgreSQL, MongoDB or SQLite – you choose
-- 💠 Drag-and-drop pages thanks to [GridStack](https://gridstackjs.com/)
+- 💠 Drag-and-drop pages with a built-in canvas grid
 - 🧠 AI & Microservices support (because why not?)
 - ☢️ Meltdown event bus keeps rogue modules isolated
 - 🔑 Dynamic login strategies and secure share links
@@ -57,7 +57,7 @@ Below are a few snapshots of the BlogposterCMS interface.
 
 ![Login screen with username and password fields](docs/screenshots/Clean%20Login%20Interface.png)
 
-These next images illustrate how GridStack lets you arrange widgets within the admin dashboard from a blank grid to a personalized layout.
+These next images illustrate how the built-in canvas grid lets you arrange widgets within the admin dashboard from a blank grid to a personalized layout.
 
 ![Empty dashboard grid before adding widgets](docs/screenshots/Arrange%20Your%20Dashboard%20Freely.png)
 ![Dashboard grid while adding widgets](docs/screenshots/Perfectly%20Adaptive%20Widgets.png)

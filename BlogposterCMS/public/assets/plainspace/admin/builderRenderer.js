@@ -129,7 +129,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     codeMap[instanceId] = codeMap[instanceId] || {};
     codeMap[instanceId].html = html;
 
-    const wrapper = gridEl?.querySelector(`.grid-stack-item[data-instance-id="${instanceId}"]`);
+    const wrapper = gridEl?.querySelector(`.canvas-item[data-instance-id="${instanceId}"]`);
     if (wrapper && wrapper.__codeEditor && wrapper.__codeEditor.style.display !== 'none') {
       const htmlField = wrapper.__codeEditor.querySelector('.editor-html');
       if (htmlField) htmlField.value = html;
@@ -318,7 +318,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     const instanceId = wrapper.dataset.instanceId;
     const data = customData || codeMap[instanceId] || null;
 
-    const content = wrapper.querySelector('.grid-stack-item-content');
+    const content = wrapper.querySelector('.canvas-item-content');
     content.innerHTML = '';
     const root = content.shadowRoot || content.attachShadow({ mode: 'open' });
     // Clean existing children to avoid duplicates on re-render
@@ -332,10 +332,9 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
 
     const container = document.createElement('div');
     container.className = 'widget-container';
-    // Prevent GridStack from initiating a drag when interacting
-    // with form controls inside widgets. Attach the handler on both the
-    // container and the grid item content to catch events before GridStack
-    // can start a drag operation.
+    // Prevent drag actions when interacting with form controls inside widgets.
+    // Attach the handler on both the container and the grid item content so
+    // events are intercepted before the grid logic runs.
     const stop = ev => {
       const t = ev.target.closest('input, textarea, select, label, button');
       if (t) {
@@ -513,7 +512,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       overlay.currentSelector = codeData.selector || '';
 
       function pickElement() {
-        const root = el.querySelector('.grid-stack-item-content')?.shadowRoot;
+        const root = el.querySelector('.canvas-item-content')?.shadowRoot;
         if (!root) return;
         const handler = ev => {
           ev.preventDefault();
@@ -603,21 +602,21 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     });
   });
 
-  contentEl.innerHTML = `<div id="builderGrid" class="grid-stack builder-grid"></div>`;
+  contentEl.innerHTML = `<div id="builderGrid" class="canvas-grid builder-grid"></div>`;
   gridEl = document.getElementById('builderGrid');
   await applyBuilderTheme();
   // Enable floating mode for easier widget placement in the builder
   const grid = initCanvasGrid({ float: true, cellHeight: 5, columnWidth: 5, column: 64 }, gridEl);
-  grid.grid.on("dragstart", () => {
+  grid.on("dragstart", () => {
     actionBar.style.display = "none";
   });
-  grid.grid.on("resizestart", () => {
+  grid.on("resizestart", () => {
     actionBar.style.display = "none";
   });
-  grid.grid.on("dragstop", (_, el) => {
+  grid.on("dragstop", () => {
     if (activeWidgetEl) selectWidget(activeWidgetEl);
   });
-  grid.grid.on("resizestop", (_, el) => {
+  grid.on("resizestop", () => {
     if (activeWidgetEl) selectWidget(activeWidgetEl);
   });
 
@@ -640,7 +639,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     const el = e.target;
     if (!(el instanceof HTMLElement)) return;
     if (!['INPUT', 'TEXTAREA'].includes(el.tagName)) return;
-    const widget = el.closest('.grid-stack-item');
+    const widget = el.closest('.canvas-item');
     if (!widget || widget.getAttribute('gs-locked') === 'true') return;
     selectWidget(widget);
     autoLockWidget(widget, true);
@@ -650,7 +649,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     const el = e.target;
     if (!(el instanceof HTMLElement)) return;
     if (!['INPUT', 'TEXTAREA'].includes(el.tagName)) return;
-    const widget = el.closest('.grid-stack-item');
+    const widget = el.closest('.canvas-item');
     if (!widget || widget.dataset.tempLock !== 'true') return;
     const to = e.relatedTarget;
     if (to && widget.contains(to)) return;
@@ -660,7 +659,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
 
   document.addEventListener('click', e => {
     if (!activeWidgetEl) return;
-    if (e.target.closest('.grid-stack-item') === activeWidgetEl ||
+    if (e.target.closest('.canvas-item') === activeWidgetEl ||
         e.target.closest('.widget-action-bar')) {
       return;
     }
@@ -671,7 +670,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   });
 
   function getCurrentLayout() {
-    const items = Array.from(gridEl.querySelectorAll('.grid-stack-item'));
+    const items = Array.from(gridEl.querySelectorAll('.canvas-item'));
     return items.map(el => ({
       id: el.dataset.instanceId,
       widgetId: el.dataset.widgetId,
@@ -710,7 +709,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       const isGlobal = item.global === true;
       if (item.code) codeMap[instId] = item.code;
       const wrapper = document.createElement('div');
-      wrapper.classList.add('grid-stack-item');
+      wrapper.classList.add('canvas-item');
       wrapper.dataset.widgetId = widgetDef.id;
       wrapper.dataset.instanceId = instId;
       wrapper.dataset.global = isGlobal ? 'true' : 'false';
@@ -721,7 +720,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       wrapper.setAttribute('gs-min-w', 4);
       wrapper.setAttribute('gs-min-h', DEFAULT_ROWS);
       const content = document.createElement('div');
-      content.className = 'grid-stack-item-content builder-themed';
+      content.className = 'canvas-item-content builder-themed';
       content.innerHTML = `${getWidgetIcon(widgetDef)}<span>${widgetDef.metadata?.label || widgetDef.id}</span>`;
       wrapper.appendChild(content);
       attachRemoveButton(wrapper);
@@ -953,7 +952,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
 
   function attachLockOnClick(el) {
     el.addEventListener('click', e => {
-      if (!e.target.closest('.grid-stack-item-content')) return;
+      if (!e.target.closest('.canvas-item-content')) return;
       if (e.target.closest('.widget-action-bar')) return;
       e.stopPropagation();
       selectWidget(el);
@@ -985,7 +984,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     const instId = genId();
 
     const wrapper = document.createElement('div');
-    wrapper.classList.add('grid-stack-item');
+    wrapper.classList.add('canvas-item');
     wrapper.dataset.widgetId = widgetDef.id;
     wrapper.dataset.instanceId = instId;
     wrapper.dataset.global = 'false';
@@ -997,7 +996,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     wrapper.setAttribute('gs-min-h', DEFAULT_ROWS);
 
     const content = document.createElement('div');
-    content.className = 'grid-stack-item-content builder-themed';
+    content.className = 'canvas-item-content builder-themed';
     content.innerHTML = `${getWidgetIcon(widgetDef)}<span>${widgetDef.metadata?.label || widgetDef.id}</span>`;
     wrapper.appendChild(content);
     attachRemoveButton(wrapper);

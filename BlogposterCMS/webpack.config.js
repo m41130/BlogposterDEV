@@ -7,7 +7,6 @@ module.exports = {
     alpine: './public/assets/js/alpine.js',
     contentHeaderActions: './public/assets/js/contentHeaderActions.js',
     firstInstallCheck: './public/assets/js/firstInstallCheck.js',
-    gridstackAll: './public/assets/js/gridstack.all.js',
     icons: './public/assets/js/icons.js',
     login: './public/assets/js/login.js',
     meltdownEmitter: './public/assets/js/meltdownEmitter.js',

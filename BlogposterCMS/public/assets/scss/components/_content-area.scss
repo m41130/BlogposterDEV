@@ -6,12 +6,12 @@
   flex-direction: column;
 }
 
-  .grid-stack,
-  .grid-stack * {
+  .canvas-grid,
+  .canvas-grid * {
     box-sizing: content-box;
   }
   
-.grid-stack {
+.canvas-grid {
   width: 100%;          
   min-width: 600px;      
   min-height: 300px;
@@ -19,7 +19,7 @@
   background: var(--color-bg);
   overflow: visible;
 }
-.grid-stack-item {
+.canvas-item {
   position: absolute;
   overflow: hidden;
   background: var(--color-white);
@@ -31,7 +31,7 @@
 }
 
 // Highlight widgets while the admin layout is editable
-body.dashboard-edit-mode .grid-stack-item {
+body.dashboard-edit-mode .canvas-item {
   border: 2px dashed var(--user-color);
 }
 

@@ -132,7 +132,7 @@
   }
 }
 
-.grid-stack-item .widget-remove {
+.canvas-item .widget-remove {
   position: absolute;
   top: 2px;
   left: 2px;
@@ -146,11 +146,11 @@
   transition: opacity 0.2s ease;
 }
 
-.grid-stack-item .widget-edit {
+.canvas-item .widget-edit {
   display: none;
 }
 
-.grid-stack-item .widget-menu {
+.canvas-item .widget-menu {
   position: absolute;
   top: 2px;
   right: 2px;
@@ -165,8 +165,8 @@
 }
 
 
-.grid-stack-item:hover .widget-menu,
-.grid-stack-item:hover .widget-remove {
+.canvas-item:hover .widget-menu,
+.canvas-item:hover .widget-remove {
   opacity: 0;
   pointer-events: none;
 }
@@ -290,29 +290,29 @@
 }
 
 
-.grid-stack-item .widget-remove .icon {
+.canvas-item .widget-remove .icon {
   width: 16px;
   height: 16px;
 }
 
 // Highlight widget wrapper on hover using the active user's color
-.builder-mode .grid-stack-item {
+.builder-mode .canvas-item {
   border: 2px solid transparent;
   transition: border-color 0.2s ease;
 }
 
-.builder-mode .grid-stack-item:hover,
-.builder-mode .grid-stack-item.selected {
+.builder-mode .canvas-item:hover,
+.builder-mode .canvas-item.selected {
   border-color: var(--user-color);
 }
 
-// Hide GridStack resize handles when using the bounding box
-.builder-mode .grid-stack-item > .ui-resizable-handle {
+// Hide native resize handles when using the bounding box
+.builder-mode .canvas-item > .ui-resizable-handle {
   display: none;
 }
 
-// Hide GridStack drag placeholder to avoid showing an old position
-.builder-mode .grid-stack-placeholder {
+// Hide drag placeholder to avoid showing an old position
+.builder-mode .canvas-placeholder {
   display: none !important;
 }
 
@@ -337,9 +337,9 @@ body.preview-mode .builder-sidebar,
 body.preview-mode .widget-code-editor,
 body.preview-mode .widget-options-menu,
 body.preview-mode .builder-options-menu,
-body.preview-mode .grid-stack-item .widget-remove,
-body.preview-mode .grid-stack-item .widget-edit,
-body.preview-mode .grid-stack-item .widget-menu {
+body.preview-mode .canvas-item .widget-remove,
+body.preview-mode .canvas-item .widget-edit,
+body.preview-mode .canvas-item .widget-menu {
   display: none !important;
 }
 
@@ -389,11 +389,11 @@ body.preview-desktop #content {
   max-width: var(--preview-width);
 }
 
-.grid-stack-item[gs-locked="true"] > .ui-resizable-handle {
+.canvas-item[gs-locked="true"] > .ui-resizable-handle {
   display: none;
 }
 
-.grid-stack-item[gs-locked="true"]::after {
+.canvas-item[gs-locked="true"]::after {
   content: '';
   position: absolute;
   bottom: 2px;
@@ -405,7 +405,7 @@ body.preview-desktop #content {
   z-index: 100;
 }
 
-.grid-stack-item[data-global="true"]::before {
+.canvas-item[data-global="true"]::before {
   content: '';
   position: absolute;
   top: 2px;

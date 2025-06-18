@@ -2,9 +2,7 @@
 
 (async () => {
   try {
-    // If you still want a GridStack for some other admin UI logic,
-    // initialize it here. Otherwise, remove these lines entirely.
-    const grid = GridStack.init({ cellHeight: 5, columnWidth: 5, column: 64 }, '#adminGrid');
+    // Initialize a lightweight grid if needed for other admin UI logic.
 
     // Right now, we're NOT fetching or rendering widgets,
     // leaving that to pageRenderer.js.

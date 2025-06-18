@@ -1,24 +1,75 @@
 // public/assets/js/canvasGrid.js
-// Wrapper around GridStack that adds transformable bounding boxes
+// Lightweight drag & resize grid for the builder
 
 export class CanvasGrid {
-  constructor(options, el) {
-    this.grid = GridStack.init(options, el);
+  constructor(options = {}, el) {
+    this.options = Object.assign({ cellHeight: 5, columnWidth: 5 }, options);
+    this.el = typeof el === 'string' ? document.querySelector(el) : el;
+    this.el.classList.add('canvas-grid');
+    this.widgets = [];
     this.activeEl = null;
+    this._emitter = new EventTarget();
     this._createBBox();
-    this._exposeGridMethods();
-    this.grid.on('change', () => {
-      if (this.activeEl) this._updateBBox();
-    });
   }
 
-  _exposeGridMethods() {
-    const methods = ['makeWidget', 'removeWidget', 'update', 'addWidget'];
-    for (const m of methods) {
-      if (typeof this.grid[m] === 'function') {
-        this[m] = (...args) => this.grid[m](...args);
-      }
+  on(evt, cb) {
+    this._emitter.addEventListener(evt, e => cb(e.detail));
+  }
+
+  _emit(evt, detail) {
+    this._emitter.dispatchEvent(new CustomEvent(evt, { detail }));
+  }
+
+  _applyPosition(el) {
+    const { columnWidth, cellHeight } = this.options;
+    const x = +el.getAttribute('gs-x') || 0;
+    const y = +el.getAttribute('gs-y') || 0;
+    const w = +el.getAttribute('gs-w') || 1;
+    const h = +el.getAttribute('gs-h') || 1;
+    el.style.position = 'absolute';
+    el.style.left = `${x * columnWidth}px`;
+    el.style.top = `${y * cellHeight}px`;
+    el.style.width = `${w * columnWidth}px`;
+    el.style.height = `${h * cellHeight}px`;
+  }
+
+  makeWidget(el) {
+    this._applyPosition(el);
+    this._enableDrag(el);
+    this.widgets.push(el);
+    this._emit('change', el);
+  }
+
+  addWidget(opts = {}) {
+    const el = document.createElement('div');
+    el.className = 'canvas-item';
+    el.setAttribute('gs-x', opts.x || 0);
+    el.setAttribute('gs-y', opts.y || 0);
+    el.setAttribute('gs-w', opts.w || 1);
+    el.setAttribute('gs-h', opts.h || 1);
+    this.el.appendChild(el);
+    this.makeWidget(el);
+    return el;
+  }
+
+  removeWidget(el) {
+    if (el.parentNode === this.el) {
+      el.remove();
+      this._emit('change', el);
     }
+  }
+
+  update(el, opts = {}) {
+    if (!el) return;
+    if (opts.x != null) el.setAttribute('gs-x', opts.x);
+    if (opts.y != null) el.setAttribute('gs-y', opts.y);
+    if (opts.w != null) el.setAttribute('gs-w', opts.w);
+    if (opts.h != null) el.setAttribute('gs-h', opts.h);
+    if (opts.locked != null) el.setAttribute('gs-locked', opts.locked);
+    if (opts.noMove != null) el.setAttribute('gs-no-move', opts.noMove);
+    if (opts.noResize != null) el.setAttribute('gs-no-resize', opts.noResize);
+    this._applyPosition(el);
+    this._emit('change', el);
   }
 
   _createBBox() {
@@ -48,17 +99,21 @@ export class CanvasGrid {
       let gx = startGX, gy = startGY;
       if (pos.includes('e')) w += dx;
       if (pos.includes('s')) h += dy;
-      if (pos.includes('w')) { w -= dx; gx += Math.round(dx/5); }
-      if (pos.includes('n')) { h -= dy; gy += Math.round(dy/5); }
+      if (pos.includes('w')) { w -= dx; gx += Math.round(dx / this.options.columnWidth); }
+      if (pos.includes('n')) { h -= dy; gy += Math.round(dy / this.options.cellHeight); }
       w = Math.max(20, w);
       h = Math.max(20, h);
-      const opts = {w: Math.round(w/5), h: Math.round(h/5)};
+      const opts = { w: Math.round(w / this.options.columnWidth), h: Math.round(h / this.options.cellHeight) };
       if (pos.includes('w')) opts.x = gx;
       if (pos.includes('n')) opts.y = gy;
-      this.grid.update(this.activeEl, opts);
-      this._updateBBox();
+      this.update(this.activeEl, opts);
     };
-    const up = () => { pos = null; document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', up); };
+    const up = () => {
+      if (pos != null) this._emit('resizestop', this.activeEl);
+      pos = null;
+      document.removeEventListener('mousemove', move);
+      document.removeEventListener('mouseup', up);
+    };
     Object.values(this.handles).forEach(h => {
       h.addEventListener('mousedown', e => {
         if (!this.activeEl) return;
@@ -73,9 +128,38 @@ export class CanvasGrid {
         startW = rect.width; startH = rect.height;
         startGX = +this.activeEl.getAttribute('gs-x');
         startGY = +this.activeEl.getAttribute('gs-y');
+        this._emit('resizestart', this.activeEl);
         document.addEventListener('mousemove', move);
         document.addEventListener('mouseup', up);
       });
+    });
+  }
+
+  _enableDrag(el) {
+    let startX, startY, startGX, startGY;
+    const move = e => {
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      const gx = startGX + Math.round(dx / this.options.columnWidth);
+      const gy = startGY + Math.round(dy / this.options.cellHeight);
+      this.update(el, { x: gx, y: gy });
+    };
+    const up = () => {
+      document.removeEventListener('mousemove', move);
+      document.removeEventListener('mouseup', up);
+      this._emit('dragstop', el);
+    };
+    el.addEventListener('mousedown', e => {
+      if (e.target.closest('.bbox-handle')) return;
+      if (el.getAttribute('gs-locked') === 'true' || el.getAttribute('gs-no-move') === 'true') return;
+      e.preventDefault();
+      this.select(el);
+      startX = e.clientX; startY = e.clientY;
+      startGX = +el.getAttribute('gs-x');
+      startGY = +el.getAttribute('gs-y');
+      this._emit('dragstart', el);
+      document.addEventListener('mousemove', move);
+      document.addEventListener('mouseup', up);
     });
   }
 
