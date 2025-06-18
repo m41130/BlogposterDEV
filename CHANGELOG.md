@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Editing text now starts on a single click and locks the widget until the
+  pointer leaves, replacing the old double-click behavior.
 - Fixed color picker initialization in the text editor toolbar to prevent
   `replaceChild` errors when opening the toolbar.
 - Fixed color picker import for Pickr library to avoid runtime error in the admin UI.
