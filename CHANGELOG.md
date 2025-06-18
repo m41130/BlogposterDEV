@@ -13,6 +13,7 @@ El Psy Kongroo
 - Font size selector in the text editor now shows preset sizes below the input while typing and aligns with other toolbar controls.
 - Font size tool aligns with other buttons and updates selected text directly in widgets.
 - Admin token validation no longer deactivates core modules when the session token has expired.
+- Sanitized HTML fetched for layout partials and custom widgets to prevent DOM text from being interpreted as executable markup.
 - Font size control input now sits inside a button that toggles a preset-size dropdown and has a rounded border.
 - Action bar now hides during widget drag or resize and reappears at the new position.
 - User editor color picker now opens via a circle button showing the current color.
