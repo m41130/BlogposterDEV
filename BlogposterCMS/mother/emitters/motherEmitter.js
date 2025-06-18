@@ -37,7 +37,8 @@ const PUBLIC_EVENTS = [
 const ALLOWED_SKIPJWT_EVENTS = [
   'issueUserToken',
   'issueModuleToken',
-  'registerLoginStrategy'
+  'registerLoginStrategy',
+  'validateToken'
 ];
 
 /**

@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Admin token validation no longer deactivates core modules when the session token has expired.
 - Font size selector in the text editor now shows preset sizes below the input while typing and aligns with other toolbar controls.
 - Action bar now hides during widget drag or resize and reappears at the new position.
 
