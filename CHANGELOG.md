@@ -5,6 +5,7 @@ El Psy Kongroo
 
 ## [Unreleased]
 - Removed GridStack dependency in favor of a custom drag-and-drop canvas grid.
+- Updated admin template and SCSS to use the new canvas grid classes.
 - Widget HTML edits from the toolbar now sync to the code editor, keeping custom code up to date.
 - Fonts now load from the fonts manager so custom providers can add new fonts.
 - Added font selection dropdown to the builder text editor toolbar.

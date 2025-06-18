@@ -57,7 +57,7 @@ Below are a few snapshots of the BlogposterCMS interface.
 
 ![Login screen with username and password fields](docs/screenshots/Clean%20Login%20Interface.png)
 
-These next images illustrate how GridStack lets you arrange widgets within the admin dashboard from a blank grid to a personalized layout.
+These next images illustrate how the built-in canvas grid lets you arrange widgets within the admin dashboard from a blank grid to a personalized layout.
 
 ![Empty dashboard grid before adding widgets](docs/screenshots/Arrange%20Your%20Dashboard%20Freely.png)
 ![Dashboard grid while adding widgets](docs/screenshots/Perfectly%20Adaptive%20Widgets.png)
