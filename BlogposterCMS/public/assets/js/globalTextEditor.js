@@ -77,6 +77,12 @@ async function init() {
     toolbar.className = 'text-block-editor-toolbar floating';
     toolbar.style.display = 'none';
     toolbar.innerHTML = [
+      '<div class="font-family-control">' +
+        '<div class="ff-dropdown">' +
+          '<button type="button" class="ff-btn"><span class="ff-label">Font</span></button>' +
+          '<div class="ff-options"></div>' +
+        '</div>' +
+      '</div>',
       '<button type="button" class="tb-btn" data-cmd="bold">' + window.featherIcon('bold') + '</button>',
       '<button type="button" class="tb-btn" data-cmd="italic">' + window.featherIcon('italic') + '</button>',
       '<button type="button" class="tb-btn" data-cmd="underline">' + window.featherIcon('underline') + '</button>',
@@ -146,10 +152,68 @@ async function init() {
     colorWrapper.appendChild(picker.el);
     toolbar.appendChild(colorWrapper);
 
+    const ffControl = toolbar.querySelector('.font-family-control');
+    const ffDropdown = toolbar.querySelector('.ff-dropdown');
+    const ffOptions = toolbar.querySelector('.ff-options');
+    const ffBtn = toolbar.querySelector('.ff-btn');
+    const ffLabel = toolbar.querySelector('.ff-label');
     const fsInput = toolbar.querySelector('.fs-input');
     const fsDropdown = toolbar.querySelector('.fs-dropdown');
     const fsOptions = toolbar.querySelector('.fs-options');
     const fsBtn = toolbar.querySelector('.fs-btn');
+
+    const populateFonts = () => {
+      const fonts = Array.isArray(window.AVAILABLE_FONTS) ? window.AVAILABLE_FONTS : [];
+      ffOptions.innerHTML = fonts
+        .map(f => `<span data-font="${f}" style="font-family:'${f}'">${f}</span>`)
+        .join('');
+      if (fonts.length) ffLabel.textContent = fonts[0];
+    };
+    populateFonts();
+    document.addEventListener('fontsUpdated', populateFonts);
+
+    const applyFont = font => {
+      if (!font) return;
+      ffLabel.textContent = font;
+      if (!activeEl) return;
+      const sel = window.getSelection();
+      if (
+        sel &&
+        !sel.isCollapsed &&
+        activeEl.contains(sel.anchorNode) &&
+        activeEl.contains(sel.focusNode)
+      ) {
+        try {
+          const range = sel.getRangeAt(0).cloneRange();
+          const span = document.createElement('span');
+          span.style.fontFamily = `'${font}'`;
+          const frag = range.extractContents();
+          span.appendChild(frag);
+          range.insertNode(span);
+          sel.removeAllRanges();
+          const newRange = document.createRange();
+          newRange.selectNodeContents(span);
+          sel.addRange(newRange);
+          editingPlain = false;
+        } catch (err) {
+          activeEl.style.fontFamily = `'${font}'`;
+        }
+      } else {
+        activeEl.querySelectorAll('*').forEach(el => {
+          el.style.fontFamily = `'${font}'`;
+        });
+        activeEl.childNodes.forEach(node => {
+          if (node.nodeType === 3 && node.textContent.trim()) {
+            const span = document.createElement('span');
+            span.style.fontFamily = `'${font}'`;
+            span.textContent = node.textContent;
+            node.parentNode.replaceChild(span, node);
+          }
+        });
+      }
+      editingPlain = false;
+      activeEl.focus();
+    };
     const applySize = size => {
       const val = parseInt(size, 10);
       if (!val) return;
@@ -260,6 +324,21 @@ async function init() {
     fsBtn.addEventListener('click', () => {
       fsDropdown.classList.toggle('open');
       fsInput.focus();
+    });
+
+    ffBtn.addEventListener('click', () => {
+      ffControl.classList.toggle('open');
+    });
+
+    document.addEventListener('click', ev => {
+      if (!ffControl.contains(ev.target)) ffControl.classList.remove('open');
+    });
+
+    ffOptions.addEventListener('click', ev => {
+      const opt = ev.target.closest('span[data-font]');
+      if (!opt) return;
+      applyFont(opt.dataset.font);
+      ffControl.classList.remove('open');
     });
 
     ['pointerdown', 'click'].forEach(evt => {
