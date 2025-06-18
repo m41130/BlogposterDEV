@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Widgets lock when clicking into a text field and unlock when leaving the
+  widget, keeping the editor open.
 - Text color button now displays an underlined 'A' icon reflecting the selected color and opens the palette below the toolbar.
 - Color picker in user editor now floats above fields when opened.
 - Text editor toolbar now includes a floating color picker to change selected text or entire blocks.

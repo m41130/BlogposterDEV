@@ -5,6 +5,8 @@ import { createColorPicker } from './colorPicker.js';
 let toolbar = null;
 let activeEl = null;
 let outsideHandler = null;
+let leaveHandler = null;
+let lockHandler = null;
 let initPromise = null;
 let autoHandler = null;
 let editingPlain = false;
@@ -294,6 +296,16 @@ function close() {
   }
   document.removeEventListener('pointerdown', outsideHandler, true);
   document.removeEventListener('mousedown', outsideHandler, true);
+  if (leaveHandler) {
+    const widget = activeEl.closest('.grid-stack-item');
+    widget?.removeEventListener('mouseleave', leaveHandler, true);
+    toolbar?.removeEventListener('mouseleave', leaveHandler, true);
+    leaveHandler = null;
+  }
+  if (lockHandler) {
+    activeEl.removeEventListener('pointerdown', lockHandler, true);
+    lockHandler = null;
+  }
   const el = activeEl;
   const cb = activeEl.__onSave;
   activeEl = null;
@@ -307,15 +319,24 @@ export async function editElement(el, onSave) {
   if (activeEl) close();
   activeEl = el;
   const startWidget = el.closest('.grid-stack-item');
-  if (startWidget) {
-    document.dispatchEvent(new CustomEvent('textEditStart', { detail: { widget: startWidget } }));
-  }
+  // Do not lock the widget yet. Locking is triggered when the user
+  // clicks inside the editable element so text can still be selected
+  // freely before that.
   activeEl.__onSave = onSave;
 
   editingPlain = !/<[a-z][\s\S]*>/i.test(el.innerHTML.trim());
   el.setAttribute('contenteditable', 'true');
   el.focus();
   toolbar.style.display = 'flex';
+
+  if (startWidget) {
+    lockHandler = () => {
+      if (startWidget.dataset.tempLock !== 'true') {
+        document.dispatchEvent(new CustomEvent('textEditStart', { detail: { widget: startWidget } }));
+      }
+    };
+    el.addEventListener('pointerdown', lockHandler, true);
+  }
 
   const headingSelect = toolbar.querySelector('.heading-select');
   if (headingSelect) {
@@ -348,6 +369,17 @@ export async function editElement(el, onSave) {
   };
   document.addEventListener('pointerdown', outsideHandler, true);
   document.addEventListener('mousedown', outsideHandler, true);
+
+  if (startWidget) {
+    leaveHandler = ev => {
+      const to = ev.relatedTarget;
+      if (!startWidget.contains(to) && !toolbar.contains(to) && startWidget.dataset.tempLock === 'true') {
+        document.dispatchEvent(new CustomEvent('textEditStop', { detail: { widget: startWidget } }));
+      }
+    };
+    startWidget.addEventListener('mouseleave', leaveHandler, true);
+    toolbar.addEventListener('mouseleave', leaveHandler, true);
+  }
 }
 
 export function registerElement(el, onSave) {
