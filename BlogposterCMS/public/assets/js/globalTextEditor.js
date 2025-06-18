@@ -119,10 +119,12 @@ async function init() {
         activeEl.contains(sel.focusNode)
       ) {
         try {
-          const range = sel.getRangeAt(0);
+          const range = sel.getRangeAt(0).cloneRange();
           const span = document.createElement('span');
           span.style.fontSize = val + 'px';
-          range.surroundContents(span);
+          const frag = range.extractContents();
+          span.appendChild(frag);
+          range.insertNode(span);
           sel.removeAllRanges();
           const newRange = document.createRange();
           newRange.selectNodeContents(span);
@@ -133,6 +135,9 @@ async function init() {
         }
       } else {
         activeEl.style.fontSize = val + 'px';
+        activeEl
+          .querySelectorAll('[style*="font-size"]')
+          .forEach(el => (el.style.fontSize = val + 'px'));
       }
       editingPlain = false;
       activeEl.focus();
@@ -181,6 +186,11 @@ function close() {
   activeEl.removeAttribute('contenteditable');
   let html = editingPlain ? activeEl.textContent : activeEl.innerHTML;
   html = sanitizeHtml(html.trim());
+  if (editingPlain) {
+    activeEl.textContent = html;
+  } else {
+    activeEl.innerHTML = html;
+  }
   toolbar.style.display = 'none';
   const headingSelect = toolbar.querySelector('.heading-select');
   if (headingSelect) {
