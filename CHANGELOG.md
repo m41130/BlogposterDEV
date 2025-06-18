@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Builder now supports undo/redo and a header menu with an autosave toggle.
 - Added reusable color picker component that shows preset, user and theme colors.
 - Fonts Manager now loads Google Fonts dynamically and can be toggled from the admin Fonts page.
 - Increasing font size without a selection now affects the entire widget.
@@ -13,6 +14,9 @@ El Psy Kongroo
 - Font size selector in the text editor now shows preset sizes below the input while typing and aligns with other toolbar controls.
 - Action bar now hides during widget drag or resize and reappears at the new position.
 - User editor color picker now opens via a circle button showing the current color.
+
+## [0.5.4] – 2025-06-17
+- Added undo/redo history to the builder with a new header menu to toggle autosave.
 
 ## [0.5.2] – 2025-06-16
 - Widgets auto-lock when editing text fields and unlock as soon as focus leaves

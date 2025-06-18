@@ -117,6 +117,11 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   }
 
   const codeMap = {};
+  const undoStack = [];
+  const redoStack = [];
+  const MAX_HISTORY = 20;
+  let autosaveEnabled = true;
+  let autosaveTimer = null;
   let gridEl;
   document.addEventListener('textBlockHtmlUpdate', e => {
     const { instanceId, html } = e.detail || {};
@@ -664,9 +669,78 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     };
   }
 
-  async function saveCurrentLayout() {
+  function pushState(layout = getCurrentLayout()) {
+    undoStack.push(JSON.stringify(layout));
+    if (undoStack.length > MAX_HISTORY) undoStack.shift();
+    redoStack.length = 0;
+  }
+
+  function applyLayout(layout) {
+    gridEl.innerHTML = '';
+    Object.keys(codeMap).forEach(k => delete codeMap[k]);
+    layout.forEach(item => {
+      const widgetDef = allWidgets.find(w => w.id === item.widgetId);
+      if (!widgetDef) return;
+      const instId = item.id || genId();
+      item.id = instId;
+      const isGlobal = item.global === true;
+      if (item.code) codeMap[instId] = item.code;
+      const wrapper = document.createElement('div');
+      wrapper.classList.add('grid-stack-item');
+      wrapper.dataset.widgetId = widgetDef.id;
+      wrapper.dataset.instanceId = instId;
+      wrapper.dataset.global = isGlobal ? 'true' : 'false';
+      wrapper.setAttribute('gs-x', item.x ?? 0);
+      wrapper.setAttribute('gs-y', item.y ?? 0);
+      wrapper.setAttribute('gs-w', item.w ?? 8);
+      wrapper.setAttribute('gs-h', item.h ?? DEFAULT_ROWS);
+      wrapper.setAttribute('gs-min-w', 4);
+      wrapper.setAttribute('gs-min-h', DEFAULT_ROWS);
+      const content = document.createElement('div');
+      content.className = 'grid-stack-item-content builder-themed';
+      content.innerHTML = `${getWidgetIcon(widgetDef)}<span>${widgetDef.metadata?.label || widgetDef.id}</span>`;
+      wrapper.appendChild(content);
+      attachRemoveButton(wrapper);
+      const editBtn = attachEditButton(wrapper, widgetDef);
+      attachOptionsMenu(wrapper, widgetDef, editBtn);
+      attachLockOnClick(wrapper);
+      gridEl.appendChild(wrapper);
+      grid.makeWidget(wrapper);
+      renderWidget(wrapper, widgetDef);
+    });
+  }
+
+  function undo() {
+    if (undoStack.length < 2) return;
+    const current = undoStack.pop();
+    redoStack.push(current);
+    const prev = JSON.parse(undoStack[undoStack.length - 1]);
+    applyLayout(prev);
+    if (pageId && autosaveEnabled) saveCurrentLayout({ autosave: true });
+  }
+
+  function redo() {
+    if (!redoStack.length) return;
+    const next = redoStack.pop();
+    undoStack.push(next);
+    const layout = JSON.parse(next);
+    applyLayout(layout);
+    if (pageId && autosaveEnabled) saveCurrentLayout({ autosave: true });
+  }
+
+  function startAutosave() {
+    if (autosaveTimer) clearInterval(autosaveTimer);
+    if (autosaveEnabled && pageId) {
+      autosaveTimer = setInterval(() => {
+        saveCurrentLayout({ autosave: true });
+      }, 5000);
+    }
+  }
+
+  async function saveCurrentLayout({ autosave = false } = {}) {
     if (!pageId) return;
     const layout = getCurrentLayout();
+    if (!autosave) pushState(layout);
     try {
       await meltdownEmit('saveLayoutForViewport', {
         jwt: window.ADMIN_TOKEN,
@@ -879,39 +953,8 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   }
 
 
-  initialLayout.forEach(item => {
-    const widgetDef = allWidgets.find(w => w.id === item.widgetId);
-    if (!widgetDef) return;
-    const instId = item.id || genId();
-    item.id = instId;
-    const isGlobal = item.global === true;
-    if (item.code) codeMap[instId] = item.code;
-    const wrapper = document.createElement('div');
-    wrapper.classList.add('grid-stack-item');
-    wrapper.dataset.widgetId = widgetDef.id;
-    wrapper.dataset.instanceId = instId;
-    wrapper.dataset.global = isGlobal ? 'true' : 'false';
-    wrapper.setAttribute('gs-x', item.x ?? 0);
-    wrapper.setAttribute('gs-y', item.y ?? 0);
-    // Larger defaults for builder widgets
-    wrapper.setAttribute('gs-w', item.w ?? 8);
-    wrapper.setAttribute('gs-h', item.h ?? DEFAULT_ROWS);
-    wrapper.setAttribute('gs-min-w', 4);
-    wrapper.setAttribute('gs-min-h', DEFAULT_ROWS);
-    const content = document.createElement('div');
-    content.className = 'grid-stack-item-content builder-themed';
-    content.innerHTML = `${getWidgetIcon(widgetDef)}<span>${widgetDef.metadata?.label || widgetDef.id}</span>`;
-    wrapper.appendChild(content);
-    attachRemoveButton(wrapper);
-    const editBtn = attachEditButton(wrapper, widgetDef);
-    attachOptionsMenu(wrapper, widgetDef, editBtn);
-    attachLockOnClick(wrapper);
-    gridEl.appendChild(wrapper);
-    grid.makeWidget(wrapper);
-    renderWidget(wrapper, widgetDef);
-    if (pageId) saveCurrentLayout();
-
-  });
+  applyLayout(initialLayout);
+  pushState(initialLayout);
 
   gridEl.addEventListener('dragover',  e => { e.preventDefault(); gridEl.classList.add('drag-over'); });
   gridEl.addEventListener('dragleave', () => gridEl.classList.remove('drag-over'));
@@ -1033,6 +1076,53 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     '<img src="/assets/icons/eye.svg" alt="Preview" />';
   topBar.appendChild(previewBtn);
 
+  const headerMenuBtn = document.createElement('button');
+  headerMenuBtn.className = 'builder-menu-btn';
+  headerMenuBtn.innerHTML = window.featherIcon
+    ? window.featherIcon('more-vertical')
+    : '<img src="/assets/icons/more-vertical.svg" alt="menu" />';
+  topBar.appendChild(headerMenuBtn);
+
+  const headerMenu = document.createElement('div');
+  headerMenu.className = 'builder-options-menu';
+  headerMenu.innerHTML = `
+    <button class="menu-undo"><img src="/assets/icons/rotate-ccw.svg" class="icon" alt="undo" /> Undo</button>
+    <button class="menu-redo"><img src="/assets/icons/rotate-cw.svg" class="icon" alt="redo" /> Redo</button>
+    <label class="menu-autosave"><input type="checkbox" class="autosave-toggle" checked /> Autosave</label>
+  `;
+  headerMenu.style.display = 'none';
+  document.body.appendChild(headerMenu);
+
+  function hideHeaderMenu() {
+    headerMenu.style.display = 'none';
+    document.removeEventListener('click', outsideHeaderHandler);
+  }
+
+  function outsideHeaderHandler(e) {
+    if (!headerMenu.contains(e.target) && e.target !== headerMenuBtn) hideHeaderMenu();
+  }
+
+  headerMenuBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    if (headerMenu.style.display === 'block') { hideHeaderMenu(); return; }
+    headerMenu.style.display = 'block';
+    headerMenu.style.visibility = 'hidden';
+    const rect = headerMenuBtn.getBoundingClientRect();
+    headerMenu.style.top = `${rect.bottom + 4}px`;
+    headerMenu.style.left = `${rect.right - headerMenu.offsetWidth}px`;
+    headerMenu.style.visibility = '';
+    document.addEventListener('click', outsideHeaderHandler);
+  });
+
+  headerMenu.querySelector('.menu-undo').addEventListener('click', () => { hideHeaderMenu(); undo(); });
+  headerMenu.querySelector('.menu-redo').addEventListener('click', () => { hideHeaderMenu(); redo(); });
+  const autosaveToggle = headerMenu.querySelector('.autosave-toggle');
+  autosaveToggle.checked = autosaveEnabled;
+  autosaveToggle.addEventListener('change', () => {
+    autosaveEnabled = autosaveToggle.checked;
+    startAutosave();
+  });
+
   const appScope = document.querySelector('.app-scope');
   const mainContent = document.querySelector('.main-content');
   if (appScope && mainContent) {
@@ -1040,6 +1130,8 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   } else {
     contentEl.prepend(topBar);
   }
+
+  startAutosave();
 
   saveBtn.addEventListener('click', async () => {
     const name = nameInput.value.trim();
