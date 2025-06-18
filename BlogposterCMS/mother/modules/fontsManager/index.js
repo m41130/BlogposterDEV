@@ -3,6 +3,7 @@ require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
 const { onceCallback } = require('../../emitters/motherEmitter');
+const { DEFAULT_FONTS } = require('./config/defaultFonts');
 
 module.exports = {
   initialize({ motherEmitter, isCore, jwt }) {
@@ -23,6 +24,10 @@ module.exports = {
 
     if (!global.fontProviders) {
       global.fontProviders = {};
+    }
+
+    if (!global.fontsList) {
+      global.fontsList = Array.isArray(DEFAULT_FONTS) ? DEFAULT_FONTS.slice() : [];
     }
 
     motherEmitter.on('listFontProviders', (payload, cb) => {
@@ -67,6 +72,36 @@ module.exports = {
       }
       global.fontProviders[providerName] = { description, isEnabled, initFunction };
       cb(null, true);
+    });
+
+    motherEmitter.on('listFonts', (payload, cb) => {
+      cb = onceCallback(cb);
+      if (!payload || !payload.jwt || payload.moduleName !== 'fontsManager' || payload.moduleType !== 'core') {
+        return cb(new Error('[FONTS MANAGER] listFonts => invalid payload.'));
+      }
+      cb(null, Array.isArray(global.fontsList) ? global.fontsList : []);
+    });
+
+    motherEmitter.on('addFont', (payload, cb) => {
+      cb = onceCallback(cb);
+      const { jwt: callerJwt, moduleName, moduleType, name, url, provider = 'custom' } = payload || {};
+      if (!callerJwt || moduleName !== 'fontsManager' || moduleType !== 'core') {
+        return cb(new Error('[FONTS MANAGER] addFont => invalid payload.'));
+      }
+      if (typeof name !== 'string' || typeof url !== 'string') {
+        return cb(new Error('Invalid font data.'));
+      }
+      const safeName = name.trim().substring(0, 80);
+      const safeUrl = url.trim();
+      if (!/^https?:\/\//i.test(safeUrl)) {
+        return cb(new Error('Font URL must be http or https.'));
+      }
+      global.fontsList = Array.isArray(global.fontsList) ? global.fontsList : [];
+      if (global.fontsList.some(f => f.name === safeName)) {
+        return cb(new Error('Font already exists.'));
+      }
+      global.fontsList.push({ name: safeName, url: safeUrl, provider });
+      cb(null, { success: true });
     });
 
     const strategiesPath = path.join(__dirname, 'strategies');
