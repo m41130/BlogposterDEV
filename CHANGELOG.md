@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 
 El Psy Kongroo
 
-## [0.5.3] – 2025-06-17
+## [Unreleased]
 - Font size selector in the text editor now shows preset sizes below the input while typing and aligns with other toolbar controls.
 
 ## [0.5.2] – 2025-06-16
