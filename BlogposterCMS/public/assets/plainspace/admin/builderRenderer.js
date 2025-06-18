@@ -623,13 +623,35 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     const widget = e.detail?.widget;
     if (!widget) return;
     if (widget.getAttribute('gs-locked') === 'true') return;
+    selectWidget(widget);
     autoLockWidget(widget, true);
-    grid.clearSelection();
   });
 
   document.addEventListener('textEditStop', e => {
     const widget = e.detail?.widget;
     if (!widget || widget.dataset.tempLock !== 'true') return;
+    autoLockWidget(widget, false);
+    selectWidget(widget);
+  });
+
+  document.addEventListener('focusin', e => {
+    const el = e.target;
+    if (!(el instanceof HTMLElement)) return;
+    if (!['INPUT', 'TEXTAREA'].includes(el.tagName)) return;
+    const widget = el.closest('.grid-stack-item');
+    if (!widget || widget.getAttribute('gs-locked') === 'true') return;
+    selectWidget(widget);
+    autoLockWidget(widget, true);
+  });
+
+  document.addEventListener('focusout', e => {
+    const el = e.target;
+    if (!(el instanceof HTMLElement)) return;
+    if (!['INPUT', 'TEXTAREA'].includes(el.tagName)) return;
+    const widget = el.closest('.grid-stack-item');
+    if (!widget || widget.dataset.tempLock !== 'true') return;
+    const to = e.relatedTarget;
+    if (to && widget.contains(to)) return;
     autoLockWidget(widget, false);
     selectWidget(widget);
   });
