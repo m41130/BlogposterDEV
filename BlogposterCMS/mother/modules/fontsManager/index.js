@@ -5,13 +5,17 @@ const path = require('path');
 const { onceCallback } = require('../../emitters/motherEmitter');
 
 module.exports = {
-  initialize({ motherEmitter, isCore }) {
+  initialize({ motherEmitter, isCore, jwt }) {
     if (!isCore) {
       console.error('[FONTS MANAGER] Must be loaded as a core module.');
       return;
     }
     if (!motherEmitter) {
       console.error('[FONTS MANAGER] motherEmitter missing');
+      return;
+    }
+    if (!jwt) {
+      console.error('[FONTS MANAGER] No JWT provided.');
       return;
     }
 
@@ -50,11 +54,11 @@ module.exports = {
     motherEmitter.on('registerFontProvider', (payload, cb) => {
       cb = onceCallback(cb);
       const secret = process.env.FONTS_MODULE_INTERNAL_SECRET;
-      const { skipJWT, moduleType, providerName, description, isEnabled = false, initFunction, fontsModuleSecret } = payload || {};
+      const { jwt: callerJwt, moduleType, providerName, description, isEnabled = false, initFunction, fontsModuleSecret, moduleName } = payload || {};
       if (fontsModuleSecret !== secret) {
         return cb(new Error('Invalid or missing fonts module secret.'));
       }
-      if (moduleType !== 'core' || skipJWT !== true || !providerName || typeof initFunction !== 'function') {
+      if (!callerJwt || moduleType !== 'core' || moduleName !== 'fontsManager' || !providerName || typeof initFunction !== 'function') {
         return cb(new Error('Invalid registerFontProvider payload.'));
       }
       const disallowed = ['__proto__','prototype','constructor'];
@@ -70,7 +74,7 @@ module.exports = {
       fs.readdirSync(strategiesPath).filter(f => f.endsWith('.js')).forEach(file => {
         const strategy = require(path.join(strategiesPath, file));
         if (typeof strategy.initialize === 'function') {
-          strategy.initialize({ motherEmitter, fontsModuleSecret: process.env.FONTS_MODULE_INTERNAL_SECRET });
+          strategy.initialize({ motherEmitter, fontsModuleSecret: process.env.FONTS_MODULE_INTERNAL_SECRET, jwt });
           console.log(`[FONTS MANAGER] Loaded provider => ${file}`);
         }
       });
