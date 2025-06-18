@@ -109,7 +109,11 @@ async function init() {
     const colorBtn = document.createElement('button');
     colorBtn.type = 'button';
     colorBtn.className = 'color-picker-toggle tb-btn';
-    colorBtn.style.backgroundColor = currentColor;
+    const colorIcon = document.createElement('span');
+    colorIcon.className = 'color-icon';
+    colorIcon.textContent = 'A';
+    colorIcon.style.textDecorationColor = currentColor;
+    colorBtn.appendChild(colorIcon);
     const themeColor = getComputedStyle(document.documentElement)
       .getPropertyValue('--accent-color')
       .trim();
@@ -124,13 +128,16 @@ async function init() {
       initialColor: currentColor,
       onSelect: c => {
         applyColor(c);
-        colorBtn.style.backgroundColor = c;
+        colorIcon.style.textDecorationColor = c;
         picker.el.classList.add('hidden');
       }
     });
     picker.el.classList.add('hidden');
     colorBtn.addEventListener('click', () => {
       picker.el.classList.toggle('hidden');
+    });
+    document.addEventListener('click', ev => {
+      if (!colorWrapper.contains(ev.target)) picker.el.classList.add('hidden');
     });
     colorWrapper.appendChild(colorBtn);
     colorWrapper.appendChild(picker.el);
