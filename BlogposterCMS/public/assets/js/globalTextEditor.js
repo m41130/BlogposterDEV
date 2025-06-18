@@ -1,5 +1,6 @@
 // public/assets/js/globalTextEditor.js
 // Lightweight global text editor for builder mode.
+import { createColorPicker } from './colorPicker.js';
 
 let toolbar = null;
 let activeEl = null;
@@ -7,6 +8,7 @@ let outsideHandler = null;
 let initPromise = null;
 let autoHandler = null;
 let editingPlain = false;
+let currentColor = '#000000';
 
 export function sanitizeHtml(html) {
   const div = document.createElement('div');
@@ -102,6 +104,38 @@ async function init() {
     });
     document.body.appendChild(toolbar);
 
+    const colorWrapper = document.createElement('div');
+    colorWrapper.className = 'text-color-picker';
+    const colorBtn = document.createElement('button');
+    colorBtn.type = 'button';
+    colorBtn.className = 'color-picker-toggle tb-btn';
+    colorBtn.style.backgroundColor = currentColor;
+    const themeColor = getComputedStyle(document.documentElement)
+      .getPropertyValue('--accent-color')
+      .trim();
+    const picker = createColorPicker({
+      presetColors: [
+        '#FF0000', '#FF4040', '#FFC0CB', '#FF00FF', '#800080', '#8A2BE2',
+        '#00CED1', '#00FFFF', '#40E0D0', '#ADD8E6', '#4169E1', '#0047AB',
+        '#008000', '#7CFC00', '#BFFF00', '#FFFF00', '#FFDAB9', '#FFA500',
+        '#000000', '#A9A9A9', '#808080'
+      ],
+      themeColors: themeColor ? [themeColor] : [],
+      initialColor: currentColor,
+      onSelect: c => {
+        applyColor(c);
+        colorBtn.style.backgroundColor = c;
+        picker.el.classList.add('hidden');
+      }
+    });
+    picker.el.classList.add('hidden');
+    colorBtn.addEventListener('click', () => {
+      picker.el.classList.toggle('hidden');
+    });
+    colorWrapper.appendChild(colorBtn);
+    colorWrapper.appendChild(picker.el);
+    toolbar.appendChild(colorWrapper);
+
     const fsInput = toolbar.querySelector('.fs-input');
     const fsDropdown = toolbar.querySelector('.fs-dropdown');
     const fsOptions = toolbar.querySelector('.fs-options');
@@ -138,6 +172,48 @@ async function init() {
         activeEl
           .querySelectorAll('[style*="font-size"]')
           .forEach(el => (el.style.fontSize = val + 'px'));
+      }
+      editingPlain = false;
+      activeEl.focus();
+    };
+
+    const sanitizeColor = c => {
+      c = String(c || '').trim();
+      if (/^#[0-9a-fA-F]{3,8}$/.test(c)) return c;
+      const tmp = document.createElement('div');
+      tmp.style.color = c;
+      return tmp.style.color ? c : '#000000';
+    };
+
+    const applyColor = color => {
+      const val = sanitizeColor(color);
+      currentColor = val;
+      if (!activeEl) return;
+      const sel = window.getSelection();
+      if (
+        sel &&
+        !sel.isCollapsed &&
+        activeEl.contains(sel.anchorNode) &&
+        activeEl.contains(sel.focusNode)
+      ) {
+        try {
+          const range = sel.getRangeAt(0).cloneRange();
+          const span = document.createElement('span');
+          span.style.color = val;
+          const frag = range.extractContents();
+          span.appendChild(frag);
+          range.insertNode(span);
+          sel.removeAllRanges();
+          const newRange = document.createRange();
+          newRange.selectNodeContents(span);
+          sel.addRange(newRange);
+          editingPlain = false;
+        } catch (err) {
+          activeEl.style.color = val;
+        }
+      } else {
+        activeEl.style.color = val;
+        activeEl.querySelectorAll('[style*="color"]').forEach(el => (el.style.color = val));
       }
       editingPlain = false;
       activeEl.focus();

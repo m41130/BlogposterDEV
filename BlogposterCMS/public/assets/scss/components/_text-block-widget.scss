@@ -77,6 +77,30 @@
       }
     }
   }
+
+  .text-color-picker {
+    margin-left: 8px;
+    position: relative;
+    .color-picker-toggle {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid var(--user-color);
+    }
+    .color-picker {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: var(--color-white);
+      box-shadow: var(--shadow-default);
+      padding: 4px;
+      z-index: 2000;
+    }
+    .color-picker.hidden {
+      display: none;
+    }
+  }
 }
 
 .text-block-editor-toolbar.floating {
@@ -84,6 +108,7 @@
   flex-direction: row;
   border-radius: 9px;
   box-shadow: var(--shadow-default);
+  padding: 6px;
   margin: 20px 42px 0;
   position: fixed;
   top: 56px;
