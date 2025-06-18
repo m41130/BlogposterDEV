@@ -21,6 +21,8 @@
 .text-block-editor-toolbar {
   background: var(--color-white);
   border-bottom: 1px solid #eee;
+  display: flex;
+  align-items: center;
   .tb-btn {
     background: none;
     border: none;
