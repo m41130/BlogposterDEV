@@ -4,8 +4,9 @@
   gap: 8px;
 
   .color-section {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-rows: repeat(6, 24px);
     gap: 6px;
     align-items: center;
   }

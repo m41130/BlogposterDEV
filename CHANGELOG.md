@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Color picker swatches now wrap after six rows to keep columns compact.
+- Preset color pickers in the user editor and page builder now organize
+  swatches into six-row columns for a consistent layout.
 - Editing text now starts on a single click and locks the widget until the
   pointer leaves, replacing the old double-click behavior.
 - Fixed color picker initialization in the text editor toolbar to prevent
