@@ -220,7 +220,7 @@ export async function editElement(el, onSave) {
   editingPlain = !/<[a-z][\s\S]*>/i.test(el.innerHTML.trim());
   el.setAttribute('contenteditable', 'true');
   el.focus();
-  toolbar.style.display = 'block';
+  toolbar.style.display = 'flex';
 
   const headingSelect = toolbar.querySelector('.heading-select');
   if (headingSelect) {
