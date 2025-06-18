@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Color picker in user editor now floats above fields when opened.
 - Added reusable color picker component that shows preset, user and theme colors.
 - Fonts Manager now loads Google Fonts dynamically and can be toggled from the admin Fonts page.
 - Increasing font size without a selection now affects the entire widget.
