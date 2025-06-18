@@ -166,7 +166,8 @@ function getModuleTokenForDbManager() {
       motherEmitter.emit(
         'validateToken',
         {
-          jwt: token,
+          skipJWT: true,
+          authModuleSecret: AUTH_MODULE_SECRET,
           moduleName: 'auth',
           moduleType: 'core',
           tokenToValidate: token
