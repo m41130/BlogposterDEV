@@ -6,6 +6,7 @@ let toolbar = null;
 let activeEl = null;
 let outsideHandler = null;
 let leaveHandler = null;
+let lockHandler = null;
 let initPromise = null;
 let autoHandler = null;
 let editingPlain = false;
@@ -301,6 +302,10 @@ function close() {
     toolbar?.removeEventListener('mouseleave', leaveHandler, true);
     leaveHandler = null;
   }
+  if (lockHandler) {
+    activeEl.removeEventListener('pointerdown', lockHandler, true);
+    lockHandler = null;
+  }
   const el = activeEl;
   const cb = activeEl.__onSave;
   activeEl = null;
@@ -323,6 +328,15 @@ export async function editElement(el, onSave) {
   el.setAttribute('contenteditable', 'true');
   el.focus();
   toolbar.style.display = 'flex';
+
+  if (startWidget) {
+    lockHandler = () => {
+      if (startWidget.dataset.tempLock !== 'true') {
+        document.dispatchEvent(new CustomEvent('textEditStart', { detail: { widget: startWidget } }));
+      }
+    };
+    el.addEventListener('pointerdown', lockHandler, true);
+  }
 
   const headingSelect = toolbar.querySelector('.heading-select');
   if (headingSelect) {
@@ -359,8 +373,8 @@ export async function editElement(el, onSave) {
   if (startWidget) {
     leaveHandler = ev => {
       const to = ev.relatedTarget;
-      if (!startWidget.contains(to) && !toolbar.contains(to)) {
-        close();
+      if (!startWidget.contains(to) && !toolbar.contains(to) && startWidget.dataset.tempLock === 'true') {
+        document.dispatchEvent(new CustomEvent('textEditStop', { detail: { widget: startWidget } }));
       }
     };
     startWidget.addEventListener('mouseleave', leaveHandler, true);
