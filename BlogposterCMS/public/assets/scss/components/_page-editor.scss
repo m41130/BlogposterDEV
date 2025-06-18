@@ -145,6 +145,18 @@
   color: #555;
 }
 
+.color-picker-toggle {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid var(--user-color);
+}
+
+.color-picker.hidden {
+  display: none;
+}
+
 #pe-save {
   display: inline-flex;
   align-items: center;

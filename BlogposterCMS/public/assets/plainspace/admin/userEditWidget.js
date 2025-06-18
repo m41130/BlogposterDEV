@@ -78,6 +78,11 @@ export async function render(el) {
       if (f === 'bio') {
         input = document.createElement('textarea');
       } else if (f === 'ui_color') {
+        const colorBtn = document.createElement('button');
+        colorBtn.type = 'button';
+        colorBtn.className = 'color-picker-toggle';
+        colorBtn.style.backgroundColor = selectedColor;
+
         const themeColor = getComputedStyle(document.documentElement)
           .getPropertyValue('--accent-color').trim();
         const picker = createColorPicker({
@@ -85,9 +90,20 @@ export async function render(el) {
           userColors: user.ui_color ? [user.ui_color] : [],
           themeColors: themeColor ? [themeColor] : [],
           initialColor: selectedColor,
-          onSelect: c => { selectedColor = c; }
+          onSelect: c => {
+            selectedColor = c;
+            colorBtn.style.backgroundColor = c;
+            picker.el.classList.add('hidden');
+          }
         });
-        input = picker.el;
+        picker.el.classList.add('hidden');
+        colorBtn.addEventListener('click', () => {
+          picker.el.classList.toggle('hidden');
+        });
+        const wrapper = document.createElement('div');
+        wrapper.appendChild(colorBtn);
+        wrapper.appendChild(picker.el);
+        input = wrapper;
       } else {
         input = document.createElement('input');
         input.type = 'text';
