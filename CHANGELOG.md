@@ -12,6 +12,7 @@ El Psy Kongroo
 - Admin token validation no longer deactivates core modules when the session token has expired.
 - Font size selector in the text editor now shows preset sizes below the input while typing and aligns with other toolbar controls.
 - Action bar now hides during widget drag or resize and reappears at the new position.
+- User editor color picker now opens via a circle button showing the current color.
 
 ## [0.5.2] – 2025-06-16
 - Widgets auto-lock when editing text fields and unlock as soon as focus leaves
