@@ -49,9 +49,14 @@ export function createColorPicker(options = {}) {
     });
     const addCustom = document.createElement('div');
     addCustom.className = 'color-circle add-custom';
+    // Append element before initializing Pickr so the library
+    // can safely replace it during its build process
+    section.appendChild(addCustom);
 
     const pickr = Pickr.create({
       el: addCustom,
+      // ensure the generated picker elements live inside the section
+      container: section,
       theme: 'nano',
       default: selectedColor,
       components: {
@@ -74,7 +79,6 @@ export function createColorPicker(options = {}) {
     });
 
     pickr.on('save', () => pickr.hide());
-    section.appendChild(addCustom);
     wrapper.appendChild(section);
     container.appendChild(wrapper);
   }
