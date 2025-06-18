@@ -5,8 +5,6 @@ El Psy Kongroo
 
 ## [Unreleased]
 - Admin token validation no longer deactivates core modules when the session token has expired.
-
-## [0.5.3] – 2025-06-17
 - Font size selector in the text editor now shows preset sizes below the input while typing and aligns with other toolbar controls.
 
 ## [0.5.2] – 2025-06-16
