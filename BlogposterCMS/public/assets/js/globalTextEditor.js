@@ -5,6 +5,7 @@ import { createColorPicker } from './colorPicker.js';
 let toolbar = null;
 let activeEl = null;
 let outsideHandler = null;
+let leaveHandler = null;
 let initPromise = null;
 let autoHandler = null;
 let editingPlain = false;
@@ -294,6 +295,12 @@ function close() {
   }
   document.removeEventListener('pointerdown', outsideHandler, true);
   document.removeEventListener('mousedown', outsideHandler, true);
+  if (leaveHandler) {
+    const widget = activeEl.closest('.grid-stack-item');
+    widget?.removeEventListener('mouseleave', leaveHandler, true);
+    toolbar?.removeEventListener('mouseleave', leaveHandler, true);
+    leaveHandler = null;
+  }
   const el = activeEl;
   const cb = activeEl.__onSave;
   activeEl = null;
@@ -348,6 +355,17 @@ export async function editElement(el, onSave) {
   };
   document.addEventListener('pointerdown', outsideHandler, true);
   document.addEventListener('mousedown', outsideHandler, true);
+
+  if (startWidget) {
+    leaveHandler = ev => {
+      const to = ev.relatedTarget;
+      if (!startWidget.contains(to) && !toolbar.contains(to)) {
+        close();
+      }
+    };
+    startWidget.addEventListener('mouseleave', leaveHandler, true);
+    toolbar.addEventListener('mouseleave', leaveHandler, true);
+  }
 }
 
 export function registerElement(el, onSave) {
