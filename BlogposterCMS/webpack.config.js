@@ -19,7 +19,8 @@ module.exports = {
     tokenLoader: './public/assets/js/tokenLoader.js',
     topHeaderActions: './public/assets/js/topHeaderActions.js',
     openExplorer: './public/assets/js/openExplorer.js',
-    pageActions: './public/assets/js/pageActions.js'
+    pageActions: './public/assets/js/pageActions.js',
+    fontsLoader: './public/assets/js/fontsLoader.js'
   },
   output: {
     filename: '[name].js',

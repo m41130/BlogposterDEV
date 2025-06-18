@@ -11,7 +11,10 @@ or disabling them via the admin settings.
 - Keeps a registry of available font providers.
 - Lets admins toggle providers on or off for privacy.
 - Additional providers can register themselves using the
-  `registerFontProvider` event.
+  `registerFontProvider` event. The built-in **Google Fonts** provider is
+  disabled by default for privacy. When enabled, the front-end dynamically loads
+  the fonts via `fontsLoader.js` so no external requests occur unless
+  explicitly allowed.
 
 ## Listened Events
 - `listFontProviders`
