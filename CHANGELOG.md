@@ -4,11 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
-<<<<<<< investigate-colorpicker.js-module-error
-- Fixed module import for Pickr library to avoid runtime error.
-=======
+- Fixed color picker import for Pickr library to avoid runtime error in the admin UI.
 - Fonts Manager now loads after all core modules. Provider registration requires a valid JWT and the internal secret.
->>>>>>> main
 - Widgets lock when clicking into a text field and unlock when leaving the
   widget, keeping the editor open.
 - Widget Manager now registers widgets from `public/assets/plainspace/community`
