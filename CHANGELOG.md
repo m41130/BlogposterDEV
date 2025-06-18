@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Fonts Manager now loads Google Fonts dynamically and can be toggled from the admin Fonts page.
 - Increasing font size without a selection now affects the entire widget.
 - Font size selector in the text editor now shows preset sizes below the input while typing and aligns with other toolbar controls.
 - Font size tool aligns with other buttons and updates selected text directly in widgets.
