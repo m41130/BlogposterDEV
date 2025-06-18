@@ -7,6 +7,8 @@ El Psy Kongroo
 - Canvas grid enforces boundaries so widgets stay within the grid area.
 - Removed GridStack dependency in favor of a custom drag-and-drop canvas grid.
 - CanvasGrid drag now uses GPU-accelerated transforms with a ghost element for smoother 60fps movement.
+- Drag ghosts now use absolute positioning and translate3d for snap-to-grid
+  movement.
 - Updated admin template and SCSS to use the new canvas grid classes.
 - Widget HTML edits from the toolbar now sync to the code editor, keeping custom code up to date.
 - Fonts now load from the fonts manager so custom providers can add new fonts.

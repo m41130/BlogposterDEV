@@ -60,7 +60,8 @@ export class CanvasGrid {
     el.style.position = 'absolute';
     el.style.left = '0px';
     el.style.top = '0px';
-    el.style.transform = `translate(${x * columnWidth}px, ${y * cellHeight}px)`;
+    el.style.transform =
+      `translate3d(${x * columnWidth}px, ${y * cellHeight}px, 0)`;
     el.style.width = `${w * columnWidth}px`;
     el.style.height = `${h * cellHeight}px`;
   }
@@ -173,7 +174,8 @@ export class CanvasGrid {
     const frame = () => {
       if (!dragging) return;
       const snap = this._snap(targetX, targetY);
-      ghost.style.transform = `translate(${snap.x * this.options.columnWidth}px, ${snap.y * this.options.cellHeight}px)`;
+      ghost.style.transform =
+        `translate3d(${snap.x * this.options.columnWidth}px, ${snap.y * this.options.cellHeight}px, 0)`;
       requestAnimationFrame(frame);
     };
     const move = e => {
