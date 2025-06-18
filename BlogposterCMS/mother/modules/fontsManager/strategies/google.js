@@ -1,7 +1,7 @@
 module.exports = {
-  initialize({ motherEmitter, fontsModuleSecret }) {
+  initialize({ motherEmitter, fontsModuleSecret, jwt }) {
     motherEmitter.emit('registerFontProvider', {
-      skipJWT: true,
+      jwt,
       moduleType: 'core',
       moduleName: 'fontsManager',
       fontsModuleSecret,
