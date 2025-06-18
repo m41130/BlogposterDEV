@@ -5,6 +5,7 @@ or disabling them via the admin settings.
 
 ## Startup
 - Loaded as a core module during server initialization.
+- Loaded after other modules so JWT tokens exist before registration.
 - Requires `FONTS_MODULE_INTERNAL_SECRET` in the environment.
 
 ## Purpose
@@ -20,5 +21,4 @@ or disabling them via the admin settings.
 - `listFontProviders`
 - `setFontProviderEnabled`
 - `registerFontProvider`
-  - Must include `skipJWT: true`, `moduleType: 'core'`, `moduleName: 'fontsManager'` and a valid
-    `fontsModuleSecret`. Used by providers to register themselves during startup.
+  - Must include a valid JWT and module information. Providers use this during startup to register.

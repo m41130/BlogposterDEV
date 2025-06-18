@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
-- Fonts Manager provider registration now validates `fontsModuleSecret` so skipJWT works without triggering meltdown.
+- Fonts Manager provider registration now requires a valid JWT and loads after other modules.
 - Pickr styles moved to /assets/css/vendor/pickr.css and loaded separately on admin pages.
 - Custom color selection now uses the Pickr widget instead of the browser color input.
 - Dragging widgets no longer shows a ghost box at their old location in the builder.
