@@ -339,7 +339,7 @@ export async function editElement(el, onSave) {
 }
 
 export function registerElement(el, onSave) {
-  el.addEventListener('click', ev => {
+  el.addEventListener('dblclick', ev => {
     ev.stopPropagation();
     editElement(el, onSave);
   });
@@ -355,7 +355,7 @@ export function enableAutoEdit() {
     ev.stopPropagation();
     editElement(el, el.__onSave);
   };
-  document.addEventListener('click', autoHandler, true);
+  document.addEventListener('dblclick', autoHandler, true);
 }
 
 if (document.body.classList.contains('builder-mode')) {
