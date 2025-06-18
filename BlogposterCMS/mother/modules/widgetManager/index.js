@@ -17,6 +17,9 @@
  */
 
 require('dotenv').config();
+const fs = require('fs');
+const path = require('path');
+const { onceCallback } = require('../../emitters/motherEmitter');
 const { hasPermission } = require('../userManagement/permissionUtils');
 
 module.exports = {
@@ -41,6 +44,9 @@ module.exports = {
 
       // Register meltdown event listeners
       setupWidgetManagerEvents(motherEmitter);
+
+      // Load community widgets from the public assets folder
+      await loadCommunityWidgets(motherEmitter, jwt);
 
       console.log('[WIDGET MANAGER] Initialized successfully.');
     } catch (err) {
@@ -386,4 +392,73 @@ function pickTable(widgetType) {
   if (widgetType === 'admin')  return 'widgets_admin';
   if (widgetType === 'public') return 'widgets_public';
   throw new Error(`[widgetManager] Unknown widgetType="${widgetType}". Must be "admin" or "public".`);
+}
+
+async function loadCommunityWidgets(motherEmitter, jwt) {
+  console.log('[WIDGET MANAGER] Scanning community widgets...');
+  const baseDir = path.resolve(__dirname, '../../../public/assets/plainspace/community');
+
+  if (!fs.existsSync(baseDir)) {
+    console.log('[WIDGET MANAGER] No community widgets folder =>', baseDir);
+    return;
+  }
+
+  const folders = fs.readdirSync(baseDir, { withFileTypes: true })
+    .filter(d => d.isDirectory())
+    .map(d => d.name);
+
+  for (const dir of folders) {
+    const infoPath = path.join(baseDir, dir, 'widgetInfo.json');
+    const jsPath = path.join(baseDir, dir, 'widget.js');
+    if (!fs.existsSync(infoPath) || !fs.existsSync(jsPath)) {
+      console.warn(`[WIDGET MANAGER] Skipping ${dir} => missing widgetInfo.json or widget.js`);
+      continue;
+    }
+
+    let info;
+    try {
+      info = JSON.parse(fs.readFileSync(infoPath, 'utf8'));
+    } catch (err) {
+      console.warn(`[WIDGET MANAGER] Invalid JSON in ${dir}/widgetInfo.json => ${err.message}`);
+      continue;
+    }
+
+    const { widgetId, widgetType, label = '', category = '' } = info;
+    if (!widgetId || !widgetType) {
+      console.warn(`[WIDGET MANAGER] Missing widgetId/widgetType in ${dir}`);
+      continue;
+    }
+
+    const code = fs.readFileSync(jsPath, 'utf8');
+    if (/require\(|process\.|fs\./.test(code)) {
+      console.warn(`[WIDGET MANAGER] ${dir}/widget.js failed security check`);
+      continue;
+    }
+
+    await new Promise(resolve => {
+      motherEmitter.emit(
+        'createWidget',
+        {
+          jwt,
+          moduleName: 'widgetManager',
+          moduleType: 'core',
+          widgetId,
+          widgetType,
+          label,
+          category,
+          content: `/assets/plainspace/community/${dir}/widget.js`
+        },
+        onceCallback(err => {
+          if (err) {
+            console.error(`[WIDGET MANAGER] createWidget failed for ${widgetId} =>`, err.message);
+          } else {
+            console.log(`[WIDGET MANAGER] Registered community widget ${widgetId}.`);
+          }
+          resolve();
+        })
+      );
+    });
+  }
+
+  console.log('[WIDGET MANAGER] Community widget scan complete.');
 }

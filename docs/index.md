@@ -17,6 +17,7 @@ This folder provides additional information on installing, configuring and exten
 - [Custom Post Types](custom_post_types.md)
 - [Permission Groups](permission_groups.md)
 - [Layout Templates](layout_templates.md)
+- [Community Widgets](community_widgets.md)
 - [Changing the Render Engine](changing_render_engine.md)
 
 For the full project overview and sarcasm-filled introduction, see the main [README](../README.md).
