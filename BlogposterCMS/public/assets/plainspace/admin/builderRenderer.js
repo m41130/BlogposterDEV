@@ -601,6 +601,18 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   await applyBuilderTheme();
   // Enable floating mode for easier widget placement in the builder
   const grid = initCanvasGrid({ float: true, cellHeight: 5, columnWidth: 5, column: 64 }, gridEl);
+  grid.grid.on("dragstart", () => {
+    actionBar.style.display = "none";
+  });
+  grid.grid.on("resizestart", () => {
+    actionBar.style.display = "none";
+  });
+  grid.grid.on("dragstop", (_, el) => {
+    if (activeWidgetEl) selectWidget(activeWidgetEl);
+  });
+  grid.grid.on("resizestop", (_, el) => {
+    if (activeWidgetEl) selectWidget(activeWidgetEl);
+  });
 
   document.addEventListener('textEditStart', e => {
     const widget = e.detail?.widget;
