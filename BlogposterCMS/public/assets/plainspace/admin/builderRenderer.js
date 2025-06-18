@@ -123,7 +123,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   let autosaveEnabled = true;
   let autosaveTimer = null;
   let gridEl;
-  document.addEventListener('textBlockHtmlUpdate', e => {
+  function handleHtmlUpdate(e) {
     const { instanceId, html } = e.detail || {};
     if (!instanceId || typeof html !== 'string') return;
     codeMap[instanceId] = codeMap[instanceId] || {};
@@ -134,7 +134,9 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       const htmlField = wrapper.__codeEditor.querySelector('.editor-html');
       if (htmlField) htmlField.value = html;
     }
-  });
+  }
+  document.addEventListener('textBlockHtmlUpdate', handleHtmlUpdate);
+  document.addEventListener('widgetHtmlUpdate', handleHtmlUpdate);
   let activeWidgetEl = null;
   const actionBar = document.createElement('div');
   actionBar.className = 'widget-action-bar';
