@@ -179,10 +179,17 @@ async function init() {
           activeEl.style.fontSize = val + 'px';
         }
       } else {
-        activeEl.style.fontSize = val + 'px';
-        activeEl
-          .querySelectorAll('[style*="font-size"]')
-          .forEach(el => (el.style.fontSize = val + 'px'));
+        activeEl.querySelectorAll('*').forEach(el => {
+          el.style.fontSize = val + 'px';
+        });
+        activeEl.childNodes.forEach(node => {
+          if (node.nodeType === 3 && node.textContent.trim()) {
+            const span = document.createElement('span');
+            span.style.fontSize = val + 'px';
+            span.textContent = node.textContent;
+            node.parentNode.replaceChild(span, node);
+          }
+        });
       }
       editingPlain = false;
       activeEl.focus();
@@ -223,8 +230,17 @@ async function init() {
           activeEl.style.color = val;
         }
       } else {
-        activeEl.style.color = val;
-        activeEl.querySelectorAll('[style*="color"]').forEach(el => (el.style.color = val));
+        activeEl.querySelectorAll('*').forEach(el => {
+          el.style.color = val;
+        });
+        activeEl.childNodes.forEach(node => {
+          if (node.nodeType === 3 && node.textContent.trim()) {
+            const span = document.createElement('span');
+            span.style.color = val;
+            span.textContent = node.textContent;
+            node.parentNode.replaceChild(span, node);
+          }
+        });
       }
       editingPlain = false;
       activeEl.focus();
