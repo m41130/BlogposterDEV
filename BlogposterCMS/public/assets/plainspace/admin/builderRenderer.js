@@ -935,9 +935,9 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       selectWidget(el);
     });
 
-    // Older behavior locked widgets when focusing form inputs. This caused
-    // unexpected locks during regular widget interactions. The auto lock is
-    // now triggered exclusively by text editing via the global text editor.
+    // Widgets used to lock when any form input gained focus. This caused
+    // unexpected locks during normal interactions. Auto-locking now only
+    // occurs after clicking inside a text field via the global editor.
   }
 
 

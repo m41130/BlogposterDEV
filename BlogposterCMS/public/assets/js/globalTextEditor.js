@@ -319,9 +319,9 @@ export async function editElement(el, onSave) {
   if (activeEl) close();
   activeEl = el;
   const startWidget = el.closest('.grid-stack-item');
-  if (startWidget) {
-    document.dispatchEvent(new CustomEvent('textEditStart', { detail: { widget: startWidget } }));
-  }
+  // Do not lock the widget yet. Locking is triggered when the user
+  // clicks inside the editable element so text can still be selected
+  // freely before that.
   activeEl.__onSave = onSave;
 
   editingPlain = !/<[a-z][\s\S]*>/i.test(el.innerHTML.trim());
