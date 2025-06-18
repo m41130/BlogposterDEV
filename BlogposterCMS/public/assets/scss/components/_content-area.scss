@@ -28,6 +28,13 @@
   transition: all 0.2s ease;
   min-width: 120px;
   min-height: 80px;
+  will-change: transform;
+}
+
+.drag-ghost {
+  pointer-events: none;
+  opacity: 0.7;
+  will-change: transform;
 }
 
 // Highlight widgets while the admin layout is editable

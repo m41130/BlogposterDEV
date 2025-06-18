@@ -58,8 +58,9 @@ export class CanvasGrid {
     el.setAttribute('gs-h', h);
 
     el.style.position = 'absolute';
-    el.style.left = `${x * columnWidth}px`;
-    el.style.top = `${y * cellHeight}px`;
+    el.style.left = '0px';
+    el.style.top = '0px';
+    el.style.transform = `translate(${x * columnWidth}px, ${y * cellHeight}px)`;
     el.style.width = `${w * columnWidth}px`;
     el.style.height = `${h * cellHeight}px`;
   }
@@ -167,17 +168,26 @@ export class CanvasGrid {
   }
 
   _enableDrag(el) {
-    let startX, startY, startGX, startGY;
+    let startX, startY, startGX, startGY, ghost, dragging = false;
+    let targetX = 0, targetY = 0;
+    const frame = () => {
+      if (!dragging) return;
+      const snap = this._snap(targetX, targetY);
+      ghost.style.transform = `translate(${snap.x * this.options.columnWidth}px, ${snap.y * this.options.cellHeight}px)`;
+      requestAnimationFrame(frame);
+    };
     const move = e => {
-      const dx = e.clientX - startX;
-      const dy = e.clientY - startY;
-      const gx = startGX + Math.round(dx / this.options.columnWidth);
-      const gy = startGY + Math.round(dy / this.options.cellHeight);
-      this.update(el, { x: gx, y: gy });
+      targetX = startGX * this.options.columnWidth + (e.clientX - startX);
+      targetY = startGY * this.options.cellHeight + (e.clientY - startY);
     };
     const up = () => {
+      dragging = false;
       document.removeEventListener('mousemove', move);
       document.removeEventListener('mouseup', up);
+      ghost.remove();
+      const snap = this._snap(targetX, targetY);
+      this.update(el, { x: snap.x, y: snap.y });
+      el.style.visibility = '';
       this._emit('dragstop', el);
     };
     el.addEventListener('mousedown', e => {
@@ -188,10 +198,27 @@ export class CanvasGrid {
       startX = e.clientX; startY = e.clientY;
       startGX = +el.getAttribute('gs-x');
       startGY = +el.getAttribute('gs-y');
+      targetX = startGX * this.options.columnWidth;
+      targetY = startGY * this.options.cellHeight;
+      ghost = el.cloneNode(true);
+      ghost.classList.add('drag-ghost');
+      this.el.appendChild(ghost);
+      ghost.style.width = el.style.width;
+      ghost.style.height = el.style.height;
+      ghost.style.transform = el.style.transform;
+      el.style.visibility = 'hidden';
+      dragging = true;
       this._emit('dragstart', el);
       document.addEventListener('mousemove', move);
       document.addEventListener('mouseup', up);
+      requestAnimationFrame(frame);
     });
+  }
+
+  _snap(x, y) {
+    const gx = Math.round(x / this.options.columnWidth);
+    const gy = Math.round(y / this.options.cellHeight);
+    return { x: gx, y: gy };
   }
 
   _updateBBox() {
