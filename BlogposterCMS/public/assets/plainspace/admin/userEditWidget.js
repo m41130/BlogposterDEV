@@ -1,3 +1,5 @@
+import { createColorPicker } from '../../js/colorPicker.js';
+
 export async function render(el) {
   const meltdownEmit = window.meltdownEmit;
   const jwt = window.ADMIN_TOKEN;
@@ -76,34 +78,16 @@ export async function render(el) {
       if (f === 'bio') {
         input = document.createElement('textarea');
       } else if (f === 'ui_color') {
-        input = document.createElement('div');
-        input.className = 'color-choices';
-        colorChoices.forEach(c => {
-          const circle = document.createElement('div');
-          circle.className = 'color-circle';
-          circle.style.backgroundColor = c;
-          circle.addEventListener('click', () => {
-            selectedColor = c;
-            Array.from(input.children).forEach(n => n.classList.remove('active'));
-            circle.classList.add('active');
-          });
-          if (c === selectedColor) circle.classList.add('active');
-          input.appendChild(circle);
+        const themeColor = getComputedStyle(document.documentElement)
+          .getPropertyValue('--accent-color').trim();
+        const picker = createColorPicker({
+          presetColors: colorChoices,
+          userColors: user.ui_color ? [user.ui_color] : [],
+          themeColors: themeColor ? [themeColor] : [],
+          initialColor: selectedColor,
+          onSelect: c => { selectedColor = c; }
         });
-        const addCustom = document.createElement('div');
-        addCustom.className = 'color-circle add-custom';
-        const colorInput = document.createElement('input');
-        colorInput.type = 'color';
-        colorInput.style.display = 'none';
-        addCustom.appendChild(colorInput);
-        addCustom.addEventListener('click', () => colorInput.click());
-        colorInput.addEventListener('input', () => {
-          selectedColor = colorInput.value;
-          Array.from(input.children).forEach(n => n.classList.remove('active'));
-          addCustom.style.backgroundColor = selectedColor;
-          addCustom.classList.add('active');
-        });
-        input.appendChild(addCustom);
+        input = picker.el;
       } else {
         input = document.createElement('input');
         input.type = 'text';
