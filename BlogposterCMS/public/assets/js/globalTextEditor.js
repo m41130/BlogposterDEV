@@ -6,7 +6,6 @@ let toolbar = null;
 let activeEl = null;
 let outsideHandler = null;
 let leaveHandler = null;
-let lockHandler = null;
 let initPromise = null;
 let autoHandler = null;
 let editingPlain = false;
@@ -302,10 +301,6 @@ function close() {
     toolbar?.removeEventListener('mouseleave', leaveHandler, true);
     leaveHandler = null;
   }
-  if (lockHandler) {
-    activeEl.removeEventListener('pointerdown', lockHandler, true);
-    lockHandler = null;
-  }
   const el = activeEl;
   const cb = activeEl.__onSave;
   activeEl = null;
@@ -319,9 +314,7 @@ export async function editElement(el, onSave) {
   if (activeEl) close();
   activeEl = el;
   const startWidget = el.closest('.grid-stack-item');
-  // Do not lock the widget yet. Locking is triggered when the user
-  // clicks inside the editable element so text can still be selected
-  // freely before that.
+  // Immediately lock the widget so it cannot be moved while editing.
   activeEl.__onSave = onSave;
 
   editingPlain = !/<[a-z][\s\S]*>/i.test(el.innerHTML.trim());
@@ -330,12 +323,7 @@ export async function editElement(el, onSave) {
   toolbar.style.display = 'flex';
 
   if (startWidget) {
-    lockHandler = () => {
-      if (startWidget.dataset.tempLock !== 'true') {
-        document.dispatchEvent(new CustomEvent('textEditStart', { detail: { widget: startWidget } }));
-      }
-    };
-    el.addEventListener('pointerdown', lockHandler, true);
+    document.dispatchEvent(new CustomEvent('textEditStart', { detail: { widget: startWidget } }));
   }
 
   const headingSelect = toolbar.querySelector('.heading-select');
@@ -383,10 +371,7 @@ export async function editElement(el, onSave) {
 }
 
 export function registerElement(el, onSave) {
-  el.addEventListener('dblclick', ev => {
-    ev.stopPropagation();
-    editElement(el, onSave);
-  });
+  el.__onSave = onSave;
 }
 
 export function enableAutoEdit() {
@@ -399,7 +384,7 @@ export function enableAutoEdit() {
     ev.stopPropagation();
     editElement(el, el.__onSave);
   };
-  document.addEventListener('dblclick', autoHandler, true);
+  document.addEventListener('click', autoHandler, true);
 }
 
 if (document.body.classList.contains('builder-mode')) {
