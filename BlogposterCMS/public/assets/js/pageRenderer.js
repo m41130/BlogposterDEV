@@ -23,6 +23,14 @@ function ensureGlobalStyle(lane) {
   link.dataset.globalStyle = lane;
   document.head.appendChild(link);
 
+  if (lane === 'admin' && !document.querySelector('link[data-pickr-style]')) {
+    const pickr = document.createElement('link');
+    pickr.rel = 'stylesheet';
+    pickr.href = '/assets/css/vendor/pickr.css';
+    pickr.dataset.pickrStyle = '';
+    document.head.appendChild(pickr);
+  }
+
   // In builder mode widgets import the theme in their shadow roots.
   // Avoid injecting the theme globally so the builder UI remains untouched.
 }
@@ -68,7 +76,8 @@ function renderWidget(wrapper, def, code = null, lane = 'public') {
   const globalCss = getGlobalCssUrl(lane);
 
   const style = document.createElement('style');
-  style.textContent = `@import url('${globalCss}');`;
+  const pickrCss = lane === 'admin' ? "@import url('/assets/css/vendor/pickr.css');" : '';
+  style.textContent = `@import url('${globalCss}');${pickrCss}`;
   root.appendChild(style);
 
   const container = document.createElement('div');

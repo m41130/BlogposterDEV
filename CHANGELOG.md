@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Pickr styles moved to /assets/css/vendor/pickr.css and loaded separately on admin pages.
+- Custom color selection now uses the Pickr widget instead of the browser color input.
 - Dragging widgets no longer shows a ghost box at their old location in the builder.
 - Text color button now displays an underlined 'A' icon reflecting the selected color and opens the palette below the toolbar.
 - Color picker in user editor now floats above fields when opened.
