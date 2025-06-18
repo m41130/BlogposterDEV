@@ -11,6 +11,9 @@ El Psy Kongroo
 >>>>>>> main
 - Widgets lock when clicking into a text field and unlock when leaving the
   widget, keeping the editor open.
+- Widget Manager now registers widgets from `public/assets/plainspace/community`
+  with a basic security scan during startup.
+- Documented how to safely load community widgets in a dedicated folder.
 - Pickr styles moved to /assets/css/vendor/pickr.css and loaded separately on admin pages.
 - Custom color selection now uses the Pickr widget instead of the browser color input.
 - Dragging widgets no longer shows a ghost box at their old location in the builder.
