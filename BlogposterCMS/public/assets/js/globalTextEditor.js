@@ -85,7 +85,9 @@ async function init() {
       '<div class="font-size-control">' +
         '<button type="button" class="tb-btn fs-dec">-</button>' +
         '<div class="fs-dropdown">' +
-          '<input type="number" class="fs-input" value="16" min="8" />' +
+          '<button type="button" class="fs-btn"><span>' +
+            '<input type="number" class="fs-input" value="16" min="8" />' +
+          '</span></button>' +
           '<div class="fs-options">' +
             [12,14,16,18,24,36].map(s => `<span data-size="${s}">${s}</span>`).join('') +
           '</div>' +
@@ -146,6 +148,7 @@ async function init() {
     const fsInput = toolbar.querySelector('.fs-input');
     const fsDropdown = toolbar.querySelector('.fs-dropdown');
     const fsOptions = toolbar.querySelector('.fs-options');
+    const fsBtn = toolbar.querySelector('.fs-btn');
     const applySize = size => {
       const val = parseInt(size, 10);
       if (!val) return;
@@ -236,6 +239,15 @@ async function init() {
         span.style.display = !val || span.textContent.startsWith(val) ? 'block' : 'none';
       });
     };
+
+    fsBtn.addEventListener('click', () => {
+      fsDropdown.classList.toggle('open');
+      fsInput.focus();
+    });
+
+    ['pointerdown', 'click'].forEach(evt => {
+      fsInput.addEventListener(evt, ev => ev.stopPropagation());
+    });
 
     fsInput.addEventListener('focus', () => {
       fsDropdown.classList.add('open');
