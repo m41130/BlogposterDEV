@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Form inputs inside widgets now auto-lock their parent on focus and
+  unlock when focus leaves, ensuring they remain selected during edits.
+- Widgets remain selected when editing text. They temporarily lock on
+  text click and unlock once the pointer leaves.
 - Color picker swatches now wrap after six rows to keep columns compact.
 - Preset color pickers in the user editor and page builder now organize
   swatches into six-row columns for a consistent layout.
