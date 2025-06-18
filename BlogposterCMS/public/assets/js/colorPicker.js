@@ -1,4 +1,5 @@
-import Pickr from './vendor/pickr.min.js';
+import PickrModule from './vendor/pickr.min.js';
+const Pickr = PickrModule.default || PickrModule.Pickr || PickrModule;
 
 export function createColorPicker(options = {}) {
   const {

@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Fixed module import for Pickr library to avoid runtime error.
 - Widgets lock when clicking into a text field and unlock when leaving the
   widget, keeping the editor open.
 - Pickr styles moved to /assets/css/vendor/pickr.css and loaded separately on admin pages.
