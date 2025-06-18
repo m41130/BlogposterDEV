@@ -35,7 +35,8 @@ export function createColorPicker(options = {}) {
     }
     colors.forEach(c => {
       if (!c) return;
-      const circle = document.createElement('div');
+      const circle = document.createElement('button');
+      circle.type = 'button';
       circle.className = 'color-circle';
       circle.style.backgroundColor = c;
       if (c === selectedColor) circle.classList.add('active');
@@ -47,7 +48,8 @@ export function createColorPicker(options = {}) {
       });
       section.appendChild(circle);
     });
-    const addCustom = document.createElement('div');
+    const addCustom = document.createElement('button');
+    addCustom.type = 'button';
     addCustom.className = 'color-circle add-custom';
     // Append element before initializing Pickr so the library
     // can safely replace it during its build process
