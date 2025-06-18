@@ -21,4 +21,4 @@ or disabling them via the admin settings.
 - `listFontProviders`
 - `setFontProviderEnabled`
 - `registerFontProvider`
-  - Must include a valid JWT and module information. Providers use this during startup to register.
+  - Must include a valid JWT, module information and the `FONTS_MODULE_INTERNAL_SECRET`. Providers use this during startup to register.
