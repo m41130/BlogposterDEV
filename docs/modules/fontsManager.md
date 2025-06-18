@@ -20,3 +20,5 @@ or disabling them via the admin settings.
 - `listFontProviders`
 - `setFontProviderEnabled`
 - `registerFontProvider`
+  - Must include `skipJWT: true`, `moduleType: 'core'`, `moduleName: 'fontsManager'` and a valid
+    `fontsModuleSecret`. Used by providers to register themselves during startup.

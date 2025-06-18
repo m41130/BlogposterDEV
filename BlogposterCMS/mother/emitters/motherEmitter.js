@@ -21,6 +21,7 @@ const TOKEN_SALT_HIGH    = process.env.TOKEN_SALT_HIGH   || '';
 const TOKEN_SALT_MEDIUM  = process.env.TOKEN_SALT_MEDIUM || '';
 const TOKEN_SALT_LOW     = process.env.TOKEN_SALT_LOW    || '';
 const AUTH_MODULE_SECRET = process.env.AUTH_MODULE_INTERNAL_SECRET || '';
+const FONTS_MODULE_SECRET = process.env.FONTS_MODULE_INTERNAL_SECRET || '';
 
 /** Public events skip meltdown checks entirely */
 const PUBLIC_EVENTS = [
@@ -194,7 +195,14 @@ class MotherEmitter extends EventEmitter {
       return false;
     }
 
-    const { moduleName, skipJWT, authModuleSecret, jwt: providedJwt, isExternalRequest } = firstArg;
+    const {
+      moduleName,
+      skipJWT,
+      authModuleSecret,
+      fontsModuleSecret,
+      jwt: providedJwt,
+      isExternalRequest
+    } = firstArg;
 
     // (3) If meltdown already triggered for that module => ignore
     if (meltdownStates.get(moduleName)) {
@@ -210,19 +218,25 @@ class MotherEmitter extends EventEmitter {
       return super.emit(eventName, ...args);
     }
 
-    // (5) skipJWT logic => only allowed if moduleName='auth' & event in ALLOWED_SKIPJWT_EVENTS & secret is correct
+    // (5) skipJWT logic => allow listed modules and events with the correct secret
     if (skipJWT) {
-      if (moduleName === 'auth' && ALLOWED_SKIPJWT_EVENTS.includes(eventName)) {
-        if (authModuleSecret !== AUTH_MODULE_SECRET) {
-          meltdownForModule(`Invalid authModuleSecret for skipJWT event="${eventName}"`, moduleName, this);
-          return false;
-        }
-          console.log('[MotherEmitter] skipJWT => authorized => event="%s" => normal emit.', eventName);
+      const authorizedAuthEvent =
+        moduleName === 'auth' &&
+        ALLOWED_SKIPJWT_EVENTS.includes(eventName) &&
+        authModuleSecret === AUTH_MODULE_SECRET;
+
+      const authorizedFontsEvent =
+        moduleName === 'fontsManager' &&
+        eventName === 'registerFontProvider' &&
+        fontsModuleSecret === FONTS_MODULE_SECRET;
+
+      if (authorizedAuthEvent || authorizedFontsEvent) {
+        console.log('[MotherEmitter] skipJWT => authorized => event="%s" => normal emit.', eventName);
         return super.emit(eventName, ...args);
-      } else {
-        meltdownForModule(`Unauthorized skipJWT usage => event="${eventName}"`, moduleName, this);
-        return false;
       }
+
+      meltdownForModule(`Unauthorized skipJWT usage => event="${eventName}"`, moduleName, this);
+      return false;
     }
 
     // (6) If not skipJWT => require a valid JWT
