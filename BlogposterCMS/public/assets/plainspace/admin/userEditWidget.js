@@ -101,6 +101,8 @@ export async function render(el) {
           picker.el.classList.toggle('hidden');
         });
         const wrapper = document.createElement('div');
+        wrapper.style.position = 'relative';
+        picker.el.classList.add('floating');
         wrapper.appendChild(colorBtn);
         wrapper.appendChild(picker.el);
         input = wrapper;
