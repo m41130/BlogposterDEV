@@ -1,5 +1,8 @@
-import PickrModule from './vendor/pickr.min.js';
-const Pickr = PickrModule.default || PickrModule.Pickr || PickrModule;
+// Load Pickr library which exposes a global `Pickr` when imported as a module
+// or via a script tag. The distributed `pickr.min.js` does not export a
+// default module, so we import it for its side effects and read the global.
+import './vendor/pickr.min.js';
+const Pickr = window.Pickr || globalThis.Pickr;
 
 export function createColorPicker(options = {}) {
   const {
