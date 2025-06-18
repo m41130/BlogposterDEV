@@ -5,8 +5,8 @@
 
   .color-section {
     display: grid;
-    grid-auto-flow: column;
-    grid-template-rows: repeat(6, 24px);
+    grid-auto-flow: row;
+    grid-template-columns: repeat(6, 24px);
     gap: 6px;
     align-items: center;
   }
@@ -17,6 +17,8 @@
     border-radius: 50%;
     cursor: pointer;
     border: 2px solid transparent;
+    padding: 0;
+    background: none;
   }
 
   .color-circle.active {

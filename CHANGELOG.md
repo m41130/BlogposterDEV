@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Preset color swatches are now rendered as buttons and layout uses six columns.
 - Color picker swatches now wrap after six rows to keep columns compact.
 - Preset color pickers in the user editor and page builder now organize
   swatches into six-row columns for a consistent layout.
