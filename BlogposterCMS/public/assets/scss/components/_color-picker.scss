@@ -37,3 +37,16 @@
     color: var(--color-text);
   }
 }
+
+
+.color-picker.floating {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 1000;
+  background: var(--color-white);
+  padding: 8px;
+  border: 1px solid #eee;
+  box-shadow: var(--shadow-default);
+  border-radius: 8px;
+}

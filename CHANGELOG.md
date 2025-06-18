@@ -5,6 +5,7 @@ El Psy Kongroo
 
 ## [Unreleased]
 - Text color button now displays an underlined 'A' icon reflecting the selected color and opens the palette below the toolbar.
+- Color picker in user editor now floats above fields when opened.
 - Text editor toolbar now includes a floating color picker to change selected text or entire blocks.
 - Added reusable color picker component that shows preset, user and theme colors.
 - Fonts Manager now loads Google Fonts dynamically and can be toggled from the admin Fonts page.
