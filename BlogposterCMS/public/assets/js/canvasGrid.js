@@ -10,7 +10,8 @@ export class CanvasGrid {
         columnWidth: 5,
         columns: Infinity,
         rows: Infinity,
-        pushOnOverlap: false
+        pushOnOverlap: false,
+        percentageMode: false
       },
       options
     );
@@ -27,6 +28,11 @@ export class CanvasGrid {
     this._createBBox();
     bindGlobalListeners(this.el, (evt, e) => this._emit(evt, e));
     this._updateGridHeight();
+    if (this.options.percentageMode) {
+      window.addEventListener('resize', () => {
+        this.widgets.forEach(w => this._applyPosition(w));
+      });
+    }
   }
 
   on(evt, cb) {
@@ -83,8 +89,15 @@ export class CanvasGrid {
     el.style.position = 'absolute';
     el.style.transform =
       `translate3d(${x * columnWidth}px, ${y * cellHeight}px, 0)`;
-    el.style.width = `${w * columnWidth}px`;
-    el.style.height = `${h * cellHeight}px`;
+    if (this.options.percentageMode) {
+      const gridW = this.el.clientWidth || 1;
+      const gridH = this.el.clientHeight || 1;
+      el.style.width = `${(w * columnWidth / gridW) * 100}%`;
+      el.style.height = `${(h * cellHeight / gridH) * 100}%`;
+    } else {
+      el.style.width = `${w * columnWidth}px`;
+      el.style.height = `${h * cellHeight}px`;
+    }
   }
 
   makeWidget(el) {

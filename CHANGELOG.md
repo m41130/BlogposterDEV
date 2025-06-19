@@ -13,6 +13,7 @@ El Psy Kongroo
 - Builder: `.canvas-item-content.builder-themed` now fills its parent so the bounding box matches widget dimensions.
 - Replaced all public widgets with a single HTML Block blueprint.
 - Opening the code editor now preloads the current widget HTML instead of showing a blank editor.
+- CanvasGrid can size widgets in percentages for responsive layouts via the new `percentageMode` option.
 - CanvasGrid now emits global events for mouse, touch, keyboard and window
   interactions, enabling centralized handling in the builder and dashboard.
 - Global listener binding moved to a shared module so builder components
