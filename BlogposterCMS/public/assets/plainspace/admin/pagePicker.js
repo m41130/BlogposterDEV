@@ -22,8 +22,8 @@
     pages.forEach((p, idx) => {
       const item = document.createElement('div');
       item.classList.add('canvas-item');
-      item.setAttribute('gs-x', 0);
-      item.setAttribute('gs-y', idx);
+      item.dataset.x = 0;
+      item.dataset.y = idx;
       item.setAttribute('gs-w', 4);
       item.setAttribute('gs-h', 1);
       item.setAttribute('gs-min-w', 4);

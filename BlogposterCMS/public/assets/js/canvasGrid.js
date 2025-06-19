@@ -29,8 +29,8 @@ export class CanvasGrid {
 
   _applyPosition(el) {
     const { columnWidth, cellHeight, columns, rows } = this.options;
-    let x = +el.getAttribute('gs-x') || 0;
-    let y = +el.getAttribute('gs-y') || 0;
+    let x = +el.dataset.x || 0;
+    let y = +el.dataset.y || 0;
     let w = +el.getAttribute('gs-w') || 1;
     let h = +el.getAttribute('gs-h') || 1;
 
@@ -53,8 +53,8 @@ export class CanvasGrid {
       y = 0;
     }
 
-    el.setAttribute('gs-x', x);
-    el.setAttribute('gs-y', y);
+    el.dataset.x = x;
+    el.dataset.y = y;
     el.setAttribute('gs-w', w);
     el.setAttribute('gs-h', h);
 
@@ -75,8 +75,8 @@ export class CanvasGrid {
   addWidget(opts = {}) {
     const el = document.createElement('div');
     el.className = 'canvas-item';
-    el.setAttribute('gs-x', opts.x || 0);
-    el.setAttribute('gs-y', opts.y || 0);
+    el.dataset.x = opts.x || 0;
+    el.dataset.y = opts.y || 0;
     el.setAttribute('gs-w', opts.w || 1);
     el.setAttribute('gs-h', opts.h || 1);
     this.el.appendChild(el);
@@ -93,8 +93,8 @@ export class CanvasGrid {
 
   update(el, opts = {}) {
     if (!el) return;
-    if (opts.x != null) el.setAttribute('gs-x', opts.x);
-    if (opts.y != null) el.setAttribute('gs-y', opts.y);
+    if (opts.x != null) el.dataset.x = opts.x;
+    if (opts.y != null) el.dataset.y = opts.y;
     if (opts.w != null) el.setAttribute('gs-w', opts.w);
     if (opts.h != null) el.setAttribute('gs-h', opts.h);
     if (opts.locked != null) el.setAttribute('gs-locked', opts.locked);
@@ -158,8 +158,8 @@ export class CanvasGrid {
         const rect = this.activeEl.getBoundingClientRect();
         startX = e.clientX; startY = e.clientY;
         startW = rect.width; startH = rect.height;
-        startGX = +this.activeEl.getAttribute('gs-x');
-        startGY = +this.activeEl.getAttribute('gs-y');
+        startGX = +this.activeEl.dataset.x || 0;
+        startGY = +this.activeEl.dataset.y || 0;
         this._emit('resizestart', this.activeEl);
         document.addEventListener('mousemove', move);
         document.addEventListener('mouseup', up);
@@ -185,7 +185,6 @@ export class CanvasGrid {
       document.removeEventListener('mouseup', up);
       const snap = this._snap(targetX, targetY);
       this.update(el, { x: snap.x, y: snap.y });
-      el.style.transform = '';
       this._emit('dragstop', el);
     };
     el.addEventListener('mousedown', e => {
@@ -195,8 +194,8 @@ export class CanvasGrid {
       e.preventDefault();
       this.select(el);
       startX = e.clientX; startY = e.clientY;
-      startGX = +el.getAttribute('gs-x');
-      startGY = +el.getAttribute('gs-y');
+      startGX = +el.dataset.x || 0;
+      startGY = +el.dataset.y || 0;
       targetX = startGX * this.options.columnWidth;
       targetY = startGY * this.options.cellHeight;
       dragging = true;

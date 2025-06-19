@@ -407,8 +407,8 @@ function ensureLayout(layout = {}, lane = 'public') {
 
         const wrapper = document.createElement('div');
         wrapper.classList.add('canvas-item');
-        wrapper.setAttribute('gs-x', x);
-        wrapper.setAttribute('gs-y', y);
+        wrapper.dataset.x = x;
+        wrapper.dataset.y = y;
         wrapper.setAttribute('gs-w', w);
         wrapper.setAttribute('gs-h', h);
         wrapper.setAttribute('gs-min-w', 4);
@@ -465,8 +465,8 @@ function ensureLayout(layout = {}, lane = 'public') {
 
       const wrapper = document.createElement('div');
       wrapper.classList.add('canvas-item');
-      wrapper.setAttribute('gs-x', x);
-      wrapper.setAttribute('gs-y', y);
+      wrapper.dataset.x = x;
+      wrapper.dataset.y = y;
       wrapper.setAttribute('gs-w', w);
       wrapper.setAttribute('gs-h', h);
       wrapper.setAttribute('gs-min-w', 4);
@@ -492,8 +492,8 @@ function ensureLayout(layout = {}, lane = 'public') {
         id: el.dataset.instanceId,
         widgetId: el.dataset.widgetId,
         global: el.dataset.global === 'true',
-        x: +el.getAttribute('gs-x'),
-        y: +el.getAttribute('gs-y'),
+        x: +el.dataset.x || 0,
+        y: +el.dataset.y || 0,
         w: +el.getAttribute('gs-w'),
         h: +el.getAttribute('gs-h'),
         code: layout.find(l => l.id === el.dataset.instanceId)?.code || null

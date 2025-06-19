@@ -6,6 +6,8 @@ El Psy Kongroo
 ## [Unreleased]
 - Saving a layout template for multiple pages now sends a single batched
   request, preventing rate limit errors during bulk updates.
+- Removed legacy grid positioning attributes (gs-x, gs-y); widget moves now
+  persist directly via inline transform styles.
 - Fixed drag positions not updating visually; widgets now apply transform styles directly during mousemove.
 - Fixed false "Skipping missing widget file" warnings by correcting the
   public directory path in the plainSpace module.
