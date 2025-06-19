@@ -7,7 +7,7 @@ const path = require('path');
 
 const {
   seedAdminPages,
-  checkOrCreateWidget,
+  seedAdminWidget,
   registerPlainSpaceEvents,
   meltdownEmit,
   MODULE,
@@ -80,7 +80,8 @@ module.exports = {
         if (isCore && jwt) {
           await seedAdminPages(motherEmitter, jwt, ADMIN_PAGES);
           for (const widgetData of DEFAULT_WIDGETS) {
-            await checkOrCreateWidget(motherEmitter, jwt, widgetData);
+            const { options = {}, ...data } = widgetData;
+            await seedAdminWidget(motherEmitter, jwt, data, options);
           }
         }
       } else {
@@ -93,7 +94,8 @@ module.exports = {
 
         // B) Seed default widgets
         for (const widgetData of DEFAULT_WIDGETS) {
-          await checkOrCreateWidget(motherEmitter, jwt, widgetData);
+          const { options = {}, ...data } = widgetData;
+          await seedAdminWidget(motherEmitter, jwt, data, options);
         }
         console.log('[plainSpace] Admin pages & widgets have been seeded.');
 

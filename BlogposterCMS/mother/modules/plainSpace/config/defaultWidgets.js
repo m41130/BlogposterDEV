@@ -23,7 +23,8 @@ module.exports.DEFAULT_WIDGETS = [
     widgetType: ADMIN_LANE,
     label: 'Activity Log',
     content: '/assets/plainspace/admin/activityLogWidget.js',
-    category: 'core'
+    category: 'core',
+    options: { height: 50, overflow: true }
   },
   {
     widgetId: 'contentSummary',

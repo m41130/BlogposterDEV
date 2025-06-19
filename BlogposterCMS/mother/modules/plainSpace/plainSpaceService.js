@@ -217,6 +217,35 @@ async function checkOrCreateWidget(motherEmitter, jwt, widgetData) {
 }
 
 /**
+ * seedAdminWidget:
+ * Creates an admin lane widget if missing and optionally stores
+ * layout options in the widget_instances table. These options
+ * describe width/height behaviour of the widget when seeded on a page.
+ *
+ * @param {EventEmitter} motherEmitter
+ * @param {string} jwt
+ * @param {object} widgetData - { widgetId, widgetType, label, content, category }
+ * @param {object} [layoutOpts] - { max, maxWidth, maxHeight, halfWidth, thirdWidth, width, height, overflow }
+ */
+async function seedAdminWidget(motherEmitter, jwt, widgetData, layoutOpts = {}) {
+  await checkOrCreateWidget(motherEmitter, jwt, widgetData);
+
+  if (Object.keys(layoutOpts).length === 0) return;
+
+  const instanceId = `default.${widgetData.widgetId}`;
+  try {
+    await meltdownEmit(motherEmitter, 'saveWidgetInstance', {
+      jwt,
+      instanceId,
+      content: JSON.stringify(layoutOpts)
+    });
+    console.log(`[plainSpace] Stored layout options for ${widgetData.widgetId}.`);
+  } catch (err) {
+    console.error(`[plainSpace] Failed to store layout options for ${widgetData.widgetId}:`, err.message);
+  }
+}
+
+/**
  * registerPlainSpaceEvents:
  * meltdown events for multi-viewport layout storage:
  *   - saveLayoutForViewport
@@ -483,6 +512,7 @@ function registerPlainSpaceEvents(motherEmitter) {
 module.exports = {
   seedAdminPages,
   checkOrCreateWidget,
+  seedAdminWidget,
   registerPlainSpaceEvents,
   meltdownEmit,
   MODULE,
