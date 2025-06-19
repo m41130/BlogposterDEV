@@ -59,8 +59,6 @@ export class CanvasGrid {
     el.setAttribute('gs-h', h);
 
     el.style.position = 'absolute';
-    el.style.left = '0px';
-    el.style.top = '0px';
     el.style.transform =
       `translate3d(${x * columnWidth}px, ${y * cellHeight}px, 0)`;
     el.style.width = `${w * columnWidth}px`;
@@ -172,17 +170,14 @@ export class CanvasGrid {
   _enableDrag(el) {
     let startX, startY, startGX, startGY, dragging = false;
     let targetX = 0, targetY = 0;
-    const frame = () => {
+    const move = e => {
       if (!dragging) return;
+      targetX = startGX * this.options.columnWidth + (e.clientX - startX);
+      targetY = startGY * this.options.cellHeight + (e.clientY - startY);
       const snap = this._snap(targetX, targetY);
       el.style.transform =
         `translate3d(${snap.x * this.options.columnWidth}px, ${snap.y * this.options.cellHeight}px, 0)`;
       this._updateBBox();
-      requestAnimationFrame(frame);
-    };
-    const move = e => {
-      targetX = startGX * this.options.columnWidth + (e.clientX - startX);
-      targetY = startGY * this.options.cellHeight + (e.clientY - startY);
     };
     const up = () => {
       dragging = false;
@@ -208,7 +203,6 @@ export class CanvasGrid {
       this._emit('dragstart', el);
       document.addEventListener('mousemove', move);
       document.addEventListener('mouseup', up);
-      requestAnimationFrame(frame);
     });
   }
 

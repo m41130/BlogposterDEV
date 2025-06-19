@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Fixed drag positions not updating visually; widgets now apply transform styles directly during mousemove.
 - Fixed false "Skipping missing widget file" warnings by correcting the
   public directory path in the plainSpace module.
 - Builder now skips widgets whose script files are missing so deleted widgets no longer appear in the builder.
