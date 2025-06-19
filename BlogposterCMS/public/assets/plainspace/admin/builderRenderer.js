@@ -338,6 +338,8 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
 
     const container = document.createElement('div');
     container.className = 'widget-container';
+    container.style.width = '100%';
+    container.style.height = '100%';
     // Prevent drag actions when interacting with form controls inside widgets.
     // Attach the handler on both the container and the grid item content so
     // events are intercepted before the grid logic runs.
