@@ -840,7 +840,7 @@ app.use(async (req, res, next) => {
   
 
   // check the flag
-  const isMaintenance = await new Promise((Y, N) =>
+  const isMaintenance = await new Promise((Y, N) => {
     motherEmitter.emit(
       'getSetting',
       {
@@ -849,9 +849,13 @@ app.use(async (req, res, next) => {
         moduleType: 'core',
         key: 'MAINTENANCE_MODE'
       },
-      (err, val) => err ? N(err) : Y(val === 'true')
-    )
-  ).catch(() => false);
+      (err, val) => {
+        if (err) return N(err);
+        const str = String(val).trim().toLowerCase();
+        Y(str === 'true' || str === '1');
+      }
+    );
+  }).catch(() => false);
 
   const maintenancePageId = await new Promise((Y, N) =>
     motherEmitter.emit(

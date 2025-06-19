@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Fixed maintenance mode check to accept numeric or boolean values, preventing
+  false redirects to the "Coming Soon" page.
 - Preview mode no longer limits widget scaling; removed max-width restriction on
   the content area.
 - Added basic public widgets (text, image, button, container, shape) as editable HTML blocks.
