@@ -12,12 +12,13 @@
   }
   
 .canvas-grid {
-  width: 100%;          
-  min-width: 600px;      
+  width: 100%;
+  min-width: 600px;
   min-height: 300px;
   position: relative;
   background: var(--color-bg);
-  overflow: hidden;
+  overflow: visible;
+  height: auto;
 }
 .canvas-item {
   position: absolute;
