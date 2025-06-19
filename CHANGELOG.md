@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Replaced all public widgets with a single HTML Block blueprint.
 - CanvasGrid now emits global events for mouse, touch, keyboard and window
   interactions, enabling centralized handling in the builder and dashboard.
 - Builder autosave is now debounced and only triggers when the layout changes.
