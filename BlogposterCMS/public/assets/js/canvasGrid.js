@@ -175,6 +175,7 @@ export class CanvasGrid {
       targetX = startGX * this.options.columnWidth + (e.clientX - startX);
       targetY = startGY * this.options.cellHeight + (e.clientY - startY);
       const snap = this._snap(targetX, targetY);
+      console.log(`Dragging auf X: ${snap.x}, Y: ${snap.y}`);
       el.style.transform =
         `translate3d(${snap.x * this.options.columnWidth}px, ${snap.y * this.options.cellHeight}px, 0)`;
       this._updateBBox();
@@ -184,6 +185,7 @@ export class CanvasGrid {
       document.removeEventListener('mousemove', move);
       document.removeEventListener('mouseup', up);
       const snap = this._snap(targetX, targetY);
+      console.log(`Finale Position gespeichert: translate3d(${snap.x * this.options.columnWidth}px, ${snap.y * this.options.cellHeight}px, 0)`);
       this.update(el, { x: snap.x, y: snap.y });
       this._emit('dragstop', el);
     };
