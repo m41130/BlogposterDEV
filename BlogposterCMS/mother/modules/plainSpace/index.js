@@ -2,6 +2,8 @@
 // This is our proud aggregator of meltdown madness.
 
 require('dotenv').config();
+const fs = require('fs');
+const path = require('path');
 
 const {
   seedAdminPages,
@@ -136,8 +138,20 @@ module.exports = {
             return callback(null, { widgets: [] }); // graceful degradation
           }
 
+          const basePublic = path.resolve(__dirname, '../../public');
+
+          // Filter out widgets whose JS files no longer exist
+          const filtered = widgetRows.filter(row => {
+            const fp = path.join(basePublic, row.content.replace(/^\/+/, ''));
+            if (!fs.existsSync(fp)) {
+              console.warn(`[plainSpace] Skipping missing widget file ${row.widgetId} => ${row.content}`);
+              return false;
+            }
+            return true;
+          });
+
           // Map DB widget rows into frontend-friendly format
-          const formattedWidgets = widgetRows.map(row => ({
+          const formattedWidgets = filtered.map(row => ({
             id: row.widgetId,           // ID from widgetManager
             lane,
             codeUrl: row.content,       // Path to widget JS file
