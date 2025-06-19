@@ -7,6 +7,8 @@ El Psy Kongroo
 - Replaced all public widgets with a single HTML Block blueprint.
 - CanvasGrid now emits global events for mouse, touch, keyboard and window
   interactions, enabling centralized handling in the builder and dashboard.
+- Global listener binding moved to a shared module so builder components
+  subscribe to the same event set.
 - Builder autosave is now debounced and only triggers when the layout changes.
   A 30 second fallback interval ensures progress is still saved without flooding
   the server.
