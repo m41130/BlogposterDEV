@@ -6,6 +6,7 @@ El Psy Kongroo
 ## [Unreleased]
 - Widget containers now enforce full width and height via inline styles to
   prevent theme overrides.
+- Added Text Box widget for basic input with a lorem ipsum placeholder.
 - Builder: validates HTML tags with a shared `allowedTags` list in the text editor.
 - Builder: `.canvas-item-content.builder-themed` now fills its parent so the bounding box matches widget dimensions.
 - Replaced all public widgets with a single HTML Block blueprint.
