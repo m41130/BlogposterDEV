@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Widget containers now enforce full width and height via inline styles to
+  prevent theme overrides.
 - Builder: validates HTML tags with a shared `allowedTags` list in the text editor.
 - Builder: `.canvas-item-content.builder-themed` now fills its parent so the bounding box matches widget dimensions.
 - Replaced all public widgets with a single HTML Block blueprint.
