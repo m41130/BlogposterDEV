@@ -120,6 +120,8 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   let saveTimer = null;
   let lastSavedLayoutStr = '';
   let pendingSave = false;
+  let proMode = true;
+  const userObservers = new Map();
   let gridEl;
   function handleHtmlUpdate(e) {
     const { instanceId, html } = e.detail || {};
@@ -167,6 +169,53 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   delBtn.innerHTML = window.featherIcon
     ? window.featherIcon('trash')
     : '<img src="/assets/icons/trash.svg" alt="delete" />';
+
+  function startUserMode(widget) {
+    const root = widget.querySelector('.canvas-item-content')?.shadowRoot;
+    const container = root?.querySelector('.widget-container');
+    if (!container) return;
+    container.setAttribute('contenteditable', 'true');
+    let obs = userObservers.get(widget);
+    if (obs) obs.disconnect();
+    obs = new MutationObserver(() => {
+      const htmlField = widget.__codeEditor?.querySelector('.editor-html');
+      if (htmlField) htmlField.value = container.innerHTML;
+    });
+    obs.observe(container, { childList: true, subtree: true, characterData: true });
+    container.addEventListener('input', () => {
+      const htmlField = widget.__codeEditor?.querySelector('.editor-html');
+      if (htmlField) htmlField.value = container.innerHTML;
+    });
+    userObservers.set(widget, obs);
+  }
+
+  function stopUserMode(widget) {
+    const root = widget.querySelector('.canvas-item-content')?.shadowRoot;
+    const container = root?.querySelector('.widget-container');
+    container?.removeAttribute('contenteditable');
+    const obs = userObservers.get(widget);
+    if (obs) obs.disconnect();
+    userObservers.delete(widget);
+  }
+
+  function applyProMode() {
+    document.body.classList.toggle('pro-mode', proMode);
+    document.querySelectorAll('.widget-edit').forEach(btn => {
+      btn.style.display = proMode ? '' : 'none';
+    });
+    document.querySelectorAll('.canvas-item').forEach(w => {
+      if (proMode) {
+        stopUserMode(w);
+      } else {
+        startUserMode(w);
+      }
+    });
+    if (!proMode) {
+      document.querySelectorAll('.widget-code-editor').forEach(ed => {
+        ed.style.display = 'none';
+      });
+    }
+  }
 
   function scheduleAutosave() {
     if (!autosaveEnabled || !pageId) return;
@@ -404,9 +453,12 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   function attachEditButton(el, widgetDef) {
     const btn = document.createElement('button');
     btn.className = 'widget-edit';
-    btn.innerHTML = window.featherIcon ? window.featherIcon('edit') : '<img src="/assets/icons/edit.svg" alt="edit" />';
+    // Use a gear icon to enter pro mode
+    btn.innerHTML = window.featherIcon ? window.featherIcon('settings') : '<img src="/assets/icons/settings.svg" alt="pro" />';
+    btn.style.display = proMode ? '' : 'none';
     btn.addEventListener('click', async e => {
       e.stopPropagation();
+      stopUserMode(el);
       let overlay = el.__codeEditor;
       let htmlEl, cssEl, jsEl;
       if (!overlay) {
@@ -570,6 +622,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
         overlay.style.display = 'none';
         renderWidget(el, widgetDef);
         if (pageId) scheduleAutosave();
+        if (!proMode) startUserMode(el);
 
       };
       overlay.querySelector('.reset-btn').onclick = () => {
@@ -585,6 +638,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       };
       overlay.querySelector('.cancel-btn').onclick = () => {
         overlay.style.display = 'none';
+        if (!proMode) startUserMode(el);
       };
     });
     el.appendChild(btn);
@@ -744,7 +798,9 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       gridEl.appendChild(wrapper);
       grid.makeWidget(wrapper);
       renderWidget(wrapper, widgetDef);
+      if (!proMode) startUserMode(wrapper);
     });
+    applyProMode();
   }
 
   function undo() {
@@ -1118,6 +1174,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     <button class="menu-undo"><img src="/assets/icons/rotate-ccw.svg" class="icon" alt="undo" /> Undo</button>
     <button class="menu-redo"><img src="/assets/icons/rotate-cw.svg" class="icon" alt="redo" /> Redo</button>
     <label class="menu-autosave"><input type="checkbox" class="autosave-toggle" checked /> Autosave</label>
+    <label class="menu-pro"><input type="checkbox" class="pro-toggle" checked /> Pro Mode</label>
   `;
   headerMenu.style.display = 'none';
   document.body.appendChild(headerMenu);
@@ -1151,6 +1208,12 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     autosaveEnabled = autosaveToggle.checked;
     startAutosave();
   });
+  const proToggle = headerMenu.querySelector('.pro-toggle');
+  proToggle.checked = proMode;
+  proToggle.addEventListener('change', () => {
+    proMode = proToggle.checked;
+    applyProMode();
+  });
 
   const appScope = document.querySelector('.app-scope');
   const mainContent = document.querySelector('.main-content');
@@ -1161,6 +1224,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   }
 
   startAutosave();
+  applyProMode();
 
   saveBtn.addEventListener('click', async () => {
     const name = nameInput.value.trim();
