@@ -156,7 +156,7 @@ module.exports.ADMIN_PAGES = [
         sidebar: 'settings-sidebar',
         inheritsLayout: true
       },
-      widgets: ['systemInfo']
+      widgets: ['systemInfo', 'systemSettings']
     }
   },
   {

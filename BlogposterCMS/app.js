@@ -853,12 +853,44 @@ app.use(async (req, res, next) => {
     )
   ).catch(() => false);
 
+  const maintenancePageId = await new Promise((Y, N) =>
+    motherEmitter.emit(
+      'getSetting',
+      {
+        jwt: dbManagerToken,
+        moduleName: 'settingsManager',
+        moduleType: 'core',
+        key: 'MAINTENANCE_PAGE_ID'
+      },
+      (err, val) => err ? N(err) : Y(val || null)
+    )
+  ).catch(() => null);
+
+  let maintenanceSlug = 'coming-soon';
+  if (maintenancePageId) {
+    try {
+      const page = await new Promise((resolve, reject) => {
+        motherEmitter.emit(
+          'getPageById',
+          {
+            jwt: dbManagerToken,
+            moduleName: 'pagesManager',
+            moduleType: 'core',
+            pageId: maintenancePageId
+          },
+          (err, p) => err ? reject(err) : resolve(p)
+        );
+      });
+      if (page?.slug) maintenanceSlug = page.slug;
+    } catch {}
+  }
+
   if (isMaintenance) {
-    // if we're not already on /coming-soon, rewrite there:
-    if (req.path !== '/coming-soon') {
-      return res.redirect('/coming-soon');
+    const targetPath = `/${maintenanceSlug}`;
+    if (req.path !== targetPath) {
+      return res.redirect(targetPath);
     }
-    // if path IS /coming-soon, let the normal dynamic page renderer handle it:
+    // if path IS the target, let the normal dynamic page renderer handle it:
   }
 
   next();

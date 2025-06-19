@@ -12,6 +12,13 @@ module.exports.DEFAULT_WIDGETS = [
     category: 'core'
   },
   {
+    widgetId: 'systemSettings',
+    widgetType: ADMIN_LANE,
+    label: 'System Settings',
+    content: '/assets/plainspace/admin/systemSettingsWidget.js',
+    category: 'core'
+  },
+  {
     widgetId: 'activityLog',
     widgetType: ADMIN_LANE,
     label: 'Activity Log',

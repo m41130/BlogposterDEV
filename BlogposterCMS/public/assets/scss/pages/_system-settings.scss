@@ -1,0 +1,24 @@
+.system-settings-card {
+  @extend .page-list-card;
+}
+
+.system-settings-title-bar {
+  @extend .page-title-bar;
+}
+
+.system-settings-title {
+  @extend .page-title;
+}
+
+.system-settings-card label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.system-settings-card input[type="text"],
+.system-settings-card textarea,
+.system-settings-card select {
+  width: 100%;
+  margin-bottom: 12px;
+}
