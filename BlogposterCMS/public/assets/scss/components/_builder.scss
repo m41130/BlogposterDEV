@@ -386,7 +386,7 @@ body.preview-tablet #content,
 body.preview-desktop #content {
   margin-left: auto;
   margin-right: auto;
-  max-width: var(--preview-width);
+  max-width: none;
 }
 
 .canvas-item[gs-locked="true"] > .ui-resizable-handle {

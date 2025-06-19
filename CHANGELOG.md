@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Preview mode no longer limits widget scaling; removed max-width restriction on
+  the content area.
 - Added basic public widgets (text, image, button, container, shape) as editable HTML blocks.
 - Widgets now move in real time during drag operations in the builder.
 - Canvas grid enforces boundaries so widgets stay within the grid area.
