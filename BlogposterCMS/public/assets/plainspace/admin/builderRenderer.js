@@ -673,8 +673,8 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       id: el.dataset.instanceId,
       widgetId: el.dataset.widgetId,
       global: el.dataset.global === 'true',
-      x: +el.getAttribute('gs-x'),
-      y: +el.getAttribute('gs-y'),
+      x: +el.dataset.x || 0,
+      y: +el.dataset.y || 0,
       w: +el.getAttribute('gs-w'),
       h: +el.getAttribute('gs-h'),
       code: codeMap[el.dataset.instanceId] || null
@@ -711,8 +711,8 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       wrapper.dataset.widgetId = widgetDef.id;
       wrapper.dataset.instanceId = instId;
       wrapper.dataset.global = isGlobal ? 'true' : 'false';
-      wrapper.setAttribute('gs-x', item.x ?? 0);
-      wrapper.setAttribute('gs-y', item.y ?? 0);
+      wrapper.dataset.x = item.x ?? 0;
+      wrapper.dataset.y = item.y ?? 0;
       wrapper.setAttribute('gs-w', item.w ?? 8);
       wrapper.setAttribute('gs-h', item.h ?? DEFAULT_ROWS);
       wrapper.setAttribute('gs-min-w', 4);
@@ -917,8 +917,8 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     };
     menu.querySelector('.menu-snap').onclick = () => {
       grid.update(el, {
-        x: Math.round(+el.getAttribute('gs-x')),
-        y: Math.round(+el.getAttribute('gs-y')),
+        x: Math.round(+el.dataset.x || 0),
+        y: Math.round(+el.dataset.y || 0),
         w: Math.round(+el.getAttribute('gs-w')),
         h: Math.round(+el.getAttribute('gs-h'))
       });
@@ -986,8 +986,8 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     wrapper.dataset.widgetId = widgetDef.id;
     wrapper.dataset.instanceId = instId;
     wrapper.dataset.global = 'false';
-    wrapper.setAttribute('gs-x', x);
-    wrapper.setAttribute('gs-y', y);
+    wrapper.dataset.x = x;
+    wrapper.dataset.y = y;
     wrapper.setAttribute('gs-w', w);
     wrapper.setAttribute('gs-h', h);
     wrapper.setAttribute('gs-min-w', 4);
