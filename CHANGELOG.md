@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Saving a layout template for multiple pages now sends a single batched
+  request, preventing rate limit errors during bulk updates.
 - Fixed drag positions not updating visually; widgets now apply transform styles directly during mousemove.
 - Fixed false "Skipping missing widget file" warnings by correcting the
   public directory path in the plainSpace module.

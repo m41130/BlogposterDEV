@@ -1160,8 +1160,10 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
         // Keep IDs as strings so MongoDB ObjectIds are preserved. Postgres
         // automatically casts numeric strings to integers.
         : Array.from(pageSelect?.selectedOptions || []).map(o => o.value);
-      for (const id of targetIds) {
-        await meltdownEmit('saveLayoutForViewport', {
+
+      const events = targetIds.map(id => ({
+        eventName: 'saveLayoutForViewport',
+        payload: {
           jwt: window.ADMIN_TOKEN,
           moduleName: 'plainspace',
           moduleType: 'core',
@@ -1169,8 +1171,10 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
           lane: 'public',
           viewport: 'desktop',
           layout
-        });
-      }
+        }
+      }));
+
+      await meltdownEmitBatch(events);
 
       alert('Layout template saved');
     } catch (err) {
