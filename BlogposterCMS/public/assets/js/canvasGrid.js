@@ -101,6 +101,7 @@ export class CanvasGrid {
     if (opts.noMove != null) el.setAttribute('gs-no-move', opts.noMove);
     if (opts.noResize != null) el.setAttribute('gs-no-resize', opts.noResize);
     this._applyPosition(el);
+    if (el === this.activeEl) this._updateBBox();
     this._emit('change', el);
   }
 
@@ -223,7 +224,7 @@ export class CanvasGrid {
     if (hide) return;
     const rect = this.activeEl.getBoundingClientRect();
     const gridRect = this.el.getBoundingClientRect();
-    const transform = getComputedStyle(this.activeEl).transform;
+    const transform = this.activeEl.style.transform;
     this.bbox.style.top = `${gridRect.top + window.scrollY}px`;
     this.bbox.style.left = `${gridRect.left + window.scrollX}px`;
     this.bbox.style.transform = transform;
