@@ -38,6 +38,9 @@ El Psy Kongroo
   with a basic security scan during startup.
 - Documented how to safely load community widgets in a dedicated folder.
 - Pickr styles moved to /assets/css/vendor/pickr.css and loaded separately on admin pages.
+- Added System Settings widget with options for site title, description,
+  maintenance mode toggle and maintenance page selection.
+- Maintenance middleware now reads `MAINTENANCE_PAGE_ID` to redirect to a custom page.
 - Custom color selection now uses the Pickr widget instead of the browser color input.
 - Dragging widgets no longer shows a ghost box at their old location in the builder.
 - Text color button now displays an underlined 'A' icon reflecting the selected color and opens the palette below the toolbar.
