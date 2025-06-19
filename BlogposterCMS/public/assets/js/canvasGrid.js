@@ -26,6 +26,7 @@ export class CanvasGrid {
     this._emitter = new EventTarget();
     this._createBBox();
     bindGlobalListeners(this.el, (evt, e) => this._emit(evt, e));
+    this._updateGridHeight();
   }
 
   on(evt, cb) {
@@ -34,6 +35,18 @@ export class CanvasGrid {
 
   _emit(evt, detail) {
     this._emitter.dispatchEvent(new CustomEvent(evt, { detail }));
+  }
+
+  _updateGridHeight() {
+    const { cellHeight } = this.options;
+    const rows = this.widgets.reduce((m, w) => {
+      const y = +w.dataset.y || 0;
+      const h = +w.getAttribute('gs-h') || 1;
+      return Math.max(m, y + h);
+    }, 0);
+    const min = parseFloat(getComputedStyle(this.el).minHeight) || 0;
+    const height = Math.max(rows * cellHeight, min);
+    this.el.style.height = `${height}px`;
   }
 
   _applyPosition(el) {
@@ -79,6 +92,7 @@ export class CanvasGrid {
     this._enableDrag(el);
     this.widgets.push(el);
     if (this.pushOnOverlap) this._resolveCollisions(el);
+    this._updateGridHeight();
     this._emit('change', el);
   }
 
@@ -97,6 +111,7 @@ export class CanvasGrid {
   removeWidget(el) {
     if (el.parentNode === this.el) {
       el.remove();
+      this._updateGridHeight();
       this._emit('change', el);
     }
   }
@@ -113,6 +128,7 @@ export class CanvasGrid {
     this._applyPosition(el);
     if (this.pushOnOverlap) this._resolveCollisions(el);
     if (el === this.activeEl) this._updateBBox();
+    this._updateGridHeight();
     this._emit('change', el);
   }
 
