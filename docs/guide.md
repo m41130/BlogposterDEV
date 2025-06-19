@@ -34,7 +34,9 @@ Layouts and widgets are edited via drag and drop in the admin dashboard. The wid
 
 Widgets can provide layout hints when seeded. Administrators may specify width
 and height options such as `halfWidth`, `maxHeight` or `overflow` so the initial
-layout matches the desired size.
+layout matches the desired size. All built-in admin widgets ship with sensible
+defaults for their width and height so a freshly seeded dashboard is usable
+immediately.
 
 Widgets are arranged with a lightweight drag-and-drop grid. The sequence below demonstrates arranging widgets from an empty grid to a customized dashboard.
 

@@ -10,6 +10,7 @@ El Psy Kongroo
   prevent theme overrides.
 - New `seedAdminWidget` helper saves width and height options when seeding
   admin lane widgets.
+- Default admin widgets now define layout hints for their initial size.
 - Added Text Box widget for basic input with a lorem ipsum placeholder.
 - Builder: validates HTML tags with a shared `allowedTags` list in the text editor.
 - Builder: `.canvas-item-content.builder-themed` now fills its parent so the bounding box matches widget dimensions.
