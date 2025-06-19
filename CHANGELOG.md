@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Fixed bounding box position mismatch during widget dragging by copying the
+  widget's transform when updating the selection frame.
 - Saving a layout template for multiple pages now sends a single batched
   request, preventing rate limit errors during bulk updates.
 - Removed legacy grid positioning attributes (gs-x, gs-y); widget moves now

@@ -222,8 +222,11 @@ export class CanvasGrid {
     this.bbox.classList.toggle('disabled', hide);
     if (hide) return;
     const rect = this.activeEl.getBoundingClientRect();
-    this.bbox.style.top = `${rect.top + window.scrollY}px`;
-    this.bbox.style.left = `${rect.left + window.scrollX}px`;
+    const gridRect = this.el.getBoundingClientRect();
+    const transform = getComputedStyle(this.activeEl).transform;
+    this.bbox.style.top = `${gridRect.top + window.scrollY}px`;
+    this.bbox.style.left = `${gridRect.left + window.scrollX}px`;
+    this.bbox.style.transform = transform;
     this.bbox.style.width = `${rect.width}px`;
     this.bbox.style.height = `${rect.height}px`;
     this.bbox.style.display = 'block';
