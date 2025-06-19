@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Removed hardcoded column limit from CanvasGrid so widgets can be dragged across the full width in builder and dashboard.
 - Fixed bounding box position mismatch during widget dragging by copying the
   widget's transform when updating the selection frame.
 - Selection frame now refreshes after a widget is updated so the bounding box
