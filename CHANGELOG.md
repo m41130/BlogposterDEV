@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Fixed drag positions not updating visually; widgets now apply transform styles directly during mousemove.
 - Builder now skips widgets whose script files are missing so deleted widgets no longer appear in the builder.
 - Removed legacy "textBlockWidget" entry; existing pages should use the new text widget.
 - Fixed maintenance mode check to accept numeric or boolean values, preventing
