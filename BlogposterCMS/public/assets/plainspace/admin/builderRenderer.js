@@ -36,7 +36,12 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     pageSettingsWidget: 'settings',
     seoImageWidget: 'image',
     savePageWidget: 'save',
-    contentSummary: 'activity'
+    contentSummary: 'activity',
+    textBlock: 'type',
+    imageBlock: 'image',
+    buttonBlock: 'square',
+    containerBlock: 'box',
+    shapeBlock: 'circle'
   };
 
   let previewHeader;
