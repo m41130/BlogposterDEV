@@ -122,5 +122,40 @@ module.exports.DEFAULT_WIDGETS = [
     label: 'Widget List',
     content: '/assets/plainspace/admin/widgetListWidget.js',
     category: 'core'
+  },
+  {
+    widgetId: 'textBlock',
+    widgetType: PUBLIC_LANE,
+    label: 'Text Block',
+    content: '/assets/plainspace/public/basicwidgets/textWidget.js',
+    category: 'basic'
+  },
+  {
+    widgetId: 'imageBlock',
+    widgetType: PUBLIC_LANE,
+    label: 'Image Block',
+    content: '/assets/plainspace/public/basicwidgets/imageWidget.js',
+    category: 'basic'
+  },
+  {
+    widgetId: 'buttonBlock',
+    widgetType: PUBLIC_LANE,
+    label: 'Button Block',
+    content: '/assets/plainspace/public/basicwidgets/buttonWidget.js',
+    category: 'basic'
+  },
+  {
+    widgetId: 'containerBlock',
+    widgetType: PUBLIC_LANE,
+    label: 'Container Block',
+    content: '/assets/plainspace/public/basicwidgets/containerWidget.js',
+    category: 'basic'
+  },
+  {
+    widgetId: 'shapeBlock',
+    widgetType: PUBLIC_LANE,
+    label: 'Shape Block',
+    content: '/assets/plainspace/public/basicwidgets/shapeWidget.js',
+    category: 'basic'
   }
 ];
