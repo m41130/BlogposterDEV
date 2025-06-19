@@ -1,6 +1,7 @@
 // public/assets/js/globalTextEditor.js
 // Lightweight global text editor for builder mode.
 import { createColorPicker } from './colorPicker.js';
+import { isValidTag } from './allowedTags.js';
 
 let toolbar = null;
 let activeEl = null;
@@ -29,8 +30,7 @@ function isEditableElement(el) {
   if (ignore.includes(el.tagName)) return false;
   if (!el.textContent.trim()) return false;
   const tag = el.tagName.toLowerCase();
-  const allowed = ['p', 'span', 'label', 'div', 'li', 'figcaption', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
-  if (allowed.includes(tag)) return true;
+  if (isValidTag(tag)) return true;
   if (el.dataset.textEditable !== undefined) return true;
   return el.children.length === 0;
 }
@@ -436,6 +436,10 @@ export async function editElement(el, onSave) {
       headingSelect.value = tag;
       headingSelect.onchange = () => {
         const newTag = headingSelect.value.toLowerCase();
+        if (!isValidTag(newTag)) {
+          console.error(`[TextEditor] Invalid tag "${newTag}"`);
+          return;
+        }
         if (newTag !== el.tagName.toLowerCase()) {
           const newEl = document.createElement(newTag);
           newEl.innerHTML = el.innerHTML;
