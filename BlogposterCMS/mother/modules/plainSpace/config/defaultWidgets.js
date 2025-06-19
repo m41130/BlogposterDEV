@@ -136,5 +136,12 @@ module.exports.DEFAULT_WIDGETS = [
     label: "HTML Block",
     content: "/assets/plainspace/public/basicwidgets/htmlWidget.js",
     category: "basic"
+  },
+  {
+    widgetId: "textBox",
+    widgetType: PUBLIC_LANE,
+    label: "Text Box",
+    content: "/assets/plainspace/public/basicwidgets/textBoxWidget.js",
+    category: "basic"
   }
 ];
