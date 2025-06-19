@@ -1,29 +1,5 @@
-.text-widget,
-.image-widget,
-.button-widget,
-.container-widget,
-.shape-widget {
+// components/_basic-widgets.scss
+.html-widget {
   width: 100%;
   height: 100%;
-}
-
-.image-widget {
-  display: block;
-  max-width: 100%;
-}
-
-.button-widget {
-  padding: 8px 16px;
-  background: var(--color-primary);
-  color: var(--color-white);
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.shape-widget {
-  width: 50px;
-  height: 50px;
-  background: var(--color-primary-light);
-  border-radius: 50%;
 }

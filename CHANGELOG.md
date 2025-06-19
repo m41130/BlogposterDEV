@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Replaced all default public widgets with a single HTML Block widget for custom markup.
 - Removed hardcoded column limit from CanvasGrid so widgets can be dragged across the full width in builder and dashboard.
 - Fixed bounding box position mismatch during widget dragging by copying the
   widget's transform when updating the selection frame.
