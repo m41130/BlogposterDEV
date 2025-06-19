@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Replaced all public widgets with a single HTML Block blueprint.
 - Builder autosave is now debounced and only triggers when the layout changes.
   A 30 second fallback interval ensures progress is still saved without flooding
   the server.
