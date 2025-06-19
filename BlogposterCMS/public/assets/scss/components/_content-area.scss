@@ -31,13 +31,6 @@
   will-change: transform;
 }
 
-.drag-ghost {
-  position: absolute;
-  pointer-events: none;
-  opacity: 0.7;
-  will-change: transform;
-}
-
 // Highlight widgets while the admin layout is editable
 body.dashboard-edit-mode .canvas-item {
   border: 2px dashed var(--user-color);
