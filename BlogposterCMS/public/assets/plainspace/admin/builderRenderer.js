@@ -24,12 +24,11 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   // Temporary patch: larger default widget height
   const DEFAULT_ROWS = 20; // around 100px with 5px grid cells
   const ICON_MAP = {
-    counter: 'activity',
-    heroBanner: 'image',
-    textBlock: 'align-left',
+    textWidget: 'align-left',
     imageWidget: 'image',
-    headingWidget: 'type',
     buttonWidget: 'mouse-pointer',
+    containerWidget: 'box',
+    shapeWidget: 'square',
     systemInfo: 'info',
     activityLog: 'list',
     pageInfoEditor: 'file-text',
@@ -135,7 +134,6 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       if (htmlField) htmlField.value = html;
     }
   }
-  document.addEventListener('textBlockHtmlUpdate', handleHtmlUpdate);
   document.addEventListener('widgetHtmlUpdate', handleHtmlUpdate);
   let activeWidgetEl = null;
   const actionBar = document.createElement('div');

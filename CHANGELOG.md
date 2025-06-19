@@ -13,6 +13,8 @@ El Psy Kongroo
 - Widget HTML edits from the toolbar now sync to the code editor, keeping custom code up to date.
 - Fonts now load from the fonts manager so custom providers can add new fonts.
 - Added font selection dropdown to the builder text editor toolbar.
+- Replaced default widgets with simple editable HTML blocks and added container
+  and shape widgets.
 - Font size and text color changes now wrap text in spans so styles persist when saving.
 - Preset color swatches are now rendered as buttons and layout uses six columns.
 - Form inputs inside widgets now auto-lock their parent on focus and

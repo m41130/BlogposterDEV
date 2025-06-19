@@ -5,11 +5,11 @@ export async function render(el) {
 
   const ICON_MAP = {
     counter: 'activity',
-    heroBanner: 'image',
-    textBlock: 'align-left',
+    textWidget: 'align-left',
     imageWidget: 'image',
-    headingWidget: 'type',
     buttonWidget: 'mouse-pointer',
+    containerWidget: 'box',
+    shapeWidget: 'square',
     systemInfo: 'info',
     activityLog: 'list',
     pageInfoEditor: 'file-text',
