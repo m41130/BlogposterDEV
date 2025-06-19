@@ -17,6 +17,7 @@ export class CanvasGrid {
     this.activeEl = null;
     this._emitter = new EventTarget();
     this._createBBox();
+    this._bindGlobalListeners();
   }
 
   on(evt, cb) {
@@ -241,6 +242,30 @@ export class CanvasGrid {
   clearSelection() {
     this.activeEl = null;
     this.bbox.style.display = 'none';
+  }
+
+  _bindGlobalListeners() {
+    const rafEvents = new Set(['mousemove','touchmove','scroll','dragover','wheel']);
+    const rootEvents = [
+      'mousedown','mousemove','mouseup','mouseleave','click','dblclick','contextmenu',
+      'touchstart','touchmove','touchend','dragstart','dragend','dragover','drop','blur','focus'
+    ];
+    const winEvents = ['keydown','keyup','resize','scroll','wheel'];
+    const emit = (evt, e) => this._emit(evt, e);
+    const add = (target, evt) => {
+      let frame;
+      const handler = e => {
+        if (rafEvents.has(evt)) {
+          if (frame) return;
+          frame = requestAnimationFrame(() => { frame = null; emit(evt, e); });
+        } else {
+          emit(evt, e);
+        }
+      };
+      target.addEventListener(evt, handler);
+    };
+    rootEvents.forEach(evt => add(this.el, evt));
+    winEvents.forEach(evt => add(window, evt));
   }
 
   setStatic(flag = true) {
