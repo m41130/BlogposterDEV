@@ -395,7 +395,7 @@ function ensureLayout(layout = {}, lane = 'public') {
       gridEl.className = 'canvas-grid';
       contentEl.appendChild(gridEl);
       // Static mode: public pages should not be directly editable
-      const grid = initCanvasGrid({ staticGrid: true, float: true, cellHeight: 5, columnWidth: 5, column: 64 }, gridEl);
+      const grid = initCanvasGrid({ staticGrid: true, float: true, cellHeight: 5, columnWidth: 5 }, gridEl);
 
       items.forEach(item => {
         const def = allWidgets.find(w => w.id === item.widgetId);
@@ -448,7 +448,7 @@ function ensureLayout(layout = {}, lane = 'public') {
     gridEl.id = 'adminGrid';
     gridEl.className = 'canvas-grid';
     contentEl.appendChild(gridEl);
-    const grid = initCanvasGrid({ cellHeight: 5, columnWidth: 5, column: 64 }, gridEl);
+    const grid = initCanvasGrid({ cellHeight: 5, columnWidth: 5 }, gridEl);
     grid.setStatic(true);
     grid.on('change', () => {});
     window.adminGrid = grid;

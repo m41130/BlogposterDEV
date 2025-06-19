@@ -604,7 +604,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   gridEl = document.getElementById('builderGrid');
   await applyBuilderTheme();
   // Enable floating mode for easier widget placement in the builder
-  const grid = initCanvasGrid({ float: true, cellHeight: 5, columnWidth: 5, column: 64 }, gridEl);
+  const grid = initCanvasGrid({ float: true, cellHeight: 5, columnWidth: 5 }, gridEl);
   grid.on("dragstart", () => {
     actionBar.style.display = "none";
   });
