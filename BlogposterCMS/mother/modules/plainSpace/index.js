@@ -138,7 +138,8 @@ module.exports = {
             return callback(null, { widgets: [] }); // graceful degradation
           }
 
-          const basePublic = path.resolve(__dirname, '../../public');
+          // Resolve to CMS public directory (three levels up)
+          const basePublic = path.resolve(__dirname, '../../../public');
 
           // Filter out widgets whose JS files no longer exist
           const filtered = widgetRows.filter(row => {
