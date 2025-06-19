@@ -5,10 +5,17 @@ import { bindGlobalListeners } from './globalEvents.js';
 export class CanvasGrid {
   constructor(options = {}, el) {
     this.options = Object.assign(
-      { cellHeight: 5, columnWidth: 5, columns: Infinity, rows: Infinity },
+      {
+        cellHeight: 5,
+        columnWidth: 5,
+        columns: Infinity,
+        rows: Infinity,
+        pushOnOverlap: false
+      },
       options
     );
     this.staticGrid = Boolean(this.options.staticGrid);
+    this.pushOnOverlap = Boolean(this.options.pushOnOverlap);
     if (Number.isFinite(this.options.column)) {
       this.options.columns = this.options.column;
     }
@@ -71,6 +78,7 @@ export class CanvasGrid {
     this._applyPosition(el);
     this._enableDrag(el);
     this.widgets.push(el);
+    if (this.pushOnOverlap) this._resolveCollisions(el);
     this._emit('change', el);
   }
 
@@ -103,6 +111,7 @@ export class CanvasGrid {
     if (opts.noMove != null) el.setAttribute('gs-no-move', opts.noMove);
     if (opts.noResize != null) el.setAttribute('gs-no-resize', opts.noResize);
     this._applyPosition(el);
+    if (this.pushOnOverlap) this._resolveCollisions(el);
     if (el === this.activeEl) this._updateBBox();
     this._emit('change', el);
   }
@@ -214,6 +223,46 @@ export class CanvasGrid {
     const gx = Math.round(x / this.options.columnWidth);
     const gy = Math.round(y / this.options.cellHeight);
     return { x: gx, y: gy };
+  }
+
+  _getRect(el) {
+    return {
+      x: +el.dataset.x || 0,
+      y: +el.dataset.y || 0,
+      w: +el.getAttribute('gs-w') || 1,
+      h: +el.getAttribute('gs-h') || 1
+    };
+  }
+
+  _collides(a, b) {
+    return !(
+      b.x >= a.x + a.w ||
+      b.x + b.w <= a.x ||
+      b.y >= a.y + a.h ||
+      b.y + b.h <= a.y
+    );
+  }
+
+  _pushWidget(widget, moved = new Set()) {
+    if (moved.has(widget)) return;
+    moved.add(widget);
+    const rect = this._getRect(widget);
+    this.widgets.forEach(other => {
+      if (other === widget) return;
+      const oRect = this._getRect(other);
+      if (this._collides(rect, oRect)) {
+        const newY = rect.y + rect.h;
+        if (oRect.y < newY) {
+          other.dataset.y = newY;
+          this._applyPosition(other);
+          this._pushWidget(other, moved);
+        }
+      }
+    });
+  }
+
+  _resolveCollisions(el) {
+    this._pushWidget(el);
   }
 
   _updateBBox() {

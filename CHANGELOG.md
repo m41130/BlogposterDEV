@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- CanvasGrid gained an optional push mode so builder widgets can't overlap.
 - Widget containers now enforce full width and height via inline styles to
   prevent theme overrides.
 - Added Text Box widget for basic input with a lorem ipsum placeholder.
