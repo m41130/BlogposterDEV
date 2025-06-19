@@ -619,8 +619,8 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   contentEl.innerHTML = `<div id="builderGrid" class="canvas-grid builder-grid"></div>`;
   gridEl = document.getElementById('builderGrid');
   await applyBuilderTheme();
-  // Enable floating mode for easier widget placement in the builder
-  const grid = initCanvasGrid({ float: true, cellHeight: 5, columnWidth: 5 }, gridEl);
+  // Enable push mode so widgets cannot overlap in the builder
+  const grid = initCanvasGrid({ cellHeight: 5, columnWidth: 5, pushOnOverlap: true }, gridEl);
   grid.on("dragstart", () => {
     actionBar.style.display = "none";
   });
