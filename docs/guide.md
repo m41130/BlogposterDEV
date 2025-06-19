@@ -32,6 +32,12 @@ Widgets are small blocks of functionality (text blocks, images, counters, etc.) 
 
 Layouts and widgets are edited via drag and drop in the admin dashboard. The widget manager ensures only users with the appropriate permissions can create or modify widgets.
 
+Widgets can provide layout hints when seeded. Administrators may specify width
+and height options such as `halfWidth`, `maxHeight` or `overflow` so the initial
+layout matches the desired size. All built-in admin widgets ship with sensible
+defaults for their width and height so a freshly seeded dashboard is usable
+immediately.
+
 Widgets are arranged with a lightweight drag-and-drop grid. The sequence below demonstrates arranging widgets from an empty grid to a customized dashboard.
 
 ![Initial grid view](screenshots/Arrange%20Your%20Dashboard%20Freely.png)
