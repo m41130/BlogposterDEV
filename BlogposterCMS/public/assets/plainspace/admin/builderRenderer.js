@@ -511,7 +511,13 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
           codeData.sourceJs = '';
         }
       }
-      htmlEl.value = codeData.html || '';
+      if (codeData.html) {
+        htmlEl.value = codeData.html;
+      } else {
+        const root = el.querySelector('.canvas-item-content')?.shadowRoot;
+        const container = root?.querySelector('.widget-container');
+        htmlEl.value = container ? container.innerHTML.trim() : '';
+      }
       overlay.querySelector('.editor-css').value = codeData.css || '';
       jsEl.value = codeData.js || '';
       overlay.defaultJs = codeData.sourceJs || '';
