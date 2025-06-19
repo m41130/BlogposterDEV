@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Added debug console output for widget drag events to track coordinates and final positions.
 - Saving a layout template for multiple pages now sends a single batched
   request, preventing rate limit errors during bulk updates.
 - Fixed drag positions not updating visually; widgets now apply transform styles directly during mousemove.
