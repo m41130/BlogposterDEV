@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Builder: validates HTML tags with a shared `allowedTags` list in the text editor.
 - Builder: `.canvas-item-content.builder-themed` now fills its parent so the bounding box matches widget dimensions.
 - Replaced all public widgets with a single HTML Block blueprint.
 - CanvasGrid now emits global events for mouse, touch, keyboard and window
