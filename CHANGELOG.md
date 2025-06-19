@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Widgets now move in real time during drag operations in the builder.
 - Canvas grid enforces boundaries so widgets stay within the grid area.
 - Removed GridStack dependency in favor of a custom drag-and-drop canvas grid.
 - CanvasGrid drag now uses GPU-accelerated transforms with a ghost element for smoother 60fps movement.

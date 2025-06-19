@@ -169,13 +169,14 @@ export class CanvasGrid {
   }
 
   _enableDrag(el) {
-    let startX, startY, startGX, startGY, ghost, dragging = false;
+    let startX, startY, startGX, startGY, dragging = false;
     let targetX = 0, targetY = 0;
     const frame = () => {
       if (!dragging) return;
       const snap = this._snap(targetX, targetY);
-      ghost.style.transform =
+      el.style.transform =
         `translate3d(${snap.x * this.options.columnWidth}px, ${snap.y * this.options.cellHeight}px, 0)`;
+      this._updateBBox();
       requestAnimationFrame(frame);
     };
     const move = e => {
@@ -186,10 +187,9 @@ export class CanvasGrid {
       dragging = false;
       document.removeEventListener('mousemove', move);
       document.removeEventListener('mouseup', up);
-      ghost.remove();
       const snap = this._snap(targetX, targetY);
       this.update(el, { x: snap.x, y: snap.y });
-      el.style.visibility = '';
+      el.style.transform = '';
       this._emit('dragstop', el);
     };
     el.addEventListener('mousedown', e => {
@@ -202,13 +202,6 @@ export class CanvasGrid {
       startGY = +el.getAttribute('gs-y');
       targetX = startGX * this.options.columnWidth;
       targetY = startGY * this.options.cellHeight;
-      ghost = el.cloneNode(true);
-      ghost.classList.add('drag-ghost');
-      this.el.appendChild(ghost);
-      ghost.style.width = el.style.width;
-      ghost.style.height = el.style.height;
-      ghost.style.transform = el.style.transform;
-      el.style.visibility = 'hidden';
       dragging = true;
       this._emit('dragstart', el);
       document.addEventListener('mousemove', move);
