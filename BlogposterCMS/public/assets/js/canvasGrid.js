@@ -7,6 +7,7 @@ export class CanvasGrid {
       { cellHeight: 5, columnWidth: 5, columns: Infinity, rows: Infinity },
       options
     );
+    this.staticGrid = Boolean(this.options.staticGrid);
     if (Number.isFinite(this.options.column)) {
       this.options.columns = this.options.column;
     }
@@ -149,7 +150,7 @@ export class CanvasGrid {
     };
     Object.values(this.handles).forEach(h => {
       h.addEventListener('mousedown', e => {
-        if (!this.activeEl) return;
+        if (!this.activeEl || this.staticGrid) return;
         if (this.activeEl.getAttribute('gs-locked') === 'true' ||
             this.activeEl.getAttribute('gs-no-resize') === 'true') {
           return;
@@ -194,6 +195,7 @@ export class CanvasGrid {
     };
     el.addEventListener('mousedown', e => {
       if (e.target.closest('.bbox-handle')) return;
+      if (this.staticGrid) return;
       if (el.getAttribute('gs-locked') === 'true' || el.getAttribute('gs-no-move') === 'true') return;
       e.preventDefault();
       this.select(el);
@@ -224,7 +226,7 @@ export class CanvasGrid {
   }
 
   _updateBBox() {
-    if (!this.activeEl) return;
+    if (!this.activeEl || this.staticGrid) return;
     const locked = this.activeEl.getAttribute('gs-locked') === 'true';
     const noResize = this.activeEl.getAttribute('gs-no-resize') === 'true';
     const noMove = this.activeEl.getAttribute('gs-no-move') === 'true';
@@ -247,6 +249,17 @@ export class CanvasGrid {
   clearSelection() {
     this.activeEl = null;
     this.bbox.style.display = 'none';
+  }
+
+  setStatic(flag = true) {
+    this.staticGrid = Boolean(flag);
+    if (this.staticGrid) this.clearSelection();
+    this.el.classList.toggle('static-grid', this.staticGrid);
+    this._emit('staticchange', this.staticGrid);
+  }
+
+  removeAll() {
+    this.widgets.slice().forEach(w => this.removeWidget(w));
   }
 }
 

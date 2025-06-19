@@ -23,6 +23,13 @@ export function initContentHeader() {
   if (!editToggle) return;
 
   let editing = false;
+  if (window.adminGrid && typeof window.adminGrid.on === 'function') {
+    window.adminGrid.on('staticchange', isStatic => {
+      editing = !isStatic;
+      document.body.classList.toggle('dashboard-edit-mode', editing);
+      editToggle.src = editing ? '/assets/icons/check.svg' : '/assets/icons/edit.svg';
+    });
+  }
   editToggle.addEventListener('click', async () => {
     const grid = window.adminGrid;
     if (!grid || typeof grid.setStatic !== 'function') return;

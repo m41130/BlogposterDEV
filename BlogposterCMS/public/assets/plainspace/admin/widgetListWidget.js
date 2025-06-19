@@ -4,12 +4,6 @@ export async function render(el) {
   const jwt = window.ADMIN_TOKEN;
 
   const ICON_MAP = {
-    counter: 'activity',
-    heroBanner: 'image',
-    textBlock: 'align-left',
-    imageWidget: 'image',
-    headingWidget: 'type',
-    buttonWidget: 'mouse-pointer',
     systemInfo: 'info',
     activityLog: 'list',
     pageInfoEditor: 'file-text',

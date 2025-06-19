@@ -5,48 +5,6 @@ const { PUBLIC_LANE, ADMIN_LANE } = require('../plainSpaceService');
 
 module.exports.DEFAULT_WIDGETS = [
   {
-    widgetId: 'counter',
-    widgetType: PUBLIC_LANE,
-    label: 'Counter',
-    content: '/assets/plainspace/public/counterWidget.js',
-    category: 'demo'
-  },
-  {
-    widgetId: 'heroBanner',
-    widgetType: PUBLIC_LANE,
-    label: 'Hero Banner',
-    content: '/assets/plainspace/public/heroBannerWidget.js',
-    category: 'marketing'
-  },
-  {
-    widgetId: 'textBlock',
-    widgetType: PUBLIC_LANE,
-    label: 'Text Block',
-    content: '/assets/plainspace/public/textBlockWidget.js',
-    category: 'basic'
-  },
-  {
-    widgetId: 'imageWidget',
-    widgetType: PUBLIC_LANE,
-    label: 'Image',
-    content: '/assets/plainspace/public/imageWidget.js',
-    category: 'basic'
-  },
-  {
-    widgetId: 'headingWidget',
-    widgetType: PUBLIC_LANE,
-    label: 'Heading',
-    content: '/assets/plainspace/public/headingWidget.js',
-    category: 'basic'
-  },
-  {
-    widgetId: 'buttonWidget',
-    widgetType: PUBLIC_LANE,
-    label: 'Button',
-    content: '/assets/plainspace/public/buttonWidget.js',
-    category: 'interactive'
-  },
-  {
     widgetId: 'systemInfo',
     widgetType: ADMIN_LANE,
     label: 'System Info',

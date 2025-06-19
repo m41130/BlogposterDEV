@@ -449,6 +449,7 @@ function ensureLayout(layout = {}, lane = 'public') {
     gridEl.className = 'canvas-grid';
     contentEl.appendChild(gridEl);
     const grid = initCanvasGrid({ cellHeight: 5, columnWidth: 5, column: 64 }, gridEl);
+    grid.setStatic(true);
     grid.on('change', () => {});
     window.adminGrid = grid;
     window.adminPageContext = { pageId: page.id, lane };
