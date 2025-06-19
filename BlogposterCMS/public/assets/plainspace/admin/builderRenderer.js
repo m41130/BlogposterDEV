@@ -120,7 +120,10 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   const redoStack = [];
   const MAX_HISTORY = 20;
   let autosaveEnabled = true;
-  let autosaveTimer = null;
+  let autosaveInterval = null;
+  let saveTimer = null;
+  let lastSavedLayoutStr = '';
+  let pendingSave = false;
   let gridEl;
   function handleHtmlUpdate(e) {
     const { instanceId, html } = e.detail || {};
@@ -169,6 +172,15 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     ? window.featherIcon('trash')
     : '<img src="/assets/icons/trash.svg" alt="delete" />';
 
+  function scheduleAutosave() {
+    if (!autosaveEnabled || !pageId) return;
+    pendingSave = true;
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      saveCurrentLayout({ autosave: true });
+    }, 1000);
+  }
+
   function selectWidget(el) {
     if (!el) return;
     if (activeWidgetEl) activeWidgetEl.classList.remove('selected');
@@ -192,7 +204,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     activeWidgetEl.setAttribute('gs-locked', (!locked).toString());
     grid.update(activeWidgetEl, { locked: !locked, noMove: !locked, noResize: !locked });
     setLockIcon(!locked);
-    if (pageId) saveCurrentLayout();
+    if (pageId) scheduleAutosave();
   });
 
   dupBtn.addEventListener('click', e => {
@@ -209,7 +221,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     attachOptionsMenu(clone, widgetDef, cEditBtn);
     attachLockOnClick(clone);
     renderWidget(clone, widgetDef);
-    if (pageId) saveCurrentLayout();
+    if (pageId) scheduleAutosave();
   });
   menuBtn.addEventListener("click", e => {
     e.stopPropagation();
@@ -231,7 +243,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     actionBar.style.display = 'none';
     activeWidgetEl = null;
     grid.clearSelection();
-    if (pageId) saveCurrentLayout();
+    if (pageId) scheduleAutosave();
   });
   const genId = () => `w${Math.random().toString(36).slice(2,8)}`;
 
@@ -553,7 +565,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
         };
         overlay.style.display = 'none';
         renderWidget(el, widgetDef);
-        if (pageId) saveCurrentLayout();
+        if (pageId) scheduleAutosave();
 
       };
       overlay.querySelector('.reset-btn').onclick = () => {
@@ -565,7 +577,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
         overlay.querySelector('.editor-js').value = overlay.defaultJs || '';
         overlay.currentSelector = '';
         overlay.updateRender && overlay.updateRender();
-        if (pageId) saveCurrentLayout();
+        if (pageId) scheduleAutosave();
       };
       overlay.querySelector('.cancel-btn').onclick = () => {
         overlay.style.display = 'none';
@@ -737,7 +749,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     redoStack.push(current);
     const prev = JSON.parse(undoStack[undoStack.length - 1]);
     applyLayout(prev);
-    if (pageId && autosaveEnabled) saveCurrentLayout({ autosave: true });
+    if (pageId && autosaveEnabled) scheduleAutosave();
   }
 
   function redo() {
@@ -746,21 +758,23 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     undoStack.push(next);
     const layout = JSON.parse(next);
     applyLayout(layout);
-    if (pageId && autosaveEnabled) saveCurrentLayout({ autosave: true });
+    if (pageId && autosaveEnabled) scheduleAutosave();
   }
 
   function startAutosave() {
-    if (autosaveTimer) clearInterval(autosaveTimer);
+    if (autosaveInterval) clearInterval(autosaveInterval);
     if (autosaveEnabled && pageId) {
-      autosaveTimer = setInterval(() => {
-        saveCurrentLayout({ autosave: true });
-      }, 5000);
+      autosaveInterval = setInterval(() => {
+        if (pendingSave) saveCurrentLayout({ autosave: true });
+      }, 30000);
     }
   }
 
   async function saveCurrentLayout({ autosave = false } = {}) {
     if (!pageId) return;
     const layout = getCurrentLayout();
+    const layoutStr = JSON.stringify(layout);
+    if (autosave && layoutStr === lastSavedLayoutStr) { pendingSave = false; return; }
     if (!autosave) pushState(layout);
     try {
       await meltdownEmit('saveLayoutForViewport', {
@@ -772,6 +786,8 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
         viewport: 'desktop',
         layout
       });
+      lastSavedLayoutStr = layoutStr;
+      pendingSave = false;
     } catch (err) {
       console.error('[Builder] saveLayoutForViewport error', err);
     }
@@ -811,7 +827,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     btn.addEventListener('click', e => {
       e.stopPropagation();
       grid.removeWidget(el);
-      if (pageId) saveCurrentLayout();
+      if (pageId) scheduleAutosave();
     });
     el.appendChild(btn);
     return btn;
@@ -922,7 +938,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
         w: Math.round(+el.getAttribute('gs-w')),
         h: Math.round(+el.getAttribute('gs-h'))
       });
-      if (pageId) saveCurrentLayout();
+      if (pageId) scheduleAutosave();
       menu.style.display = 'none';
     };
     const globalBtn = menu.querySelector('.menu-global');
@@ -941,7 +957,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       }
       updateGlobalBtn();
       menu.style.display = 'none';
-      if (pageId) saveCurrentLayout();
+      if (pageId) scheduleAutosave();
     };
 
     el.appendChild(menuBtn);
@@ -1005,7 +1021,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     grid.makeWidget(wrapper);
 
     renderWidget(wrapper, widgetDef);
-    if (pageId) saveCurrentLayout();
+    if (pageId) scheduleAutosave();
   });
 
   const topBar = document.createElement('header');

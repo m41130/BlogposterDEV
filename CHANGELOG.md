@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Builder autosave is now debounced and only triggers when the layout changes.
+  A 30 second fallback interval ensures progress is still saved without flooding
+  the server.
 - Removed hardcoded column limit from CanvasGrid so widgets can be dragged across the full width in builder and dashboard.
 - Fixed bounding box position mismatch during widget dragging by copying the
   widget's transform when updating the selection frame.
