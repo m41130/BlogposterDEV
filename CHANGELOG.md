@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Ensured builder header always mounts at the top of the page and improved
+  widget drop coordinate detection for touch devices.
+- Improved builder header visibility by raising its z-index and added safer widget drop coordinate calculation.
+- Fixed widget dropping in the builder by calculating grid coordinates relative to the grid element.
 - Fixed missing `moduleName` when seeding widget instances, preventing meltdown warnings during startup.
 - Layout templates can now be marked as global via an `is_global` flag and edited directly in the builder.
 - Restored floating toolbar styling for the global text editor via new SCSS component.
