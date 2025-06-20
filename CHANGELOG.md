@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Font size input now supports decimal values up to 800 for precise control.
 - Widgets stay locked until clicking outside; edit mode now opens on a second
   click of the selected widget instead of a double-click.
 - Simplified widget locking: text edit mode now locks widgets directly and
