@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Text widgets now enter editing mode only on double-click, preventing
+  accidental drags while typing.
 - Moved global layout checkbox from header to the layout bar.
 - Adjusted text editor toolbar styling: now appears below header, spans nearly
   the full width and sports a 21px border-radius.

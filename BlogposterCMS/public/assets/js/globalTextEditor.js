@@ -496,12 +496,11 @@ export function enableAutoEdit() {
     if (toolbar && toolbar.contains(ev.target)) return;
     const el = findEditableFromEvent(ev);
     if (!el) return;
-    const widget = findWidget(el);
-    if (widget && !widget.classList.contains('selected')) return;
     ev.stopPropagation();
+    ev.preventDefault();
     editElement(el, el.__onSave);
   };
-  document.addEventListener('click', autoHandler, true);
+  document.addEventListener('dblclick', autoHandler, true);
 }
 
 if (document.body.classList.contains('builder-mode')) {
