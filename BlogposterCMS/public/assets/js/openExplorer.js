@@ -45,7 +45,7 @@
         const form = new FormData();
         form.append('file', file);
         try {
-          const resp = await fetch(
+          const resp = await window.fetchWithTimeout(
             '/admin/api/upload?subPath=' + encodeURIComponent(currentPath),
             {
               method: 'POST',

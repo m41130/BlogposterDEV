@@ -7,6 +7,8 @@
     return fetch(resource, opts).finally(() => clearTimeout(id));
   }
 
+  window.fetchWithTimeout = fetchWithTimeout;
+
   window.meltdownEmit = async function(eventName, payload = {}, timeout = 10000) {
     if (
       (eventName === 'openExplorer' || eventName === 'openMediaExplorer') &&

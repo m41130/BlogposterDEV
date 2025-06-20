@@ -98,7 +98,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   async function applyBuilderTheme() {
     const theme = window.ACTIVE_THEME || 'default';
     try {
-      const res = await fetch(`/themes/${theme}/theme.css`);
+      const res = await window.fetchWithTimeout(`/themes/${theme}/theme.css`);
       if (!res.ok) throw new Error('theme css fetch failed');
       const css = await res.text();
       const scoped = scopeThemeCss(css, '#builderGrid', '#builderGrid .builder-themed');
@@ -567,7 +567,9 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
 
       if (!codeData.sourceJs) {
         try {
-          const resp = await fetch(new URL(widgetDef.codeUrl, document.baseURI).href);
+          const resp = await window.fetchWithTimeout(
+            new URL(widgetDef.codeUrl, document.baseURI).href
+          );
           codeData.sourceJs = await resp.text();
         } catch (err) {
           console.error('[Builder] fetch widget source error', err);
