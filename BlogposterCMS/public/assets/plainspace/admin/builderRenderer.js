@@ -709,6 +709,12 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   });
 
   // Widgets lock themselves when editing starts in globalTextEditor.
+  window.addEventListener('widgetLockChange', e => {
+    const widget = e.detail?.widget;
+    const locked = !!e.detail?.locked;
+    if (!widget) return;
+    grid.update(widget, { locked, noMove: locked, noResize: locked });
+  });
 
   document.addEventListener('click', e => {
     if (!activeWidgetEl) return;

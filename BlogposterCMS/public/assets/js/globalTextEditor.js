@@ -406,6 +406,7 @@ function setWidgetLock(widget, locked) {
     widget.removeAttribute('gs-no-resize');
     widget.classList.remove('locked');
   }
+  window.dispatchEvent(new CustomEvent('widgetLockChange', { detail: { widget, locked } }));
 }
 
 function close() {
