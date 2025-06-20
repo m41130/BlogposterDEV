@@ -5,9 +5,15 @@ El Psy Kongroo
 
 ## [Unreleased]
 - Layout templates can now be marked as global via an `is_global` flag and edited directly in the builder.
+- Restored floating toolbar styling for the global text editor via new SCSS component.
+- Refactored Text Box widget to support inline edits in both Pro and normal modes using the global editor.
+- Text editor toolbar now locates widgets across shadow roots, ensuring it opens when clicking text inside widget containers.
+- Builder text editor now only targets `.canvas-item` widgets, dropping legacy `.grid-stack-item` checks.
+- Fixed global text editor toolbar not opening when clicking text in the builder.
 - Builder header menu now includes a Pro Mode toggle to switch between visual editing and direct HTML/CSS/JS editing.
 - Admin grid height now expands automatically to fit widgets.
 - CanvasGrid gained an optional push mode so builder widgets can't overlap.
+- Builder widgets now support layering with z-index controls in the options menu.
 - Widget containers now enforce full width and height via inline styles to
   prevent theme overrides.
 - New `seedAdminWidget` helper saves width and height options when seeding

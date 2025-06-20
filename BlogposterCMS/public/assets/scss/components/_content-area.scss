@@ -30,6 +30,7 @@
   min-width: 120px;
   min-height: 80px;
   will-change: transform;
+  z-index: 0; // baseline layer for widgets
 }
 
 // Highlight widgets while the admin layout is editable

@@ -85,6 +85,8 @@ export class CanvasGrid {
     el.dataset.y = y;
     el.setAttribute('gs-w', w);
     el.setAttribute('gs-h', h);
+    const layer = +el.dataset.layer || 0;
+    el.style.zIndex = layer.toString();
 
     el.style.position = 'absolute';
     el.style.transform =
@@ -135,6 +137,7 @@ export class CanvasGrid {
     if (opts.y != null) el.dataset.y = opts.y;
     if (opts.w != null) el.setAttribute('gs-w', opts.w);
     if (opts.h != null) el.setAttribute('gs-h', opts.h);
+    if (opts.layer != null) el.dataset.layer = opts.layer;
     if (opts.locked != null) el.setAttribute('gs-locked', opts.locked);
     if (opts.noMove != null) el.setAttribute('gs-no-move', opts.noMove);
     if (opts.noResize != null) el.setAttribute('gs-no-resize', opts.noResize);
