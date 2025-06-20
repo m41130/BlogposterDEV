@@ -11,6 +11,16 @@
 
 Forget CMS. Think Composable.
 
+
+## ⚠️ Important Update – v0.6.0 Released!
+
+With the **v0.6.0** release, we've completely rewritten the visual builder.  
+GridStack has been removed and replaced with a fully custom-built **CanvasGrid** solution, featuring improved drag-and-drop functionality, responsive widgets, and streamlined UX/UI.
+
+Check the detailed [Changelog](link-to-your-changelog.md) for more information.
+
+
+
 ```bash
 git clone https://github.com/m41130/BlogposterCMS
 cd BlogposterCMS
