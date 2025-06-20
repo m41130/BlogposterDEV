@@ -11,6 +11,7 @@ let initPromise = null;
 let autoHandler = null;
 let editingPlain = false;
 let currentColor = '#000000';
+let colorPicker = null;
 
 export function sanitizeHtml(html) {
   const div = document.createElement('div');
@@ -126,7 +127,7 @@ async function init() {
     const themeColor = getComputedStyle(document.documentElement)
       .getPropertyValue('--accent-color')
       .trim();
-    const picker = createColorPicker({
+    colorPicker = createColorPicker({
       presetColors: [
         '#FF0000', '#FF4040', '#FFC0CB', '#FF00FF', '#800080', '#8A2BE2',
         '#00CED1', '#00FFFF', '#40E0D0', '#ADD8E6', '#4169E1', '#0047AB',
@@ -138,18 +139,32 @@ async function init() {
       onSelect: c => {
         applyColor(c);
         colorIcon.style.textDecorationColor = c;
-        picker.el.classList.add('hidden');
+        colorPicker.hide();
+      },
+      onClose: () => colorBtn.focus()
+    });
+    colorPicker.el.classList.add('floating', 'hidden');
+    document.body.appendChild(colorPicker.el);
+    colorBtn.addEventListener('click', () => {
+      if (colorPicker.el.classList.contains('hidden')) {
+        const rect = colorBtn.getBoundingClientRect();
+        colorPicker.showAt(
+          rect.left + window.scrollX,
+          rect.bottom + window.scrollY
+        );
+      } else {
+        colorPicker.hide();
       }
     });
-    picker.el.classList.add('hidden');
-    colorBtn.addEventListener('click', () => {
-      picker.el.classList.toggle('hidden');
-    });
-    document.addEventListener('click', ev => {
-      if (!colorWrapper.contains(ev.target)) picker.el.classList.add('hidden');
+    toolbar.addEventListener('click', ev => {
+      if (
+        !colorWrapper.contains(ev.target) &&
+        !colorPicker.el.contains(ev.target)
+      ) {
+        colorPicker.hide();
+      }
     });
     colorWrapper.appendChild(colorBtn);
-    colorWrapper.appendChild(picker.el);
     toolbar.appendChild(colorWrapper);
 
     const ffControl = toolbar.querySelector('.font-family-control');
@@ -393,6 +408,7 @@ function close() {
     activeEl.innerHTML = html;
   }
   toolbar.style.display = 'none';
+  colorPicker?.hide?.();
   const headingSelect = toolbar.querySelector('.heading-select');
   if (headingSelect) {
     headingSelect.style.display = 'none';
