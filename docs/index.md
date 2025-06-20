@@ -18,6 +18,7 @@ This folder provides additional information on installing, configuring and exten
 - [Custom Post Types](custom_post_types.md)
 - [Permission Groups](permission_groups.md)
 - [Layout Templates](layout_templates.md)
+- [CanvasGrid](canvasgrid.md)
 - [Community Widgets](community_widgets.md)
 - [Changing the Render Engine](changing_render_engine.md)
 
