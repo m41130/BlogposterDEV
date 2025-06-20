@@ -1855,12 +1855,16 @@ body.preview-desktop #content {
 
 .canvas-item {
   pointer-events: auto;
-  user-select: none;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
 }
 
 .canvas-item.locked {
   pointer-events: auto;
-  user-select: text;
+  -webkit-user-select: text;
+     -moz-user-select: text;
+          user-select: text;
 }
 
 .canvas-item[gs-locked=true] > .ui-resizable-handle {
@@ -2301,6 +2305,16 @@ body.preview-desktop #content {
 .text-block-editor-toolbar .ff-options span:hover,
 .text-block-editor-toolbar .fs-options span:hover {
   background: var(--color-secondary-light);
+}
+.text-block-editor-toolbar .fs-input {
+  width: 50px;
+  padding: 2px 4px;
+  border: 1px solid var(--color-secondary-light);
+  border-radius: 4px;
+  font-size: 14px;
+  text-align: center;
+  background: var(--color-white);
+  color: var(--color-text);
 }
 
 .html-widget {
