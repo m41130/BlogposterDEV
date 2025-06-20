@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Widgets stay locked until clicking outside; edit mode now opens on a second
+  click of the selected widget instead of a double-click.
 - Simplified widget locking: text edit mode now locks widgets directly and
   updates the builder grid to prevent movement until editing ends, removing
   unused auto-lock functions.
