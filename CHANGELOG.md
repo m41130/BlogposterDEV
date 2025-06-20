@@ -8,6 +8,7 @@ El Psy Kongroo
   widget drop coordinate detection for touch devices.
 - Improved builder header visibility by raising its z-index and added safer widget drop coordinate calculation.
 - Fixed widget dropping in the builder by calculating grid coordinates relative to the grid element.
+- Fixed missing `moduleName` when seeding widget instances, preventing meltdown warnings during startup.
 - Layout templates can now be marked as global via an `is_global` flag and edited directly in the builder.
 - Restored floating toolbar styling for the global text editor via new SCSS component.
 - Refactored Text Box widget to support inline edits in both Pro and normal modes using the global editor.

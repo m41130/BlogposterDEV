@@ -236,6 +236,7 @@ async function seedAdminWidget(motherEmitter, jwt, widgetData, layoutOpts = {}) 
   try {
     await meltdownEmit(motherEmitter, 'saveWidgetInstance', {
       jwt,
+      moduleName: MODULE,
       instanceId,
       content: JSON.stringify(layoutOpts)
     });
