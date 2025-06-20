@@ -673,8 +673,8 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   contentEl.innerHTML = `<div id="builderGrid" class="canvas-grid builder-grid"></div>`;
   gridEl = document.getElementById('builderGrid');
   await applyBuilderTheme();
-  // Enable push mode so widgets cannot overlap in the builder
-  const grid = initCanvasGrid({ cellHeight: 5, columnWidth: 5, pushOnOverlap: true }, gridEl);
+  // Allow overlapping widgets for layered layouts
+  const grid = initCanvasGrid({ cellHeight: 5, columnWidth: 5, pushOnOverlap: false }, gridEl);
   grid.on("dragstart", () => {
     actionBar.style.display = "none";
   });
@@ -747,6 +747,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       y: +el.dataset.y || 0,
       w: +el.getAttribute('gs-w'),
       h: +el.getAttribute('gs-h'),
+      layer: +el.dataset.layer || 0,
       code: codeMap[el.dataset.instanceId] || null
     }));
   }
@@ -756,6 +757,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       widgetId: el.dataset.widgetId,
       w: +el.getAttribute('gs-w'),
       h: +el.getAttribute('gs-h'),
+      layer: +el.dataset.layer || 0,
       code: codeMap[el.dataset.instanceId] || null
     };
   }
@@ -783,6 +785,8 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       wrapper.dataset.global = isGlobal ? 'true' : 'false';
       wrapper.dataset.x = item.x ?? 0;
       wrapper.dataset.y = item.y ?? 0;
+      wrapper.dataset.layer = item.layer ?? 0;
+      wrapper.style.zIndex = (item.layer ?? 0).toString();
       wrapper.setAttribute('gs-w', item.w ?? 8);
       wrapper.setAttribute('gs-h', item.h ?? DEFAULT_ROWS);
       wrapper.setAttribute('gs-min-w', 4);
@@ -908,6 +912,8 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       <button class="menu-lock"><img src="/assets/icons/lock.svg" class="icon" alt="lock" /> Lock Position</button>
       <button class="menu-snap"><img src="/assets/icons/grid.svg" class="icon" alt="snap" /> Snap to Grid</button>
       <button class="menu-global"><img src="/assets/icons/globe.svg" class="icon" alt="global" /> Set as Global Widget</button>
+      <button class="menu-layer-up"><img src="/assets/icons/arrow-up.svg" class="icon" alt="layer up" /> Layer Up</button>
+      <button class="menu-layer-down"><img src="/assets/icons/arrow-down.svg" class="icon" alt="layer down" /> Layer Down</button>
     `;
     menu.style.display = 'none';
     document.body.appendChild(menu);
@@ -1020,6 +1026,23 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       if (pageId) scheduleAutosave();
     };
 
+    menu.querySelector('.menu-layer-up').onclick = () => {
+      const layer = (+el.dataset.layer || 0) + 1;
+      el.dataset.layer = layer;
+      el.style.zIndex = layer.toString();
+      menu.style.display = 'none';
+      if (pageId) scheduleAutosave();
+    };
+
+    menu.querySelector('.menu-layer-down').onclick = () => {
+      let layer = (+el.dataset.layer || 0) - 1;
+      if (layer < 0) layer = 0;
+      el.dataset.layer = layer;
+      el.style.zIndex = layer.toString();
+      menu.style.display = 'none';
+      if (pageId) scheduleAutosave();
+    };
+
     el.appendChild(menuBtn);
     el.__optionsMenu = menu;
   }
@@ -1064,6 +1087,8 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     wrapper.dataset.global = 'false';
     wrapper.dataset.x = x;
     wrapper.dataset.y = y;
+    wrapper.dataset.layer = 0;
+    wrapper.style.zIndex = '0';
     wrapper.setAttribute('gs-w', w);
     wrapper.setAttribute('gs-h', h);
     wrapper.setAttribute('gs-min-w', 4);
