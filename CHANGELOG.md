@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Fixed toolbar closing when picking a color; color selections now apply correctly.
 - Color picker opens outside the text editor toolbar and stays open until closed or another toolbar action is used.
 - Reused built-in `type` icon for Text Box widget; removed unused file.
 - Text widgets now enter editing mode only on double-click, preventing
