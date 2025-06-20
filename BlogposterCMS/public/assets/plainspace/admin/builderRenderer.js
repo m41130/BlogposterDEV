@@ -1137,7 +1137,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     }
     const [x, y, w, h] = [
       Math.floor((relX / rect.width) * 64) || 0,
-      Math.floor((relY / rect.height) * 6) || 0,
+      Math.floor((relY / rect.height) * DEFAULT_ROWS) || 0,
       8,
       DEFAULT_ROWS
     ];
@@ -1316,11 +1316,10 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   });
 
   const appScope = document.querySelector('.app-scope');
-  const mainContent = document.querySelector('.main-content');
   if (appScope) {
     appScope.prepend(topBar);
-  } else if (contentEl) {
-    contentEl.prepend(topBar);
+  } else {
+    document.body.prepend(topBar);
   }
 
   startAutosave();
