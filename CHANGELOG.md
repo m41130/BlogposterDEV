@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Restored floating toolbar styling for the global text editor via new SCSS component.
 - Refactored Text Box widget to support inline edits in both Pro and normal modes using the global editor.
 - Text editor toolbar now locates widgets across shadow roots, ensuring it opens when clicking text inside widget containers.
 - Builder text editor now only targets `.canvas-item` widgets, dropping legacy `.grid-stack-item` checks.

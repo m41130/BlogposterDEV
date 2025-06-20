@@ -1,0 +1,72 @@
+/* =============================================================================
+   components/_text-editor-toolbar.scss
+   Styles for the floating text block editor toolbar
+   ============================================================================= */
+
+.text-block-editor-toolbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px;
+  background: var(--color-white);
+  border: 1px solid #eee;
+  border-radius: 8px;
+  box-shadow: var(--shadow-default);
+  z-index: 1000;
+
+  &.floating {
+    position: absolute;
+  }
+
+  .tb-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    line-height: 1;
+    color: var(--color-text);
+
+    &:hover {
+      background: var(--color-secondary-light);
+    }
+  }
+
+  .font-family-control,
+  .font-size-control {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .ff-options,
+  .fs-options {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: var(--color-white);
+    border: 1px solid #eee;
+    box-shadow: var(--shadow-default);
+    border-radius: 4px;
+    padding: 4px;
+    z-index: 1000;
+
+    span {
+      display: block;
+      padding: 2px 4px;
+      cursor: pointer;
+
+      &:hover {
+        background: var(--color-secondary-light);
+      }
+    }
+  }
+}
