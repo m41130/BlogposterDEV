@@ -8,6 +8,7 @@
   --color-secondary-light: #F5F5F5; // Hellgrau für Inputs (nicht für Cards)
   --color-text: #222222; // Dunkler für mehr Kontrast
   --color-white: #FFFFFF;
+  --color-white-dark: #F7F7F7; // Slightly darker white for dropdown controls
   --user-color: #008080; // User-selected accent color
   --color-primary: var(--user-color);
   --gradient-primary: linear-gradient(90deg, var(--user-color), #FF00FF, #FFA500);
