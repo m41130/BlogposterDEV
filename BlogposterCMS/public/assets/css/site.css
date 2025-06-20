@@ -1853,6 +1853,16 @@ body.preview-desktop #content {
   max-width: none;
 }
 
+.canvas-item {
+  pointer-events: auto;
+  user-select: none;
+}
+
+.canvas-item.locked {
+  pointer-events: auto;
+  user-select: text;
+}
+
 .canvas-item[gs-locked=true] > .ui-resizable-handle {
   display: none;
 }

@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Builder widgets now show the action bar on first click and enter text edit
+  mode on double-click while locking the widget until editing ends. ESC or
+  clicking outside exits editing.
 - Updated font size control styling: dropdown uses a darker white background and
   plus/minus buttons show subtle borders.
 - Fixed toolbar closing when picking a color; color selections now apply correctly.
