@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Simplified widget locking: text edit mode now locks widgets directly and
+  releases them when editing ends, removing unused auto-lock functions.
 - Builder widgets now show the action bar on first click and enter text edit
   mode on double-click while locking the widget until editing ends. ESC or
   clicking outside exits editing.

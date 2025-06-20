@@ -308,27 +308,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   });
   const genId = () => `w${Math.random().toString(36).slice(2,8)}`;
 
-  function autoLockWidget(widget, locked) {
-    if (!widget) return;
-    grid.update(widget, { locked, noMove: locked, noResize: locked });
-    if (locked) {
-      widget.dataset.tempLock = 'true';
-      widget.classList.add('locked');
-    } else {
-      widget.removeAttribute('data-temp-lock');
-      widget.classList.remove('locked');
-    }
-  }
-
-  function disableWidgetMove(widget, disabled) {
-    if (!widget) return;
-    grid.update(widget, { noMove: disabled });
-    if (disabled) {
-      widget.dataset.tempLock = 'true';
-    } else {
-      widget.removeAttribute('data-temp-lock');
-    }
-  }
+  // Widget locking is now handled directly by the global text editor.
 
   function findRegisteredEditable(wrapper) {
     if (!wrapper) return null;
@@ -728,42 +708,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     if (activeWidgetEl) selectWidget(activeWidgetEl);
   });
 
-  document.addEventListener('textEditStart', e => {
-    const widget = e.detail?.widget;
-    if (!widget) return;
-    if (widget.getAttribute('gs-locked') === 'true') return;
-    selectWidget(widget);
-    autoLockWidget(widget, true);
-  });
-
-  document.addEventListener('textEditStop', e => {
-    const widget = e.detail?.widget;
-    if (!widget || widget.dataset.tempLock !== 'true') return;
-    autoLockWidget(widget, false);
-    selectWidget(widget);
-  });
-
-  document.addEventListener('focusin', e => {
-    const el = e.target;
-    if (!(el instanceof HTMLElement)) return;
-    if (!['INPUT', 'TEXTAREA'].includes(el.tagName)) return;
-    const widget = el.closest('.canvas-item');
-    if (!widget || widget.getAttribute('gs-locked') === 'true') return;
-    selectWidget(widget);
-    autoLockWidget(widget, true);
-  });
-
-  document.addEventListener('focusout', e => {
-    const el = e.target;
-    if (!(el instanceof HTMLElement)) return;
-    if (!['INPUT', 'TEXTAREA'].includes(el.tagName)) return;
-    const widget = el.closest('.canvas-item');
-    if (!widget || widget.dataset.tempLock !== 'true') return;
-    const to = e.relatedTarget;
-    if (to && widget.contains(to)) return;
-    autoLockWidget(widget, false);
-    selectWidget(widget);
-  });
+  // Widgets lock themselves when editing starts in globalTextEditor.
 
   document.addEventListener('click', e => {
     if (!activeWidgetEl) return;

@@ -393,12 +393,25 @@ function findWidget(el) {
   return null;
 }
 
+function setWidgetLock(widget, locked) {
+  if (!widget) return;
+  if (locked) {
+    widget.dataset.tempLock = 'true';
+    widget.setAttribute('gs-no-move', 'true');
+    widget.setAttribute('gs-no-resize', 'true');
+    widget.classList.add('locked');
+  } else {
+    widget.removeAttribute('data-temp-lock');
+    widget.removeAttribute('gs-no-move');
+    widget.removeAttribute('gs-no-resize');
+    widget.classList.remove('locked');
+  }
+}
+
 function close() {
   if (!activeEl) return;
   const widget = findWidget(activeEl);
-  if (widget) {
-    document.dispatchEvent(new CustomEvent('textEditStop', { detail: { widget } }));
-  }
+  if (widget) setWidgetLock(widget, false);
   activeEl.removeAttribute('contenteditable');
   activeEl.style.userSelect = 'none';
   let html = editingPlain ? activeEl.textContent : activeEl.innerHTML;
@@ -447,7 +460,6 @@ export async function editElement(el, onSave) {
   if (activeEl) close();
   activeEl = el;
   const startWidget = findWidget(el);
-  // Immediately lock the widget so it cannot be moved while editing.
   activeEl.__onSave = onSave;
 
   editingPlain = !/<[a-z][\s\S]*>/i.test(el.innerHTML.trim());
@@ -455,10 +467,6 @@ export async function editElement(el, onSave) {
   el.style.userSelect = 'text';
   el.focus();
   toolbar.style.display = 'flex';
-
-  if (startWidget) {
-    document.dispatchEvent(new CustomEvent('textEditStart', { detail: { widget: startWidget } }));
-  }
 
   escHandler = ev => {
     if (ev.key === 'Escape') {
@@ -513,12 +521,13 @@ export async function editElement(el, onSave) {
   if (startWidget) {
     leaveHandler = ev => {
       const to = ev.relatedTarget;
-      if (!startWidget.contains(to) && !toolbar.contains(to) && startWidget.dataset.tempLock === 'true') {
-        document.dispatchEvent(new CustomEvent('textEditStop', { detail: { widget: startWidget } }));
+      if (!startWidget.contains(to) && !toolbar.contains(to)) {
+        close();
       }
     };
     startWidget.addEventListener('mouseleave', leaveHandler, true);
     toolbar.addEventListener('mouseleave', leaveHandler, true);
+    setWidgetLock(startWidget, true);
   }
 }
 
