@@ -1087,16 +1087,13 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       if (!e.target.closest('.canvas-item-content')) return;
       if (e.target.closest('.widget-action-bar')) return;
       e.stopPropagation();
-      selectWidget(el);
-    });
-
-    el.addEventListener('dblclick', e => {
-      if (!el.classList.contains('selected')) return;
-      if (e.target.closest('.widget-action-bar')) return;
-      const editable = findRegisteredEditable(el);
-      if (editable) {
-        e.stopPropagation();
-        editElement(editable, editable.__onSave);
+      if (el.classList.contains('selected')) {
+        const editable = findRegisteredEditable(el);
+        if (editable) {
+          editElement(editable, editable.__onSave);
+        }
+      } else {
+        selectWidget(el);
       }
     });
 

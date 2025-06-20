@@ -520,14 +520,6 @@ export async function editElement(el, onSave) {
   document.addEventListener('mousedown', outsideHandler, true);
 
   if (startWidget) {
-    leaveHandler = ev => {
-      const to = ev.relatedTarget;
-      if (!startWidget.contains(to) && !toolbar.contains(to)) {
-        close();
-      }
-    };
-    startWidget.addEventListener('mouseleave', leaveHandler, true);
-    toolbar.addEventListener('mouseleave', leaveHandler, true);
     setWidgetLock(startWidget, true);
   }
 }
