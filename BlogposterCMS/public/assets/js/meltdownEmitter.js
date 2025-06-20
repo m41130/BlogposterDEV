@@ -1,6 +1,13 @@
 // public/assets/js/meltdownEmitter.js
 ;(function(window) {
-  window.meltdownEmit = async function(eventName, payload = {}) {
+  function fetchWithTimeout(resource, options = {}, timeout = 10000) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    const opts = { ...options, signal: controller.signal };
+    return fetch(resource, opts).finally(() => clearTimeout(id));
+  }
+
+  window.meltdownEmit = async function(eventName, payload = {}, timeout = 10000) {
     if (
       (eventName === 'openExplorer' || eventName === 'openMediaExplorer') &&
       window._openMediaExplorer
@@ -32,12 +39,12 @@
       });
     }
 
-    const resp = await fetch('/api/meltdown', {
+    const resp = await fetchWithTimeout('/api/meltdown', {
       method: 'POST',
       credentials: 'same-origin',
       headers,
       body: JSON.stringify({ eventName, payload })
-    });
+    }, timeout);
 
     let json;
     let rawText;
@@ -68,7 +75,7 @@
   };
 
   // Batch multiple meltdown events in one request
-  window.meltdownEmitBatch = async function(events = [], jwt = null) {
+  window.meltdownEmitBatch = async function(events = [], jwt = null, timeout = 10000) {
     if (!Array.isArray(events) || events.length === 0) return [];
 
     const headers = {
@@ -88,12 +95,12 @@
       });
     }
 
-    const resp = await fetch('/api/meltdown/batch', {
+    const resp = await fetchWithTimeout('/api/meltdown/batch', {
       method: 'POST',
       credentials: 'same-origin',
       headers,
       body: JSON.stringify({ events })
-    });
+    }, timeout);
 
     let json;
     let rawText;

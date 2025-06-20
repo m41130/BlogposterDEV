@@ -908,7 +908,9 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
 
       try {
         const globalRes = await meltdownEmit('getGlobalLayoutTemplate', {
-          jwt: window.ADMIN_TOKEN
+          jwt: window.ADMIN_TOKEN,
+          moduleName: 'plainspace',
+          moduleType: 'core'
         });
         layoutLayers[0].layout = Array.isArray(globalRes?.layout) ? globalRes.layout : [];
         globalLayoutName = globalRes?.name || null;
@@ -922,7 +924,9 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   else {
     try {
       const globalRes = await meltdownEmit('getGlobalLayoutTemplate', {
-        jwt: window.ADMIN_TOKEN
+        jwt: window.ADMIN_TOKEN,
+        moduleName: 'plainspace',
+        moduleType: 'core'
       });
       layoutLayers[0].layout = Array.isArray(globalRes?.layout) ? globalRes.layout : [];
       globalLayoutName = globalRes?.name || null;
@@ -1363,7 +1367,12 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       await meltdownEmitBatch(events);
 
       if (globalToggle.checked) {
-        await meltdownEmit('setGlobalLayoutTemplate', { jwt: window.ADMIN_TOKEN, name });
+        await meltdownEmit('setGlobalLayoutTemplate', {
+          jwt: window.ADMIN_TOKEN,
+          moduleName: 'plainspace',
+          moduleType: 'core',
+          name
+        });
       }
 
       alert('Layout template saved');
