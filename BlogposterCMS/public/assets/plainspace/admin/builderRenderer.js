@@ -311,6 +311,16 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     }
   }
 
+  function disableWidgetMove(widget, disabled) {
+    if (!widget) return;
+    grid.update(widget, { noMove: disabled });
+    if (disabled) {
+      widget.dataset.tempLock = 'true';
+    } else {
+      widget.removeAttribute('data-temp-lock');
+    }
+  }
+
   function extractCssProps(el) {
     if (!el) return '';
     const style = getComputedStyle(el);
@@ -704,13 +714,13 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     if (!widget) return;
     if (widget.getAttribute('gs-locked') === 'true') return;
     selectWidget(widget);
-    autoLockWidget(widget, true);
+    disableWidgetMove(widget, true);
   });
 
   document.addEventListener('textEditStop', e => {
     const widget = e.detail?.widget;
     if (!widget || widget.dataset.tempLock !== 'true') return;
-    autoLockWidget(widget, false);
+    disableWidgetMove(widget, false);
     selectWidget(widget);
   });
 

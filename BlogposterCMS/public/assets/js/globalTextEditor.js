@@ -496,6 +496,8 @@ export function enableAutoEdit() {
     if (toolbar && toolbar.contains(ev.target)) return;
     const el = findEditableFromEvent(ev);
     if (!el) return;
+    const widget = findWidget(el);
+    if (widget && !widget.classList.contains('selected')) return;
     ev.stopPropagation();
     editElement(el, el.__onSave);
   };
