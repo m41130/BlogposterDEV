@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Updated font size control styling: dropdown uses a darker white background and
+  plus/minus buttons show subtle borders.
 - Fixed toolbar closing when picking a color; color selections now apply correctly.
 - Color picker opens outside the text editor toolbar and stays open until closed or another toolbar action is used.
 - Reused built-in `type` icon for Text Box widget; removed unused file.
