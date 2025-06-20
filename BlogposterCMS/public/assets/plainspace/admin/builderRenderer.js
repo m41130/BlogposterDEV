@@ -1117,15 +1117,20 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   gridEl.addEventListener('dragover',  e => { e.preventDefault(); gridEl.classList.add('drag-over'); });
   gridEl.addEventListener('dragleave', () => gridEl.classList.remove('drag-over'));
   gridEl.addEventListener('drop', async e => {
-    e.preventDefault(); gridEl.classList.remove('drag-over');
+    e.preventDefault();
+    gridEl.classList.remove('drag-over');
     const widgetId = e.dataTransfer.getData('text/plain');
     const widgetDef = allWidgets.find(w => w.id === widgetId);
     if (!widgetDef) return;
 
+    const rect = gridEl.getBoundingClientRect();
+    const relX = (e.clientX ?? e.offsetX ?? 0) - rect.left;
+    const relY = (e.clientY ?? e.offsetY ?? 0) - rect.top;
     const [x, y, w, h] = [
-      Math.floor((e.offsetX / gridEl.offsetWidth) * 64) || 0,
-      Math.floor((e.offsetY / gridEl.offsetHeight) * 6) || 0,
-      8, DEFAULT_ROWS
+      Math.floor((relX / rect.width) * 64) || 0,
+      Math.floor((relY / rect.height) * 6) || 0,
+      8,
+      DEFAULT_ROWS
     ];
 
     const instId = genId();
@@ -1138,7 +1143,6 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     wrapper.dataset.layer = String(activeLayer);
     wrapper.dataset.x = x;
     wrapper.dataset.y = y;
-    wrapper.dataset.layer = 0;
     wrapper.style.zIndex = '0';
     wrapper.setAttribute('gs-w', w);
     wrapper.setAttribute('gs-h', h);

@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Improved builder header visibility by raising its z-index and added safer widget drop coordinate calculation.
+- Fixed widget dropping in the builder by calculating grid coordinates relative to the grid element.
 - Layout templates can now be marked as global via an `is_global` flag and edited directly in the builder.
 - Restored floating toolbar styling for the global text editor via new SCSS component.
 - Refactored Text Box widget to support inline edits in both Pro and normal modes using the global editor.
