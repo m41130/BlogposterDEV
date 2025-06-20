@@ -7,6 +7,7 @@ let toolbar = null;
 let activeEl = null;
 let outsideHandler = null;
 let leaveHandler = null;
+let escHandler = null;
 let initPromise = null;
 let autoHandler = null;
 let editingPlain = false;
@@ -416,6 +417,10 @@ function close() {
   }
   document.removeEventListener('pointerdown', outsideHandler, true);
   document.removeEventListener('mousedown', outsideHandler, true);
+  if (escHandler) {
+    document.removeEventListener('keydown', escHandler, true);
+    escHandler = null;
+  }
   if (leaveHandler) {
     const widget = findWidget(activeEl);
     widget?.removeEventListener('mouseleave', leaveHandler, true);
@@ -454,6 +459,14 @@ export async function editElement(el, onSave) {
   if (startWidget) {
     document.dispatchEvent(new CustomEvent('textEditStart', { detail: { widget: startWidget } }));
   }
+
+  escHandler = ev => {
+    if (ev.key === 'Escape') {
+      ev.preventDefault();
+      close();
+    }
+  };
+  document.addEventListener('keydown', escHandler, true);
 
   const headingSelect = toolbar.querySelector('.heading-select');
   if (headingSelect) {

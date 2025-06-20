@@ -1,5 +1,6 @@
 // public/assets/plainspace/admin/builderRenderer.js
 import { init as initCanvasGrid } from '../../js/canvasGrid.js';
+import { editElement } from '../../js/globalTextEditor.js';
 
 export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   document.body.classList.add('builder-mode');
@@ -312,8 +313,10 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     grid.update(widget, { locked, noMove: locked, noResize: locked });
     if (locked) {
       widget.dataset.tempLock = 'true';
+      widget.classList.add('locked');
     } else {
       widget.removeAttribute('data-temp-lock');
+      widget.classList.remove('locked');
     }
   }
 
@@ -325,6 +328,16 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     } else {
       widget.removeAttribute('data-temp-lock');
     }
+  }
+
+  function findRegisteredEditable(wrapper) {
+    if (!wrapper) return null;
+    const walker = document.createTreeWalker(wrapper, NodeFilter.SHOW_ELEMENT);
+    while (walker.nextNode()) {
+      const node = walker.currentNode;
+      if (node && node.__onSave !== undefined) return node;
+    }
+    return null;
   }
 
   function extractCssProps(el) {
@@ -720,13 +733,13 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     if (!widget) return;
     if (widget.getAttribute('gs-locked') === 'true') return;
     selectWidget(widget);
-    disableWidgetMove(widget, true);
+    autoLockWidget(widget, true);
   });
 
   document.addEventListener('textEditStop', e => {
     const widget = e.detail?.widget;
     if (!widget || widget.dataset.tempLock !== 'true') return;
-    disableWidgetMove(widget, false);
+    autoLockWidget(widget, false);
     selectWidget(widget);
   });
 
@@ -1124,6 +1137,16 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       if (e.target.closest('.widget-action-bar')) return;
       e.stopPropagation();
       selectWidget(el);
+    });
+
+    el.addEventListener('dblclick', e => {
+      if (!el.classList.contains('selected')) return;
+      if (e.target.closest('.widget-action-bar')) return;
+      const editable = findRegisteredEditable(el);
+      if (editable) {
+        e.stopPropagation();
+        editElement(editable, editable.__onSave);
+      }
     });
 
     // Widgets used to lock when any form input gained focus. This caused
