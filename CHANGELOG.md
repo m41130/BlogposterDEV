@@ -30,6 +30,11 @@ El Psy Kongroo
 
 This release marks a foundational shift to a fully independent and modular builder.
 
+
+
+> "100 push-ups, 100 sit-ups, 100 squats, and a 10 km run. Every single day!"
+>
+> 
 ## [0.5.2] – 2025-06-16
 - Widgets auto-lock when editing text fields and unlock as soon as focus leaves
   the text, improving editing flow.
