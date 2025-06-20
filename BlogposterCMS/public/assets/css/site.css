@@ -358,6 +358,7 @@
   min-width: 120px;
   min-height: 80px;
   will-change: transform;
+  z-index: 0;
 }
 
 body.dashboard-edit-mode .canvas-item {
@@ -1497,6 +1498,10 @@ p {
   flex: 1;
 }
 
+.builder-header .global-layout-toggle {
+  margin-left: 8px;
+}
+
 .builder-header .page-link {
   color: var(--color-primary);
 }
@@ -1862,13 +1867,35 @@ body.preview-desktop #content {
 .builder-version {
   position: fixed;
   left: 0;
-  bottom: 0;
+  bottom: 32px;
   padding: 2px 4px;
   font-size: 10px;
   color: var(--color-text);
   background: rgba(255, 255, 255, 0.6);
   pointer-events: none;
   z-index: 50;
+}
+
+.layout-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  gap: 4px;
+  padding: 4px 8px;
+  background: var(--color-white);
+  border-top: 1px solid #eee;
+  z-index: 60;
+}
+.layout-bar button {
+  background: transparent;
+  border: none;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+.layout-bar .active {
+  font-weight: 600;
 }
 
 .bounding-box {
@@ -2152,6 +2179,73 @@ body.preview-desktop #content {
   left: 200%;
 }
 
+/* =============================================================================
+   components/_text-editor-toolbar.scss
+   Styles for the floating text block editor toolbar
+   ============================================================================= */
+.text-block-editor-toolbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px;
+  background: var(--color-white);
+  border: 1px solid #eee;
+  border-radius: 8px;
+  box-shadow: var(--shadow-default);
+  z-index: 1000;
+}
+.text-block-editor-toolbar.floating {
+  position: absolute;
+}
+.text-block-editor-toolbar .tb-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--color-text);
+}
+.text-block-editor-toolbar .tb-btn:hover {
+  background: var(--color-secondary-light);
+}
+.text-block-editor-toolbar .font-family-control,
+.text-block-editor-toolbar .font-size-control {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.text-block-editor-toolbar .ff-options,
+.text-block-editor-toolbar .fs-options {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: var(--color-white);
+  border: 1px solid #eee;
+  box-shadow: var(--shadow-default);
+  border-radius: 4px;
+  padding: 4px;
+  z-index: 1000;
+}
+.text-block-editor-toolbar .ff-options span,
+.text-block-editor-toolbar .fs-options span {
+  display: block;
+  padding: 2px 4px;
+  cursor: pointer;
+}
+.text-block-editor-toolbar .ff-options span:hover,
+.text-block-editor-toolbar .fs-options span:hover {
+  background: var(--color-secondary-light);
+}
+
 .html-widget {
   width: 100%;
   height: 100%;
@@ -2161,6 +2255,8 @@ body.preview-desktop #content {
   width: 100%;
   padding: 0.25rem;
   box-sizing: border-box;
+  min-height: 1rem;
+  cursor: text;
 }
 
 .half-width {
