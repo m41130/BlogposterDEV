@@ -36,6 +36,15 @@ function ensureGlobalStyle(lane) {
   // Avoid injecting the theme globally so the builder UI remains untouched.
 }
 
+async function fetchPartialSafe(name, type) {
+  try {
+    return await fetchPartial(name, type);
+  } catch (err) {
+    console.error(`[Renderer] failed to load partial ${type}/${name}`, err);
+    return '';
+  }
+}
+
 function executeJs(code, wrapper, root) {
   if (!code) return;
   const nonce = window.NONCE;
@@ -279,7 +288,7 @@ function ensureLayout(layout = {}, lane = 'public') {
     if (slug !== 'builder') {
       if (topHeaderEl) {
         topHeaderEl.innerHTML = sanitizeHtml(
-          await fetchPartial(
+          await fetchPartialSafe(
             config.layout?.header || 'top-header',
             'headers'
           )
@@ -291,7 +300,7 @@ function ensureLayout(layout = {}, lane = 'public') {
             mainHeaderEl.innerHTML = '';
           } else {
             mainHeaderEl.innerHTML = sanitizeHtml(
-              await fetchPartial(config.layout?.mainHeader || 'main-header', 'headers')
+              await fetchPartialSafe(config.layout?.mainHeader || 'main-header', 'headers')
             );
           }
           if (lane === 'admin' && page.title) {
@@ -302,7 +311,7 @@ function ensureLayout(layout = {}, lane = 'public') {
       const contentHeaderEl = document.getElementById('content-header');
       if (contentHeaderEl) {
         contentHeaderEl.innerHTML = sanitizeHtml(
-          await fetchPartial(
+          await fetchPartialSafe(
             config.layout?.contentHeader || 'content-header',
             'headers'
           )
@@ -316,7 +325,7 @@ function ensureLayout(layout = {}, lane = 'public') {
       const builderSidebar = config.layout?.sidebar || 'sidebar-builder';
       if (sidebarEl) {
         sidebarEl.innerHTML = sanitizeHtml(
-          await fetchPartial(builderSidebar, 'sidebars')
+          await fetchPartialSafe(builderSidebar, 'sidebars')
         );
       }
 
@@ -340,7 +349,7 @@ function ensureLayout(layout = {}, lane = 'public') {
     if (sidebarEl) {
       if (sidebarPartial !== 'empty-sidebar') {
         sidebarEl.innerHTML = sanitizeHtml(
-          await fetchPartial(sidebarPartial, 'sidebars')
+          await fetchPartialSafe(sidebarPartial, 'sidebars')
         );
         sidebarEl.style.display = '';
       } else {
