@@ -38,7 +38,7 @@ function isEditableElement(el) {
 function withinGridItem(el) {
   let node = el;
   while (node && node !== document.body) {
-    if (node.classList && node.classList.contains('grid-stack-item')) return true;
+    if (node.classList && node.classList.contains('canvas-item')) return true;
     node = node.parentElement || (node.getRootNode && node.getRootNode().host);
   }
   return false;
@@ -368,9 +368,18 @@ async function init() {
   await initPromise;
 }
 
+function findWidget(el) {
+  let node = el;
+  while (node && node !== document.body) {
+    if (node.classList && node.classList.contains('canvas-item')) return node;
+    node = node.parentElement || (node.getRootNode && node.getRootNode().host);
+  }
+  return null;
+}
+
 function close() {
   if (!activeEl) return;
-  const widget = activeEl.closest('.grid-stack-item');
+  const widget = findWidget(activeEl);
   if (widget) {
     document.dispatchEvent(new CustomEvent('textEditStop', { detail: { widget } }));
   }
@@ -391,7 +400,7 @@ function close() {
   document.removeEventListener('pointerdown', outsideHandler, true);
   document.removeEventListener('mousedown', outsideHandler, true);
   if (leaveHandler) {
-    const widget = activeEl.closest('.grid-stack-item');
+    const widget = findWidget(activeEl);
     widget?.removeEventListener('mouseleave', leaveHandler, true);
     toolbar?.removeEventListener('mouseleave', leaveHandler, true);
     leaveHandler = null;
@@ -415,7 +424,7 @@ export async function editElement(el, onSave) {
   if (activeEl === el) return;
   if (activeEl) close();
   activeEl = el;
-  const startWidget = el.closest('.grid-stack-item');
+  const startWidget = findWidget(el);
   // Immediately lock the widget so it cannot be moved while editing.
   activeEl.__onSave = onSave;
 

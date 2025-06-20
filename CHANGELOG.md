@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Refactored Text Box widget to support inline edits in both Pro and normal modes using the global editor.
+- Text editor toolbar now locates widgets across shadow roots, ensuring it opens when clicking text inside widget containers.
+- Builder text editor now only targets `.canvas-item` widgets, dropping legacy `.grid-stack-item` checks.
+- Fixed global text editor toolbar not opening when clicking text in the builder.
 - Builder header menu now includes a Pro Mode toggle to switch between visual editing and direct HTML/CSS/JS editing.
 - Admin grid height now expands automatically to fit widgets.
 - CanvasGrid gained an optional push mode so builder widgets can't overlap.
