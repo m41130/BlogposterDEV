@@ -487,7 +487,12 @@ export async function editElement(el, onSave) {
   }
 
   outsideHandler = ev => {
-    if (!el.contains(ev.target) && !toolbar.contains(ev.target)) close();
+    if (
+      !el.contains(ev.target) &&
+      !toolbar.contains(ev.target) &&
+      !(colorPicker && colorPicker.el.contains(ev.target))
+    )
+      close();
   };
   document.addEventListener('pointerdown', outsideHandler, true);
   document.addEventListener('mousedown', outsideHandler, true);
