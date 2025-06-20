@@ -42,6 +42,14 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
 
   let previewHeader;
   let viewportSelect;
+  const layoutLayers = [
+    { name: 'Global', layout: [] },
+    { name: 'Layer 1', layout: [] },
+    { name: 'Layer 2', layout: [] }
+  ];
+  let activeLayer = 0;
+  let globalLayoutName = null;
+  let layoutBar;
 
   function showPreviewHeader() {
     if (previewHeader) return;
@@ -258,6 +266,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     const clone = activeWidgetEl.cloneNode(true);
     clone.dataset.instanceId = genId();
     clone.dataset.global = activeWidgetEl.dataset.global || 'false';
+    clone.dataset.layer = activeWidgetEl.dataset.layer || String(activeLayer);
     gridEl.appendChild(clone);
     grid.makeWidget(clone);
     const widgetDef = allWidgets.find(w => w.id === clone.dataset.widgetId);
@@ -743,6 +752,21 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       id: el.dataset.instanceId,
       widgetId: el.dataset.widgetId,
       global: el.dataset.global === 'true',
+      layer: +el.dataset.layer || 0,
+      x: +el.dataset.x || 0,
+      y: +el.dataset.y || 0,
+      w: +el.getAttribute('gs-w'),
+      h: +el.getAttribute('gs-h'),
+      code: codeMap[el.dataset.instanceId] || null
+    }));
+  }
+
+  function getCurrentLayoutForLayer(idx) {
+    const items = Array.from(gridEl.querySelectorAll(`.canvas-item[data-layer="${idx}"]`));
+    return items.map(el => ({
+      id: el.dataset.instanceId,
+      widgetId: el.dataset.widgetId,
+      global: el.dataset.global === 'true',
       x: +el.dataset.x || 0,
       y: +el.dataset.y || 0,
       w: +el.getAttribute('gs-w'),
@@ -756,6 +780,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       widgetId: el.dataset.widgetId,
       w: +el.getAttribute('gs-w'),
       h: +el.getAttribute('gs-h'),
+      layer: +el.dataset.layer || 0,
       code: codeMap[el.dataset.instanceId] || null
     };
   }
@@ -766,9 +791,11 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     redoStack.length = 0;
   }
 
-  function applyLayout(layout) {
-    gridEl.innerHTML = '';
-    Object.keys(codeMap).forEach(k => delete codeMap[k]);
+  function applyLayout(layout, { append = false, layerIndex = activeLayer } = {}) {
+    if (!append) {
+      gridEl.innerHTML = '';
+      Object.keys(codeMap).forEach(k => delete codeMap[k]);
+    }
     layout.forEach(item => {
       const widgetDef = allWidgets.find(w => w.id === item.widgetId);
       if (!widgetDef) return;
@@ -781,6 +808,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       wrapper.dataset.widgetId = widgetDef.id;
       wrapper.dataset.instanceId = instId;
       wrapper.dataset.global = isGlobal ? 'true' : 'false';
+      wrapper.dataset.layer = String(layerIndex);
       wrapper.dataset.x = item.x ?? 0;
       wrapper.dataset.y = item.y ?? 0;
       wrapper.setAttribute('gs-w', item.w ?? 8);
@@ -874,8 +902,29 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
         pageId
       });
       pageData = pageRes?.data ?? pageRes ?? null;
+
+      try {
+        const globalRes = await meltdownEmit('getGlobalLayoutTemplate', {
+          jwt: window.ADMIN_TOKEN
+        });
+        layoutLayers[0].layout = Array.isArray(globalRes?.layout) ? globalRes.layout : [];
+        globalLayoutName = globalRes?.name || null;
+      } catch (err) {
+        console.warn('[Builder] failed to load global layout', err);
+      }
     } catch (err) {
       console.error('[Builder] load layout or page error', err);
+    }
+  }
+  else {
+    try {
+      const globalRes = await meltdownEmit('getGlobalLayoutTemplate', {
+        jwt: window.ADMIN_TOKEN
+      });
+      layoutLayers[0].layout = Array.isArray(globalRes?.layout) ? globalRes.layout : [];
+      globalLayoutName = globalRes?.name || null;
+    } catch (err) {
+      console.warn('[Builder] failed to load global layout', err);
     }
   }
 
@@ -957,6 +1006,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       const clone = el.cloneNode(true);
       clone.dataset.instanceId = genId();
       clone.dataset.global = el.dataset.global || 'false';
+      clone.dataset.layer = el.dataset.layer || String(activeLayer);
       gridEl.appendChild(clone);
       grid.makeWidget(clone);
       attachRemoveButton(clone);
@@ -1038,7 +1088,8 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   }
 
 
-  applyLayout(initialLayout);
+  layoutLayers[0].layout = initialLayout;
+  applyCompositeLayout(0);
   pushState(initialLayout);
 
   gridEl.addEventListener('dragover',  e => { e.preventDefault(); gridEl.classList.add('drag-over'); });
@@ -1062,6 +1113,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     wrapper.dataset.widgetId = widgetDef.id;
     wrapper.dataset.instanceId = instId;
     wrapper.dataset.global = 'false';
+    wrapper.dataset.layer = String(activeLayer);
     wrapper.dataset.x = x;
     wrapper.dataset.y = y;
     wrapper.setAttribute('gs-w', w);
@@ -1107,6 +1159,17 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   nameInput.placeholder = 'Layout name…';
   nameInput.value = layoutName;
   infoWrap.appendChild(nameInput);
+
+  const globalToggle = document.createElement('input');
+  globalToggle.type = 'checkbox';
+  globalToggle.id = 'layoutIsGlobal';
+  globalToggle.className = 'global-layout-toggle';
+  if (layoutName === globalLayoutName) globalToggle.checked = true;
+  infoWrap.appendChild(globalToggle);
+  const globalLabel = document.createElement('label');
+  globalLabel.textContent = 'Global';
+  globalLabel.setAttribute('for', 'layoutIsGlobal');
+  infoWrap.appendChild(globalLabel);
 
   const editFor = document.createElement('span');
   editFor.textContent = 'editing for';
@@ -1225,6 +1288,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
 
   startAutosave();
   applyProMode();
+  buildLayoutBar();
 
   saveBtn.addEventListener('click', async () => {
     const name = nameInput.value.trim();
@@ -1232,11 +1296,13 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     const layout = getCurrentLayout();
     try {
       await meltdownEmit('saveLayoutTemplate', {
+        jwt: window.ADMIN_TOKEN,
         moduleName: 'plainspace',
         name,
         lane: 'public',
         viewport: 'desktop',
-        layout
+        layout,
+        isGlobal: globalToggle.checked
       });
 
       const targetIds = pageId
@@ -1259,6 +1325,10 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       }));
 
       await meltdownEmitBatch(events);
+
+      if (globalToggle.checked) {
+        await meltdownEmit('setGlobalLayoutTemplate', { jwt: window.ADMIN_TOKEN, name });
+      }
 
       alert('Layout template saved');
     } catch (err) {
@@ -1297,4 +1367,46 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   } else {
     versionEl.textContent = 'builder still in alpha expect breaking changes';
   }
+
+  function saveActiveLayer() {
+    layoutLayers[activeLayer].layout = getCurrentLayoutForLayer(activeLayer);
+  }
+
+  function updateLayoutBar() {
+    if (!layoutBar) return;
+    layoutBar.querySelectorAll('button').forEach((btn, idx) => {
+      btn.classList.toggle('active', idx === activeLayer);
+    });
+  }
+
+  function applyCompositeLayout(idx) {
+    gridEl.innerHTML = '';
+    Object.keys(codeMap).forEach(k => delete codeMap[k]);
+    applyLayout(layoutLayers[0].layout, { append: false, layerIndex: 0 });
+    if (idx !== 0) {
+      applyLayout(layoutLayers[idx].layout, { append: true, layerIndex: idx });
+    }
+  }
+
+  function switchLayer(idx) {
+    if (idx === activeLayer) return;
+    saveActiveLayer();
+    activeLayer = idx;
+    applyCompositeLayout(idx);
+    updateLayoutBar();
+  }
+
+  function buildLayoutBar() {
+    layoutBar = document.createElement('div');
+    layoutBar.className = 'layout-bar';
+    layoutLayers.forEach((layer, idx) => {
+      const btn = document.createElement('button');
+      btn.textContent = idx === 0 ? 'Global' : `Layer ${idx}`;
+      if (idx === activeLayer) btn.classList.add('active');
+      btn.addEventListener('click', () => switchLayer(idx));
+      layoutBar.appendChild(btn);
+    });
+    document.body.appendChild(layoutBar);
+  }
+
 }

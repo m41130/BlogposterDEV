@@ -443,13 +443,66 @@ function registerPlainSpaceEvents(motherEmitter) {
         },
         (err, rows = []) => {
           if (err) return cb(err);
-          const templates = rows.map(r => ({ name: r.name, previewPath: r.preview_path || '' }));
+          const templates = rows.map(r => ({ name: r.name, previewPath: r.preview_path || '', isGlobal: !!r.is_global }));
           cb(null, { templates });
         }
       );
     } catch (err) {
       cb(err);
     }
+  });
+
+  // 7) getGlobalLayoutTemplate
+  motherEmitter.on('getGlobalLayoutTemplate', (payload, cb) => {
+    try {
+      const { jwt } = payload || {};
+      if (!jwt) {
+        return cb(new Error('[plainSpace] Invalid payload in getGlobalLayoutTemplate.'));
+      }
+      motherEmitter.emit(
+        'dbSelect',
+        {
+          jwt,
+          moduleName: MODULE,
+          moduleType: 'core',
+          table: '__rawSQL__',
+          data: { rawSQL: 'GET_GLOBAL_LAYOUT_TEMPLATE', params: [{}] }
+        },
+        (err, rows = []) => {
+          if (err) return cb(err);
+          if (!rows.length) return cb(null, { layout: [], name: null });
+          let layoutArr = rows[0].layout_json || [];
+          if (typeof layoutArr === 'string') {
+            try { layoutArr = JSON.parse(layoutArr); } catch { layoutArr = []; }
+          }
+          cb(null, { layout: layoutArr, name: rows[0].name });
+        }
+      );
+    } catch (err) { cb(err); }
+  });
+
+  // 8) setGlobalLayoutTemplate
+  motherEmitter.on('setGlobalLayoutTemplate', (payload, cb) => {
+    try {
+      const { jwt, name, decodedJWT } = payload || {};
+      if (!jwt || !name) {
+        return cb(new Error('[plainSpace] Invalid payload in setGlobalLayoutTemplate.'));
+      }
+      if (decodedJWT && !hasPermission(decodedJWT, 'plainspace.saveLayoutTemplate')) {
+        return cb(new Error('Forbidden – missing permission: plainspace.saveLayoutTemplate'));
+      }
+      motherEmitter.emit(
+        'dbUpdate',
+        {
+          jwt,
+          moduleName: MODULE,
+          moduleType: 'core',
+          table: '__rawSQL__',
+          data: { rawSQL: 'SET_GLOBAL_LAYOUT_TEMPLATE', params: [{ name }] }
+        },
+        cb
+      );
+    } catch (err) { cb(err); }
   });
 
   // 7) saveWidgetInstance
