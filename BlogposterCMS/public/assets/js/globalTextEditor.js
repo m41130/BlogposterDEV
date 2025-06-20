@@ -95,7 +95,7 @@ async function init() {
         '<button type="button" class="tb-btn fs-dec">-</button>' +
         '<div class="fs-dropdown">' +
           '<button type="button" class="fs-btn"><span>' +
-            '<input type="number" class="fs-input" value="16" min="8" />' +
+            '<input type="number" class="fs-input" value="16" min="1" max="800" step="0.1" pattern="\\d*" tabindex="-1" placeholder="--" />' +
           '</span></button>' +
           '<div class="fs-options">' +
             [12,14,16,18,24,36].map(s => `<span data-size="${s}">${s}</span>`).join('') +
@@ -231,7 +231,7 @@ async function init() {
       activeEl.focus();
     };
     const applySize = size => {
-      const val = parseInt(size, 10);
+      const val = parseFloat(size);
       if (!val) return;
       fsInput.value = val;
       if (!activeEl) return;
@@ -326,10 +326,10 @@ async function init() {
       activeEl.focus();
     };
     toolbar.querySelector('.fs-inc').addEventListener('click', () => {
-      applySize((parseInt(fsInput.value, 10) || 16) + 1);
+      applySize((parseFloat(fsInput.value) || 16) + 1);
     });
     toolbar.querySelector('.fs-dec').addEventListener('click', () => {
-      applySize((parseInt(fsInput.value, 10) || 16) - 1);
+      applySize((parseFloat(fsInput.value) || 16) - 1);
     });
     const filterOptions = val => {
       fsOptions.querySelectorAll('span[data-size]').forEach(span => {
