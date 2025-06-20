@@ -2,10 +2,17 @@ import { registerElement } from '../../../js/globalTextEditor.js';
 
 export function render(el) {
   if (!el) return;
-  const block = document.createElement('div');
-  block.className = 'textbox-widget';
-  block.textContent = 'Lorem ipsum dolor sit amet';
+  const wrapper = document.createElement('div');
+  wrapper.className = 'textbox-widget';
+
+  const p = document.createElement('p');
+  const span = document.createElement('span');
+  span.textContent = 'Lorem ipsum dolor sit amet';
+  p.appendChild(span);
+  wrapper.appendChild(p);
+
   el.innerHTML = '';
-  el.appendChild(block);
-  registerElement(block);
+  el.appendChild(wrapper);
+
+  registerElement(span);
 }

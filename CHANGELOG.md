@@ -17,6 +17,8 @@ El Psy Kongroo
 - Fixed toolbar closing when picking a color; color selections now apply correctly.
 - Color picker opens outside the text editor toolbar and stays open until closed or another toolbar action is used.
 - Reused built-in `type` icon for Text Box widget; removed unused file.
+- Text Box widget markup now uses a `<div><p><span></span></p></div>` structure
+  so inline edits can target individual spans.
 - Text widgets now enter editing mode only on double-click, preventing
   accidental drags while typing.
 - Widget containers disable text selection during drag; editing mode re-enables
