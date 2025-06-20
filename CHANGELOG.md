@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Builder header now attaches to `.app-scope` when present and falls back to the
+  document body to ensure visibility in all layouts.
+- Fixed widget dropping positions by basing Y coordinates on `DEFAULT_ROWS`.
 - Ensured builder header always mounts at the top of the page and improved
   widget drop coordinate detection for touch devices.
 - Improved builder header visibility by raising its z-index and added safer widget drop coordinate calculation.
