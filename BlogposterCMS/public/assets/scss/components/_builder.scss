@@ -46,6 +46,10 @@
   flex: 1;
 }
 
+.builder-header .global-layout-toggle {
+  margin-left: 8px;
+}
+
 .builder-header .page-link {
   color: var(--color-primary);
 }
@@ -426,13 +430,37 @@ body.preview-desktop #content {
 .builder-version {
   position: fixed;
   left: 0;
-  bottom: 0;
+  bottom: 32px;
   padding: 2px 4px;
   font-size: 10px;
   color: var(--color-text);
   background: rgba(255, 255, 255, 0.6);
   pointer-events: none;
   z-index: 50;
+}
+
+.layout-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  gap: 4px;
+  padding: 4px 8px;
+  background: var(--color-white);
+  border-top: 1px solid #eee;
+  z-index: 60;
+
+  button {
+    background: transparent;
+    border: none;
+    padding: 4px 8px;
+    cursor: pointer;
+  }
+
+  .active {
+    font-weight: 600;
+  }
 }
 
 .bounding-box {

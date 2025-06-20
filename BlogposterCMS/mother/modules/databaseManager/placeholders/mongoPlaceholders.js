@@ -1206,6 +1206,10 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
       { preview_path: { $exists: false } },
       { $set: { preview_path: null } }
     );
+    await db.collection(collectionName).updateMany(
+      { is_global: { $exists: false } },
+      { $set: { is_global: false } }
+    );
     return { done: true };
     }
 
@@ -1234,6 +1238,7 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
             viewport: d.viewport,
             layout_json: d.layoutArr || [],
             preview_path: d.previewPath || null,
+            is_global: !!d.isGlobal,
             updated_at: new Date().toISOString()
           }
         },
@@ -1252,10 +1257,22 @@ async function handleBuiltInPlaceholderMongo(db, operation, params) {
     const d = params[0] || {};
     const docs = await db.collection('plainspace_layout_templates')
         .find({ lane: d.lane })
-        .project({ name: 1, preview_path: 1, _id: 0 })
+        .project({ name: 1, preview_path: 1, is_global: 1, _id: 0 })
         .sort({ name: 1 })
         .toArray();
     return docs;
+    }
+
+    case 'GET_GLOBAL_LAYOUT_TEMPLATE': {
+    const doc = await db.collection('plainspace_layout_templates').findOne({ is_global: true });
+    return doc ? [doc] : [];
+    }
+
+    case 'SET_GLOBAL_LAYOUT_TEMPLATE': {
+    const d = params[0] || {};
+    await db.collection('plainspace_layout_templates').updateMany({}, { $set: { is_global: false } });
+    await db.collection('plainspace_layout_templates').updateOne({ name: d.name }, { $set: { is_global: true } });
+    return { success: true };
     }
 
     case 'GET_PLAINSPACE_LAYOUT': {

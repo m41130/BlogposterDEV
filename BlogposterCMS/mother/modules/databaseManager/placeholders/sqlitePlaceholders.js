@@ -1053,6 +1053,7 @@ case 'INIT_PLAINSPACE_LAYOUT_TEMPLATES': {
       viewport    TEXT NOT NULL,
       layout_json TEXT NOT NULL,
       preview_path TEXT,
+      is_global   INTEGER DEFAULT 0,
       updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP
     );
   `);
@@ -1061,6 +1062,14 @@ case 'INIT_PLAINSPACE_LAYOUT_TEMPLATES': {
   if (!hasCol) {
     try {
       await db.run(`ALTER TABLE plainspace_layout_templates ADD COLUMN preview_path TEXT;`);
+    } catch (e) {
+      if (!/duplicate column/i.test(String(e.message))) throw e;
+    }
+  }
+  const hasGlobal = Array.isArray(cols) && cols.some(c => c.name === 'is_global');
+  if (!hasGlobal) {
+    try {
+      await db.run(`ALTER TABLE plainspace_layout_templates ADD COLUMN is_global INTEGER DEFAULT 0;`);
     } catch (e) {
       if (!/duplicate column/i.test(String(e.message))) throw e;
     }
@@ -1085,22 +1094,23 @@ case 'UPSERT_PLAINSPACE_LAYOUT_TEMPLATE': {
   const d = params?.[0] ?? {};
   await db.run(`
     INSERT INTO plainspace_layout_templates
-      (name, lane, viewport, layout_json, preview_path, updated_at)
-    VALUES (?,?,?,?,?,CURRENT_TIMESTAMP)
+      (name, lane, viewport, layout_json, preview_path, is_global, updated_at)
+    VALUES (?,?,?,?,?, ?, CURRENT_TIMESTAMP)
     ON CONFLICT(name) DO UPDATE SET
       lane        = excluded.lane,
       viewport    = excluded.viewport,
       layout_json = excluded.layout_json,
       preview_path= excluded.preview_path,
+      is_global   = excluded.is_global,
       updated_at  = CURRENT_TIMESTAMP;
-  `, [d.name, d.lane, d.viewport, JSON.stringify(d.layoutArr ?? []), d.previewPath ?? null]);
+  `, [d.name, d.lane, d.viewport, JSON.stringify(d.layoutArr ?? []), d.previewPath ?? null, d.isGlobal ? 1 : 0]);
   return { success: true };
 }
 
 case 'GET_PLAINSPACE_LAYOUT_TEMPLATE': {
   const { name } = params?.[0] ?? {};
   const rows = await db.all(`
-    SELECT layout_json FROM plainspace_layout_templates
+    SELECT layout_json, is_global FROM plainspace_layout_templates
      WHERE name = ?;
   `, [name]);
   return rows;
@@ -1109,11 +1119,26 @@ case 'GET_PLAINSPACE_LAYOUT_TEMPLATE': {
 case 'GET_PLAINSPACE_LAYOUT_TEMPLATE_NAMES': {
   const { lane } = params?.[0] ?? {};
   const rows = await db.all(`
-    SELECT name, preview_path FROM plainspace_layout_templates
+    SELECT name, preview_path, is_global FROM plainspace_layout_templates
      WHERE lane = ?
      ORDER BY name ASC;
   `, [lane]);
   return rows;
+}
+
+case 'GET_GLOBAL_LAYOUT_TEMPLATE': {
+  const rows = await db.all(`
+    SELECT name, layout_json FROM plainspace_layout_templates
+     WHERE is_global = 1
+     LIMIT 1;
+  `);
+  return rows;
+}
+
+case 'SET_GLOBAL_LAYOUT_TEMPLATE': {
+  const { name } = params?.[0] ?? {};
+  await db.run(`UPDATE plainspace_layout_templates SET is_global = (name = ?);`, [name]);
+  return { success: true };
 }
 
 case 'GET_PLAINSPACE_LAYOUT': {

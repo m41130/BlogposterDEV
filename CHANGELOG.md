@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Layout templates can now be marked as global via an `is_global` flag and edited directly in the builder.
 - Restored floating toolbar styling for the global text editor via new SCSS component.
 - Refactored Text Box widget to support inline edits in both Pro and normal modes using the global editor.
 - Text editor toolbar now locates widgets across shadow roots, ensuring it opens when clicking text inside widget containers.
@@ -24,6 +25,8 @@ El Psy Kongroo
 - Replaced all public widgets with a single HTML Block blueprint.
 - Opening the code editor now preloads the current widget HTML instead of showing a blank editor.
 - CanvasGrid can size widgets in percentages for responsive layouts via the new `percentageMode` option.
+- Builder adds a bottom layout bar for switching between the global layout and individual layers.
+- Global layout now stays visible while switching layers; widgets track their layer with a `data-layer` attribute.
 - CanvasGrid now emits global events for mouse, touch, keyboard and window
   interactions, enabling centralized handling in the builder and dashboard.
 - Global listener binding moved to a shared module so builder components

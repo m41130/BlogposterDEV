@@ -1174,12 +1174,17 @@ switch (operation) {
           viewport VARCHAR(100) NOT NULL,
           layout_json JSONB NOT NULL,
           preview_path TEXT DEFAULT NULL,
+          is_global BOOLEAN DEFAULT false,
           updated_at TIMESTAMP NOT NULL DEFAULT NOW()
         );
       `);
       await client.query(`
         ALTER TABLE plainspace.layout_templates
           ADD COLUMN IF NOT EXISTS preview_path TEXT;
+      `);
+      await client.query(`
+        ALTER TABLE plainspace.layout_templates
+          ADD COLUMN IF NOT EXISTS is_global BOOLEAN DEFAULT false;
       `);
       return { done: true };
     }
@@ -1208,20 +1213,22 @@ switch (operation) {
     case 'UPSERT_PLAINSPACE_LAYOUT_TEMPLATE': {
       const d = params[0] || {};
       await client.query(`
-        INSERT INTO plainspace.layout_templates (name, lane, viewport, layout_json, preview_path, updated_at)
-        VALUES ($1, $2, $3, $4, $5, NOW())
+        INSERT INTO plainspace.layout_templates (name, lane, viewport, layout_json, preview_path, is_global, updated_at)
+        VALUES ($1, $2, $3, $4, $5, $6, NOW())
         ON CONFLICT (name)
         DO UPDATE SET lane = EXCLUDED.lane,
                       viewport = EXCLUDED.viewport,
                       layout_json = EXCLUDED.layout_json,
                       preview_path = EXCLUDED.preview_path,
+                      is_global = EXCLUDED.is_global,
                       updated_at = NOW()
       `, [
         d.name,
         d.lane,
         d.viewport,
         JSON.stringify(d.layoutArr || []),
-        d.previewPath || null
+        d.previewPath || null,
+        !!d.isGlobal
       ]);
       return { success:true };
     }
@@ -1229,7 +1236,7 @@ switch (operation) {
     case 'GET_PLAINSPACE_LAYOUT_TEMPLATE': {
       const d = params[0] || {};
       const result = await client.query(`
-        SELECT layout_json
+        SELECT layout_json, is_global
           FROM plainspace.layout_templates
          WHERE name = $1
       `, [d.name]);
@@ -1239,12 +1246,28 @@ switch (operation) {
     case 'GET_PLAINSPACE_LAYOUT_TEMPLATE_NAMES': {
       const d = params[0] || {};
       const result = await client.query(`
-        SELECT name, preview_path
+        SELECT name, preview_path, is_global
           FROM plainspace.layout_templates
          WHERE lane = $1
          ORDER BY name ASC
       `, [d.lane]);
       return result.rows;
+    }
+
+    case 'GET_GLOBAL_LAYOUT_TEMPLATE': {
+      const result = await client.query(`
+        SELECT name, layout_json
+          FROM plainspace.layout_templates
+         WHERE is_global = true
+         LIMIT 1
+      `);
+      return result.rows;
+    }
+
+    case 'SET_GLOBAL_LAYOUT_TEMPLATE': {
+      const d = params[0] || {};
+      await client.query(`UPDATE plainspace.layout_templates SET is_global = (name = $1)` , [d.name]);
+      return { success: true };
     }
     
     case 'GET_PLAINSPACE_LAYOUT': {
