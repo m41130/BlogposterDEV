@@ -11,6 +11,7 @@ El Psy Kongroo
 - Builder header menu now includes a Pro Mode toggle to switch between visual editing and direct HTML/CSS/JS editing.
 - Admin grid height now expands automatically to fit widgets.
 - CanvasGrid gained an optional push mode so builder widgets can't overlap.
+- Builder widgets now support layering with z-index controls in the options menu.
 - Widget containers now enforce full width and height via inline styles to
   prevent theme overrides.
 - New `seedAdminWidget` helper saves width and height options when seeding
