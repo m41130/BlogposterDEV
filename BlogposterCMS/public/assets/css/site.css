@@ -408,6 +408,7 @@ body.dashboard-edit-mode .canvas-item {
   --color-secondary-light: #F5F5F5;
   --color-text: #222222;
   --color-white: #FFFFFF;
+  --color-white-dark: #F7F7F7;
   --user-color: #008080;
   --color-primary: var(--user-color);
   --gradient-primary: linear-gradient(90deg, var(--user-color), #FF00FF, #FFA500);
@@ -2249,6 +2250,28 @@ body.preview-desktop #content {
 }
 .text-block-editor-toolbar .tb-btn:hover {
   background: var(--color-secondary-light);
+}
+.text-block-editor-toolbar .font-size-control {
+  background: var(--color-white-dark);
+  border-radius: 4px;
+}
+.text-block-editor-toolbar .font-size-control .fs-dec {
+  border-right: 1px solid var(--color-secondary-light);
+}
+.text-block-editor-toolbar .font-size-control .fs-inc {
+  border-left: 1px solid var(--color-secondary-light);
+}
+.text-block-editor-toolbar .font-size-control .fs-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+.text-block-editor-toolbar .font-size-control .fs-dropdown {
+  position: relative;
+}
+.text-block-editor-toolbar .font-size-control .fs-dropdown.open .fs-options {
+  display: block;
 }
 .text-block-editor-toolbar .font-family-control,
 .text-block-editor-toolbar .font-size-control {
