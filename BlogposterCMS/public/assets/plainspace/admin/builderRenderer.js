@@ -184,6 +184,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     const container = root?.querySelector('.widget-container');
     if (!container) return;
     container.setAttribute('contenteditable', 'true');
+    container.style.userSelect = 'text';
     let obs = userObservers.get(widget);
     if (obs) obs.disconnect();
     obs = new MutationObserver(() => {
@@ -201,7 +202,10 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   function stopUserMode(widget) {
     const root = widget.querySelector('.canvas-item-content')?.shadowRoot;
     const container = root?.querySelector('.widget-container');
-    container?.removeAttribute('contenteditable');
+    if (container) {
+      container.removeAttribute('contenteditable');
+      container.style.userSelect = 'none';
+    }
     const obs = userObservers.get(widget);
     if (obs) obs.disconnect();
     userObservers.delete(widget);

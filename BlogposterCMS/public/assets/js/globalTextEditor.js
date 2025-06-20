@@ -384,6 +384,7 @@ function close() {
     document.dispatchEvent(new CustomEvent('textEditStop', { detail: { widget } }));
   }
   activeEl.removeAttribute('contenteditable');
+  activeEl.style.userSelect = 'none';
   let html = editingPlain ? activeEl.textContent : activeEl.innerHTML;
   html = sanitizeHtml(html.trim());
   if (editingPlain) {
@@ -430,6 +431,7 @@ export async function editElement(el, onSave) {
 
   editingPlain = !/<[a-z][\s\S]*>/i.test(el.innerHTML.trim());
   el.setAttribute('contenteditable', 'true');
+  el.style.userSelect = 'text';
   el.focus();
   toolbar.style.display = 'flex';
 
@@ -458,6 +460,7 @@ export async function editElement(el, onSave) {
           activeEl = newEl;
           el = newEl;
           newEl.setAttribute('contenteditable', 'true');
+          newEl.style.userSelect = 'text';
           newEl.focus();
         }
       };
