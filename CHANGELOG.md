@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Added timeout handling for all `meltdownEmit` requests to prevent
+  indefinite UI blocking.
+- MotherEmitter now returns an error if `moduleName` is missing in the
+  payload instead of silently ignoring the event.
+- Provided `moduleName` when saving the global layout template from the
+  builder.
+- Fixed builder freeze by including `moduleName` when requesting the global layout template.
 - Prevented builder crashes when a layout partial is missing by safely
   catching `fetchPartial` errors in the renderer.
 - Builder header now attaches to `.app-scope` when present and falls back to the

@@ -189,7 +189,9 @@ class MotherEmitter extends EventEmitter {
     // (2) minimal payload check
     const firstArg = args[0];
     if (!firstArg || typeof firstArg !== 'object' || !firstArg.moduleName) {
-      console.warn('[MotherEmitter] WARNING: Event="%s" missing \'moduleName\' in firstArg => ignoring.', eventName);
+      console.warn('[MotherEmitter] WARNING: Event="%s" missing \'moduleName\' in firstArg => returning error.', eventName);
+      const cb = args.find(a => typeof a === 'function');
+      if (cb) cb(new Error('Missing moduleName in payload'));
       return false;
     }
 
