@@ -7,7 +7,7 @@ Layout templates let you reuse grid layouts across multiple pages. Each template
 ## Creating Templates
 
 1. Open **Layouts** in the admin navigation.
-2. Click **Create** and arrange widgets on the empty grid.
+2. Click **Create** and arrange widgets on the empty CanvasGrid layout.
 3. Save the template. A preview image is automatically generated.
 
 Templates can be edited later by selecting them from the list. Updating a template does not affect existing pages until you apply the template again.

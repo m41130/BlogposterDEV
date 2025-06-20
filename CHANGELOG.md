@@ -3,151 +3,33 @@ All notable changes to this project will be documented in this file.
 
 El Psy Kongroo
 
-## [Unreleased]
-- Font size input now supports decimal values up to 800 for precise control.
-- Widgets stay locked until clicking outside; edit mode now opens on a second
-  click of the selected widget instead of a double-click.
-- Simplified widget locking: text edit mode now locks widgets directly and
-  updates the builder grid to prevent movement until editing ends, removing
-  unused auto-lock functions.
-- Builder widgets now show the action bar on first click and enter text edit
-  mode on double-click while locking the widget until editing ends. ESC or
-  clicking outside exits editing.
-- Updated font size control styling: dropdown uses a darker white background and
-  plus/minus buttons show subtle borders.
-- Fixed toolbar closing when picking a color; color selections now apply correctly.
-- Color picker opens outside the text editor toolbar and stays open until closed or another toolbar action is used.
-- Reused built-in `type` icon for Text Box widget; removed unused file.
-- Text Box widget markup now uses a `<div><p><span></span></p></div>` structure
-  so inline edits can target individual spans.
-- Text widgets now enter editing mode only on double-click, preventing
-  accidental drags while typing.
-- Widget containers disable text selection during drag; editing mode re-enables
-  it for seamless highlighting.
-- Moved global layout checkbox from header to the layout bar.
-- Adjusted text editor toolbar styling: now appears below header, spans nearly
-  the full width and sports a 21px border-radius.
-- Applied `fetchWithTimeout` globally so stalled requests never freeze the UI.
-- Builder text editing now requires selecting a widget first; clicking text again
-  opens the floating toolbar and temporarily disables dragging while allowing
-  resizing.
-- Added timeout handling for all `meltdownEmit` requests to prevent
-  indefinite UI blocking.
-- MotherEmitter now returns an error if `moduleName` is missing in the
-  payload instead of silently ignoring the event.
-- Provided `moduleName` when saving the global layout template from the
-  builder.
-- Fixed builder freeze by including `moduleName` when requesting the global layout template.
-- Prevented builder crashes when a layout partial is missing by safely
-  catching `fetchPartial` errors in the renderer.
-- Builder header now attaches to `.app-scope` when present and falls back to the
-  document body to ensure visibility in all layouts.
-- Fixed widget dropping positions by basing Y coordinates on `DEFAULT_ROWS`.
-- Ensured builder header always mounts at the top of the page and improved
-  widget drop coordinate detection for touch devices.
-- Improved builder header visibility by raising its z-index and added safer widget drop coordinate calculation.
-- Fixed widget dropping in the builder by calculating grid coordinates relative to the grid element.
-- Fixed missing `moduleName` when seeding widget instances, preventing meltdown warnings during startup.
-- Layout templates can now be marked as global via an `is_global` flag and edited directly in the builder.
-- Restored floating toolbar styling for the global text editor via new SCSS component.
-- Refactored Text Box widget to support inline edits in both Pro and normal modes using the global editor.
-- Text editor toolbar now locates widgets across shadow roots, ensuring it opens when clicking text inside widget containers.
-- Builder text editor now only targets `.canvas-item` widgets, dropping legacy `.grid-stack-item` checks.
-- Fixed global text editor toolbar not opening when clicking text in the builder.
-- Builder header menu now includes a Pro Mode toggle to switch between visual editing and direct HTML/CSS/JS editing.
-- Admin grid height now expands automatically to fit widgets.
-- CanvasGrid gained an optional push mode so builder widgets can't overlap.
-- Builder widgets now support layering with z-index controls in the options menu.
-- Widget containers now enforce full width and height via inline styles to
-  prevent theme overrides.
-- New `seedAdminWidget` helper saves width and height options when seeding
-  admin lane widgets.
-- Default admin widgets now define layout hints for their initial size.
-- Added Text Box widget for basic input with a lorem ipsum placeholder.
-- Builder: validates HTML tags with a shared `allowedTags` list in the text editor.
-- Builder: `.canvas-item-content.builder-themed` now fills its parent so the bounding box matches widget dimensions.
-- Replaced all public widgets with a single HTML Block blueprint.
-- Opening the code editor now preloads the current widget HTML instead of showing a blank editor.
-- CanvasGrid can size widgets in percentages for responsive layouts via the new `percentageMode` option.
-- Builder adds a bottom layout bar for switching between the global layout and individual layers.
-- Global layout now stays visible while switching layers; widgets track their layer with a `data-layer` attribute.
-- CanvasGrid now emits global events for mouse, touch, keyboard and window
-  interactions, enabling centralized handling in the builder and dashboard.
-- Global listener binding moved to a shared module so builder components
-  subscribe to the same event set.
-- Documentation added for `bindGlobalListeners` and the global DOM events.
-- Builder autosave is now debounced and only triggers when the layout changes.
-  A 30 second fallback interval ensures progress is still saved without flooding
-  the server.
-- Removed hardcoded column limit from CanvasGrid so widgets can be dragged across the full width in builder and dashboard.
-- Fixed bounding box position mismatch during widget dragging by copying the
-  widget's transform when updating the selection frame.
-- Selection frame now refreshes after a widget is updated so the bounding box
-  stays aligned with the final position.
-- Saving a layout template for multiple pages now sends a single batched
-  request, preventing rate limit errors during bulk updates.
-- Removed legacy grid positioning attributes (gs-x, gs-y); widget moves now
-  persist directly via inline transform styles.
-- Fixed drag positions not updating visually; widgets now apply transform styles directly during mousemove.
-- Fixed false "Skipping missing widget file" warnings by correcting the
-  public directory path in the plainSpace module.
-- Builder now skips widgets whose script files are missing so deleted widgets no longer appear in the builder.
-- Removed legacy "textBlockWidget" entry; existing pages should use the new text widget.
-- Fixed maintenance mode check to accept numeric or boolean values, preventing
-  false redirects to the "Coming Soon" page.
-- Preview mode no longer limits widget scaling; removed max-width restriction on
-  the content area.
-- Added basic public widgets (text, image, button, container, shape) as editable HTML blocks.
-- Widgets now move in real time during drag operations in the builder.
-- Canvas grid enforces boundaries so widgets stay within the grid area.
-- Removed GridStack dependency in favor of a custom drag-and-drop canvas grid.
-- CanvasGrid drag now uses GPU-accelerated transforms with a ghost element for smoother 60fps movement.
-- Drag ghosts now use absolute positioning and translate3d for snap-to-grid
-  movement.
-- Updated admin template and SCSS to use the new canvas grid classes.
-- Widget HTML edits from the toolbar now sync to the code editor, keeping custom code up to date.
-- Fonts now load from the fonts manager so custom providers can add new fonts.
-- Added font selection dropdown to the builder text editor toolbar.
-- Font size and text color changes now wrap text in spans so styles persist when saving.
-- Preset color swatches are now rendered as buttons and layout uses six columns.
-- Form inputs inside widgets now auto-lock their parent on focus and
-  unlock when focus leaves, ensuring they remain selected during edits.
-- Widgets remain selected when editing text. They temporarily lock on
-  text click and unlock once the pointer leaves.
-- Color picker swatches now wrap after six rows to keep columns compact.
-- Preset color pickers in the user editor and page builder now organize
-  swatches into six-row columns for a consistent layout.
-- Editing text now starts on a single click and locks the widget until the
-  pointer leaves, replacing the old double-click behavior.
-- Fixed color picker initialization in the text editor toolbar to prevent
-  `replaceChild` errors when opening the toolbar.
-- Fixed color picker import for Pickr library to avoid runtime error in the admin UI.
-- Fonts Manager now loads after all core modules. Provider registration requires a valid JWT and the internal secret.
-- Widgets lock when clicking into a text field and unlock when leaving the
-  widget, keeping the editor open.
-- Widget Manager now registers widgets from `public/assets/plainspace/community`
-  with a basic security scan during startup.
-- Documented how to safely load community widgets in a dedicated folder.
-- Pickr styles moved to /assets/css/vendor/pickr.css and loaded separately on admin pages.
-- Added System Settings widget with options for site title, description,
-  maintenance mode toggle and maintenance page selection.
-- Maintenance middleware now reads `MAINTENANCE_PAGE_ID` to redirect to a custom page.
-- Custom color selection now uses the Pickr widget instead of the browser color input.
-- Dragging widgets no longer shows a ghost box at their old location in the builder.
-- Text color button now displays an underlined 'A' icon reflecting the selected color and opens the palette below the toolbar.
-- Color picker in user editor now floats above fields when opened.
-- Text editor toolbar now includes a floating color picker to change selected text or entire blocks.
-- Added reusable color picker component that shows preset, user and theme colors.
-- Fonts Manager now loads Google Fonts dynamically and can be toggled from the admin Fonts page.
-- Increasing font size without a selection now affects the entire widget.
-- Font size selector in the text editor now shows preset sizes below the input while typing and aligns with other toolbar controls.
-- Font size tool aligns with other buttons and updates selected text directly in widgets.
-- Admin token validation no longer deactivates core modules when the session token has expired.
-- Sanitized HTML fetched for layout partials and custom widgets to prevent DOM text from being interpreted as executable markup.
-- Font size control input now sits inside a button that toggles a preset-size dropdown and has a rounded border.
-- Action bar now hides during widget drag or resize and reappears at the new position.
-- User editor color picker now opens via a circle button showing the current color.
-- Widget action bar and bounding box now appear when clicking text; double-click to edit.
+## [0.6.0] – 2025-06-21
+### Core Rewrite
+- CanvasGrid replaces GridStack with a fully custom drag-and-drop builder using GPU-accelerated transforms.
+- Dragging and resizing are smoother at 60fps via absolute positioning and ghost elements.
+- Widgets lock on click until editing is complete, preventing accidental moves.
+- Added z-index layering controls and enforced boundaries so widgets stay within the grid.
+
+### Text Editing Overhaul
+- Text widgets enter edit mode on click and unlock automatically on pointer leave.
+- Floating toolbar redesigned with intuitive font size controls and color pickers.
+- Text edits sync to both the HTML and code editors.
+
+### UI & UX Improvements
+- Polished action bar, font controls and color pickers for a cleaner builder UI.
+- Widgets can size using percentages for responsive layouts.
+- New bottom layout bar enables quick switching between global and individual layouts.
+
+### Stability & Performance
+- Improved request timeout handling to avoid UI freezes and errors.
+- Centralized event management provides consistent mouse, touch and keyboard interactions.
+- Autosave is debounced with a fallback interval to ensure changes persist without server flooding.
+
+### Removed Legacy Elements
+- Eliminated GridStack dependencies and old widget checks for a simpler codebase.
+- Consolidated public widgets into customizable HTML Blocks.
+
+This release marks a foundational shift to a fully independent and modular builder.
 
 ## [0.5.2] – 2025-06-16
 - Widgets auto-lock when editing text fields and unlock as soon as focus leaves
