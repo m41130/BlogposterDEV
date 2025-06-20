@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Moved global layout checkbox from header to the layout bar.
+- Adjusted text editor toolbar styling: now appears below header, spans nearly
+  the full width and sports a 21px border-radius.
 - Applied `fetchWithTimeout` globally so stalled requests never freeze the UI.
 - Builder text editing now requires selecting a widget first; clicking text again
   opens the floating toolbar and temporarily disables dragging while allowing

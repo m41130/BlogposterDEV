@@ -50,6 +50,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   let activeLayer = 0;
   let globalLayoutName = null;
   let layoutBar;
+  let globalToggle;
 
   function showPreviewHeader() {
     if (previewHeader) return;
@@ -1213,16 +1214,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   nameInput.value = layoutName;
   infoWrap.appendChild(nameInput);
 
-  const globalToggle = document.createElement('input');
-  globalToggle.type = 'checkbox';
-  globalToggle.id = 'layoutIsGlobal';
-  globalToggle.className = 'global-layout-toggle';
-  if (layoutName === globalLayoutName) globalToggle.checked = true;
-  infoWrap.appendChild(globalToggle);
-  const globalLabel = document.createElement('label');
-  globalLabel.textContent = 'Global';
-  globalLabel.setAttribute('for', 'layoutIsGlobal');
-  infoWrap.appendChild(globalLabel);
+  // Global layout toggle moved to the layout bar
 
   const editFor = document.createElement('span');
   editFor.textContent = 'editing for';
@@ -1463,6 +1455,16 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
       btn.addEventListener('click', () => switchLayer(idx));
       layoutBar.appendChild(btn);
     });
+    const toggleWrap = document.createElement('label');
+    toggleWrap.className = 'layout-global-toggle';
+    globalToggle = document.createElement('input');
+    globalToggle.type = 'checkbox';
+    globalToggle.id = 'layoutIsGlobal';
+    globalToggle.className = 'global-layout-toggle';
+    if (layoutName === globalLayoutName) globalToggle.checked = true;
+    toggleWrap.appendChild(globalToggle);
+    toggleWrap.append(' Global');
+    layoutBar.appendChild(toggleWrap);
     document.body.appendChild(layoutBar);
   }
 

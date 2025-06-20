@@ -46,9 +46,6 @@
   flex: 1;
 }
 
-.builder-header .global-layout-toggle {
-  margin-left: 8px;
-}
 
 .builder-header .page-link {
   color: var(--color-primary);
@@ -460,6 +457,13 @@ body.preview-desktop #content {
 
   .active {
     font-weight: 600;
+  }
+
+  .layout-global-toggle {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 4px;
   }
 }
 
