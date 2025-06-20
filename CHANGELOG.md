@@ -7,7 +7,6 @@ El Psy Kongroo
 ### Core Rewrite
 - CanvasGrid replaces GridStack with a fully custom drag-and-drop builder using GPU-accelerated transforms.
 - Dragging and resizing are smoother at 60fps via absolute positioning and ghost elements.
-- Widgets lock on click until editing is complete, preventing accidental moves.
 - Added z-index layering controls and enforced boundaries so widgets stay within the grid.
 
 ### Text Editing Overhaul
