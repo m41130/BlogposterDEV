@@ -1124,8 +1124,17 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     if (!widgetDef) return;
 
     const rect = gridEl.getBoundingClientRect();
-    const relX = (e.clientX ?? e.offsetX ?? 0) - rect.left;
-    const relY = (e.clientY ?? e.offsetY ?? 0) - rect.top;
+    let relX = 0, relY = 0;
+    if (typeof e.clientX === 'number' && typeof e.clientY === 'number') {
+      relX = e.clientX - rect.left;
+      relY = e.clientY - rect.top;
+    } else if (e.touches && e.touches[0]) {
+      relX = e.touches[0].clientX - rect.left;
+      relY = e.touches[0].clientY - rect.top;
+    } else {
+      relX = (e.offsetX || 0) - rect.left;
+      relY = (e.offsetY || 0) - rect.top;
+    }
     const [x, y, w, h] = [
       Math.floor((relX / rect.width) * 64) || 0,
       Math.floor((relY / rect.height) * 6) || 0,
@@ -1308,9 +1317,9 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
 
   const appScope = document.querySelector('.app-scope');
   const mainContent = document.querySelector('.main-content');
-  if (appScope && mainContent) {
-    appScope.insertBefore(topBar, mainContent);
-  } else {
+  if (appScope) {
+    appScope.prepend(topBar);
+  } else if (contentEl) {
     contentEl.prepend(topBar);
   }
 
