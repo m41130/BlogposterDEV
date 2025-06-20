@@ -4,16 +4,18 @@
    ============================================================================= */
 
 .text-block-editor-toolbar {
-  position: absolute;
-  top: 0;
-  left: 0;
+  position: fixed;
+  top: 60px; // floats just below the header
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px); // almost full width with small margins
   display: flex;
   align-items: center;
   gap: 4px;
   padding: 6px;
   background: var(--color-white);
   border: 1px solid #eee;
-  border-radius: 8px;
+  border-radius: 21px;
   box-shadow: var(--shadow-default);
   z-index: 1000;
 
