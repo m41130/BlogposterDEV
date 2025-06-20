@@ -15,12 +15,33 @@ export function createColorPicker(options = {}) {
     userColors = [],
     themeColors = [],
     initialColor = presetColors[0],
-    onSelect = () => {}
+    onSelect = () => {},
+    onClose = () => {}
   } = options;
 
   let selectedColor = initialColor;
   const container = document.createElement('div');
   container.className = 'color-picker';
+
+  function hide() {
+    container.classList.add('hidden');
+  }
+
+  function showAt(x, y) {
+    container.style.left = x + 'px';
+    container.style.top = y + 'px';
+    container.classList.remove('hidden');
+  }
+
+  const closeBtn = document.createElement('button');
+  closeBtn.type = 'button';
+  closeBtn.className = 'color-picker-close';
+  closeBtn.innerHTML = '&times;';
+  closeBtn.addEventListener('click', () => {
+    hide();
+    onClose();
+  });
+  container.appendChild(closeBtn);
 
   function createSection(colors, label) {
     if (!colors || !colors.length) return;
@@ -93,6 +114,8 @@ export function createColorPicker(options = {}) {
     el: container,
     getColor() {
       return selectedColor;
-    }
+    },
+    showAt,
+    hide
   };
 }
