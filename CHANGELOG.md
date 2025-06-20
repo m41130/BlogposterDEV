@@ -5,6 +5,7 @@ El Psy Kongroo
 
 ## [Unreleased]
 - Color picker opens outside the text editor toolbar and stays open until closed or another toolbar action is used.
+- Reused built-in `type` icon for Text Box widget; removed unused file.
 - Text widgets now enter editing mode only on double-click, preventing
   accidental drags while typing.
 - Widget containers disable text selection during drag; editing mode re-enables

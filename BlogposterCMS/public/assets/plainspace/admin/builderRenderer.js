@@ -37,7 +37,8 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     seoImageWidget: 'image',
     savePageWidget: 'save',
     contentSummary: 'activity',
-    htmlBlock: 'code'
+    htmlBlock: 'code',
+    textBox: 'type'
   };
 
   let previewHeader;
