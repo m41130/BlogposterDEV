@@ -5,6 +5,9 @@ El Psy Kongroo
 
 ## [Unreleased]
 - Applied `fetchWithTimeout` globally so stalled requests never freeze the UI.
+- Builder text editing now requires selecting a widget first; clicking text again
+  opens the floating toolbar and temporarily disables dragging while allowing
+  resizing.
 - Added timeout handling for all `meltdownEmit` requests to prevent
   indefinite UI blocking.
 - MotherEmitter now returns an error if `moduleName` is missing in the
