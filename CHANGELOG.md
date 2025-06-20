@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Prevented builder crashes when a layout partial is missing by safely
+  catching `fetchPartial` errors in the renderer.
 - Builder header now attaches to `.app-scope` when present and falls back to the
   document body to ensure visibility in all layouts.
 - Fixed widget dropping positions by basing Y coordinates on `DEFAULT_ROWS`.
