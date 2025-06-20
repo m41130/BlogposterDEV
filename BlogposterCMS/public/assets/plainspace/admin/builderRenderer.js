@@ -1117,15 +1117,29 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   gridEl.addEventListener('dragover',  e => { e.preventDefault(); gridEl.classList.add('drag-over'); });
   gridEl.addEventListener('dragleave', () => gridEl.classList.remove('drag-over'));
   gridEl.addEventListener('drop', async e => {
-    e.preventDefault(); gridEl.classList.remove('drag-over');
+    e.preventDefault();
+    gridEl.classList.remove('drag-over');
     const widgetId = e.dataTransfer.getData('text/plain');
     const widgetDef = allWidgets.find(w => w.id === widgetId);
     if (!widgetDef) return;
 
+    const rect = gridEl.getBoundingClientRect();
+    let relX = 0, relY = 0;
+    if (typeof e.clientX === 'number' && typeof e.clientY === 'number') {
+      relX = e.clientX - rect.left;
+      relY = e.clientY - rect.top;
+    } else if (e.touches && e.touches[0]) {
+      relX = e.touches[0].clientX - rect.left;
+      relY = e.touches[0].clientY - rect.top;
+    } else {
+      relX = (e.offsetX || 0) - rect.left;
+      relY = (e.offsetY || 0) - rect.top;
+    }
     const [x, y, w, h] = [
-      Math.floor((e.offsetX / gridEl.offsetWidth) * 64) || 0,
-      Math.floor((e.offsetY / gridEl.offsetHeight) * 6) || 0,
-      8, DEFAULT_ROWS
+      Math.floor((relX / rect.width) * 64) || 0,
+      Math.floor((relY / rect.height) * 6) || 0,
+      8,
+      DEFAULT_ROWS
     ];
 
     const instId = genId();
@@ -1138,7 +1152,6 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     wrapper.dataset.layer = String(activeLayer);
     wrapper.dataset.x = x;
     wrapper.dataset.y = y;
-    wrapper.dataset.layer = 0;
     wrapper.style.zIndex = '0';
     wrapper.setAttribute('gs-w', w);
     wrapper.setAttribute('gs-h', h);
@@ -1304,9 +1317,9 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
 
   const appScope = document.querySelector('.app-scope');
   const mainContent = document.querySelector('.main-content');
-  if (appScope && mainContent) {
-    appScope.insertBefore(topBar, mainContent);
-  } else {
+  if (appScope) {
+    appScope.prepend(topBar);
+  } else if (contentEl) {
     contentEl.prepend(topBar);
   }
 
