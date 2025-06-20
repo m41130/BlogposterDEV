@@ -18,7 +18,7 @@ document.getElementById('loginForm').addEventListener('submit', async e => {
   const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]').content;
 
   try {
-    const resp = await fetch('/admin/api/login', {
+    const resp = await window.fetchWithTimeout('/admin/api/login', {
       method: 'POST',
       credentials: 'same-origin',
       headers: {

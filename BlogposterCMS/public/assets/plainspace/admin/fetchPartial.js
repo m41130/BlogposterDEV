@@ -6,7 +6,7 @@
 export async function fetchPartial(partialName, partialType = '') {
   const typePath = partialType ? `${partialType}/` : '';
   const url = `/assets/plainspace/admin/partials/${partialName}.html`;
-  const resp = await fetch(url);
+  const resp = await window.fetchWithTimeout(url);
   if (!resp.ok) {
     throw new Error(`HTTP ${resp.status} while fetching ${url}`);
   }

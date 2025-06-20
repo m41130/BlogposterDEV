@@ -1,6 +1,6 @@
 (async () => {
   try {
-    const pubTok = await fetch('/api/meltdown', {
+    const pubTok = await window.fetchWithTimeout('/api/meltdown', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -8,7 +8,7 @@
         payload: { purpose: 'firstInstallCheck', moduleName: 'auth' }
       })
     }).then(r => r.json()).then(j => j.data);
-    const val = await fetch('/api/meltdown', {
+    const val = await window.fetchWithTimeout('/api/meltdown', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Public-Token': pubTok },
       body: JSON.stringify({
@@ -40,7 +40,7 @@ document.getElementById('installForm').addEventListener('submit', async e => {
     return;
   }
   try {
-    const resp = await fetch('/install', {
+    const resp = await window.fetchWithTimeout('/install', {
       method: 'POST',
       credentials: 'same-origin',
       headers: {

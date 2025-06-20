@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Applied `fetchWithTimeout` globally so stalled requests never freeze the UI.
 - Added timeout handling for all `meltdownEmit` requests to prevent
   indefinite UI blocking.
 - MotherEmitter now returns an error if `moduleName` is missing in the

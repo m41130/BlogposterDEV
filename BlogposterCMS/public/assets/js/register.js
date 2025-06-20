@@ -7,7 +7,7 @@ async function meltdownEmit(eventName, payload = {}) {
     headers['X-Public-Token'] = payload.jwt;
   }
 
-  const resp = await fetch('/api/meltdown', {
+  const resp = await window.fetchWithTimeout('/api/meltdown', {
     method: 'POST',
     headers,
     body: JSON.stringify({ eventName, payload })
