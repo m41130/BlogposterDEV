@@ -6,6 +6,8 @@ El Psy Kongroo
 ## [Unreleased]
 - Text widgets now enter editing mode only on double-click, preventing
   accidental drags while typing.
+- Widget containers disable text selection during drag; editing mode re-enables
+  it for seamless highlighting.
 - Moved global layout checkbox from header to the layout bar.
 - Adjusted text editor toolbar styling: now appears below header, spans nearly
   the full width and sports a 21px border-radius.

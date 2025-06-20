@@ -13,6 +13,14 @@ body {
   color: var(--color-text);
 }
 
+// Prevent accidental text selection when dragging widgets
+.widget-container {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
     /* Canvas grid relies on content-box sizing. Reset inside its container */
 
 
