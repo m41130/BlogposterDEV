@@ -16,7 +16,8 @@ export async function render(el) {
     pageSettingsWidget: 'settings',
     seoImageWidget: 'image',
     savePageWidget: 'save',
-    contentSummary: 'activity'
+    contentSummary: 'activity',
+    textBox: 'type'
   };
 
   function getIcon(id, meta) {

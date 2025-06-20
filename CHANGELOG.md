@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+- Reused built-in `type` icon for Text Box widget; removed unused file.
 - Text widgets now enter editing mode only on double-click, preventing
   accidental drags while typing.
 - Moved global layout checkbox from header to the layout bar.
