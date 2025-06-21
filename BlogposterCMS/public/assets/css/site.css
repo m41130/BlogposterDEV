@@ -1999,15 +1999,16 @@ body.preview-desktop #content {
 }
 
 .hit-layer {
-  pointer-events: auto; /* Klicks endlich durchlassen */
-}
-
-.canvas-item.selected .hit-layer {
-  pointer-events: none;
+  pointer-events: auto;
 }
 
 .canvas-item.editing {
   z-index: 9999;
+}
+
+.canvas-item.selected .hit-layer,
+.canvas-item.editing .hit-layer {
+  pointer-events: none;
 }
 
 .heading-widget {
@@ -2363,8 +2364,4 @@ body.preview-desktop #content {
 .global-widget:hover,
 .template-widget:hover {
   box-shadow: 0 0 0 2px var(--user-color);
-}
-
-.canvas-item.editing {
-  z-index: 9999;
 }/*# sourceMappingURL=site.css.map */
