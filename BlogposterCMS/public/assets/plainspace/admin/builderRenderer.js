@@ -1,6 +1,11 @@
 // public/assets/plainspace/admin/builderRenderer.js
 import { init as initCanvasGrid } from '../../js/canvasGrid.js';
-import { editElement, initTextEditor } from '../../js/globalTextEditor.js';
+import {
+  editElement,
+  initTextEditor,
+  showToolbar,
+  hideToolbar
+} from '../../js/globalTextEditor.js';
 
 function addHitLayer(widget) {
   const shield = document.createElement('div');
@@ -258,6 +263,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null, startLaye
     activeWidgetEl = el;
     activeWidgetEl.classList.add('selected');
     grid.select(el);
+    showToolbar(el);
     const locked = el.getAttribute('gs-locked') === 'true';
     setLockIcon(locked);
     actionBar.style.display = 'flex';
@@ -313,6 +319,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null, startLaye
     target.classList.remove('selected');
     grid.removeWidget(target);
     actionBar.style.display = 'none';
+    hideToolbar();
     activeWidgetEl = null;
     grid.clearSelection();
     if (pageId) scheduleAutosave();
@@ -737,6 +744,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null, startLaye
     actionBar.style.display = 'none';
     activeWidgetEl.classList.remove('selected');
     activeWidgetEl = null;
+    hideToolbar();
     grid.clearSelection();
   });
 
@@ -1097,12 +1105,14 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null, startLaye
   function attachLockOnClick(el) {
     el.addEventListener('click', e => {
       e.stopPropagation();
+      if (activeWidgetEl === el) {
+        const editable = findRegisteredEditable(el);
+        if (editable) {
+          editElement(editable, editable.__onSave);
+          return;
+        }
+      }
       selectWidget(el);
-    });
-    el.addEventListener('dblclick', e => {
-      const editable = el.querySelector('span[contenteditable], span') ||
-                       el.querySelector('[data-editable]');
-      if (editable) editElement(editable, editable.__onSave);
     });
   }
 

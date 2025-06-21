@@ -499,6 +499,8 @@ function hideToolbar() {
   }
 }
 
+export { showToolbar, hideToolbar };
+
 if (document.body.classList.contains('builder-mode')) {
   initTextEditor();
 }
