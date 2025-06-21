@@ -19,31 +19,10 @@ module.exports.DEFAULT_WIDGETS = [
     category: 'core'
   },
   {
-    widgetId: 'pageInfoWidget',
+    widgetId: 'pageEditorWidget',
     widgetType: ADMIN_LANE,
-    label: 'Page Info',
-    content: '/assets/plainspace/admin/pageEditorWidgets/pageInfoWidget.js',
-    category: 'core'
-  },
-  {
-    widgetId: 'pageSettingsWidget',
-    widgetType: ADMIN_LANE,
-    label: 'Page Settings',
-    content: '/assets/plainspace/admin/pageEditorWidgets/pageSettingsWidget.js',
-    category: 'core'
-  },
-  {
-    widgetId: 'seoImageWidget',
-    widgetType: ADMIN_LANE,
-    label: 'SEO Image',
-    content: '/assets/plainspace/admin/pageEditorWidgets/seoImageWidget.js',
-    category: 'core'
-  },
-  {
-    widgetId: 'savePageWidget',
-    widgetType: ADMIN_LANE,
-    label: 'Save Page',
-    content: '/assets/plainspace/admin/pageEditorWidgets/savePageWidget.js',
+    label: 'Page Editor',
+    content: '/assets/plainspace/admin/pageEditorWidgets/pageEditorWidget.js',
     category: 'core'
   },
 ];

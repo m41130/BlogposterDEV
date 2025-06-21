@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 El Psy Kongroo
 
 ## [Unreleased]
+### Changed
+- Consolidated page editor widgets into a single `pageEditorWidget` and added save action to the content header.
 ### Added
 - Hit-layer overlay for text widgets to prevent accidental edits while dragging.
 ### Fixed
