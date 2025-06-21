@@ -296,7 +296,7 @@ async function editPage(id) {
 }
 
 async function editLayout(id) {
-  window.location.href = `/admin/builder?pageId=${id}`;
+  window.location.href = `/admin/builder?pageId=${id}&layer=1`;
 }
 
 async function toggleDraft(page) {
