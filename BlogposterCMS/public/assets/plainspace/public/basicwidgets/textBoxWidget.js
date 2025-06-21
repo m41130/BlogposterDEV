@@ -1,3 +1,4 @@
+//public/assets/plainspace/public/basicwidgets/textBoxWidget.js
 import { registerElement } from '../../../js/globalTextEditor.js';
 
 export function render(el) {

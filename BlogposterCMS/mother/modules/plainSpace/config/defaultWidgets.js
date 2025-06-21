@@ -37,26 +37,10 @@ module.exports.DEFAULT_WIDGETS = [
     options: { thirdWidth: true }
   },
   {
-    widgetId: 'pageInfoEditor',
+    widgetId: 'pageEditor',
     widgetType: ADMIN_LANE,
-    label: 'Page Info Editor',
-    content: '/assets/plainspace/admin/pageEditorWidgets/pageInfoWidget.js',
-    category: 'core',
-    options: { halfWidth: true }
-  },
-  {
-    widgetId: 'pageSettingsEditor',
-    widgetType: ADMIN_LANE,
-    label: 'Page Settings Editor',
-    content: '/assets/plainspace/admin/pageEditorWidgets/pageSettingsWidget.js',
-    category: 'core',
-    options: { halfWidth: true }
-  },
-  {
-    widgetId: 'seoImageEditor',
-    widgetType: ADMIN_LANE,
-    label: 'SEO Image Editor',
-    content: '/assets/plainspace/admin/pageEditorWidgets/seoImageWidget.js',
+    label: 'Page Editor',
+    content: '/assets/plainspace/admin/pageEditorWidgets/pageEditorWidget.js',
     category: 'core',
     options: { halfWidth: true }
   },

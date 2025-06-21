@@ -299,12 +299,11 @@ export class CanvasGrid {
 
   _updateBBox() {
     if (!this.activeEl || this.staticGrid) return;
-    const locked = this.activeEl.getAttribute('gs-locked') === 'true';
     const noResize = this.activeEl.getAttribute('gs-no-resize') === 'true';
     const noMove = this.activeEl.getAttribute('gs-no-move') === 'true';
-    const hide = locked || noResize || noMove;
-    this.bbox.classList.toggle('disabled', hide);
-    if (hide) return;
+    const disabled = noResize && noMove;
+    this.bbox.classList.toggle('disabled', disabled);
+    if (disabled) return;
     const rect = this.activeEl.getBoundingClientRect();
     const gridRect = this.el.getBoundingClientRect();
     const transform = this.activeEl.style.transform;
@@ -317,11 +316,14 @@ export class CanvasGrid {
   }
 
   select(el) {
+    if (this.activeEl) this.activeEl.classList.remove('selected');
     this.activeEl = el;
+    if (el) el.classList.add('selected');
     this._updateBBox();
   }
 
   clearSelection() {
+    if (this.activeEl) this.activeEl.classList.remove('selected');
     this.activeEl = null;
     this.bbox.style.display = 'none';
   }
