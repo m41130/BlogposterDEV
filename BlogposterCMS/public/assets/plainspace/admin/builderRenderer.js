@@ -710,6 +710,9 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   // Allow overlapping widgets for layered layouts
   const grid = initCanvasGrid({ cellHeight: 5, columnWidth: 5, pushOnOverlap: false }, gridEl);
   gridEl.__grid = grid;        // ↲  macht das Grid von überall erreichbar
+  grid.on('change', el => {          // jedes Mal, wenn das Grid ein Widget anfasst …
+    if (el) selectWidget(el);        // … Action-Bar zeigen
+  });
   grid.on("dragstart", () => {
     actionBar.style.display = "none";
   });
