@@ -33,3 +33,7 @@
 @import 'pages/users';
 @import 'pages/permissions';
 @import 'pages/widgets';
+
+.hit-layer { pointer-events: auto; }
+
+.canvas-item.editing { z-index: 9999; }

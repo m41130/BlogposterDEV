@@ -2,6 +2,21 @@
 import { init as initCanvasGrid } from '../../js/canvasGrid.js';
 import { editElement } from '../../js/globalTextEditor.js';
 
+function addHitLayer(widget) {
+  const shield = document.createElement('div');
+  shield.className = 'hit-layer';
+  Object.assign(shield.style, {
+    position: 'absolute',
+    inset: '0',
+    background: 'transparent',
+    cursor: 'move',
+    pointerEvents: 'auto',
+    zIndex: '5'
+  });
+  widget.style.position = 'relative';
+  widget.appendChild(shield);
+}
+
 export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   document.body.classList.add('builder-mode');
   // Builder widgets load the active theme inside their shadow roots.
@@ -466,6 +481,10 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     const themeStyle = document.createElement('style');
     themeStyle.textContent = `@import url('${cssUrls[1]}');`;
     root.appendChild(themeStyle);
+
+    if (widgetDef.id === 'textBox') {
+      addHitLayer(wrapper);
+    }
   }
 
   function attachEditButton(el, widgetDef) {
@@ -695,6 +714,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   await applyBuilderTheme();
   // Allow overlapping widgets for layered layouts
   const grid = initCanvasGrid({ cellHeight: 5, columnWidth: 5, pushOnOverlap: false }, gridEl);
+  gridEl.__grid = grid;        // ↲  macht das Grid von überall erreichbar
   grid.on("dragstart", () => {
     actionBar.style.display = "none";
   });
@@ -708,13 +728,6 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     if (activeWidgetEl) selectWidget(activeWidgetEl);
   });
 
-  // Widgets lock themselves when editing starts in globalTextEditor.
-  window.addEventListener('widgetLockChange', e => {
-    const widget = e.detail?.widget;
-    const locked = !!e.detail?.locked;
-    if (!widget) return;
-    grid.update(widget, { locked, noMove: locked, noResize: locked });
-  });
 
   document.addEventListener('click', e => {
     if (!activeWidgetEl) return;
@@ -1083,23 +1096,11 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   }
 
   function attachLockOnClick(el) {
-    el.addEventListener('click', e => {
-      if (!e.target.closest('.canvas-item-content')) return;
-      if (e.target.closest('.widget-action-bar')) return;
-      e.stopPropagation();
-      if (el.classList.contains('selected')) {
-        const editable = findRegisteredEditable(el);
-        if (editable) {
-          editElement(editable, editable.__onSave);
-        }
-      } else {
-        selectWidget(el);
-      }
+    el.addEventListener('dblclick', e => {
+      const editable = el.querySelector('span[contenteditable], span') ||
+                       el.querySelector('[data-editable]');
+      if (editable) editElement(editable, editable.__onSave);
     });
-
-    // Widgets used to lock when any form input gained focus. This caused
-    // unexpected locks during normal interactions. Auto-locking now only
-    // occurs after clicking inside a text field via the global editor.
   }
 
 
