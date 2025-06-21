@@ -505,7 +505,8 @@ body.preview-desktop #content {
 }
 
 .hit-layer {
-  pointer-events: none;   /* Klicks endlich durchlassen */
+  pointer-events: auto;   /* Klicks endlich durchlassen */
 }
 
+.canvas-item.selected .hit-layer { pointer-events: none; }
 .canvas-item.editing { z-index: 9999; }
