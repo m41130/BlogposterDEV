@@ -1094,6 +1094,10 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
   }
 
   function attachLockOnClick(el) {
+    el.addEventListener('click', e => {
+      e.stopPropagation();
+      selectWidget(el);
+    });
     el.addEventListener('dblclick', e => {
       const editable = el.querySelector('span[contenteditable], span') ||
                        el.querySelector('[data-editable]');
