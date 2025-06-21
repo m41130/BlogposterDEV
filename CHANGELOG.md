@@ -19,6 +19,7 @@ El Psy Kongroo
 - Toolbar context restored when editing text widgets and content now sanitized on save.
 - Removed duplicate toolbar helper definitions and cleaned unused variables in the editor.
 - Text widgets remain editable until clicking outside the widget or toolbar and no longer lock movement.
+- Global text editor now initializes correctly when the builder loads, fixing missing toolbar issues.
 
 ## [0.6.0] – 2025-06-21
 ### Core Rewrite

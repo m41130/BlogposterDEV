@@ -1,6 +1,6 @@
 // public/assets/plainspace/admin/builderRenderer.js
 import { init as initCanvasGrid } from '../../js/canvasGrid.js';
-import { editElement } from '../../js/globalTextEditor.js';
+import { editElement, initTextEditor } from '../../js/globalTextEditor.js';
 
 function addHitLayer(widget) {
   const shield = document.createElement('div');
@@ -19,6 +19,7 @@ function addHitLayer(widget) {
 
 export async function initBuilder(sidebarEl, contentEl, pageId = null, startLayer = 0) {
   document.body.classList.add('builder-mode');
+  initTextEditor();
   // Builder widgets load the active theme inside their shadow roots.
   // Inject the theme scoped to the builder grid so the preview matches
   // the active theme without altering the surrounding UI.

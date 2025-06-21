@@ -478,6 +478,11 @@ export function enableAutoEdit() {
   document.addEventListener('click', autoHandler, true);
 }
 
+export async function initTextEditor() {
+  await init().catch(err => console.error('[globalTextEditor] init failed', err));
+  enableAutoEdit();
+}
+
 function showToolbar(el) {
   if (!toolbar) return;
   toolbar.style.display = 'flex';
@@ -495,6 +500,5 @@ function hideToolbar() {
 }
 
 if (document.body.classList.contains('builder-mode')) {
-  init().catch(err => console.error('[globalTextEditor] init failed', err));
-  enableAutoEdit();
+  initTextEditor();
 }
