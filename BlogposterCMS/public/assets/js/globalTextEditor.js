@@ -5,14 +5,11 @@ import { isValidTag } from './allowedTags.js';
 
 let toolbar = null;
 let activeEl = null;
-let outsideHandler = null;
-let leaveHandler = null;
-let escHandler = null;
 let initPromise = null;
 let autoHandler = null;
-let editingPlain = false;
 let currentColor = '#000000';
 let colorPicker = null;
+
 
 export function sanitizeHtml(html) {
   const div = document.createElement('div');
@@ -110,7 +107,6 @@ async function init() {
       ev.preventDefault();
       const cmd = btn.dataset.cmd;
       document.execCommand(cmd, false, null);
-      editingPlain = false;
       activeEl?.focus();
     });
     document.body.appendChild(toolbar);
@@ -210,7 +206,6 @@ async function init() {
           const newRange = document.createRange();
           newRange.selectNodeContents(span);
           sel.addRange(newRange);
-          editingPlain = false;
         } catch (err) {
           activeEl.style.fontFamily = `'${font}'`;
         }
@@ -227,7 +222,6 @@ async function init() {
           }
         });
       }
-      editingPlain = false;
       activeEl.focus();
     };
     const applySize = size => {
@@ -254,7 +248,6 @@ async function init() {
           const newRange = document.createRange();
           newRange.selectNodeContents(span);
           sel.addRange(newRange);
-          editingPlain = false;
         } catch (err) {
           activeEl.style.fontSize = val + 'px';
         }
@@ -271,7 +264,6 @@ async function init() {
           }
         });
       }
-      editingPlain = false;
       activeEl.focus();
     };
 
@@ -305,7 +297,6 @@ async function init() {
           const newRange = document.createRange();
           newRange.selectNodeContents(span);
           sel.addRange(newRange);
-          editingPlain = false;
         } catch (err) {
           activeEl.style.color = val;
         }
@@ -322,7 +313,6 @@ async function init() {
           }
         });
       }
-      editingPlain = false;
       activeEl.focus();
     };
     toolbar.querySelector('.fs-inc').addEventListener('click', () => {
@@ -384,144 +374,63 @@ async function init() {
   await initPromise;
 }
 
-function findWidget(el) {
-  let node = el;
-  while (node && node !== document.body) {
-    if (node.classList && node.classList.contains('canvas-item')) return node;
-    node = node.parentElement || (node.getRootNode && node.getRootNode().host);
-  }
-  return null;
-}
 
-function setWidgetLock(widget, locked) {
+export function editElement(el, onSave) {
+  const widget = el.closest('.canvas-item');
   if (!widget) return;
-  if (locked) {
-    widget.dataset.tempLock = 'true';
-    widget.setAttribute('gs-no-move', 'true');
-    widget.setAttribute('gs-no-resize', 'true');
-    widget.classList.add('locked');
-  } else {
-    widget.removeAttribute('data-temp-lock');
-    widget.removeAttribute('gs-no-move');
-    widget.removeAttribute('gs-no-resize');
-    widget.classList.remove('locked');
-  }
-  window.dispatchEvent(new CustomEvent('widgetLockChange', { detail: { widget, locked } }));
-}
 
-function close() {
-  if (!activeEl) return;
-  const widget = findWidget(activeEl);
-  if (widget) setWidgetLock(widget, false);
-  activeEl.removeAttribute('contenteditable');
-  activeEl.style.userSelect = 'none';
-  let html = editingPlain ? activeEl.textContent : activeEl.innerHTML;
-  html = sanitizeHtml(html.trim());
-  if (editingPlain) {
-    activeEl.textContent = html;
-  } else {
-    activeEl.innerHTML = html;
-  }
-  toolbar.style.display = 'none';
-  colorPicker?.hide?.();
-  const headingSelect = toolbar.querySelector('.heading-select');
-  if (headingSelect) {
-    headingSelect.style.display = 'none';
-    headingSelect.onchange = null;
-  }
-  document.removeEventListener('pointerdown', outsideHandler, true);
-  document.removeEventListener('mousedown', outsideHandler, true);
-  if (escHandler) {
-    document.removeEventListener('keydown', escHandler, true);
-    escHandler = null;
-  }
-  if (leaveHandler) {
-    const widget = findWidget(activeEl);
-    widget?.removeEventListener('mouseleave', leaveHandler, true);
-    toolbar?.removeEventListener('mouseleave', leaveHandler, true);
-    leaveHandler = null;
-  }
-  const el = activeEl;
-  const cb = activeEl.__onSave;
-  if (widget && widget.dataset.instanceId) {
-    document.dispatchEvent(
-      new CustomEvent('widgetHtmlUpdate', {
-        detail: { instanceId: widget.dataset.instanceId, html }
-      })
-    );
-  }
-  activeEl = null;
-  editingPlain = false;
-  if (typeof cb === 'function') cb(el, html);
-}
+  const prevLayer = +widget.dataset.layer || 0;
+  widget.dataset.layer = 9999;
+  widget.style.zIndex = '9999';
+  widget.classList.add('editing');
 
-export async function editElement(el, onSave) {
-  await init();
-  if (activeEl === el) return;
-  if (activeEl) close();
-  activeEl = el;
-  const startWidget = findWidget(el);
-  activeEl.__onSave = onSave;
+  widget.setAttribute('gs-locked', 'true');
+  widget.closest('.canvas-grid')?.__grid
+        ?.update(widget, { locked: true, noMove: true, noResize: true });
 
-  editingPlain = !/<[a-z][\s\S]*>/i.test(el.innerHTML.trim());
+  widget.querySelector('.hit-layer')?.remove();
+
   el.setAttribute('contenteditable', 'true');
-  el.style.userSelect = 'text';
   el.focus();
-  toolbar.style.display = 'flex';
+  activeEl = el;
 
-  escHandler = ev => {
-    if (ev.key === 'Escape') {
-      ev.preventDefault();
-      close();
-    }
-  };
-  document.addEventListener('keydown', escHandler, true);
+  showToolbar(el);
 
-  const headingSelect = toolbar.querySelector('.heading-select');
-  if (headingSelect) {
-    const tag = el.tagName.toLowerCase();
-    if (/^h[1-6]$/.test(tag)) {
-      headingSelect.style.display = '';
-      headingSelect.value = tag;
-      headingSelect.onchange = () => {
-        const newTag = headingSelect.value.toLowerCase();
-        if (!isValidTag(newTag)) {
-          console.error(`[TextEditor] Invalid tag "${newTag}"`);
-          return;
-        }
-        if (newTag !== el.tagName.toLowerCase()) {
-          const newEl = document.createElement(newTag);
-          newEl.innerHTML = el.innerHTML;
-          el.replaceWith(newEl);
-          newEl.dispatchEvent(new CustomEvent('headingLevelChange', { detail: { level: newTag } }));
-          registerElement(newEl, onSave);
-          activeEl = newEl;
-          el = newEl;
-          newEl.setAttribute('contenteditable', 'true');
-          newEl.style.userSelect = 'text';
-          newEl.focus();
-        }
-      };
-    } else {
-      headingSelect.style.display = 'none';
-      headingSelect.onchange = null;
+  function finish(save) {
+    if (save) {
+      const clean = sanitizeHtml(el.innerHTML.trim());
+      el.innerHTML = clean;
+      onSave?.(clean);
     }
+    activeEl = null;
+
+    el.removeAttribute('contenteditable');
+
+    widget.dataset.layer = prevLayer;
+    widget.style.zIndex = String(prevLayer);
+    widget.setAttribute('gs-locked', 'false');
+    widget.closest('.canvas-grid')?.__grid
+          ?.update(widget, { locked: false, noMove: false, noResize: false });
+
+    if (!widget.querySelector('.hit-layer')) {
+      const h = document.createElement('div');
+      h.className = 'hit-layer';
+      Object.assign(h.style, {
+        position: 'absolute', inset: '0',
+        background: 'transparent', cursor: 'move',
+        pointerEvents: 'auto', zIndex: '5'
+      });
+      widget.appendChild(h);
+    }
+
+    widget.classList.remove('editing');
+    hideToolbar();
   }
 
-  outsideHandler = ev => {
-    if (
-      !el.contains(ev.target) &&
-      !toolbar.contains(ev.target) &&
-      !(colorPicker && colorPicker.el.contains(ev.target))
-    )
-      close();
-  };
-  document.addEventListener('pointerdown', outsideHandler, true);
-  document.addEventListener('mousedown', outsideHandler, true);
-
-  if (startWidget) {
-    setWidgetLock(startWidget, true);
-  }
+  el.addEventListener('blur',   () => finish(true),   { once: true });
+  el.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { e.preventDefault(); finish(false); }
+  });
 }
 
 export function registerElement(el, onSave) {
@@ -540,6 +449,22 @@ export function enableAutoEdit() {
     editElement(el, el.__onSave);
   };
   document.addEventListener('dblclick', autoHandler, true);
+}
+
+function showToolbar(el) {
+  if (!toolbar) return;
+  toolbar.style.display = 'flex';
+}
+
+function hideToolbar() {
+  if (!toolbar) return;
+  toolbar.style.display = 'none';
+  colorPicker?.hide?.();
+  const headingSelect = toolbar.querySelector('.heading-select');
+  if (headingSelect) {
+    headingSelect.style.display = 'none';
+    headingSelect.onchange = null;
+  }
 }
 
 if (document.body.classList.contains('builder-mode')) {

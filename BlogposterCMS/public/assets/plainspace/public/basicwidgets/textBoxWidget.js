@@ -12,8 +12,25 @@ export function render(el) {
   p.appendChild(span);
   wrapper.appendChild(p);
 
+  /* NEW ­–––––––––––––––––––––––––––––––––––––––––  
+     Hit-Layer verhindert ungewolltes Editieren
+  ------------------------------------------------*/
+  const shield = document.createElement('div');
+  shield.className = 'hit-layer';
+  Object.assign(shield.style, {
+    position: 'absolute',
+    inset: '0',
+    background: 'transparent',
+    cursor: 'move',
+    pointerEvents: 'auto',
+    zIndex: '5'
+  });
+  wrapper.style.position = 'relative';
+  wrapper.appendChild(shield);
+
   el.innerHTML = '';
   el.appendChild(wrapper);
 
+  // registriere das <span>, nicht den ganzen <p>
   registerElement(span);
 }

@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file.
 
 El Psy Kongroo
 
+## [Unreleased]
+### Changed
+- Consolidated page editor widgets into a single `pageEditorWidget` and added save action to the content header.
+### Added
+- Hit-layer overlay for text widgets to prevent accidental edits while dragging.
+### Fixed
+- Builder grid reference exposed for text editor to properly lock widgets.
+- Toolbar context restored when editing text widgets and content now sanitized on save.
+- Removed duplicate toolbar helper definitions and cleaned unused variables in the editor.
+
 ## [0.6.0] – 2025-06-21
 ### Core Rewrite
 - CanvasGrid replaces GridStack with a fully custom drag-and-drop builder using GPU-accelerated transforms.
