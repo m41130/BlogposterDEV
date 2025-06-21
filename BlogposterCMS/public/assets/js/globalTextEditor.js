@@ -384,9 +384,10 @@ export function editElement(el, onSave) {
   widget.style.zIndex = '9999';
   widget.classList.add('editing');
 
-  widget.setAttribute('gs-locked', 'true');
+  // Only disable dragging while editing but keep widget unlocked
+  widget.setAttribute('gs-locked', 'false');
   const grid = widget.closest('.canvas-grid')?.__grid;
-  grid?.update(widget, { locked: true, noMove: true, noResize: false });
+  grid?.update(widget, { locked: false, noMove: true, noResize: false });
 
   widget.querySelector('.hit-layer')?.remove();
 
@@ -432,9 +433,19 @@ export function editElement(el, onSave) {
 
     widget.classList.remove('editing');
     hideToolbar();
+    document.removeEventListener('mousedown', outsideClick, true);
   }
 
-  el.addEventListener('blur',   () => finish(true),   { once: true });
+  // Finish editing when clicking outside the widget, its bounding box or the toolbar
+  const outsideClick = ev => {
+    if (
+      widget.contains(ev.target) ||
+      grid?.bbox?.contains(ev.target) ||
+      toolbar?.contains(ev.target)
+    ) return;
+    finish(true);
+  };
+  document.addEventListener('mousedown', outsideClick, true);
   el.addEventListener('keydown', e => {
     if (e.key === 'Escape') { e.preventDefault(); finish(false); }
   });
