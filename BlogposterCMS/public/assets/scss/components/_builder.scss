@@ -507,3 +507,5 @@ body.preview-desktop #content {
 .hit-layer { pointer-events:auto; }
 .canvas-item.selected .hit-layer { pointer-events:none; }
 .canvas-item:not(.selected) .hit-layer { pointer-events:auto; }
+
+.canvas-item.editing { z-index: 9999; }
