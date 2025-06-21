@@ -6,16 +6,11 @@ export async function render(el) {
   const ICON_MAP = {
     systemInfo: 'info',
     activityLog: 'list',
-    pageInfoEditor: 'file-text',
-    pageSettingsEditor: 'settings',
-    seoImageEditor: 'image',
+    pageEditor: 'file-text',
     mediaExplorer: 'folder',
     pageList: 'list',
     pageStats: 'bar-chart-2',
-    pageInfoWidget: 'file-text',
-    pageSettingsWidget: 'settings',
-    seoImageWidget: 'image',
-    savePageWidget: 'save',
+    pageEditorWidget: 'file-text',
     contentSummary: 'activity',
     textBox: 'type'
   };

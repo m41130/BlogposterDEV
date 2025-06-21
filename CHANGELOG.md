@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 El Psy Kongroo
 
+## [Unreleased]
+### Changed
+- Consolidated page editor widgets into a single `pageEditorWidget` and added save action to the content header.
+
 ## [0.6.0] – 2025-06-21
 ### Core Rewrite
 - CanvasGrid replaces GridStack with a fully custom drag-and-drop builder using GPU-accelerated transforms.

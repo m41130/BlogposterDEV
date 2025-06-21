@@ -1,7 +1,4 @@
-.page-info-widget,
-.page-settings-widget,
-.seo-image-widget,
-.save-page-widget {
+.page-editor-widget {
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -27,27 +24,20 @@
 }
 
 
-.page-info-widget label,
-.page-settings-widget label,
-.seo-image-widget label,
+.page-editor-widget label,
 .user-edit-widget label {
   font-weight: 500;
 }
 
-.page-info-widget .field,
-.page-settings-widget .field,
-.seo-image-widget .field,
+.page-editor-widget .field,
 .user-edit-widget .field {
   position: relative;
   width: 100%;
   margin-bottom: 1rem;
 }
 
-.page-info-widget .field input,
-.page-info-widget .field textarea,
-.page-settings-widget .field input,
-.page-settings-widget .field textarea,
-.seo-image-widget .field input,
+.page-editor-widget .field input,
+.page-editor-widget .field textarea,
 .user-edit-widget .field input,
 .user-edit-widget .field textarea,
 .user-edit-widget select {
@@ -62,11 +52,8 @@
   transition: border-color 0.2s;
 }
 
-.page-info-widget .field input:focus,
-.page-info-widget .field textarea:focus,
-.page-settings-widget .field input:focus,
-.page-settings-widget .field textarea:focus,
-.seo-image-widget .field input:focus,
+.page-editor-widget .field input:focus,
+.page-editor-widget .field textarea:focus,
 .user-edit-widget .field input:focus,
 .user-edit-widget .field textarea:focus,
 .user-edit-widget select:focus {
@@ -74,9 +61,7 @@
   border-bottom: 2px solid var(--user-color);
 }
 
-.page-info-widget .field label,
-.page-settings-widget .field label,
-.seo-image-widget .field label,
+.page-editor-widget .field label,
 .user-edit-widget .field label {
   position: absolute;
   left: 0.75rem;
@@ -89,16 +74,10 @@
   background: transparent;
 }
 
-.page-info-widget .field input:focus + label,
-.page-info-widget .field input:not(:placeholder-shown) + label,
-.page-info-widget .field textarea:focus + label,
-.page-info-widget .field textarea:not(:placeholder-shown) + label,
-.page-settings-widget .field input:focus + label,
-.page-settings-widget .field input:not(:placeholder-shown) + label,
-.page-settings-widget .field textarea:focus + label,
-.page-settings-widget .field textarea:not(:placeholder-shown) + label,
-.seo-image-widget .field input:focus + label,
-.seo-image-widget .field input:not(:placeholder-shown) + label,
+.page-editor-widget .field input:focus + label,
+.page-editor-widget .field input:not(:placeholder-shown) + label,
+.page-editor-widget .field textarea:focus + label,
+.page-editor-widget .field textarea:not(:placeholder-shown) + label,
 .user-edit-widget .field input:focus + label,
 .user-edit-widget .field input:not(:placeholder-shown) + label,
 .user-edit-widget .field textarea:focus + label,
@@ -159,44 +138,3 @@
   display: none;
 }
 
-#pe-save {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 14px 32px;
-  border: none;
-  border-radius: 12px;
-  background: var(--gradient-primary);
-  color: var(--color-white);
-  font-family: var(--font-body);
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.533);
-  position: relative;
-  overflow: hidden;
-  opacity: 0.8;
-}
-
-#pe-save::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  height: 100%;
-  width: 100%;
-  background: rgba(255,255,255,0.2);
-  transform: skewX(-45deg);
-  transition: left 0.5s ease;
-}
-
-#pe-save:hover {
-  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
-  transform: translateY(-2px);
-}
-
-#pe-save:hover::before {
-  left: 200%;
-}
