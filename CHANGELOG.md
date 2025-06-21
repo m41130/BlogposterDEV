@@ -20,6 +20,7 @@ El Psy Kongroo
 - Removed duplicate toolbar helper definitions and cleaned unused variables in the editor.
 - Text widgets remain editable until clicking outside the widget or toolbar and no longer lock movement.
 - Global text editor now initializes correctly when the builder loads, fixing missing toolbar issues.
+- Toolbar buttons and color picker no longer close the widget while editing.
 
 ## [0.6.0] – 2025-06-21
 ### Core Rewrite
