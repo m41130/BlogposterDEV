@@ -333,8 +333,10 @@ function ensureLayout(layout = {}, lane = 'public') {
       // Pass page IDs as strings so MongoDB ObjectIds remain intact. Postgres
       // will cast numeric strings automatically.
       const pageIdParam = urlParams.get('pageId') || null;
+      const startLayerParam = parseInt(urlParams.get('layer'), 10);
+      const startLayer = Number.isFinite(startLayerParam) ? startLayerParam : 0;
 
-      await initBuilder(sidebarEl, contentEl, pageIdParam);
+      await initBuilder(sidebarEl, contentEl, pageIdParam, startLayer);
 
       enableAutoEdit();
 

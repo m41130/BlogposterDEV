@@ -17,7 +17,7 @@ function addHitLayer(widget) {
   widget.appendChild(shield);
 }
 
-export async function initBuilder(sidebarEl, contentEl, pageId = null) {
+export async function initBuilder(sidebarEl, contentEl, pageId = null, startLayer = 0) {
   document.body.classList.add('builder-mode');
   // Builder widgets load the active theme inside their shadow roots.
   // Inject the theme scoped to the builder grid so the preview matches
@@ -59,7 +59,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
     { name: 'Layer 1', layout: [] },
     { name: 'Layer 2', layout: [] }
   ];
-  let activeLayer = 0;
+  let activeLayer = Math.max(0, Math.min(layoutLayers.length - 1, Number(startLayer) || 0));
   let globalLayoutName = null;
   let layoutBar;
   let globalToggle;
@@ -1107,7 +1107,7 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null) {
 
 
   layoutLayers[0].layout = initialLayout;
-  applyCompositeLayout(0);
+  applyCompositeLayout(activeLayer);
   pushState(initialLayout);
 
   gridEl.addEventListener('dragover',  e => { e.preventDefault(); gridEl.classList.add('drag-over'); });
