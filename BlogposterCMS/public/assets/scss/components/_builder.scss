@@ -503,3 +503,7 @@ body.preview-desktop #content {
 .bounding-box.disabled {
   display: none;
 }
+
+.hit-layer { pointer-events:auto; }
+.canvas-item.selected .hit-layer { pointer-events:none; }
+.canvas-item:not(.selected) .hit-layer { pointer-events:auto; }

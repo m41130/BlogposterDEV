@@ -6,8 +6,10 @@ El Psy Kongroo
 ## [Unreleased]
 ### Changed
 - Consolidated page editor widgets into a single `pageEditorWidget` and added save action to the content header.
+- Hit-layer rules consolidated in `_builder.scss` only
 ### Added
 - Hit-layer overlay for text widgets to prevent accidental edits while dragging.
+- Canva-style two-step editing with click-to-edit and persistent bounding box.
 ### Fixed
 - Builder grid reference exposed for text editor to properly lock widgets.
 - Toolbar context restored when editing text widgets and content now sanitized on save.

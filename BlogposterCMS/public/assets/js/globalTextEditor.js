@@ -385,10 +385,15 @@ export function editElement(el, onSave) {
   widget.classList.add('editing');
 
   widget.setAttribute('gs-locked', 'true');
-  widget.closest('.canvas-grid')?.__grid
-        ?.update(widget, { locked: true, noMove: true, noResize: true });
+  const grid = widget.closest('.canvas-grid')?.__grid;
+  grid?.update(widget, { locked: true, noMove: true, noResize: false });
 
   widget.querySelector('.hit-layer')?.remove();
+
+  const block  = () => grid?.update(widget, { noMove: true });
+  const allow  = () => grid?.update(widget, { noMove: false });
+  el.addEventListener('mouseenter', block);
+  el.addEventListener('mouseleave', allow);
 
   el.setAttribute('contenteditable', 'true');
   el.focus();
@@ -409,8 +414,10 @@ export function editElement(el, onSave) {
     widget.dataset.layer = prevLayer;
     widget.style.zIndex = String(prevLayer);
     widget.setAttribute('gs-locked', 'false');
-    widget.closest('.canvas-grid')?.__grid
-          ?.update(widget, { locked: false, noMove: false, noResize: false });
+    grid?.update(widget, { locked: false, noMove: false, noResize: false });
+
+    el.removeEventListener('mouseenter', block);
+    el.removeEventListener('mouseleave', allow);
 
     if (!widget.querySelector('.hit-layer')) {
       const h = document.createElement('div');
@@ -444,11 +451,13 @@ export function enableAutoEdit() {
     if (toolbar && toolbar.contains(ev.target)) return;
     const el = findEditableFromEvent(ev);
     if (!el) return;
+    const widget = el.closest('.canvas-item');
+    if (!widget || !widget.classList.contains('selected')) return;
     ev.stopPropagation();
     ev.preventDefault();
     editElement(el, el.__onSave);
   };
-  document.addEventListener('dblclick', autoHandler, true);
+  document.addEventListener('click', autoHandler, true);
 }
 
 function showToolbar(el) {
