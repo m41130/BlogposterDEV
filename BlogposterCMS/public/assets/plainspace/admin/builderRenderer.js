@@ -737,8 +737,12 @@ export async function initBuilder(sidebarEl, contentEl, pageId = null, startLaye
 
   document.addEventListener('click', e => {
     if (!activeWidgetEl) return;
-    if (e.target.closest('.canvas-item') === activeWidgetEl ||
-        e.target.closest('.widget-action-bar')) {
+    if (
+      e.target.closest('.canvas-item') === activeWidgetEl ||
+      e.target.closest('.widget-action-bar') ||
+      e.target.closest('.text-editor-toolbar') ||
+      e.target.closest('.color-picker')
+    ) {
       return;
     }
     actionBar.style.display = 'none';
