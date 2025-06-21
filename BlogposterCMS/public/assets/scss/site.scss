@@ -34,3 +34,4 @@
 @import 'pages/permissions';
 @import 'pages/widgets';
 
+.canvas-item.editing { z-index: 9999; }
