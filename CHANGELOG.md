@@ -5,6 +5,8 @@ El Psy Kongroo
 
 ## [Unreleased]
 ### Changed
+- Hit-layer overlay no longer intercepts clicks in the builder.
+- Action bar now reappears when widgets move or resize.
 - Consolidated page editor widgets into a single `pageEditorWidget` and added save action to the content header.
 - Hit-layer rules consolidated in `_builder.scss` only
 ### Added
