@@ -67,15 +67,17 @@ function findEditableFromEvent(ev) {
 }
 
 async function init() {
+  console.log('[TBE] init() called');
   if (initPromise) {
     await initPromise;
     return;
   }
   initPromise = (async () => {
-    toolbar = document.createElement('div');
-    toolbar.className = 'text-block-editor-toolbar floating';
-    toolbar.style.display = 'none';
-    toolbar.innerHTML = [
+    try {
+      toolbar = document.createElement('div');
+      toolbar.className = 'text-block-editor-toolbar floating';
+      toolbar.style.display = 'none';
+      toolbar.innerHTML = [
       '<div class="font-family-control">' +
         '<div class="ff-dropdown">' +
           '<button type="button" class="ff-btn"><span class="ff-label">Font</span></button>' +
@@ -370,6 +372,11 @@ async function init() {
       applySize(opt.dataset.size);
       fsDropdown.classList.remove('open');
     });
+      console.log('[TBE] init() finished OK');
+    } catch (err) {
+      console.error('[TBE] init() failed', err);
+      throw err;
+    }
   })();
   await initPromise;
 }

@@ -1999,15 +1999,11 @@ body.preview-desktop #content {
 }
 
 .hit-layer {
-  pointer-events: auto;
+  pointer-events: auto; /* Klicks endlich durchlassen */
 }
 
 .canvas-item.selected .hit-layer {
   pointer-events: none;
-}
-
-.canvas-item:not(.selected) .hit-layer {
-  pointer-events: auto;
 }
 
 .canvas-item.editing {
@@ -2367,4 +2363,8 @@ body.preview-desktop #content {
 .global-widget:hover,
 .template-widget:hover {
   box-shadow: 0 0 0 2px var(--user-color);
+}
+
+.canvas-item.editing {
+  z-index: 9999;
 }/*# sourceMappingURL=site.css.map */
